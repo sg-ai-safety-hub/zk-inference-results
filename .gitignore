@@ -1,0 +1,9 @@
+__pycache__/
+*.pyc
+.DS_Store
+# fetched but not kept: logs stay on the host, proofs and witnesses never come back
+runs/**/*.log
+runs/**/*.bin
+runs/**/proof*
+# the paper's export is regenerated from constants.json at each tag
+export/
