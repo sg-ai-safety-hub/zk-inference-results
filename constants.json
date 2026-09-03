@@ -1,0 +1,97 @@
+{
+ "_file": "constants.json",
+ "_purpose": "Every number the paper cites lives here once, with the run and artifact it is re-derived from. tools/constants/check.py and audit.py enforce it; tools/constants/export.py writes the paper's macros from it.",
+ "_schema": {
+  "value": "the number (or list); null means not yet measured, and the note says why",
+  "unit": "as printed in the paper",
+  "card": "the GPU the number is about, as the machine reported it; 'none' for a number about no card",
+  "context": "the context length C the number was measured at; 'n/a' where it does not apply",
+  "timing_scope": "one of _timing_scopes, or 'n/a' for a number that is not a time or a rate",
+  "grade": "one of _grades",
+  "run": "measured only: the runs/<run-id> directory whose artifact the audit re-derives the value from",
+  "artifact": "measured only: the file in that run directory",
+  "inputs": "projected only: the constants keys the cost model read",
+  "note": "one or two sentences; for external, the URL"
+ },
+ "_grades": {
+  "measured": "made by a driver in this repository; audit.py re-derives it from `artifact` in `run`",
+  "derived": "arithmetic over other entries; check.py recomputes it from the entries it names",
+  "projected": "the cost model, with the model's inputs named; never presented as a measurement",
+  "external": "read from a public source, with its URL in the note",
+  "asserted": "an assumption the owner made, with the reason in the note"
+ },
+ "_timing_scopes": {
+  "commit": "the commitment path only: interpolation, low-degree extension and Merkle hashing of the committed trees",
+  "stwo total": "commit plus the prover's own call: constraint evaluation, quotients, out-of-domain sampling, FRI",
+  "whole wall": "trace generation, interaction generation, stwo total and serialization, summed per segment; it does not include reading the witness or building the layer",
+  "loop": "the one-process segment loop's own wall-clock time, which does include the witness read and the layer build; pipelined loops overlap one segment's generation with another's proving"
+ },
+ "constants": {
+  "cost.h100_reference_usd_per_hour": {
+   "value": 3.29, "unit": "USD/GPU-h", "card": "H100", "context": "n/a", "timing_scope": "n/a",
+   "grade": "external",
+   "note": "RunPod published on-demand list price, Secure Cloud tier, H100 SXM 80 GB, https://www.runpod.io/gpu-models/h100-sxm (page updated 2026-08-27, retrieved 2026-08-31). Paired with the H200 rate from the same provider, tier and date."
+  },
+  "cost.h200_reference_usd_per_hour": {
+   "value": 4.59, "unit": "USD/GPU-h", "card": "H200", "context": "n/a", "timing_scope": "n/a",
+   "grade": "external",
+   "note": "RunPod published on-demand list price, Secure Cloud tier, H200 141 GB, https://www.runpod.io/gpu-models/h200 (page updated 2026-08-27, retrieved 2026-08-31). The higher tier is the conservative choice for a cost claim."
+  },
+  "hardware.h200.hbm_gbps_spec": {
+   "value": 4800, "unit": "GB/s", "card": "H200", "context": "n/a", "timing_scope": "n/a",
+   "grade": "external",
+   "note": "NVIDIA H200 data sheet, HBM3e memory bandwidth, https://www.nvidia.com/en-us/data-center/h200/. A specification figure; this project never measured the card's own bandwidth."
+  },
+  "deepprove.tpm_seq512_basefold": {
+   "value": 174.3, "unit": "tokens/minute", "card": "unknown", "context": 512, "timing_scope": "n/a",
+   "grade": "external",
+   "note": "DeepProve, https://eprint.iacr.org/2026/1112, Table 2, sequence length 512 with the BaseFold commitment: 512 tokens / 2.94 min. Their time counts proving only and excludes quantized inference and trace recording, which our whole-wall and loop scopes include; their attention depth is bounded by the sequence length."
+  },
+  "verinf.maverick.positions": {
+   "value": 1000, "unit": "tokens", "card": "DGX Spark (GB10)", "context": 1000, "timing_scope": "n/a",
+   "grade": "external",
+   "note": "VerInf, https://github.com/JamesPetrie/VerInf, section 9: one forward pass over a 500-token prompt and a 500-token greedy continuation, all 1000 positions proved."
+  },
+  "verinf.maverick.prover_hours": {
+   "value": 14.3, "unit": "hours", "card": "DGX Spark (GB10)", "context": 1000, "timing_scope": "whole wall",
+   "grade": "external",
+   "note": "VerInf, https://github.com/JamesPetrie/VerInf, section 9: Llama-4-Maverick (400B parameters, 17B active), the 1000-position forward pass, prover peak 78.1 GB of GPU memory."
+  },
+  "verinf.maverick.tok_s": {
+   "value": 0.01943, "unit": "positions/s", "card": "DGX Spark (GB10)", "context": 1000, "timing_scope": "whole wall",
+   "grade": "derived",
+   "note": "verinf.maverick.positions / (verinf.maverick.prover_hours x 3600). Not a number they state; all 1000 positions are proved where our decode rows prove output tokens only."
+  },
+  "verinf.maverick.proof_gb": {
+   "value": 93.6, "unit": "GB", "card": "none", "context": 1000, "timing_scope": "n/a",
+   "grade": "external",
+   "note": "VerInf, https://github.com/JamesPetrie/VerInf, section 9: 40 opened columns; proof size grows linearly with the witness at their fixed parameters."
+  },
+  "verinf.maverick.verify_hours": {
+   "value": 17.7, "unit": "hours", "card": "20 CPU cores", "context": 1000, "timing_scope": "n/a",
+   "grade": "external",
+   "note": "VerInf, https://github.com/JamesPetrie/VerInf, section 9: verification on 20 CPU cores, peak 75.7 GB; interactive, per-challenge soundness about 2^-16.6."
+  },
+  "verinf.maverick.bound_bits_per_token": {
+   "value": 0.88, "unit": "bits/token", "card": "none", "context": 1000, "timing_scope": "n/a",
+   "grade": "external",
+   "note": "VerInf, https://github.com/JamesPetrie/VerInf, section 9: the bound on unexplained information per token over the 500-token continuation. Their statement bounds information; it does not prove the exact computation or the token choice."
+  },
+  "verinf.llama2_7b.prover_minutes": {
+   "value": 44, "unit": "minutes", "card": "DGX Spark (GB10)", "context": 1000, "timing_scope": "whole wall",
+   "grade": "external",
+   "note": "VerInf, https://github.com/JamesPetrie/VerInf, section 9: Llama-2-7B, 32 layers, real checkpoint weights, prover peak 11.2 GB, 1.44 GB proof at 10 opened columns."
+  },
+  "verinf.gb10_measured_bandwidth_gbps": {
+   "value": 223, "unit": "GB/s", "card": "DGX Spark (GB10)", "context": "n/a", "timing_scope": "n/a",
+   "grade": "external",
+   "note": "VerInf, https://github.com/JamesPetrie/VerInf, appendix A.5: the memory bandwidth their NTT is bound by, as they measured it, not the GB10's specification figure."
+  },
+  "verinf.gb10_vs_h200_bandwidth_ratio": {
+   "value": 0.0465, "unit": "fraction", "card": "DGX Spark (GB10) vs H200", "context": "n/a", "timing_scope": "n/a",
+   "grade": "derived",
+   "note": "verinf.gb10_measured_bandwidth_gbps / hardware.h200.hbm_gbps_spec: their measured rate over an NVIDIA specification figure. Our commitment path is bound by hashing, not by memory bandwidth, so this compares hardware classes and nothing else."
+  }
+ },
+ "discrepancies": []
+}
