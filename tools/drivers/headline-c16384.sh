@@ -4,30 +4,53 @@
 #   tools/drivers/headline-c16384.sh <host> <prover-commit> <harness-commit>
 #
 # One 16,384-token prompt and its 512 output tokens, every position proved from
-# the embedding up: 33 token blocks of 32 layer segments plus the output head,
-# 1,057 segments, on the CUDA backend, pipelined one segment ahead, in
-# processes of 64 segments each.  Every layer segment binds its residual stream
-# to the next layer's and its keys and values to the next block's; the verifier
-# side checks every link afterwards.
+# the embedding up: 33 token blocks of 32 layer segments, 1,056 segments, on the
+# CUDA backend, in processes of 64 segments each.  Every layer segment binds its
+# residual stream to the next layer's and its keys and values to the next
+# block's; the verifier side checks every link afterwards.  The five GKR
+# reductions are on, which is the paper's configuration (docs/decisions), and no
+# skip flag appears anywhere.
+#
+# The same statement as `headline-c4096.sh` at four times the context, and the
+# same job body: `lib/sequence-job.sh` is what runs on the host, so this file is
+# the configuration and nothing else.  Rewriting it on that body is what issue
+# #47 asks for; the four things it lists -- an unmarked dirty build, a layer
+# link count that assumed the head chunk was an unchecked end, and the
+# workarounds for zk-prover #55 and #57 -- are all in the shared body, which the
+# context 4,096 campaign ran.
+#
+# Not yet run.  Two things stand between this driver and the run it describes,
+# and both are measured rather than assumed:
+#
+#   - The card, which is settled: it fits.  `memory-probe-c16384.sh` measured
+#     the plan's largest segment at 78,843 MiB of this card's 81,559, pipelined
+#     or not, so the loop has 2,716 MiB to spare and `PIPELINE` below is 1.
+#   - The extraction's size, which is not settled and is what this driver waits
+#     on.  A block's witness grows with the prefix the block reads.  The probe
+#     measured the last block of this context at 12.16 GiB and the block-invariant
+#     files at 7.49 GiB, and the same per-layer growth fitted on the nine blocks
+#     of `headline-c4096` gives 302.4 GiB for the 33 blocks this plan reads, so
+#     the extraction is 310 GiB before a single segment is proved.  A host with
+#     that much free space runs this driver as it stands; a host without one
+#     needs the extraction and the loop interleaved a few blocks at a time, which
+#     is a change to `lib/sequence-job.sh` and not to this file.
 #
 # The first call pushes zk-prover at the two commits to the host, starts the
 # job detached and prints the poll command.  Every later call with the same
 # arguments prints the status; once the status says done it fetches the
 # outputs into runs/<run-id>/, writes manifest.json from the prover's
 # provenance block, and runs check.py.  Nothing measured is typed in here.
-#
-# Not yet run: it waits for the prover's sound defaults and provenance block.
-# Host time, from the last run of this shape: extraction about 1.2 h and
-# 330 GB of witness, kernel emission and rebuild about 1 h, the proving loop
-# about 2.3 h, the link check about 0.5 h.
 set -eu
 HERE=$(cd "$(dirname "$0")" && pwd)
 ROOT=$(cd "$HERE/../.." && pwd)
 HOST=${1:?host alias}; PROVER=${2:?prover commit}; HARNESS=${3:?harness commit}
 ZK_PROVER=${ZK_PROVER_DIR:-$ROOT/../zk-prover}     # a local clone to archive the commits from
 NAME=headline-c16384
+. "$HERE/lib/driver.sh"
+. "$HERE/lib/sequence-job.sh"
 
 # ---- the configuration: here and in the manifest, nowhere else ---------------
+LABEL=headline             # a configuration the paper cites, not a control
 MODEL=${ZK_MODEL:-unsloth/Llama-3.1-8B-Instruct}
 SPEC=y-delay-vw12          # the quantization variant the paper reports (docs/decisions)
 HEAD_SPEC=b10-final        # the output head's variant; both variants give the head the same arithmetic
@@ -39,180 +62,52 @@ GKR="--gkr-key-tiles --gkr-dequant --gkr-residual-stream --gkr-freivalds --gkr-a
 LAYER_FLAGS="--round even --diagonal-block $GKR"   # every binding gadget is on by default; no skip flag anywhere
 L0_FLAGS=""
 HEAD_FLAGS="--ao-rem-bits 23 $GKR"
-PIPELINE=1                 # ZK_PIPELINE: generate segment k+1 while proving segment k
-SLICE=64                   # segments per process: 1,057 -> 17 processes
-IDS=${ZK_IDS:-}            # token ids (.npy) already on the host; empty = generate them (below)
+HEAD_LAYER=16              # the layer the head dump is extracted at; the grid places the segment after the last layer
+# The output head's segment is out of the plan (zk-prover #58): an honest head
+# segment is rejected under the sound defaults, because the seam between the
+# attention output and the o matmul is checked on a chunk whose family is the
+# final norm and cannot state it.  Nothing in a driver gets past that -- the
+# loader refuses a head dump without its layer's o matmul -- so the sequence is
+# proved from the embedding up to the last layer's residual, and the token the
+# head emits is bound by nothing until the prover is fixed.  One variable back
+# to 1 when it is.
+WITH_HEAD=0
+OFFSET=0                   # the corpus from its first token; the c4096 row's window ends where this one ends
+# ZK_PIPELINE.  Pipelining generates segment k+1 while segment k is proved and
+# holds two segments' device memory at once, so at this context it is what
+# decides whether the loop fits the card at all.  It is on because a probe
+# measured it, not because it is faster: in
+# `runs/2026-09-07-memory-probe-c16384-h100`, four segments of the last block
+# peaked at 72,379 MiB whether the pipeline was on or off, and layer 0 -- the
+# plan's largest segment, the only one carrying the embedding gadget -- peaked
+# at 78,843 MiB both on its own and paired with layer 1 under the pipeline.
+# The card has 81,559 MiB.  So the second segment in flight costs this card
+# nothing, and the pipeline takes 23 per cent off the loop.
+PIPELINE=1
+SLICE=64                   # segments per process: 1,056 -> 17 processes
+XTHREADS=20                # torch threads for the extraction
+IDS=${ZK_IDS:-}            # token ids (.npy) already on the host; empty = generate them
 KERNEL_FAMILIES=zk_chan_eval,zk_key_eval,zk_row_eval,zk_attn_out_eval,zk_dequant_eval,zk_freivalds_eval,zk_exp_table_eval,zk_table_eval,zk_residual_stream_eval,zk_residual_stream_table_eval
+# The links the grid implies, which the grid is told before it counts them.
+# Inside a block, consecutive layers: 31 per block, and one more on the last
+# block when the head is in the plan, because the head sits at the layer
+# coordinate after the last layer and commits the residual it consumed as its
+# own input side.  Across blocks, at each of the 32 layers, consecutive blocks;
+# the head performs no attention, holds no key/value cache and is never a
+# token-axis edge.  Without the head that is 1,023 and 1,024, the 2,047 links
+# issue #1 names.
+LAYER_LINKS=$(( NBLOCK * (NLAY - 1) + WITH_HEAD ))
+TOKEN_LINKS=$(( (NBLOCK - 1) * NLAY ))
 
-status() { ssh -o BatchMode=yes "$HOST" "cat ~/runs/$NAME.status 2>/dev/null || true"; }
-
-# ---- finish: fetch, manifest, check ------------------------------------------
-ST=$(status)
-case "$ST" in
-  *"done exit=0"*)
-    TMP=$(mktemp -d "$ROOT/runs/.fetch-$NAME.XXXXXX")
-    "$ROOT/tools/remote/fetch.sh" "$HOST" "$NAME" "$TMP"
-    python3 "$HERE/lib/manifest.py" --driver "tools/drivers/$NAME.sh" --fetched "$TMP" \
-        --runs "$ROOT/runs" --prover-commit "$PROVER" --harness-commit "$HARNESS" \
-        --date "$(printf '%s\n' "$ST" | awk '/^done/ {print substr($3, 1, 10)}')"
-    rmdir "$TMP" 2>/dev/null || true
-    (cd "$ROOT" && python3 tools/constants/check.py)
-    exit 0 ;;
-  *"done exit="*)
-    echo "$NAME on $HOST failed: $ST"; echo "log: ssh $HOST tail -50 '~/runs/$NAME.log'"; exit 1 ;;
-  running*)
-    echo "$NAME on $HOST: $ST"; echo "poll: ssh $HOST cat '~/runs/$NAME.status'"; exit 0 ;;
-esac
+drv_finish "$(drv_status)"
 
 # ---- start: push the pinned sources, then the job ----------------------------
-[ -d "$ZK_PROVER/.git" ] || { echo "no zk-prover clone at $ZK_PROVER (set ZK_PROVER_DIR)" >&2; exit 2; }
-git -C "$ZK_PROVER" cat-file -e "$PROVER^{commit}" || { echo "unknown prover commit $PROVER" >&2; exit 2; }
-git -C "$ZK_PROVER" cat-file -e "$HARNESS^{commit}" || { echo "unknown harness commit $HARNESS" >&2; exit 2; }
-"$ROOT/tools/remote/push.sh" "$HOST" "$ZK_PROVER" "runs/$NAME/src" "$PROVER"
-"$ROOT/tools/remote/push.sh" "$HOST" "$ZK_PROVER" "runs/$NAME/harness-src" "$HARNESS"
+drv_check_commits
+BUILD=$(drv_build_root)
+drv_push "$BUILD/src" "$PROVER"
+drv_push "$BUILD/harness-src" "$HARNESS"
 
 JOB=$(mktemp)
-cat > "$JOB" <<JOBEOF
-#!/bin/sh
-# generated by $NAME.sh; runs on the host under tools/remote/run.sh
-set -eu
-R=\$HOME/runs/$NAME
-SRC=\$R/src; HSRC=\$R/harness-src/harness
-OUT=\$R/out; GEN=\$R/gen; SER=\$R/ser
-WIT=\$HOME/witness/$SPEC-c$CTX            # the layer witnesses, reused across runs
-HEADW=\$HOME/witness/head-$HEAD_SPEC-c$CTX/witness
-mkdir -p \$OUT \$GEN \$SER \$WIT
-st() { echo "\$(date -u +%H:%M:%S) \$*"; }
-
-# CUDA: the fork's build script hardcodes /usr/local/cuda/lib64; the binaries link libcudart
-for d in \${CUDA_HOME:-} \$HOME/cuda-12.9 /usr/local/cuda-12.9 /usr/local/cuda; do
-  [ -n "\$d" ] && [ -x "\$d/bin/nvcc" ] && CUDA_HOME=\$d && break
-done
-export CUDA_HOME PATH="\$CUDA_HOME/bin:\$HOME/.cargo/bin:\$PATH" LD_LIBRARY_PATH="\$CUDA_HOME/lib64:\${LD_LIBRARY_PATH:-}"
-export CUDAARCHS=\${CUDAARCHS:-90} CUDAHOSTCXX=\${CUDAHOSTCXX:-\$(command -v g++-14 || command -v g++)}
-export RAYON_NUM_THREADS=\${RAYON_NUM_THREADS:-16} ZK_KERNEL_STORE=\$GEN
-# The harness's default torch is the CPU build; the extraction runs on the card,
-# so every uv call selects the harness's cuda group.  uv syncs the environment
-# back to the default on any call that leaves the flags out.
-UVG="--no-group cpu --group cuda"
-PY="uv run --project \$HSRC \$UVG python"
-
-# the configuration, for the manifest
-cat > \$OUT/config.json <<CFG
-{"driver": "$NAME", "model": "$MODEL", "spec": "$SPEC", "head_spec": "$HEAD_SPEC",
- "context": $CTX, "s": $S, "blocks": $NBLOCK, "layers": $NLAY, "slice": $SLICE, "pipeline": $PIPELINE,
- "shared_flags": "$SHARED", "layer_flags": "$LAYER_FLAGS", "layer0_flags": "$L0_FLAGS",
- "head_flags": "$HEAD_FLAGS", "ids": "${IDS:-generated: greedy continuation of the corpus prefix under $SPEC}"}
-CFG
-
-st "gpu: \$(nvidia-smi --query-gpu=name,memory.total,driver_version --format=csv,noheader)"
-st "nvcc: \$(nvcc --version | tail -2 | head -1)"
-
-# 1. both backends of the pinned prover commit
-st "build"
-( cd \$SRC && CARGO_TARGET_DIR=\$R/t-simd cargo build --release --locked )
-( cd \$SRC && CARGO_TARGET_DIR=\$R/t-cuda cargo build --release --locked -p zk-prover --features cuda )
-SIMD=\$R/t-simd/release/zk-prover; CUDA=\$R/t-cuda/release/zk-prover
-
-# 2. the harness at its pinned commit
-( cd \$HSRC && uv sync --frozen \$UVG )
-
-# 3. the statement's tokens: the prompt is the corpus's first $CTX tokens, the
-#    output is the model's own greedy continuation under $SPEC.  Decoded once
-#    with 513 new tokens so the last row's next token is in the array, then
-#    shifted into the extraction array; a 512-token decode must agree with it.
-IDSFILE="$IDS"
-if [ -z "\$IDSFILE" ]; then
-  IDSFILE=\$WIT/ids.npy
-  if [ ! -f \$IDSFILE ]; then
-    st "ids: greedy continuation, $SPEC"
-    ( cd \$HSRC && ZK_MODEL=$MODEL ZK_DEVICE=cuda \$PY -m harness.witness.gen_ids --prefix $CTX --offset 0 --new 513 --spec $SPEC --out \$WIT/ids_513.npy )
-    ( cd \$HSRC && ZK_MODEL=$MODEL ZK_DEVICE=cuda \$PY -m harness.witness.gen_ids --prefix $CTX --offset 0 --new $S --spec $SPEC --out \$WIT/ids_512.npy )
-    ( cd \$HSRC && \$PY -m harness.witness.shift_ids --ids \$WIT/ids_513.npy --prefix $CTX --new $S --out \$IDSFILE )
-    ( cd \$HSRC && \$PY -c "
-import numpy as np, sys
-a, b = np.load('\$WIT/ids_512.npy'), np.load('\$WIT/ids_513.npy')
-assert (a == b[:len(a)]).all(), 'greedy decoding is deterministic; the 512- and 513-token runs must agree'
-print('ids: determinism check passed', len(a), 'tokens')" )
-  fi
-fi
-IDSARG="--ids \$IDSFILE"
-# 3b. the witnesses, unless this host already holds them
-if [ ! -f \$WIT/shapes_all.json ]; then
-  st "extract: $NBLOCK blocks x $NLAY layers, C=$CTX, $SPEC"
-  ( cd \$HSRC && ZK_MODEL=$MODEL ZK_DEVICE=cuda \$PY -m harness.witness.extract --tokens $((CTX + S)) --chunk $S \
-      --layers 0 --spec $SPEC --residual-stream --diagonal-block --slim --slim-num --embed \$IDSARG \
-      --blocks all --share \$WIT/shared --out \$WIT/witness )
-  for g in 1,2,3,4,5,6,7 8,9,10,11,12,13,14,15 16,17,18,19,20,21,22,23 24,25,26,27,28,29,30,31; do
-    ( cd \$HSRC && ZK_MODEL=$MODEL ZK_DEVICE=cuda \$PY -m harness.witness.extract --tokens $((CTX + S)) --chunk $S \
-        --layers \$g --spec $SPEC --residual-stream --diagonal-block --slim --slim-num \$IDSARG \
-        --blocks all --share \$WIT/shared --out \$WIT/witness )
-  done
-  st "shapes"
-  b=0; LIST=""
-  while [ \$b -lt $NBLOCK ]; do
-    ( cd \$HSRC && \$PY -m harness.witness.shapes \$WIT/witness_B\${b}_L $NLAY \$WIT/shapes_B\$b.json ); LIST="\$LIST \$WIT/shapes_B\$b.json"; b=\$((b + 1))
-  done
-  ( cd \$HSRC && \$PY -m harness.witness.shapes --merge \$LIST --out \$WIT/shapes_all.json )
-fi
-if [ ! -f \$HEADW/manifest.json ]; then
-  st "extract: the output head, $HEAD_SPEC"
-  ( cd \$HSRC && ZK_MODEL=$MODEL ZK_DEVICE=cuda \$PY -m harness.witness.extract --tokens $((CTX + S)) --chunk $S \
-      --layer 16 --spec $HEAD_SPEC --head --slim \$IDSARG --out \$HEADW )
-fi
-PINS=\$(python3 - \$WIT/shapes_all.json <<'PY'
-import json, sys
-w = json.load(open(sys.argv[1]))["worst"]
-print(f"--kmax {w['kmax']} --ao-rem-bits {w['ao_rem_bits']} --fold-rem-bits {w['fold_rem_bits']} --fold-alpha {w['fold_alpha']}")
-PY
-)
-st "pins: \$PINS"
-
-# 4. the plan: one line per segment, and the distinct kernel shapes
-( cd \$HSRC && \$PY -m harness.witness.plan --dir \$WIT --blocks $NBLOCK --with-block-0 --layers 0-$((NLAY - 1)) \
-    --head \$HEADW --layer-flags="$LAYER_FLAGS" --l0-flags="$L0_FLAGS" --l0-dir \$WIT \
-    --head-flags="$HEAD_FLAGS" --out \$OUT/plan.txt --emit-out \$R/emit.txt )
-N=\$(grep -cv '^#' \$OUT/plan.txt); st "plan: \$N segments"
-
-# 5. the device kernels for every shape in the plan, compiled into the CUDA backend
-K=\$SRC/prover/kernels
-[ -d \$K ] || { st "no prover/kernels in this prover commit; the CUDA backend would evaluate constraints on the CPU"; exit 3; }
-while read -r line; do
-  case "\$line" in '#'*|'') continue ;; esac
-  args=\$(printf '%s\n' "\$line" | sed 's/--ser-tag [A-Za-z0-9_]*//')
-  \$SIMD cudaemit $SHARED \$PINS \$args --out \$GEN --block 256 --min-blocks 2 > /dev/null
-  \$SIMD genemit $SHARED \$PINS \$args --families "$KERNEL_FAMILIES" --out \$GEN > /dev/null
-done < \$R/emit.txt
-python3 \$K/m2b_kernels.py --fork \$SRC/nitroo --gen \$GEN
-python3 \$K/m4b_kernels.py --fork \$SRC/nitroo --gen \$GEN --src \$K
-find \$SRC/nitroo/crates/stwo/src/stwo_cuda/cuda \( -name '*.cu' -o -name '*.cuh' \) -exec touch {} +
-cp \$GEN/cudakernels.rs \$GEN/gencudakernels.rs \$SRC/prover/src/
-( cd \$SRC && CARGO_TARGET_DIR=\$R/t-cuda cargo build --release --locked -p zk-prover --features cuda )
-st "kernels installed"
-
-# 6. the timed run: $SLICE segments per process, pipelined, the card sampled every 200 ms
-lo=0
-while [ \$lo -lt \$N ]; do
-  hi=\$((lo + $SLICE)); [ \$hi -gt \$N ] && hi=\$N
-  tag=\$(printf 'slice_%04d' \$lo)
-  ( while true; do echo "\$(date +%s.%N) \$(nvidia-smi --query-gpu=memory.used --format=csv,noheader,nounits)" >> \$OUT/\$tag.mem; sleep 0.2; done ) & sampler=\$!
-  ZK_PIPELINE=$PIPELINE \$CUDA compose-chunks $SHARED \$PINS --plan \$OUT/plan.txt --plan-slice \$lo:\$hi --ser-dir \$SER \
-      > \$OUT/\$tag.json 2> \$R/\$tag.err || { kill \$sampler; st "\$tag failed, see \$R/\$tag.err"; exit 4; }
-  kill \$sampler
-  grep -c 'kernel fallback:' \$R/\$tag.err > \$OUT/\$tag.fallbacks || true
-  st "\$tag done"
-  lo=\$hi
-done
-
-# 7. every link between segments, checked on the verifier side over the serialized proofs
-\$SIMD boundary-grid --dir \$SER --plan \$OUT/plan.txt \
-    --expect-layer-links $((NBLOCK * (NLAY - 1))) --expect-token-links $(((NBLOCK - 1) * NLAY)) \
-    > \$OUT/grid.json 2> \$R/grid.err
-st "links checked"
-rm -rf \$SER
-st "done"
-JOBEOF
-ssh -o BatchMode=yes "$HOST" "mkdir -p ~/runs/$NAME && cat > ~/runs/$NAME/job.sh" < "$JOB"
+drv_sequence_job > "$JOB"
+drv_start "$JOB"
 rm -f "$JOB"
-"$ROOT/tools/remote/run.sh" "$HOST" "$NAME" "sh \$HOME/runs/$NAME/job.sh"
-echo "when the status says done, run this command again with the same arguments"
