@@ -34,8 +34,8 @@ HEAD_SPEC=b10-final        # the output head's variant; both variants give the h
 CTX=16384; S=512
 NBLOCK=$(( (CTX + S) / S ))  # 33: the prompt's 32 blocks and the output block
 NLAY=32
-SHARED="--round even --numbits 9 --z-hi-bits 7 --variants intexp --bands 16,8,8 --tight-table"
-GKR="--gkr-bands --gkr-dequant --gkr-residual-stream --gkr-freivalds --gkr-attnout"
+SHARED="--round even --numbits 9 --z-hi-bits 7 --variants intexp --key-tiles 16,8,8 --tight-table"
+GKR="--gkr-key-tiles --gkr-dequant --gkr-residual-stream --gkr-freivalds --gkr-attnout"
 LAYER_FLAGS="--round even --diagonal-block $GKR"   # every binding gadget is on by default; no skip flag anywhere
 L0_FLAGS=""
 HEAD_FLAGS="--ao-rem-bits 23 $GKR"

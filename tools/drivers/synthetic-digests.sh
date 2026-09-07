@@ -35,11 +35,11 @@ NAME=synthetic-digests
 # ---- the configuration: here and in the manifest, nowhere else ---------------
 SYN="--round away --variants intsplit6 --table-bits 16 --s 32 --ctx 128 --hd 32"
 RESIDUAL_STREAM="--nout 64 --residual-stream-a 32 --kmax 16 --synth-residual-stream"
-GKR5="--gkr-bands --gkr-dequant --gkr-residual-stream --gkr-freivalds --gkr-attnout"
+GKR5="--gkr-key-tiles --gkr-dequant --gkr-residual-stream --gkr-freivalds --gkr-attnout"
 # one line per shape: <name> <flags after $SYN>.  No skip flag anywhere.
-SHAPES="sound|--bands 2,1 $RESIDUAL_STREAM --diagonal-block
-sound_gkrfive|--bands 2,1 $RESIDUAL_STREAM --diagonal-block $GKR5
-sound_aligned|--bands 2,2 --nin 128 --nout 128 --residual-stream-a 32 --kmax 16 --synth-residual-stream --diagonal-block"
+SHAPES="sound|--key-tiles 2,1 $RESIDUAL_STREAM --diagonal-block
+sound_gkrfive|--key-tiles 2,1 $RESIDUAL_STREAM --diagonal-block $GKR5
+sound_aligned|--key-tiles 2,2 --nin 128 --nout 128 --residual-stream-a 32 --kmax 16 --synth-residual-stream --diagonal-block"
 KERNEL_FAMILIES=b65_chan_eval,b65_key_eval,b65_row_eval,b65_attn_out_eval,b65_dequant_eval,b65_freivalds_eval,b65_exp_table_eval,b65_table_eval,b65_residual_stream_eval,b65_residual_stream_table_eval
 
 status() { ssh -o BatchMode=yes "$HOST" "cat ~/runs/$NAME.status 2>/dev/null || true"; }
@@ -94,9 +94,9 @@ export RAYON_NUM_THREADS=\${RAYON_NUM_THREADS:-4}
 cat > \$OUT/config.json <<CFG
 {"driver": "$NAME", "witness": "none: synthetic segments",
  "shared_flags": "$SYN",
- "shapes": {"sound": "--bands 2,1 $RESIDUAL_STREAM --diagonal-block",
-            "sound_gkrfive": "--bands 2,1 $RESIDUAL_STREAM --diagonal-block $GKR5",
-            "sound_aligned": "--bands 2,2 --nin 128 --nout 128 --residual-stream-a 32 --kmax 16 --synth-residual-stream --diagonal-block"}}
+ "shapes": {"sound": "--key-tiles 2,1 $RESIDUAL_STREAM --diagonal-block",
+            "sound_gkrfive": "--key-tiles 2,1 $RESIDUAL_STREAM --diagonal-block $GKR5",
+            "sound_aligned": "--key-tiles 2,2 --nin 128 --nout 128 --residual-stream-a 32 --kmax 16 --synth-residual-stream --diagonal-block"}}
 CFG
 
 st "gpu: \$(nvidia-smi --query-gpu=name,memory.total,driver_version --format=csv,noheader)"
