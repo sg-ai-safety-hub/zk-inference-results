@@ -10,6 +10,14 @@ Written, not yet run:
   16,384-token prompt and its 512 output tokens proved from the embedding up,
   on the CUDA backend, pipelined. Waits for the prover's sound defaults and
   provenance block.
+- `tools/drivers/control-flags-off-c4096.sh`: `headline-c4096`'s plan with the
+  five GKR reductions off, which is what prices them. Written and started; the
+  first segment of the first token block does not prove in that configuration,
+  and the prover stops on it (zk-prover #59). The plan begins with that block,
+  so the control cannot be made on the same segments as the headline row until
+  the prover is fixed. Nothing in the driver gets past it: the flags are what
+  the control is. Meanwhile `gkr-ablation-c4096` prices the same five on a
+  sample of segments that does not include that block.
 
 ## synthetic-digests
 
