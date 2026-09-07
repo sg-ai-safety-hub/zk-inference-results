@@ -36,8 +36,8 @@ NBLOCK=$(( (CTX + S) / S ))  # 33: the prompt's 32 blocks and the output block
 NLAY=32
 SHARED="--round even --numbits 9 --z-hi-bits 7 --variants intexp --bands 16,8,8 --tight-table"
 GKR="--gkr-bands --gkr-dequant --gkr-glue --gkr-walks --gkr-attnout"
-LAYER_FLAGS="--round even --corner --kv-bind $GKR"   # plan.py adds --bounds to every layer line
-L0_FLAGS="--embed"
+LAYER_FLAGS="--round even --corner $GKR"   # every binding gadget is on by default; no skip flag anywhere
+L0_FLAGS=""
 HEAD_FLAGS="--ao-rem-bits 23 $GKR"
 PIPELINE=1                 # B7_M5_PIPE: generate segment k+1 while proving segment k
 SLICE=64                   # segments per process: 1,057 -> 17 processes
@@ -97,7 +97,7 @@ PY="uv run --project \$HSRC python"
 cat > \$OUT/config.json <<CFG
 {"driver": "$NAME", "model": "$MODEL", "spec": "$SPEC", "head_spec": "$HEAD_SPEC",
  "context": $CTX, "s": $S, "blocks": $NBLOCK, "layers": $NLAY, "slice": $SLICE, "pipeline": $PIPELINE,
- "shared_flags": "$SHARED", "layer_flags": "$LAYER_FLAGS --bounds", "layer0_flags": "$L0_FLAGS",
+ "shared_flags": "$SHARED", "layer_flags": "$LAYER_FLAGS", "layer0_flags": "$L0_FLAGS",
  "head_flags": "$HEAD_FLAGS", "ids": "${IDS:-generated: greedy continuation of the corpus prefix under $SPEC}"}
 CFG
 

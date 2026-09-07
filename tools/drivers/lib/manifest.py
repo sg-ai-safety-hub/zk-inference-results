@@ -41,6 +41,26 @@ def digests_of(doc):
     return None
 
 
+def fold_binding(tables):
+    """One binding table over every output's: an edge is unbound if any output
+    left it unbound, else bound if any output bound it, else absent.  This is
+    the prover's own fold (`provenance.binding`) applied once more, because a
+    plan split over several processes reports one table per process."""
+    tables = [t for t in tables if t]
+    if not tables:
+        return None
+    edges = []
+    for i, e0 in enumerate(tables[0]["edges"]):
+        states = [t["edges"][i]["state"] for t in tables if i < len(t["edges"])]
+        state = "unbound" if "unbound" in states else "bound" if "bound" in states else "absent"
+        why = next((t["edges"][i].get("why") for t in tables
+                    if i < len(t["edges"]) and t["edges"][i]["state"] == "unbound"), None)
+        edges.append({"n": e0["n"], "edge": e0["edge"], "state": state, "why": why})
+    unbound = [e["n"] for e in edges if e["state"] == "unbound"]
+    return {"proofs": sum(t.get("proofs", 1) for t in tables), "edges": edges,
+            "all_bound": not unbound, "unbound": unbound}
+
+
 def gpu_slug(name):
     m = re.search(r"\b([A-Z]\d{3,4})\b", name or "")
     return (m.group(1) if m else re.sub(r"[^a-z0-9]+", "-", (name or "gpu").lower()).strip("-")).lower()
@@ -70,10 +90,9 @@ def main():
     run_id = f"{a.date}-{name}-{gpu_slug(p.get('gpu'))}"
     digests = {f: digests_of(d) for f, d in docs.items() if digests_of(d) is not None}
     skips = sorted({s for _, q in prov for s in q.get("unsound_skips", [])})
-    binding = p.get("binding")
-    for f, q in prov[1:]:
-        if q.get("binding") != binding:
-            sys.exit(f"manifest.py: {f} reports a different binding table than {first}")
+    binding = fold_binding([q.get("binding") for _, q in prov])
+    if binding is None:
+        sys.exit("manifest.py: no output carries a binding table; a run without one is not admissible")
     manifest = {
         "run_id": run_id,
         "driver": a.driver,
@@ -83,9 +102,9 @@ def main():
         "harness_commit": a.harness_commit,
         "gpu": p.get("gpu"),
         "driver_version": p.get("driver_version"),
-        "cuda_runtime": p.get("cuda_runtime"),
+        "cuda_version": p.get("cuda_version"),
         "backend": p.get("backend"),
-        "argv": p.get("argv"),
+        "argv": [p.get("binary"), *p.get("args", [])],
         "outputs": files,
         "digests": digests,
         "unsound_skips": skips,
