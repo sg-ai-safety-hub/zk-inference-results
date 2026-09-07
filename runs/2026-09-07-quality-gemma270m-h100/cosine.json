@@ -1,0 +1,150 @@
+{
+ "provenance": {
+  "kind": "harness",
+  "commit": "33ba9b7a6575b2a1c3894c95ddd095daf1305e84",
+  "dirty": false,
+  "binary": "python -m harness.witness.cosine",
+  "args": [
+   "--spec",
+   "y-delay-vw12",
+   "--chunks",
+   "40"
+  ],
+  "backend": "harness",
+  "gpu": "NVIDIA H100 80GB HBM3, 81559 MiB",
+  "driver_version": "580.178.04",
+  "cuda_version": "13.0",
+  "device": "cpu",
+  "threads": 20,
+  "versions": {
+   "python": "3.12.3",
+   "torch": "2.13.0+cpu",
+   "transformers": "5.15.0",
+   "numpy": "2.5.2"
+  },
+  "model": "unsloth/gemma-3-270m",
+  "model_revision": "edcf1fe394ee1168e7c5538afd104cfb1f7947e6",
+  "proof_sha256": null,
+  "proof_sha256s": null,
+  "unsound_skips": [],
+  "binding": null,
+  "specs_written": [
+   "y-delay-vw12"
+  ],
+  "specs_in_file": [
+   "b10-final",
+   "static",
+   "y-delay-vw12"
+  ],
+  "chunks": 40,
+  "corpus": {
+   "file": "text.txt",
+   "sha256": "a5666f87abf2cbfdaa27ea8c73bd284da9649b9a2ab27b4e6c8f6aeab1bd1c88",
+   "bytes": 738046
+  }
+ },
+ "result": {
+  "static": {
+   "spec": {
+    "linear": "static",
+    "nonlinear": "bf16",
+    "reduce": "fp32",
+    "qk_int8": false,
+    "fp32_logits": false,
+    "fp32_matmuls": [],
+    "qk_bits": [
+     8,
+     8
+    ],
+    "int_softmax": false,
+    "num_bits": 8,
+    "pow2_scales": "",
+    "attn_scale_mode": "static",
+    "q_scale_mode": "token",
+    "dequant": "fp32",
+    "dequant_round": "even",
+    "attn_out_int8": false,
+    "attn_out_pow2": false,
+    "pow2_matmuls": [],
+    "attn_out_bits": 8,
+    "delay_matmuls": []
+   },
+   "cosine_mean": 0.8976375824709066,
+   "cosine_se": 0.0006631913948308941,
+   "cosine_min": -0.5001528859138489,
+   "tokens": 20480,
+   "chunks": 40,
+   "seconds": 80.1
+  },
+  "b10-final": {
+   "spec": {
+    "linear": "dynamic",
+    "nonlinear": "bf16",
+    "reduce": "bf16-norm",
+    "qk_int8": false,
+    "fp32_logits": false,
+    "fp32_matmuls": [],
+    "qk_bits": [
+     12,
+     11
+    ],
+    "int_softmax": true,
+    "num_bits": 9,
+    "pow2_scales": "attn",
+    "attn_scale_mode": "static",
+    "q_scale_mode": "head",
+    "dequant": "bf16-chain",
+    "dequant_round": "even",
+    "attn_out_int8": true,
+    "attn_out_pow2": true,
+    "pow2_matmuls": [
+     "lm_head"
+    ],
+    "attn_out_bits": 8,
+    "delay_matmuls": []
+   },
+   "cosine_mean": 0.9832944475831027,
+   "cosine_se": 0.00017769687563332957,
+   "cosine_min": 0.0871128961443901,
+   "tokens": 20480,
+   "chunks": 40,
+   "seconds": 112.1
+  },
+  "y-delay-vw12": {
+   "spec": {
+    "linear": "dynamic",
+    "nonlinear": "bf16",
+    "reduce": "bf16-norm",
+    "qk_int8": false,
+    "fp32_logits": false,
+    "fp32_matmuls": [],
+    "qk_bits": [
+     12,
+     11
+    ],
+    "int_softmax": true,
+    "num_bits": 9,
+    "pow2_scales": "attn",
+    "attn_scale_mode": "static",
+    "q_scale_mode": "head",
+    "dequant": "bf16-chain",
+    "dequant_round": "even",
+    "attn_out_int8": true,
+    "attn_out_pow2": true,
+    "pow2_matmuls": [
+     "lm_head"
+    ],
+    "attn_out_bits": 12,
+    "delay_matmuls": [
+     "v"
+    ]
+   },
+   "cosine_mean": 0.9835348409535072,
+   "cosine_se": 0.00016571451257836104,
+   "cosine_min": 0.22772417962551117,
+   "tokens": 20480,
+   "chunks": 40,
+   "seconds": 116.8
+  }
+ }
+}

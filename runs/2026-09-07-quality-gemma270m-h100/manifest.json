@@ -1,0 +1,34 @@
+{
+ "argv": [
+  "python -m harness.witness.cosine",
+  "--spec",
+  "y-delay-vw12",
+  "--chunks",
+  "40"
+ ],
+ "backend": "harness",
+ "binding": null,
+ "cuda_version": "13.0",
+ "date": "2026-09-07",
+ "digests": {},
+ "driver": "tools/drivers/quality-gemma270m.sh",
+ "driver_version": "580.178.04",
+ "gpu": "NVIDIA H100 80GB HBM3, 81559 MiB",
+ "harness_commit": "33ba9b7a6575b2a1c3894c95ddd095daf1305e84",
+ "harness_dirty": false,
+ "imported": false,
+ "kind": "harness",
+ "outputs": [
+  "config.json",
+  "cosine.json",
+  "ppl.json",
+  "nll/b10-final.npy",
+  "nll/fp32.npy",
+  "nll/static.npy",
+  "nll/y-delay-vw12.npy"
+ ],
+ "prover_commit": null,
+ "prover_dirty": null,
+ "run_id": "2026-09-07-quality-gemma270m-h100",
+ "unsound_skips": []
+}

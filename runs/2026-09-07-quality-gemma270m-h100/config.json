@@ -1,0 +1,6 @@
+{"driver": "quality-gemma270m", "label": "quality", "kind": "harness",
+ "model": "unsloth/gemma-3-270m", "device": "cpu", "threads": 20,
+ "chunks": 40, "positions": 20480,
+ "specs": "fp32 static b10-final y-delay-vw12", "required": "fp32 static b10-final", "cosine_specs": "static b10-final y-delay-vw12",
+ "weights": {"bytes": 575493396, "seconds": 9.7},
+ "corpus": "harness/witness/text.txt, the fixed corpus; every output names it by digest"}
