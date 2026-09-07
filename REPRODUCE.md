@@ -390,6 +390,53 @@ five seconds of measurement each, which is enough for a rate and keeps the run
 inside its half hour; the estimate files the audit reads carry the mean and its
 standard error, and every mean here is within a per cent of its own error.
 
+## quality-0p5b
+
+    tools/drivers/quality-0p5b.sh <host> <prover-commit> <harness-commit>
+
+runs: 2026-09-07-quality-0p5b-h100
+prover commit: none -- this run builds and runs no prover
+harness commit: 5c0dbfe
+digests: none; this run makes no proof
+binding: none; this run makes no proof
+unsound skips: none
+constants backed: `quality.0p5b.ppl_*` for each of the sixteen variants, and
+  `quality.0p5b.ppl_*_delta_pct` with `_se_nats` for the reported variant, the
+  fixed configuration and the three baselines
+
+What the run measures. The perplexity of Qwen2.5-0.5B-Instruct under every
+quantization variant `docs/quantization.md` names, on the host's cores, over
+forty chunks of 512 tokens of the fixed corpus: 20,440 scored positions, the
+same positions for every variant. The small model is where a variant's cost
+shows up largest and cheapest to measure, and where the sequence of
+configurations that led to the reported one can be priced in full without a
+card.
+
+It is a harness run and not a prover run. Nothing in it proves anything: it
+measures the arithmetic the prover constrains, which is what makes
+`docs/quantization.md`'s claim -- that the quality numbers describe exactly the
+arithmetic that is proved -- a claim about measured things on both sides. So its
+outputs carry no binding table and no proof digest, its manifest says `kind`
+`harness` and names no prover commit, and `lib/manifest.py` has a second path
+for exactly that shape of run. The prover commit argument is unused.
+
+Every variant is scored on the same chunks of the same corpus, and the corpus is
+named by its digest in every output, so two variants' perplexities are
+comparable and the difference between them is paired over positions. The harness
+computes each difference and its standard error from the per-token losses, and
+writes them beside the rows; this repository reads them back rather than
+recomputing them, because the error of a difference measured on the same
+positions is not the error of either perplexity on its own and there should be
+one place it is worked out.
+
+How the run is made. One process per variant, so peak memory stays at one model,
+and a variant already in the file is not measured again -- a job that was
+interrupted is restarted for the price of what it did not finish. The harness
+writes its calibration files and its token cache into a working directory beside
+the run's outputs and not into them: those are inputs, they are specific to the
+model, and a run directory holds outputs. What is fetched is the rows, the
+per-token losses they were computed from, COSINE and nothing else.
+
 ## Entry template
 
 ```
