@@ -26,7 +26,7 @@ in this repository, so this page names the keys the drivers will back.
   `model_constants.dequant_pow2_cells_per_acc`).
 - Attention: cells per (head, key, token) over the key tiles, a fixed cost per
   key and per token, and the diagonal block's own share
-  (`attention_grid.key_tile_model_fresh_coeffs`).
+  (`attention_grid.fresh_cell_coeffs`).
 - Lookups: the exponential table, the range checks on every committed
   activation, and the marginal cost of a lookup
   (`model_constants.logup_marginal_cells_per_lookup`).
