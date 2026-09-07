@@ -25,7 +25,10 @@
   "--synth-glue",
   "--corner"
  ],
- "backend": "cuda",
+ "backend": [
+  "cuda",
+  "simd"
+ ],
  "binding": {
   "all_bound": false,
   "edges": [
