@@ -1,0 +1,12 @@
+{
+ "probe": "serial",
+ "pipeline": 0,
+ "exit_code": 0,
+ "seconds": 234,
+ "samples": 230,
+ "period_s": 1,
+ "max_mib": 72379,
+ "mean_mib": 52459.7,
+ "out_of_memory": false,
+ "stderr_tail": ""
+}

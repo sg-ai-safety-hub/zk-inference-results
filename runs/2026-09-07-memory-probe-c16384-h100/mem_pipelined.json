@@ -1,0 +1,12 @@
+{
+ "probe": "pipelined",
+ "pipeline": 1,
+ "exit_code": 0,
+ "seconds": 182,
+ "samples": 178,
+ "period_s": 1,
+ "max_mib": 72379,
+ "mean_mib": 45996.5,
+ "out_of_memory": false,
+ "stderr_tail": ""
+}

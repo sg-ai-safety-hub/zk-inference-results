@@ -1,0 +1,12 @@
+{
+ "probe": "layer0",
+ "pipeline": 0,
+ "exit_code": 0,
+ "seconds": 97,
+ "samples": 95,
+ "period_s": 1,
+ "max_mib": 78843,
+ "mean_mib": 19756.1,
+ "out_of_memory": false,
+ "stderr_tail": ""
+}

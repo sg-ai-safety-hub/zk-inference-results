@@ -1,0 +1,62 @@
+{
+ "context": 16384,
+ "card_total_mib": 81559,
+ "probes": [
+  {
+   "probe": "serial",
+   "pipeline": 0,
+   "exit_code": 0,
+   "peak_mib": 72379,
+   "out_of_memory": false,
+   "fits": true,
+   "segments": 4,
+   "loop_secs": 228.738188079,
+   "fresh_cells": 9066131824.0
+  },
+  {
+   "probe": "pipelined",
+   "pipeline": 1,
+   "exit_code": 0,
+   "peak_mib": 72379,
+   "out_of_memory": false,
+   "fits": true,
+   "segments": 4,
+   "loop_secs": 175.796757799,
+   "fresh_cells": 9066131824.0
+  },
+  {
+   "probe": "layer0",
+   "pipeline": 0,
+   "exit_code": 0,
+   "peak_mib": 78843,
+   "out_of_memory": false,
+   "fits": true,
+   "segments": 1,
+   "loop_secs": 94.665378576,
+   "fresh_cells": 2376739792.0
+  },
+  {
+   "probe": "pipelined_l0",
+   "pipeline": 1,
+   "exit_code": 0,
+   "peak_mib": 78843,
+   "out_of_memory": false,
+   "fits": true,
+   "segments": 2,
+   "loop_secs": 150.61477846,
+   "fresh_cells": 4732401648.0
+  }
+ ],
+ "reference": {
+  "backend": "simd",
+  "segments": 1,
+  "loop_secs": 264.200025199,
+  "fresh_cells": 2355661856.0,
+  "digests": [
+   "cd28d8a02717a76d692aa10183713966b0f8d4dd1e0080fb68cacddc595e6f92"
+  ],
+  "unsound_skips": [],
+  "all_bound": true,
+  "unbound": []
+ }
+}
