@@ -437,6 +437,59 @@ the run's outputs and not into them: those are inputs, they are specific to the
 model, and a run directory holds outputs. What is fetched is the rows, the
 per-token losses they were computed from, COSINE and nothing else.
 
+## quality-gemma270m
+
+    tools/drivers/quality-gemma270m.sh <host> <prover-commit> <harness-commit>
+
+runs: 2026-09-07-quality-gemma270m-h100
+prover commit: none -- this run builds and runs no prover
+harness commit: 5c0dbfe
+digests: none; this run makes no proof
+binding: none; this run makes no proof
+unsound skips: none
+constants backed: `quality.gemma270m.ppl_*` for the four variants,
+  `quality.gemma270m.ppl_*_delta_pct` with `_se_nats` for the three that are
+  compared against the float reference, and `quality.gemma270m.cosine_*`
+
+What the run measures. Whether the quantization configuration the paper
+reports costs the same on a model it was not designed against. Gemma-3-270M
+interleaves sliding-window attention layers with full-attention ones, so its
+keys and values are not the shape the configuration was tuned on, and a
+variant that only works on the model it was fitted to would show here.
+
+Two statistics, because a perplexity alone does not answer it. The perplexity
+says what the configuration costs; the cosine similarity of the whole logit
+vector against the float reference says how far the distribution moved, which
+is what a published comparison of quantized models reports and which a
+perplexity can hide. Both are measured on the same forty chunks of 512 tokens
+of the same corpus the other quality campaigns use, so the two models' rows
+are read against each other and not against different text.
+
+It is a harness run and not a prover run. Nothing in it proves anything: it
+measures the arithmetic the prover constrains, which is what makes
+`docs/quantization.md`'s claim -- that the quality numbers describe exactly the
+arithmetic that is proved -- a claim about measured things on both sides. So its
+outputs carry no binding table and no proof digest, its manifest says `kind`
+`harness` and names no prover commit, and `lib/manifest.py` has a second path
+for exactly that shape of run. The prover commit argument is unused.
+
+Every variant is scored on the same chunks of the same corpus, and the corpus is
+named by its digest in every output, so two variants' perplexities are
+comparable and the difference between them is paired over positions. The harness
+computes each difference and its standard error from the per-token losses, and
+writes them beside the rows; this repository reads them back rather than
+recomputing them, because the error of a difference measured on the same
+positions is not the error of either perplexity on its own and there should be
+one place it is worked out.
+
+How the run is made. One process per variant, so peak memory stays at one model,
+and a variant already in the file is not measured again -- a job that was
+interrupted is restarted for the price of what it did not finish. The harness
+writes its calibration files and its token cache into a working directory beside
+the run's outputs and not into them: those are inputs, they are specific to the
+model, and a run directory holds outputs. What is fetched is the rows, the
+per-token losses they were computed from, COSINE and nothing else.
+
 ## Entry template
 
 ```

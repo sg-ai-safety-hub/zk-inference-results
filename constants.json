@@ -934,6 +934,149 @@
    "run": "2026-09-07-quality-0p5b-h100",
    "artifact": "ppl.json",
    "note": "The standard error of that difference, paired over the same 20440 positions. Paired because both variants scored the same tokens in the same order, so it is much smaller than the error of either perplexity on its own and it is the error the difference actually has."
+  },
+  "quality.gemma270m.ppl_fp32": {
+   "value": 71.73677,
+   "unit": "perplexity",
+   "card": "none",
+   "context": "n/a",
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-07-quality-gemma270m-h100",
+   "artifact": "ppl.json",
+   "note": "Perplexity of `unsloth/gemma-3-270m` under the quantization variant `fp32`, on 40 chunks of 512 tokens of the fixed corpus, 20440 scored positions, on the cpu: the float reference."
+  },
+  "quality.gemma270m.ppl_static": {
+   "value": 97.601613,
+   "unit": "perplexity",
+   "card": "none",
+   "context": "n/a",
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-07-quality-gemma270m-h100",
+   "artifact": "ppl.json",
+   "note": "Perplexity of `unsloth/gemma-3-270m` under the quantization variant `static`, on 40 chunks of 512 tokens of the fixed corpus, 20440 scored positions, on the cpu: +36.055 per cent against the float reference."
+  },
+  "quality.gemma270m.ppl_b10_final": {
+   "value": 82.084371,
+   "unit": "perplexity",
+   "card": "none",
+   "context": "n/a",
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-07-quality-gemma270m-h100",
+   "artifact": "ppl.json",
+   "note": "Perplexity of `unsloth/gemma-3-270m` under the quantization variant `b10-final`, on 40 chunks of 512 tokens of the fixed corpus, 20440 scored positions, on the cpu: +14.424 per cent against the float reference."
+  },
+  "quality.gemma270m.ppl_y_delay_vw12": {
+   "value": 82.238164,
+   "unit": "perplexity",
+   "card": "none",
+   "context": "n/a",
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-07-quality-gemma270m-h100",
+   "artifact": "ppl.json",
+   "note": "Perplexity of `unsloth/gemma-3-270m` under the quantization variant `y-delay-vw12`, on 40 chunks of 512 tokens of the fixed corpus, 20440 scored positions, on the cpu: +14.639 per cent against the float reference."
+  },
+  "quality.gemma270m.ppl_y_delay_vw12_delta_pct": {
+   "value": 14.638792,
+   "unit": "per cent",
+   "card": "none",
+   "context": "n/a",
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-07-quality-gemma270m-h100",
+   "artifact": "ppl.json",
+   "note": "How much perplexity the variant `y-delay-vw12` costs against the float reference, over the same 20440 positions. The harness computes it from the per-token losses of both, which are in this run's `nll/` directory; it is not the ratio of two rounded perplexities."
+  },
+  "quality.gemma270m.ppl_y_delay_vw12_se_nats": {
+   "value": 0.00461776,
+   "unit": "nats",
+   "card": "none",
+   "context": "n/a",
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-07-quality-gemma270m-h100",
+   "artifact": "ppl.json",
+   "note": "The standard error of that difference, paired over the same 20440 positions. Paired because both variants scored the same tokens in the same order, so it is much smaller than the error of either perplexity on its own and it is the error the difference actually has."
+  },
+  "quality.gemma270m.ppl_b10_final_delta_pct": {
+   "value": 14.424412,
+   "unit": "per cent",
+   "card": "none",
+   "context": "n/a",
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-07-quality-gemma270m-h100",
+   "artifact": "ppl.json",
+   "note": "How much perplexity the variant `b10-final` costs against the float reference, over the same 20440 positions. The harness computes it from the per-token losses of both, which are in this run's `nll/` directory; it is not the ratio of two rounded perplexities."
+  },
+  "quality.gemma270m.ppl_b10_final_se_nats": {
+   "value": 0.0045762,
+   "unit": "nats",
+   "card": "none",
+   "context": "n/a",
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-07-quality-gemma270m-h100",
+   "artifact": "ppl.json",
+   "note": "The standard error of that difference, paired over the same 20440 positions. Paired because both variants scored the same tokens in the same order, so it is much smaller than the error of either perplexity on its own and it is the error the difference actually has."
+  },
+  "quality.gemma270m.ppl_static_delta_pct": {
+   "value": 36.055211,
+   "unit": "per cent",
+   "card": "none",
+   "context": "n/a",
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-07-quality-gemma270m-h100",
+   "artifact": "ppl.json",
+   "note": "How much perplexity the variant `static` costs against the float reference, over the same 20440 positions. The harness computes it from the per-token losses of both, which are in this run's `nll/` directory; it is not the ratio of two rounded perplexities."
+  },
+  "quality.gemma270m.ppl_static_se_nats": {
+   "value": 0.01059766,
+   "unit": "nats",
+   "card": "none",
+   "context": "n/a",
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-07-quality-gemma270m-h100",
+   "artifact": "ppl.json",
+   "note": "The standard error of that difference, paired over the same 20440 positions. Paired because both variants scored the same tokens in the same order, so it is much smaller than the error of either perplexity on its own and it is the error the difference actually has."
+  },
+  "quality.gemma270m.cosine_b10_final": {
+   "value": 0.983294,
+   "unit": "cosine similarity",
+   "card": "none",
+   "context": "n/a",
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-07-quality-gemma270m-h100",
+   "artifact": "cosine.json",
+   "note": "Mean cosine similarity of the full logit vector under `b10-final` against the float reference, over the same positions, standard error 0.000178 and smallest 0.087113. This is the statistic a published comparison of quantized models reports, which a perplexity does not give."
+  },
+  "quality.gemma270m.cosine_static": {
+   "value": 0.897638,
+   "unit": "cosine similarity",
+   "card": "none",
+   "context": "n/a",
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-07-quality-gemma270m-h100",
+   "artifact": "cosine.json",
+   "note": "Mean cosine similarity of the full logit vector under `static` against the float reference, over the same positions, standard error 0.000663 and smallest -0.500153. This is the statistic a published comparison of quantized models reports, which a perplexity does not give."
+  },
+  "quality.gemma270m.cosine_y_delay_vw12": {
+   "value": 0.983535,
+   "unit": "cosine similarity",
+   "card": "none",
+   "context": "n/a",
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-07-quality-gemma270m-h100",
+   "artifact": "cosine.json",
+   "note": "Mean cosine similarity of the full logit vector under `y-delay-vw12` against the float reference, over the same positions, standard error 0.000166 and smallest 0.227724. This is the statistic a published comparison of quantized models reports, which a perplexity does not give."
   }
  },
  "discrepancies": []
