@@ -5,10 +5,20 @@
                 --prover-commit HASH --harness-commit HASH [--date YYYY-MM-DD]
 
 Every field but `imported`, `driver`, `harness_commit` and `date` is copied
-from the `provenance` block the prover writes into each output; nothing is
-typed in.  The run id is `<date>-<driver>-<gpu>` with the GPU as the machine
-reported it.  A fetched directory whose outputs carry no provenance block is
-refused: such a run is not admissible.
+from the `provenance` block written into each output; nothing is typed in.  The
+run id is `<date>-<driver>-<gpu>` with the GPU as the machine reported it.  A
+fetched directory whose outputs carry no provenance block is refused: such a run
+is not admissible.
+
+Two kinds of run, and the manifest says which in `kind`.  A **prover** run makes
+proofs, and its outputs carry a binding table saying what each proof binds; one
+that carries none is refused, which is the whole point of the check.  A
+**harness** run makes no proof: it measures the arithmetic the prover
+constrains -- a perplexity, a task score -- so it has no binding table and no
+proof digest, and it says so by declaring `kind` `harness` in every one of its
+provenance blocks.  Only a directory that declares itself that way, and that
+carries no proof digest anywhere, takes the second path; a prover run that lost
+its binding table still cannot.
 """
 import argparse
 import datetime
@@ -85,16 +95,27 @@ def main():
     docs = {f: load_json(os.path.join(a.fetched, f)) for f in files if f.endswith(".json")}
     prov = [(f, d["provenance"]) for f, d in sorted(docs.items()) if isinstance(d, dict) and "provenance" in d]
     if not prov:
-        sys.exit("manifest.py: no output carries a `provenance` block; this prover commit "
-                 "writes none, and a run without one is not admissible")
+        sys.exit("manifest.py: no output carries a `provenance` block; a run without one "
+                 "is not admissible")
+    kinds = {str(q.get("kind", "prover")) for _, q in prov}
+    if len(kinds) != 1:
+        sys.exit(f"manifest.py: the outputs declare more than one kind of run, {sorted(kinds)}; "
+                 "a run is one or the other")
+    kind = kinds.pop()
+    if kind not in ("prover", "harness"):
+        sys.exit(f"manifest.py: an output declares kind {kind!r}, which is neither "
+                 "`prover` nor `harness`")
     # The document the manifest takes the run's own fields from: the first that
     # carries a digest, so `argv` names the command that made the proofs rather
     # than whichever output sorts first.  A run that made none falls back to the
     # first, which is what a check-only run has.
     first, p = next((q for q in prov if digests_of(docs[q[0]])), prov[0])
+    # A prover output's commit is the prover's; a harness output's is the
+    # harness's, because that is the tree that made it and no prover ran.
+    pinned = a.harness_commit if kind == "harness" else a.prover_commit
     commits = {str(q.get("commit") or "") for _, q in prov}
-    if any(not c or not (a.prover_commit.startswith(c) or c.startswith(a.prover_commit)) for c in commits):
-        sys.exit(f"manifest.py: the outputs were made at {sorted(commits)}, not at the pinned {a.prover_commit}")
+    if any(not c or not (pinned.startswith(c) or c.startswith(pinned)) for c in commits):
+        sys.exit(f"manifest.py: the outputs were made at {sorted(commits)}, not at the pinned {pinned}")
     name = os.path.basename(a.driver).removesuffix(".sh")
     run_id = f"{a.date}-{name}-{gpu_slug(p.get('gpu'))}"
     digests = {f: digests_of(d) for f, d in docs.items() if digests_of(d) is not None}
@@ -103,14 +124,35 @@ def main():
     # a run that proves on both backends names both, sorted; one backend stays a string
     backends = sorted({str(q.get("backend")) for _, q in prov})
     backend = backends[0] if len(backends) == 1 else backends
-    if binding is None:
-        sys.exit("manifest.py: no output carries a binding table; a run without one is not admissible")
+    if binding is None and kind != "harness":
+        sys.exit("manifest.py: no output carries a binding table, and the outputs do not "
+                 "declare themselves a harness run; a prover run without one is not "
+                 "admissible")
+    if kind == "harness":
+        # A run that says it proves nothing must prove nothing, and every file
+        # that carries a measurement must say where it came from.  `config.json`
+        # is the driver's own record of what it asked for and no program made
+        # it, so it is the one output that carries no provenance block.
+        if digests:
+            sys.exit(f"manifest.py: a harness run carries proof digests {sorted(digests)}; "
+                     "a run that declares it makes no proof must make none")
+        if binding is not None:
+            sys.exit("manifest.py: a harness run carries a binding table; a run that makes "
+                     "no proof binds nothing")
+        silent = sorted(set(docs) - {f for f, _ in prov} - {"config.json"})
+        if silent:
+            sys.exit(f"manifest.py: {silent} carry no `provenance` block; in a harness run "
+                     "every output but config.json says where it came from")
     manifest = {
         "run_id": run_id,
         "driver": a.driver,
+        "kind": kind,
         "date": a.date,
-        "prover_commit": a.prover_commit,
-        "prover_dirty": any(q.get("dirty") for _, q in prov),
+        # A harness run ran no prover, so it names none: the commit that made it
+        # is the harness commit below.
+        "prover_commit": None if kind == "harness" else a.prover_commit,
+        "prover_dirty": None if kind == "harness" else any(q.get("dirty") for _, q in prov),
+        "harness_dirty": any(q.get("dirty") for _, q in prov) if kind == "harness" else None,
         "harness_commit": a.harness_commit,
         "gpu": p.get("gpu"),
         "driver_version": p.get("driver_version"),
