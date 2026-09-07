@@ -107,8 +107,8 @@ st "nvcc: \$(nvcc --version | tail -2 | head -1)"
 # 1. both backends of the pinned prover commit
 st "build"
 ( cd \$SRC && CARGO_TARGET_DIR=\$R/t-simd cargo build --release --locked )
-( cd \$SRC && CARGO_TARGET_DIR=\$R/t-cuda cargo build --release --locked -p b65-pipeline --features cuda )
-SIMD=\$R/t-simd/release/b65; CUDA=\$R/t-cuda/release/b65
+( cd \$SRC && CARGO_TARGET_DIR=\$R/t-cuda cargo build --release --locked -p zk-prover --features cuda )
+SIMD=\$R/t-simd/release/zk-prover; CUDA=\$R/t-cuda/release/zk-prover
 
 # 2. the harness at its pinned commit
 ( cd \$HSRC && uv sync --frozen )
@@ -183,7 +183,7 @@ python3 \$K/m2b_kernels.py --fork \$SRC/nitroo --gen \$GEN
 python3 \$K/m4b_kernels.py --fork \$SRC/nitroo --gen \$GEN --src \$K
 find \$SRC/nitroo/crates/stwo/src/stwo_cuda/cuda \( -name '*.cu' -o -name '*.cuh' \) -exec touch {} +
 cp \$GEN/cudakernels.rs \$GEN/gencudakernels.rs \$SRC/prover/src/
-( cd \$SRC && CARGO_TARGET_DIR=\$R/t-cuda cargo build --release --locked -p b65-pipeline --features cuda )
+( cd \$SRC && CARGO_TARGET_DIR=\$R/t-cuda cargo build --release --locked -p zk-prover --features cuda )
 st "kernels installed"
 
 # 6. the timed run: $SLICE segments per process, pipelined, the card sampled every 200 ms
