@@ -333,6 +333,62 @@ segment shape, so the job emits the kernels for this block's six shapes,
 installs them into the vendored library and rebuilds; the built tree then
 differs from the pushed commit, which is why the manifest records the build as
 dirty.
+## microbench
+
+    tools/drivers/microbench.sh <host> <prover-commit> <harness-commit>
+
+runs: 2026-09-07-microbench-h100
+prover commit: 81a5ec9   harness commit: 81a5ec9
+digests: `compose-simd.json`: `917645a0e83a04aa`
+binding: 1 to 14 bound; 15 and 16 absent   (from the manifest); a synthetic
+  segment has neither an embedding row nor an output head
+unsound skips: none
+constants backed: `cells.microbench.compose_fresh`,
+  `secs.microbench.compose_commit`, `rate.microbench.commit`,
+  `hash.merkle_simd_secs`, `hash.merkle_cpu_secs`, `field.m31_mul_secs`,
+  `field.m31_add_secs`, `field.qm31_mul_secs`, `field.m31_mul_simd_secs`,
+  `lookup.simd_generic_logup_secs`, `lookup.cpu_generic_logup_secs`,
+  `fri.fold_line_secs`
+
+What the run measures. What the proof system charges, in the two units the cost
+model prices a proof in: seconds per committed cell, and seconds per operation
+of the primitives underneath. Nothing here touches a card and nothing here is a
+throughput row.
+
+One composed segment on the reference backend, of the shape the prover records
+as its aligned sound synthetic one, with the five reductions on. It is the only
+thing in this run that proves anything and therefore the only thing that writes
+a binding table, so it is what makes the run admissible; its own committed cell
+count over the seconds its commitment path took is the commitment rate the cost
+model reads. The segment is drawn from a pseudorandom generator with a fixed
+seed, so nothing in it comes from a model and no extraction runs.
+
+Then the vendored library's own benchmarks of the primitives: multiplication and
+addition in the base field and in the extension field the challenges live in,
+one logarithmic-derivative lookup argument, one Merkle commitment, and one
+folding step of the low-degree test. Each is frozen as the time the benchmark
+reports, not as a rate, so the audit re-derives it from the estimate file
+without carrying any number of its own; each constant's note says what one
+iteration of that benchmark does and the benchmark source says the same.
+
+What the run could not measure. Seven subcommands of the prover -- the ones that
+price one dequantized accumulator, one requantized value, one residual-stream
+operation, one argmax comparison, one packed attention instance, the width sweep
+and the table sweep -- refuse to run at this prover commit. Each panics the same
+way inside the vendored library, on its own default arguments, on the reference
+backend; the run records each refusal in `out/refused.txt` and goes on.
+`compose` on the same binary and the same tree is unaffected. Those seven are
+where the cost model's cells-per-operation inputs come from, so this run backs
+none of them and the campaign is part of its issue rather than the end of it.
+The eighth refusal is the polynomial-commitment benchmark, which does not
+compile against the library it benchmarks.
+
+How the run is made. The prover is built once at the pinned commit and the
+benchmarks are built from the same tree, so the primitives timed are the
+primitives the segment was proved with. The benchmarks are given ten samples and
+five seconds of measurement each, which is enough for a rate and keeps the run
+inside its half hour; the estimate files the audit reads carry the mean and its
+standard error, and every mean here is within a per cent of its own error.
 
 ## Entry template
 

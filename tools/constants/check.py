@@ -71,6 +71,12 @@ DERIVED = {
         v("positions.headline.c4096") / v(f"secs.headline.c4096.{s}"),
         f"pos_s.headline.c4096.{s}", 0.001))
        for s in ("whole_wall", "loop")},
+    # The cost model's commitment-rate input: committed cells over the seconds
+    # the commitment path took, both measured on the same proof.
+    "rate.microbench.commit": lambda: chk(
+        "microbench commitment rate",
+        v("cells.microbench.compose_fresh") / v("secs.microbench.compose_commit") / 1e6,
+        "rate.microbench.commit", 0.001),
 }
 
 URL = re.compile(r"https?://\S+")

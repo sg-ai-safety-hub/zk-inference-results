@@ -172,10 +172,65 @@ def memory_probe_c16384(a, keys):
 # -- sections: (driver name, function(audit, keys)) ----------------------------
 # Added when a driver's first run lands; each function re-derives the constants
 # whose `run` was made by that driver.
+# -- microbench ----------------------------------------------------------------
+# Every criterion identifier this run froze a time for, and the file the audit
+# reads it back from.  A criterion estimate is in nanoseconds; the constants are
+# in seconds, which is the only arithmetic here.
+_BENCH_TIMES = {
+    "hash.merkle_simd_secs": "merkle throughput/simd merkle",
+    "hash.merkle_cpu_secs": "merkle throughput/cpu merkle",
+    "field.m31_mul_secs": "M31 mul",
+    "field.m31_add_secs": "M31 add",
+    "field.qm31_mul_secs": "SecureField mul",
+    "field.m31_mul_simd_secs": "mul_simd",
+    "lookup.simd_generic_logup_secs": "simd generic logup lookup 2_16",
+    "lookup.cpu_generic_logup_secs": "cpu generic logup lookup 2_16",
+    "fri.fold_line_secs": "fold_line",
+}
+
+
+def microbench(a, keys):
+    """The cost model's inputs: one composed segment, and the primitives under it.
+
+    The composed segment is the only thing in this run that proves anything, so
+    it is the run's binding table as well as its commitment rate, and the audit
+    checks that it accepted and bound every edge before it takes a number off
+    it.  The rest are the vendored library's own benchmarks, whose estimate
+    files carry the mean in nanoseconds.
+    """
+    if not keys:
+        return
+    run = sorted({e["run"] for e in keys.values()})[0]
+    if {"cells.microbench.compose_fresh", "secs.microbench.compose_commit"} & set(keys):
+        doc = artifact(run, "compose-simd.json")
+        p, prov = doc["result"]["point"], doc["provenance"]
+        if not p["accepts"]:
+            a.fails.append("audit: microbench's composed segment did not accept")
+        if prov["unsound_skips"]:
+            a.fails.append(f"audit: microbench's segment ran with skips {prov['unsound_skips']}")
+        if not prov["binding"]["all_bound"]:
+            a.fails.append(f"audit: microbench's segment left edges {prov['binding']['unbound']} unbound")
+        print(f"  runs/{run}: one composed segment, {p['cells']['fresh']:,} fresh cells, "
+              f"{len(_BENCH_TIMES)} benchmark times")
+        if "cells.microbench.compose_fresh" in keys:
+            a.exact("cells.microbench.compose_fresh", p["cells"]["fresh"])
+        if "secs.microbench.compose_commit" in keys:
+            a.claim("secs.microbench.compose_commit", p["phases"]["commit_secs"])
+    for key, ident in _BENCH_TIMES.items():
+        if key in keys:
+            d = artifact(run, f"criterion/{ident}/new/estimates.json")
+            a.claim(key, d["mean"]["point_estimate"] / 1e9)
+
+
+# -- sections: (driver name, function(audit, keys)) ----------------------------
+# Added when a driver's first run lands; each function re-derives the constants
+# whose `run` was made by that driver.
+
 SECTIONS = [
     ("headline-c4096", headline_c4096),
     ("gkr-ablation-c4096", gkr_ablation_c4096),
     ("memory-probe-c16384", memory_probe_c16384),
+    ("microbench", microbench),
 ]
 
 

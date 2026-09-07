@@ -515,6 +515,138 @@
    "run": "2026-09-07-memory-probe-c16384-h100",
    "artifact": "pipelined_l0.json",
    "note": "Layers 0 and 1 under the pipeline: 75.31 s a segment against 94.67 s for layer 0 alone, so the pipeline helps on the pair that holds the largest segment too."
+  },
+  "cells.microbench.compose_fresh": {
+   "value": 28387616,
+   "unit": "cells",
+   "card": "none",
+   "context": "n/a",
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-07-microbench-h100",
+   "artifact": "compose-simd.json",
+   "note": "Fresh committed cells of the one synthetic segment this run proves, the prover's recorded sound shape with the five GKR reductions on. It is the denominator of the commitment rate below and nothing else; a segment this size is not a throughput row."
+  },
+  "secs.microbench.compose_commit": {
+   "value": 1.7876664439999996,
+   "unit": "s",
+   "card": "none",
+   "context": "n/a",
+   "timing_scope": "commit",
+   "grade": "measured",
+   "run": "2026-09-07-microbench-h100",
+   "artifact": "compose-simd.json",
+   "note": "The commitment path of that proof on the reference backend: interpolation, low-degree extension and Merkle hashing of the committed trees. Its low-degree test took 1.989 s of the same proof and its whole prove call 4.835 s."
+  },
+  "rate.microbench.commit": {
+   "value": 15.8797,
+   "unit": "Mcell/s",
+   "card": "none",
+   "context": "n/a",
+   "timing_scope": "commit",
+   "grade": "derived",
+   "note": "Committed cells over the seconds the commitment path took, both from the same proof. This is the cost model's commitment-rate input, measured on the host's cores; a card's own rate is what a sequence run measures on real segments.",
+   "run": "2026-09-07-microbench-h100",
+   "artifact": "compose-simd.json"
+  },
+  "hash.merkle_simd_secs": {
+   "value": 0.0017470264920711233,
+   "unit": "s",
+   "card": "none",
+   "context": "n/a",
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-07-microbench-h100",
+   "artifact": "criterion/merkle throughput/simd merkle/new/estimates.json",
+   "note": "A micro-benchmark of one primitive of the proof system, run by the vendored library's own benchmark on the host's cores with no card. It is a time but it is not a scope of a proof, which is why the scope is not one of the four: nothing here proves anything. One Merkle commitment over 16,777,216 field elements (65536 rows of 256 columns) with the Blake2s hasher on the packed backend."
+  },
+  "hash.merkle_cpu_secs": {
+   "value": 0.14364486911753968,
+   "unit": "s",
+   "card": "none",
+   "context": "n/a",
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-07-microbench-h100",
+   "artifact": "criterion/merkle throughput/cpu merkle/new/estimates.json",
+   "note": "A micro-benchmark of one primitive of the proof system, run by the vendored library's own benchmark on the host's cores with no card. It is a time but it is not a scope of a proof, which is why the scope is not one of the four: nothing here proves anything. The same commitment over the same elements on the unpacked backend, which is 82.2 times slower and is the reason the packed one exists."
+  },
+  "field.m31_mul_secs": {
+   "value": 0.04879979873128969,
+   "unit": "s",
+   "card": "none",
+   "context": "n/a",
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-07-microbench-h100",
+   "artifact": "criterion/M31 mul/new/estimates.json",
+   "note": "A micro-benchmark of one primitive of the proof system, run by the vendored library's own benchmark on the host's cores with no card. It is a time but it is not a scope of a proof, which is why the scope is not one of the four: nothing here proves anything. 67,108,864 multiplications in the base field."
+  },
+  "field.m31_add_secs": {
+   "value": 0.013632634946235827,
+   "unit": "s",
+   "card": "none",
+   "context": "n/a",
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-07-microbench-h100",
+   "artifact": "criterion/M31 add/new/estimates.json",
+   "note": "A micro-benchmark of one primitive of the proof system, run by the vendored library's own benchmark on the host's cores with no card. It is a time but it is not a scope of a proof, which is why the scope is not one of the four: nothing here proves anything. 67,108,864 additions in the base field."
+  },
+  "field.qm31_mul_secs": {
+   "value": 0.797275725,
+   "unit": "s",
+   "card": "none",
+   "context": "n/a",
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-07-microbench-h100",
+   "artifact": "criterion/SecureField mul/new/estimates.json",
+   "note": "A micro-benchmark of one primitive of the proof system, run by the vendored library's own benchmark on the host's cores with no card. It is a time but it is not a scope of a proof, which is why the scope is not one of the four: nothing here proves anything. 67,108,864 multiplications in the degree-four extension the challenges live in."
+  },
+  "field.m31_mul_simd_secs": {
+   "value": 0.008543797167518038,
+   "unit": "s",
+   "card": "none",
+   "context": "n/a",
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-07-microbench-h100",
+   "artifact": "criterion/mul_simd/new/estimates.json",
+   "note": "A micro-benchmark of one primitive of the proof system, run by the vendored library's own benchmark on the host's cores with no card. It is a time but it is not a scope of a proof, which is why the scope is not one of the four: nothing here proves anything. 67,108,864 multiplications in the base field on the packed backend, the same count in lanes of sixteen."
+  },
+  "lookup.simd_generic_logup_secs": {
+   "value": 0.0036182961188301584,
+   "unit": "s",
+   "card": "none",
+   "context": "n/a",
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-07-microbench-h100",
+   "artifact": "criterion/simd generic logup lookup 2_16/new/estimates.json",
+   "note": "A micro-benchmark of one primitive of the proof system, run by the vendored library's own benchmark on the host's cores with no card. It is a time but it is not a scope of a proof, which is why the scope is not one of the four: nothing here proves anything. One logarithmic-derivative lookup argument over 65,536 rows with a numerator and a denominator per row, on the packed backend."
+  },
+  "lookup.cpu_generic_logup_secs": {
+   "value": 0.01668015775880291,
+   "unit": "s",
+   "card": "none",
+   "context": "n/a",
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-07-microbench-h100",
+   "artifact": "criterion/cpu generic logup lookup 2_16/new/estimates.json",
+   "note": "A micro-benchmark of one primitive of the proof system, run by the vendored library's own benchmark on the host's cores with no card. It is a time but it is not a scope of a proof, which is why the scope is not one of the four: nothing here proves anything. One logarithmic-derivative lookup argument over 65,536 rows with a numerator and a denominator per row, on the unpacked backend."
+  },
+  "fri.fold_line_secs": {
+   "value": 0.0007266549965498235,
+   "unit": "s",
+   "card": "none",
+   "context": "n/a",
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-07-microbench-h100",
+   "artifact": "criterion/fold_line/new/estimates.json",
+   "note": "A micro-benchmark of one primitive of the proof system, run by the vendored library's own benchmark on the host's cores with no card. It is a time but it is not a scope of a proof, which is why the scope is not one of the four: nothing here proves anything. One folding step of the low-degree test over a line of 4,096 values."
   }
  },
  "discrepancies": []
