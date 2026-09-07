@@ -43,6 +43,20 @@ DERIVED = {
         "GB10 measured / H200 spec bandwidth",
         v("verinf.gb10_measured_bandwidth_gbps") / v("hardware.h200.hbm_gbps_spec"),
         "verinf.gb10_vs_h200_bandwidth_ratio", 0.001),
+    # The sequence at context 4,096.  A rate is cells over the seconds at one
+    # timing scope, and a positions-per-second row is the sequence's positions
+    # over the same seconds; both sides of every division are `measured` rows
+    # of the same run, so nothing here is a second measurement.
+    **{f"rate.headline.c4096.{s}": (lambda s=s: chk(
+        f"c4096 headline {s.replace('_', ' ')} rate",
+        v("cells.headline.c4096.fresh") / v(f"secs.headline.c4096.{s}") / 1e6,
+        f"rate.headline.c4096.{s}", 0.001))
+       for s in ("commit", "stwo_total", "whole_wall", "loop")},
+    **{f"pos_s.headline.c4096.{s}": (lambda s=s: chk(
+        f"c4096 headline positions/s, {s.replace('_', ' ')}",
+        v("positions.headline.c4096") / v(f"secs.headline.c4096.{s}"),
+        f"pos_s.headline.c4096.{s}", 0.001))
+       for s in ("whole_wall", "loop")},
 }
 
 URL = re.compile(r"https?://\S+")

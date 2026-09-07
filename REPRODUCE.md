@@ -111,6 +111,88 @@ commit, from a dump extracted on the host's CPU instead of the card, so
 neither the extractor's device nor the renames between the two commits move
 this proof.
 
+## headline-c4096
+
+    tools/drivers/headline-c4096.sh <host> <prover-commit> <harness-commit>
+
+runs: 2026-09-07-headline-c4096-h100
+prover commit: aed0f37   harness commit: aed0f37
+digests: 288, one per segment, in the manifest's `digests` map under the slice
+  output that proved it; the first is `c6715532ede992fe` and the last
+  `49f2772888718f64`
+binding (from the manifest, folded over the 288 proofs): 1 to 15 bound; 16
+  absent, because the output head's segment is not in this plan
+unsound skips: none
+links: 535 of 535 the grid implies ran and passed, 279 on the layer axis and
+  256 on the token axis
+kernel fallback lines: 0 on each of the five processes
+constants backed: `cells.headline.c4096.fresh`, `mem.headline.c4096.peak_mib`,
+  `positions.headline.c4096`, `rate.headline.c4096.commit`,
+  `rate.headline.c4096.loop`, `rate.headline.c4096.stwo_total`,
+  `rate.headline.c4096.whole_wall`, `secs.headline.c4096.commit`,
+  `secs.headline.c4096.loop`, `secs.headline.c4096.stwo_total`,
+  `secs.headline.c4096.whole_wall`, `segments.headline.c4096`,
+  `pos_s.headline.c4096.loop`, `pos_s.headline.c4096.whole_wall`
+
+What the run checks. A 4,096-token prompt and the 512 tokens the model goes on
+to write are proved as one statement: nine token blocks of 32 layer segments,
+288 proofs. A layer segment's proof binds the residual stream it consumed to
+the previous layer's output and the keys and values it wrote to the next
+block's input, so the 288 proofs are not 288 separate claims; `boundary-grid`
+compares each root a segment committed with the root the segment that reads it
+committed, over the serialized statements and proofs and nothing else. The
+first layer of every block binds the residual stream it starts from to the rows
+of the embedding matrix that the block's published ids select. Every proof's
+own binding table names each of the fourteen edges inside a segment as bound
+and the embedding edge with them; the driver passes no skip flag and the
+manifest's list of them is empty. The five GKR reductions are on, which is the
+paper's configuration.
+
+What it does not check. The output head's segment is not in this plan, so
+nothing binds the token a position emits to the logits computed for it. An
+honest head segment is refused at this prover commit: the seam between the
+attention output and the o matmul is checked on a segment whose residual-stream
+components are the final norm's, where the two sides are folds over unrelated
+sequences and cannot be equal (zk-prover #58). One variable in the driver puts the segment back when
+that is fixed. Three ends are unchecked besides, and the grid output names them:
+the ids are compared against no published prompt, each segment's shape root is
+compared only against its own statement, and each segment's model root is
+compared only against its own proof rather than against a published model
+commitment.
+
+How the run is made. The prompt is the evaluation corpus's tokens 12,288 to
+16,383 -- the last 4,096 of the 16,384-token prompt the larger context reads,
+so the two contexts read the same prose -- and the output is the model's own
+greedy continuation under the reported quantization configuration, decoded once
+with 513 new tokens and once with 512 so that the two can be compared. The
+witnesses are extracted on the card in five passes over the sequence, one per
+group of layers, with the block-invariant files written once and shared; they
+are kept on the host under a directory named by the harness commit, and the
+campaigns that follow prove the same ones. The CUDA backend proves through
+device kernels generated per segment shape, so the job emits the kernels for
+every distinct shape in the plan into one store, installs them into the
+vendored library and rebuilds; the built tree then differs from the pushed
+commit, which is why the manifest records the build as dirty. The link check
+runs on the SIMD backend of the same commit, which is why the manifest names
+both backends.
+
+Host time. The extraction took 715 s on the card over the five passes and wrote
+72 GB; the kernels for the plan's 46 distinct shapes were emitted in 20 minutes
+and compiled in 15; the five proving processes took 748, 786, 821, 870 and 467
+seconds; the link check took 39 s. The witnesses were extracted by an earlier
+attempt of this job, so this run's own `extract.json` records no pass and the
+seconds above are read off the log, which stays on the host.
+
+Two workarounds are in the driver and both name their issue. The token
+generator is run through a shim, because it imports a module under a name that
+does not resolve (zk-prover #51); and the layer-0 dumps are moved into the name
+the shape table and the plan read, because a one-layer extraction writes
+another (zk-prover #55). A third defect is recorded rather than worked around:
+the kernel emitter refuses the shape of the block with no prefix, so that one
+shape's generation kernels are not in the store (zk-prover #57), and
+`genemit-refused.txt` in the run directory says which line it was. It cost
+nothing measurable: no lookup took the host route on any of the five processes.
+
 ## Entry template
 
 ```

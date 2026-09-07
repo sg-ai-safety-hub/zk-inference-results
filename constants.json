@@ -91,6 +91,84 @@
    "value": 0.0465, "unit": "fraction", "card": "DGX Spark (GB10) vs H200", "context": "n/a", "timing_scope": "n/a",
    "grade": "derived",
    "note": "verinf.gb10_measured_bandwidth_gbps / hardware.h200.hbm_gbps_spec: their measured rate over an NVIDIA specification figure. Our commitment path is bound by hashing, not by memory bandwidth, so this compares hardware classes and nothing else."
+  },
+  "cells.headline.c4096.fresh": {
+   "value": 360209739792, "unit": "cells", "card": "H100", "context": 4096, "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-07-headline-c4096-h100", "artifact": "slice_0000.json",
+   "note": "Fresh committed cells over the sequence's 288 segments, added up from the run's 5 slice outputs; 78.171 M per proved position."
+  },
+  "secs.headline.c4096.commit": {
+   "value": 170.174, "unit": "s", "card": "H100", "context": 4096, "timing_scope": "commit",
+   "grade": "measured",
+   "run": "2026-09-07-headline-c4096-h100", "artifact": "slice_0000.json",
+   "note": "The commitment path, added up over every segment of the sequence."
+  },
+  "secs.headline.c4096.stwo_total": {
+   "value": 332.53, "unit": "s", "card": "H100", "context": 4096, "timing_scope": "stwo total",
+   "grade": "measured",
+   "run": "2026-09-07-headline-c4096-h100", "artifact": "slice_0000.json",
+   "note": "Commit plus the prover's own call, added up over every segment."
+  },
+  "secs.headline.c4096.whole_wall": {
+   "value": 5465.436, "unit": "s", "card": "H100", "context": 4096, "timing_scope": "whole wall",
+   "grade": "measured",
+   "run": "2026-09-07-headline-c4096-h100", "artifact": "slice_0000.json",
+   "note": "Trace generation, interaction generation, stwo total and serialization, added up per segment; it does not count reading the witness or building the segment, which is what the loop scope adds."
+  },
+  "secs.headline.c4096.loop": {
+   "value": 3691.926, "unit": "s", "card": "H100", "context": 4096, "timing_scope": "loop",
+   "grade": "measured",
+   "run": "2026-09-07-headline-c4096-h100", "artifact": "slice_0000.json",
+   "note": "The 5 segment-loop processes' own wall-clock time added up. It counts reading the witness and building the segment, and each segment's generation overlaps the previous one's proving, so it is neither a subset nor a superset of the whole-wall row."
+  },
+  "segments.headline.c4096": {
+   "value": 288, "unit": "segments", "card": "H100", "context": 4096, "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-07-headline-c4096-h100", "artifact": "slice_0000.json",
+   "note": "9 token blocks of 32 layer segments. The output head's segment is not among them: an honest head segment is refused at this prover commit (zk-prover #58), so the sequence is proved from the embedding up to the last layer's residual and the token the head emits is bound by nothing."
+  },
+  "positions.headline.c4096": {
+   "value": 4608, "unit": "positions", "card": "H100", "context": 4096, "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-07-headline-c4096-h100", "artifact": "slice_0000.json",
+   "note": "4096 prompt positions and 512 output positions, every one of them proved from the embedding up through all 32 layers."
+  },
+  "mem.headline.c4096.peak_mib": {
+   "value": 73713, "unit": "MiB", "card": "H100", "context": 4096, "timing_scope": "loop",
+   "grade": "measured",
+   "run": "2026-09-07-headline-c4096-h100", "artifact": "slice_0000.json",
+   "note": "The most the card reported holding at any moment of the segment loop, sampled once a second. The card has 81,559 MiB."
+  },
+  "rate.headline.c4096.commit": {
+   "value": 2116.7124, "unit": "Mcell/s", "card": "H100", "context": 4096, "timing_scope": "commit",
+   "grade": "derived",
+   "note": "cells.headline.c4096.fresh / secs.headline.c4096.commit."
+  },
+  "rate.headline.c4096.stwo_total": {
+   "value": 1083.2408, "unit": "Mcell/s", "card": "H100", "context": 4096, "timing_scope": "stwo total",
+   "grade": "derived",
+   "note": "cells.headline.c4096.fresh / secs.headline.c4096.stwo_total."
+  },
+  "rate.headline.c4096.whole_wall": {
+   "value": 65.9069, "unit": "Mcell/s", "card": "H100", "context": 4096, "timing_scope": "whole wall",
+   "grade": "derived",
+   "note": "cells.headline.c4096.fresh / secs.headline.c4096.whole_wall."
+  },
+  "rate.headline.c4096.loop": {
+   "value": 97.5669, "unit": "Mcell/s", "card": "H100", "context": 4096, "timing_scope": "loop",
+   "grade": "derived",
+   "note": "cells.headline.c4096.fresh / secs.headline.c4096.loop."
+  },
+  "pos_s.headline.c4096.whole_wall": {
+   "value": 0.84312, "unit": "positions/s", "card": "H100", "context": 4096, "timing_scope": "whole wall",
+   "grade": "derived",
+   "note": "positions.headline.c4096 / secs.headline.c4096.whole_wall. Positions and not tokens: the prompt is proved as well as the output (docs/decisions)."
+  },
+  "pos_s.headline.c4096.loop": {
+   "value": 1.24813, "unit": "positions/s", "card": "H100", "context": 4096, "timing_scope": "loop",
+   "grade": "derived",
+   "note": "positions.headline.c4096 / secs.headline.c4096.loop. Positions and not tokens: the prompt is proved as well as the output (docs/decisions)."
   }
  },
  "discrepancies": []
