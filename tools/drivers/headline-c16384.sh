@@ -91,7 +91,11 @@ done
 export CUDA_HOME PATH="\$CUDA_HOME/bin:\$HOME/.cargo/bin:\$PATH" LD_LIBRARY_PATH="\$CUDA_HOME/lib64:\${LD_LIBRARY_PATH:-}"
 export CUDAARCHS=\${CUDAARCHS:-90} CUDAHOSTCXX=\${CUDAHOSTCXX:-\$(command -v g++-14 || command -v g++)}
 export RAYON_NUM_THREADS=\${RAYON_NUM_THREADS:-16} B7_GEN=\$GEN
-PY="uv run --project \$HSRC python"
+# The harness's default torch is the CPU build; the extraction runs on the card,
+# so every uv call selects the harness's cuda group.  uv syncs the environment
+# back to the default on any call that leaves the flags out.
+UVG="--no-group cpu --group cuda"
+PY="uv run --project \$HSRC \$UVG python"
 
 # the configuration, for the manifest
 cat > \$OUT/config.json <<CFG
@@ -111,7 +115,7 @@ st "build"
 SIMD=\$R/t-simd/release/zk-prover; CUDA=\$R/t-cuda/release/zk-prover
 
 # 2. the harness at its pinned commit
-( cd \$HSRC && uv sync --frozen )
+( cd \$HSRC && uv sync --frozen \$UVG )
 
 # 3. the statement's tokens: the prompt is the corpus's first $CTX tokens, the
 #    output is the model's own greedy continuation under $SPEC.  Decoded once
