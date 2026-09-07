@@ -1,0 +1,11 @@
+{"driver": "gkr-ablation-c4096", "label": "ablation",
+ "model": "unsloth/Llama-3.1-8B-Instruct", "spec": "y-delay-vw12", "head_spec": "b10-final",
+ "context": 4096, "s": 512, "blocks": 9, "layers": 32,
+ "sample_block": 8, "sample_segments": 32, "pipeline": 1,
+ "shared_flags": "--round even --numbits 9 --z-hi-bits 7 --variants intexp --bands 16,8,8 --tight-table", "base_layer_flags": "--round even --diagonal-block",
+ "configurations": {"none": "", "bands": "--gkr-bands",
+   "bands_dequant": "--gkr-bands --gkr-dequant",
+   "bands_residual_stream": "--gkr-bands --gkr-residual-stream",
+   "bands_freivalds": "--gkr-bands --gkr-freivalds",
+   "bands_attnout": "--gkr-bands --gkr-attnout", "all_five": "--gkr-bands --gkr-dequant --gkr-residual-stream --gkr-freivalds --gkr-attnout"},
+ "note": "the 32 layer segments of token block 8, proved seven times; the witnesses are headline-c4096's"}
