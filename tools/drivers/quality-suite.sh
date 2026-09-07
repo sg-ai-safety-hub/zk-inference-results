@@ -1,0 +1,293 @@
+#!/bin/sh
+# quality-suite: what the reported quantization configuration costs on the 8B model.
+#
+#   tools/drivers/quality-suite.sh <host> <prover-commit> <harness-commit>
+#
+# Llama-3.1-8B-Instruct on the card: one perplexity per quantization variant
+# over the fixed corpus, and three task suites -- GPQA-Diamond, an MMLU-Pro
+# subset and IFEval -- under the variant the paper reports and under a float
+# control that answers the same items in the same order.
+#
+# The control is what makes the task numbers mean anything.  Two accuracies
+# measured on the same items are not two independent samples, so the difference
+# between them has a standard error that is much smaller than either accuracy's
+# own, and it is the difference the paper claims something about.  The harness
+# computes it item by item and writes it beside the scores.
+#
+# This is a harness run and not a prover run.  Nothing here proves anything: it
+# measures the arithmetic the prover constrains, which is what makes
+# `docs/quantization.md`'s claim -- that the quality numbers describe exactly
+# the arithmetic that is proved -- a claim about measured things on both sides.
+# Its outputs carry no binding table and no proof digest, and its manifest says
+# `kind` `harness` and names no prover commit (issue #51).  The prover commit
+# argument is unused; it stays in the signature because every driver here takes
+# the same three arguments.
+#
+# The harness commit must be one whose outputs carry a provenance block
+# (zk-prover pull request 63).
+#
+# Three things this run needs that the host may not have, each fetched here and
+# each timed and sized into the run's own configuration record: the three task
+# datasets, and the four scoring packages the harness's lockfile does not carry
+# (the two that read a parquet file, and the two the IFEval checkers need).
+# They are brought in for the command that needs them and never written into
+# the pinned environment.
+#
+# The first call pushes zk-prover at the harness commit to the host, starts the
+# job detached and prints the poll command.  Every later call with the same
+# arguments prints the status; once the status says done it fetches the outputs
+# into runs/<run-id>/, writes manifest.json from the harness's provenance
+# block, and runs check.py.  Nothing measured is typed in here.
+set -eu
+HERE=$(cd "$(dirname "$0")" && pwd)
+ROOT=$(cd "$HERE/../.." && pwd)
+HOST=${1:?host alias}; PROVER=${2:?prover commit}; HARNESS=${3:?harness commit}
+ZK_PROVER=${ZK_PROVER_DIR:-$ROOT/../zk-prover}     # a local clone to archive the commits from
+NAME=quality-suite
+. "$HERE/lib/driver.sh"
+
+# ---- the configuration: here and in the manifest, nowhere else ---------------
+LABEL=quality              # a measurement of the arithmetic, not of a proof
+MODEL=${ZK_MODEL:-unsloth/Llama-3.1-8B-Instruct}
+DEVICE=cuda
+CHUNKS=40                  # 40 chunks of 512 tokens: 20,480 scored positions
+XTHREADS=20
+BATCH=32                   # IFEval's packed decode; one lane at a time on this card
+# Every variant `docs/quantization.md` names, in the order it names them.
+PPL_SPECS="fp32 dynamic-int8 static w8a16 b6-design-p2o b10-design b10-residual-stream b10-final y-attnout-w10 y-attnout-w11 y-attnout-w12 y-attnout-w16 y-delay-v y-delay-up y-delay-all y-delay-vw12"
+# The task suites run under the reported variant and under the float control,
+# and under nothing else: a third configuration would double the most expensive
+# part of the run and answer no question the paper asks.
+TASK_SPECS="fp32 y-delay-vw12"
+TASKS="gpqa mmlu_pro ifeval"
+REQUIRED_PPL="fp32 b10-final y-delay-vw12 static w8a16"
+# The datasets, each at the revision the URL resolves to, recorded by digest in
+# every output that reads them.
+GPQA_URL=https://huggingface.co/datasets/JingzeShi/gpqa_diamond/resolve/main/data/test-00000-of-00001.parquet
+MMLU_URL=https://huggingface.co/datasets/TIGER-Lab/MMLU-Pro/resolve/main/data/test-00000-of-00001.parquet
+IFEVAL_URL=https://huggingface.co/datasets/google/IFEval/resolve/main/ifeval_input_data.jsonl
+# The packages the harness's lockfile does not carry: two to read a parquet
+# file, two the IFEval instruction checkers need.
+LOAD_WITH="--with pandas --with pyarrow"
+# `immutabledict` is imported by the instruction checkers lm-eval ships and is
+# not a dependency it names, so resolving lm-eval alone installs a tree that
+# cannot import them.  Named here rather than discovered again.
+SCORE_WITH="--with pandas --with pyarrow --with lm-eval --with langdetect --with immutabledict"
+
+drv_finish "$(drv_status)"
+
+# ---- start: push the pinned harness, then the job ----------------------------
+drv_check_commits
+# Keyed on the harness commit: this run has no prover build, and pushing a
+# different harness tree into the prover campaigns' directory would replace the
+# tree they are built against.
+BUILD="build/$(printf '%.12s' "$HARNESS")"
+drv_push "$BUILD/harness-src" "$HARNESS"
+
+JOB=$(mktemp)
+cat > "$JOB" <<JOBEOF
+#!/bin/sh
+# generated by $NAME.sh; runs on the host under tools/remote/run.sh
+set -eu
+B=\$HOME/$BUILD
+R=\$HOME/runs/$NAME
+HSRC=\$B/harness-src/harness
+OUT=\$R/out
+WORK=\$R/work            # the harness's own output directory, one per model
+DATA=\$R/data            # the three task datasets
+mkdir -p \$OUT \$WORK \$DATA
+$(drv_job_preamble)
+export ZK_MODEL=$MODEL ZK_DEVICE=$DEVICE ZK_THREADS=$XTHREADS ZK_OUT=\$WORK
+export ZK_EVAL_DATA=\$DATA TOKENIZERS_PARALLELISM=false
+PY="uv run --project \$HSRC \$UVG python"
+PYL="uv run --project \$HSRC \$UVG $LOAD_WITH python"
+PYS="uv run --project \$HSRC \$UVG $SCORE_WITH python"
+
+st "gpu: \$(nvidia-smi --query-gpu=name,memory.total,driver_version --format=csv,noheader)"
+st "cores: \$(nproc), threads $XTHREADS, device $DEVICE"
+st "harness: \$(cat \$B/harness-src/.source-commit)"
+
+# 1. the harness at its pinned commit, on the CUDA torch
+( cd \$HSRC && uv sync --frozen \$UVG )
+
+# 2. the weights and the three datasets, fetched only if this host lacks them,
+#    each timed and sized rather than assumed.
+get() {   # get <url> <destination>
+  if [ -s "\$2" ]; then echo "0 0"; return 0; fi
+  mkdir -p "\$(dirname "\$2")"
+  T0=\$(date +%s)
+  curl -fsSL --retry 3 -o "\$2.part" "\$1" && mv "\$2.part" "\$2"
+  echo "\$(stat -c %s "\$2") \$(( \$(date +%s) - T0 ))"
+}
+st "datasets"
+G=\$(get "$GPQA_URL" \$DATA/gpqa_jingze/data/test-00000-of-00001.parquet)
+M=\$(get "$MMLU_URL" \$DATA/mmlu_pro/data/test-00000-of-00001.parquet)
+I=\$(get "$IFEVAL_URL" \$DATA/ifeval/ifeval_input_data.jsonl)
+st "datasets: gpqa \$G, mmlu_pro \$M, ifeval \$I (bytes, seconds; 0 0 means already here)"
+WEIGHTS=\$( cd \$HSRC && \$PY - <<'PY'
+import json, os, time
+t0 = time.time()
+from huggingface_hub import snapshot_download
+p = snapshot_download(os.environ["ZK_MODEL"])
+n = sum(os.path.getsize(os.path.join(r, f)) for r, _, fs in os.walk(p) for f in fs)
+print(json.dumps({"bytes": n, "seconds": round(time.time() - t0, 1)}))
+PY
+)
+st "weights: \$WEIGHTS"
+
+cat > \$OUT/config.json <<CFG
+{"driver": "$NAME", "label": "$LABEL", "kind": "harness",
+ "model": "$MODEL", "device": "$DEVICE", "threads": $XTHREADS, "batch": $BATCH,
+ "chunks": $CHUNKS, "positions": $((CHUNKS * 512)),
+ "ppl_specs": "$PPL_SPECS", "required_ppl": "$REQUIRED_PPL",
+ "task_specs": "$TASK_SPECS", "tasks": "$TASKS",
+ "weights": \$WEIGHTS,
+ "datasets": {"gpqa": "\$G", "mmlu_pro": "\$M", "ifeval": "\$I",
+              "units": "bytes seconds; 0 0 means the host already held it"},
+ "dataset_urls": {"gpqa": "$GPQA_URL", "mmlu_pro": "$MMLU_URL", "ifeval": "$IFEVAL_URL"},
+ "packages_added_for_scoring": "$SCORE_WITH",
+ "corpus": "harness/witness/text.txt, the fixed corpus; every output names it by digest"}
+CFG
+
+have() {   # have <file> <key>
+  python3 - "\$1" "\$2" <<'PY'
+import json, os, sys
+f, k = sys.argv[1], sys.argv[2]
+if not os.path.exists(f):
+    raise SystemExit(1)
+d = json.load(open(f))
+d = d["result"] if "provenance" in d and "result" in d else d
+raise SystemExit(0 if k in d else 1)
+PY
+}
+
+# 3. one perplexity per variant, one process each so peak memory stays at one
+#    model.  A variant already measured is not measured again.
+for s in $PPL_SPECS; do
+  if have \$WORK/ppl.json "\$s"; then st "ppl \$s: already measured"; continue; fi
+  st "ppl: \$s"
+  T0=\$(date +%s)
+  if ( cd \$HSRC && \$PY -m harness.witness.ppl --spec \$s --chunks $CHUNKS ); then
+    st "ppl \$s: done in \$(( \$(date +%s) - T0 ))s"
+  else
+    printf 'ppl %s\n' "\$s" >> \$OUT/refused.txt
+    st "ppl \$s: did not measure; recorded in out/refused.txt"
+  fi
+done
+( cd \$HSRC && \$PY -m harness.witness.ppl --report ) || true
+
+# 4. the task suites, one process per (task, variant).  Each appends one row per
+#    item and skips the items it already has, so an interrupted suite is
+#    restarted for the price of what it did not finish.  One lane at a time:
+#    IFEval under the float configuration holds the widest decode on this card.
+for s in $TASK_SPECS; do
+  for t in $TASKS; do
+    if python3 - \$WORK/tasks "\$t" "\$s" <<'PY'
+import glob, json, os, sys
+d, task, spec = sys.argv[1], sys.argv[2], sys.argv[3]
+want = {"gpqa": 198, "mmlu_pro": 1400, "ifeval": 541}[task]
+n = 0
+for f in glob.glob(os.path.join(d, f"{task}.{spec}.*.jsonl")):
+    n += sum(1 for line in open(f) if line.strip())
+raise SystemExit(0 if n >= want else 1)
+PY
+    then st "task \$t \$s: every item is already answered"; continue; fi
+    st "task: \$t, \$s"
+    T0=\$(date +%s)
+    if ( cd \$HSRC && \$PYL -m harness.eval.tasks --task \$t --spec \$s --batch $BATCH ); then
+      st "task \$t \$s: done in \$(( \$(date +%s) - T0 ))s"
+    else
+      printf 'task %s %s\n' "\$t" "\$s" >> \$OUT/refused.txt
+      st "task \$t \$s: did not run; recorded in out/refused.txt"
+    fi
+  done
+done
+
+# 5. the scores, and the item-by-item difference against the float control.
+#    This is the one step that needs the IFEval checkers.
+st "score"
+if ( cd \$HSRC && \$PYS -m harness.eval.tasks --score ); then
+  st "score: done"
+else
+  printf 'score\n' >> \$OUT/refused.txt
+  st "score did not run; the per-item rows are on this host and it can be redone"
+fi
+
+# 6. what the run delivers: the rows, the per-token losses, the task scores and
+#    the per-item answers they were computed from.
+cp \$WORK/ppl.json \$OUT/ppl.json
+[ ! -f \$WORK/tasks.json ] || cp \$WORK/tasks.json \$OUT/tasks.json
+rm -rf \$OUT/nll; cp -r \$WORK/nll \$OUT/nll
+rm -rf \$OUT/tasks; [ ! -d \$WORK/tasks ] || cp -r \$WORK/tasks \$OUT/tasks
+du -sh \$OUT | awk '{print "fetched size: " \$1 "  " \$2}'
+
+# 7. the gate
+python3 - \$OUT "$PPL_SPECS" "$REQUIRED_PPL" "$TASK_SPECS" "$TASKS" <<'PY'
+import json, pathlib, sys
+out = pathlib.Path(sys.argv[1])
+specs, required = sys.argv[2].split(), sys.argv[3].split()
+tspecs, tasks = sys.argv[4].split(), sys.argv[5].split()
+cfg = json.loads((out / "config.json").read_text())
+bad = []
+doc = json.loads((out / "ppl.json").read_text())
+if "provenance" not in doc or "result" not in doc:
+    sys.exit("ppl.json carries no provenance block; this harness commit writes none")
+p, rows = doc["provenance"], doc["result"]
+print(f"harness {p['commit']} dirty={p['dirty']}  model {p['model']} "
+      f"revision {p['model_revision']}  device {p['device']}  torch {p['versions']['torch']}")
+print(f"corpus {p['corpus']['file']} {p['corpus']['sha256'][:16]} {p['corpus']['bytes']} bytes")
+print(f"weights {cfg['weights']['bytes']:,} bytes in {cfg['weights']['seconds']} s")
+missing = [s for s in required if s not in rows]
+if missing:
+    bad.append(f"required variants not measured: {missing}")
+base = rows.get("fp32", {}).get("ppl")
+for s in specs:
+    if s not in rows:
+        print(f"{s:<22} not measured")
+        continue
+    r = rows[s]
+    d = "--" if s == "fp32" or base is None else f"{(r['ppl'] / base - 1) * 100:+.3f}%"
+    print(f"{s:<22} ppl {r['ppl']:9.4f}  vs fp32 {d:>9}  {r['tokens']} positions, {r['seconds']} s")
+for s, q in doc.get("paired", {}).items():
+    print(f"{s:<22} vs fp32 {q['delta_pct']:+.4f}%  paired standard error "
+          f"{q['se_nats']:.6f} nats over {q['positions']} positions")
+t = out / "tasks.json"
+if not t.exists():
+    bad.append("no tasks.json; the task suites did not score")
+else:
+    tdoc = json.loads(t.read_text())
+    tp = tdoc["provenance"] if "provenance" in tdoc else None
+    trows = tdoc["result"] if tp else tdoc
+    if tp:
+        for d in tp.get("datasets", []):
+            print(f"dataset {d['file']} {str(d['sha256'])[:16]} {d['bytes']} bytes")
+    for s in tspecs:
+        for k in tasks:
+            r = trows.get(s, {}).get(k)
+            if r is None:
+                bad.append(f"{k} under {s} did not score")
+                continue
+            score = r.get("acc", r.get("prompt_strict"))
+            extra = ""
+            if "paired_vs_fp32" in r and r["paired_vs_fp32"]:
+                q = r["paired_vs_fp32"]
+                extra = (f"  vs fp32 {q['delta'] * 100:+.3f} points, standard error "
+                         f"{q['se'] * 100:.3f} points over {q['n']} items "
+                         f"({q['n01']} gained, {q['n10']} lost)")
+            print(f"{k:<10} {s:<16} {score:.4f}  n={r.get('n', r.get('n_prompts'))}  "
+                  f"complete={r['complete']}{extra}")
+            if not r["complete"]:
+                bad.append(f"{k} under {s} scored only part of the suite")
+refused = (out / "refused.txt").read_text().split("\n") if (out / "refused.txt").exists() else []
+refused = [r for r in refused if r]
+if refused:
+    print(f"{len(refused)} measurements refused: {refused}")
+if bad:
+    sys.exit("; ".join(bad))
+print("every required variant, and every task under both configurations, is measured "
+      "and complete")
+PY
+st "done"
+JOBEOF
+drv_start "$JOB"
+rm -f "$JOB"
