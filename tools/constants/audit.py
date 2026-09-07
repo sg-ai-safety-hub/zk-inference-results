@@ -226,11 +226,71 @@ def microbench(a, keys):
 # Added when a driver's first run lands; each function re-derives the constants
 # whose `run` was made by that driver.
 
+# -- the quality campaigns -----------------------------------------------------
+def _quality(group):
+    """One perplexity campaign's rows, re-derived from the harness's own output.
+
+    A harness run proves nothing, so the first thing the audit checks is that it
+    says so: `kind` is `harness`, there is no proof digest and there is no
+    binding table.  A run that claimed to be a harness run and carried either
+    would have been refused by `lib/manifest.py` before it got here, and this is
+    the same check from the other side.
+
+    The perplexities come from the rows the harness wrote.  The differences
+    against the float reference and their standard errors are the harness's too,
+    computed there from the per-token losses that are in the run's own `nll/`
+    directory; the audit reads them back rather than recomputing them, because
+    a paired standard error over twenty thousand positions is not arithmetic
+    this file can do without numpy, which the checks run without.
+    """
+    def section(a, keys):
+        if not keys:
+            return
+        run = sorted({e["run"] for e in keys.values()})[0]
+        doc = artifact(run, "ppl.json")
+        p, rows = doc["provenance"], doc["result"]
+        pairs = doc.get("paired", {})
+        cfg = artifact(run, "config.json")
+        if p.get("kind") != "harness":
+            a.fails.append(f"audit: {run} is not marked a harness run")
+        if p.get("binding") is not None or p.get("proof_sha256") is not None:
+            a.fails.append(f"audit: {run} says it is a harness run and carries a proof")
+        print(f"  runs/{run}: {p['model']} at {str(p['model_revision'])[:12]}, "
+              f"{len(rows)} variants on the {p['device']}, "
+              f"corpus {p['corpus']['sha256'][:16]}")
+        cpath = ROOT / "runs" / run / "cosine.json"
+        crows = {}
+        if cpath.exists():
+            cdoc = artifact(run, "cosine.json")
+            crows = cdoc["result"] if "provenance" in cdoc else cdoc
+        for spec in cfg["specs"].split():
+            k = spec.replace("-", "_")
+            if rows.get(spec) and rows[spec]["chunks"] != cfg["chunks"]:
+                a.fails.append(f"audit: {spec} was measured on {rows[spec]['chunks']} chunks, "
+                               f"not the {cfg['chunks']} the run configured")
+            for key, value in ((f"{group}.ppl_{k}", rows.get(spec, {}).get("ppl")),
+                               (f"{group}.ppl_{k}_delta_pct", pairs.get(spec, {}).get("delta_pct")),
+                               (f"{group}.ppl_{k}_se_nats", pairs.get(spec, {}).get("se_nats")),
+                               (f"{group}.cosine_{k}", crows.get(spec, {}).get("cosine_mean"))):
+                if key in keys:
+                    if value is None:
+                        a.fails.append(f"audit: {key} has no number in the run's outputs")
+                    else:
+                        a.claim(key, value)
+    return section
+
+
+# -- sections: (driver name, function(audit, keys)) ----------------------------
+# Added when a driver's first run lands; each function re-derives the constants
+# whose `run` was made by that driver.
+
 SECTIONS = [
     ("headline-c4096", headline_c4096),
     ("gkr-ablation-c4096", gkr_ablation_c4096),
     ("memory-probe-c16384", memory_probe_c16384),
     ("microbench", microbench),
+    ("quality-0p5b", _quality("quality.0p5b")),
+    ("quality-gemma270m", _quality("quality.gemma270m")),
 ]
 
 
