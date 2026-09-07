@@ -41,7 +41,7 @@ WIT=\$HOME/witness/$(printf '%.12s' "$HARNESS")/$SPEC-c$CTX     # reused across 
 HEADW=\$HOME/witness/$(printf '%.12s' "$HARNESS")/head-$HEAD_SPEC-c$CTX/witness
 mkdir -p \$OUT \$GEN \$SER \$WIT
 $(drv_job_preamble)
-export RAYON_NUM_THREADS=\${RAYON_NUM_THREADS:-16} B7_GEN=\$GEN
+export RAYON_NUM_THREADS=\${RAYON_NUM_THREADS:-16} ZK_KERNEL_STORE=\$GEN
 PY="uv run --project \$HSRC \$UVG python"
 
 # the configuration, for the manifest
@@ -222,7 +222,7 @@ while [ \$lo -lt \$N ]; do
   if [ -s \$OUT/\$tag.json ]; then st "\$tag already proved"; lo=\$hi; continue; fi
   rm -f \$R/\$tag.mem
   ( while true; do echo "\$(date +%s) \$(nvidia-smi --query-gpu=memory.used --format=csv,noheader,nounits)" >> \$R/\$tag.mem; sleep 1; done ) & sampler=\$!
-  B7_M5_PIPE=$PIPELINE \$CUDA compose-chunks $SHARED \$PINS --plan \$OUT/plan.txt --plan-slice \$lo:\$hi --ser-dir \$SER \
+  ZK_PIPELINE=$PIPELINE \$CUDA compose-chunks $SHARED \$PINS --plan \$OUT/plan.txt --plan-slice \$lo:\$hi --ser-dir \$SER \
       > \$OUT/\$tag.json 2> \$R/\$tag.err || { kill \$sampler; rm -f \$OUT/\$tag.json; st "\$tag failed, see \$R/\$tag.err"; exit 4; }
   kill \$sampler
   grep -c 'kernel fallback:' \$R/\$tag.err > \$OUT/\$tag.fallbacks || true

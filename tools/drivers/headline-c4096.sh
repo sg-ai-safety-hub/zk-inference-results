@@ -41,8 +41,8 @@ HEAD_SPEC=b10-final        # the output head's variant; both variants give the h
 CTX=4096; S=512
 NBLOCK=$(( (CTX + S) / S ))  # 9: the prompt's 8 blocks and the output block
 NLAY=32
-SHARED="--round even --numbits 9 --z-hi-bits 7 --variants intexp --bands 16,8,8 --tight-table"
-GKR="--gkr-bands --gkr-dequant --gkr-residual-stream --gkr-freivalds --gkr-attnout"
+SHARED="--round even --numbits 9 --z-hi-bits 7 --variants intexp --head-groups 16,8,8 --tight-table"
+GKR="--gkr-key-tiles --gkr-dequant --gkr-residual-stream --gkr-freivalds --gkr-attnout"
 LAYER_FLAGS="--round even --diagonal-block $GKR"   # every binding gadget is on by default; no skip flag anywhere
 L0_FLAGS=""
 HEAD_FLAGS="--ao-rem-bits 23 $GKR"
@@ -62,11 +62,11 @@ WITH_HEAD=0
 # is moved to the end of the 16,384-token prompt instead, so this row and the
 # context 16,384 row read the same prose (harness/witness/gen_ids.py).
 OFFSET=$(( 16384 - CTX ))
-PIPELINE=1                 # B7_M5_PIPE: generate segment k+1 while proving segment k
+PIPELINE=1                 # ZK_PIPELINE: generate segment k+1 while proving segment k
 SLICE=64                   # segments per process: 289 -> 5 processes
 XTHREADS=20                # torch threads for the extraction
 IDS=${ZK_IDS:-}            # token ids (.npy) already on the host; empty = generate them
-KERNEL_FAMILIES=b65_chan_eval,b65_key_eval,b65_row_eval,b65_attn_out_eval,b65_dequant_eval,b65_freivalds_eval,b65_exp_table_eval,b65_table_eval,b65_residual_stream_eval,b65_residual_stream_table_eval
+KERNEL_FAMILIES=zk_chan_eval,zk_key_eval,zk_row_eval,zk_attn_out_eval,zk_dequant_eval,zk_freivalds_eval,zk_exp_table_eval,zk_table_eval,zk_residual_stream_eval,zk_residual_stream_table_eval
 # The links the grid implies, which the grid is told before it counts them.
 # Inside a block, consecutive layers: 31 per block, and one more on the last
 # block when the head is in the plan, because the head sits at the layer
