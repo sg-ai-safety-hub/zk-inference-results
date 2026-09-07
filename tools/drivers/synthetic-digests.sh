@@ -40,7 +40,7 @@ GKR5="--gkr-key-tiles --gkr-dequant --gkr-residual-stream --gkr-freivalds --gkr-
 SHAPES="sound|--key-tiles 2,1 $RESIDUAL_STREAM --diagonal-block
 sound_gkrfive|--key-tiles 2,1 $RESIDUAL_STREAM --diagonal-block $GKR5
 sound_aligned|--key-tiles 2,2 --nin 128 --nout 128 --residual-stream-a 32 --kmax 16 --synth-residual-stream --diagonal-block"
-KERNEL_FAMILIES=b65_chan_eval,b65_key_eval,b65_row_eval,b65_attn_out_eval,b65_dequant_eval,b65_freivalds_eval,b65_exp_table_eval,b65_table_eval,b65_residual_stream_eval,b65_residual_stream_table_eval
+KERNEL_FAMILIES=zk_chan_eval,zk_key_eval,zk_row_eval,zk_attn_out_eval,zk_dequant_eval,zk_freivalds_eval,zk_exp_table_eval,zk_table_eval,zk_residual_stream_eval,zk_residual_stream_table_eval
 
 status() { ssh -o BatchMode=yes "$HOST" "cat ~/runs/$NAME.status 2>/dev/null || true"; }
 
