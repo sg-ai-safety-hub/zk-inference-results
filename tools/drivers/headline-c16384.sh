@@ -39,7 +39,7 @@ GKR="--gkr-key-tiles --gkr-dequant --gkr-residual-stream --gkr-freivalds --gkr-a
 LAYER_FLAGS="--round even --diagonal-block $GKR"   # every binding gadget is on by default; no skip flag anywhere
 L0_FLAGS=""
 HEAD_FLAGS="--ao-rem-bits 23 $GKR"
-PIPELINE=1                 # B7_M5_PIPE: generate segment k+1 while proving segment k
+PIPELINE=1                 # ZK_PIPELINE: generate segment k+1 while proving segment k
 SLICE=64                   # segments per process: 1,057 -> 17 processes
 IDS=${ZK_IDS:-}            # token ids (.npy) already on the host; empty = generate them (below)
 KERNEL_FAMILIES=b65_chan_eval,b65_key_eval,b65_row_eval,b65_attn_out_eval,b65_dequant_eval,b65_freivalds_eval,b65_exp_table_eval,b65_table_eval,b65_residual_stream_eval,b65_residual_stream_table_eval
@@ -90,7 +90,7 @@ for d in \${CUDA_HOME:-} \$HOME/cuda-12.9 /usr/local/cuda-12.9 /usr/local/cuda; 
 done
 export CUDA_HOME PATH="\$CUDA_HOME/bin:\$HOME/.cargo/bin:\$PATH" LD_LIBRARY_PATH="\$CUDA_HOME/lib64:\${LD_LIBRARY_PATH:-}"
 export CUDAARCHS=\${CUDAARCHS:-90} CUDAHOSTCXX=\${CUDAHOSTCXX:-\$(command -v g++-14 || command -v g++)}
-export RAYON_NUM_THREADS=\${RAYON_NUM_THREADS:-16} B7_GEN=\$GEN
+export RAYON_NUM_THREADS=\${RAYON_NUM_THREADS:-16} ZK_KERNEL_STORE=\$GEN
 # The harness's default torch is the CPU build; the extraction runs on the card,
 # so every uv call selects the harness's cuda group.  uv syncs the environment
 # back to the default on any call that leaves the flags out.
@@ -196,7 +196,7 @@ while [ \$lo -lt \$N ]; do
   hi=\$((lo + $SLICE)); [ \$hi -gt \$N ] && hi=\$N
   tag=\$(printf 'slice_%04d' \$lo)
   ( while true; do echo "\$(date +%s.%N) \$(nvidia-smi --query-gpu=memory.used --format=csv,noheader,nounits)" >> \$OUT/\$tag.mem; sleep 0.2; done ) & sampler=\$!
-  B7_M5_PIPE=$PIPELINE \$CUDA compose-chunks $SHARED \$PINS --plan \$OUT/plan.txt --plan-slice \$lo:\$hi --ser-dir \$SER \
+  ZK_PIPELINE=$PIPELINE \$CUDA compose-chunks $SHARED \$PINS --plan \$OUT/plan.txt --plan-slice \$lo:\$hi --ser-dir \$SER \
       > \$OUT/\$tag.json 2> \$R/\$tag.err || { kill \$sampler; st "\$tag failed, see \$R/\$tag.err"; exit 4; }
   kill \$sampler
   grep -c 'kernel fallback:' \$R/\$tag.err > \$OUT/\$tag.fallbacks || true
