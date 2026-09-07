@@ -20,7 +20,7 @@ in this repository, so this page names the keys the drivers will back.
 ## What it counts, per decoded token
 
 - The weight matmuls, checked by Freivalds' method: a fixed number of cells
-  per weight (`model_constants.weight_walk_cells_per_weight`).
+  per weight (`model_constants.weight_freivalds_cells_per_weight`).
 - Dequantization after each matmul: cells per accumulator, for the bf16 chain
   and for power-of-two scales (`model_constants.dequant_chain_cells_per_acc`,
   `model_constants.dequant_pow2_cells_per_acc`).
