@@ -190,16 +190,24 @@ if [ ! -f \$R/kernels.done ]; then
   while read -r line; do
     case "\$line" in '#'*|'') continue ;; esac
     args=\$(printf '%s\n' "\$line" | sed 's/--ser-tag [A-Za-z0-9_]*//')
-    \$SIMD cudaemit $SHARED \$PINS \$args --out \$GEN --block 256 --min-blocks 2 > /dev/null
-    # zk-prover #57: genemit's placeholder claims are one entry short on a chunk
-    # that carries the embedding gadget, so it cannot lower the layer-0 shapes.
-    # A generation kernel is looked up by fingerprint and the plan's shapes share
-    # theirs, so what a refused lowering costs is either nothing or an announced
-    # kernel fallback line, and the gate below fails the run on any such line.
-    if ! \$SIMD genemit $SHARED \$PINS \$args --families "$KERNEL_FAMILIES" --out \$GEN > /dev/null; then
-      printf '%s\n' "\$line" >> \$OUT/genemit-refused.txt
-      st "genemit refused a shape (zk-prover #57); recorded in out/genemit-refused.txt"
-    fi
+    # zk-prover #57: the emitters' placeholder claims are one entry short on the
+    # segment with no prefix, which is the one that also carries the embedding
+    # gadget.  With the five reductions on only the generation emitter runs out;
+    # with them off the constraint emitter does too.  A kernel is looked up by
+    # fingerprint and the plan's shapes share theirs, so what a refused lowering
+    # costs is either nothing or an announced kernel fallback line, and the gate
+    # below fails the run on any such line.  Which shapes were refused is in the
+    # run directory, not in an exit code.
+    for emit in cudaemit genemit; do
+      case \$emit in
+        cudaemit) opts="--block 256 --min-blocks 2" ;;
+        genemit)  opts="--families $KERNEL_FAMILIES" ;;
+      esac
+      if ! \$SIMD \$emit $SHARED \$PINS \$args \$opts --out \$GEN > /dev/null; then
+        printf '%s\n' "\$line" >> \$OUT/\$emit-refused.txt
+        st "\$emit refused a shape (zk-prover #57); recorded in out/\$emit-refused.txt"
+      fi
+    done
   done < \$R/emit.txt
   python3 \$K/m2b_kernels.py --fork \$SRC/nitroo --gen \$GEN
   python3 \$K/m4b_kernels.py --fork \$SRC/nitroo --gen \$GEN --src \$K
