@@ -250,6 +250,11 @@ to 21.4 with all five, but the commitment path is 5 per cent of the loop here an
 the rest does not follow it. The peak the card reported holding follows the cells
 closely, from 75.4 GiB with none to 65.9 GiB with all five.
 
+The labels this run gave its seven configurations -- `bands`, `bands_dequant`
+and the rest -- were written before the key tiles were renamed, and the run's own
+outputs are named by them, so the constants keyed on them keep the older noun.
+The driver's flags are the current ones.
+
 How the run is made. The witnesses are the ones `headline-c4096` extracted, and
 the driver refuses to run without them rather than extracting a second set: a
 comparison across configurations is only a comparison if the witnesses are the

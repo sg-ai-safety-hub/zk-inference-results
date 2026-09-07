@@ -49,27 +49,27 @@ CTX=4096; S=512
 NBLOCK=$(( (CTX + S) / S ))
 NLAY=32
 SAMPLE=8                   # the plan's last token block: 32 segments at prefix c = $CTX
-SHARED="--round even --numbits 9 --z-hi-bits 7 --variants intexp --bands 16,8,8 --tight-table"
+SHARED="--round even --numbits 9 --z-hi-bits 7 --variants intexp --head-groups 16,8,8 --tight-table"
 BASE="--round even --diagonal-block"   # every binding gadget is on by default; no skip flag anywhere
-GKR5="--gkr-bands --gkr-dequant --gkr-residual-stream --gkr-freivalds --gkr-attnout"
+GKR5="--gkr-key-tiles --gkr-dequant --gkr-residual-stream --gkr-freivalds --gkr-attnout"
 # One line per configuration: <name>|<the --gkr-* flags after $BASE>.
 #
 # Four of the five reductions are not configurations on their own: the
 # dequantization gadgets, the residual stream, the Freivalds checks and the
 # attention output all join the key tiles' own LogUp-GKR backend rather than
 # standing up one of their own, and the prover refuses each of them without
-# `--gkr-bands` ("it composes with --gkr-bands; it does not replace it").  So
+# `--gkr-key-tiles` ("it composes with --gkr-key-tiles; it does not replace it").  So
 # what one of them costs is what it costs *on top of the key tiles*, and that is
 # the pair each line below makes with `bands`.
 CONFIGS="none|
-bands|--gkr-bands
-bands_dequant|--gkr-bands --gkr-dequant
-bands_residual_stream|--gkr-bands --gkr-residual-stream
-bands_freivalds|--gkr-bands --gkr-freivalds
-bands_attnout|--gkr-bands --gkr-attnout
+bands|--gkr-key-tiles
+bands_dequant|--gkr-key-tiles --gkr-dequant
+bands_residual_stream|--gkr-key-tiles --gkr-residual-stream
+bands_freivalds|--gkr-key-tiles --gkr-freivalds
+bands_attnout|--gkr-key-tiles --gkr-attnout
 all_five|$GKR5"
-PIPELINE=1
-KERNEL_FAMILIES=b65_chan_eval,b65_key_eval,b65_row_eval,b65_attn_out_eval,b65_dequant_eval,b65_freivalds_eval,b65_exp_table_eval,b65_table_eval,b65_residual_stream_eval,b65_residual_stream_table_eval
+PIPELINE=1                 # ZK_PIPELINE: generate segment k+1 while proving segment k
+KERNEL_FAMILIES=zk_chan_eval,zk_key_eval,zk_row_eval,zk_attn_out_eval,zk_dequant_eval,zk_freivalds_eval,zk_exp_table_eval,zk_table_eval,zk_residual_stream_eval,zk_residual_stream_table_eval
 
 drv_finish "$(drv_status)"
 
@@ -91,7 +91,7 @@ OUT=\$R/out
 WIT=\$HOME/witness/$(printf '%.12s' "$HARNESS")/$SPEC-c$CTX
 mkdir -p \$OUT \$GEN
 $(drv_job_preamble)
-export RAYON_NUM_THREADS=\${RAYON_NUM_THREADS:-16} B7_GEN=\$GEN
+export RAYON_NUM_THREADS=\${RAYON_NUM_THREADS:-16} ZK_KERNEL_STORE=\$GEN
 PY="uv run --project \$HSRC \$UVG python"
 
 cat > \$OUT/config.json <<CFG
@@ -100,11 +100,11 @@ cat > \$OUT/config.json <<CFG
  "context": $CTX, "s": $S, "blocks": $NBLOCK, "layers": $NLAY,
  "sample_block": $SAMPLE, "sample_segments": $NLAY, "pipeline": $PIPELINE,
  "shared_flags": "$SHARED", "base_layer_flags": "$BASE",
- "configurations": {"none": "", "bands": "--gkr-bands",
-   "bands_dequant": "--gkr-bands --gkr-dequant",
-   "bands_residual_stream": "--gkr-bands --gkr-residual-stream",
-   "bands_freivalds": "--gkr-bands --gkr-freivalds",
-   "bands_attnout": "--gkr-bands --gkr-attnout", "all_five": "$GKR5"},
+ "configurations": {"none": "", "bands": "--gkr-key-tiles",
+   "bands_dequant": "--gkr-key-tiles --gkr-dequant",
+   "bands_residual_stream": "--gkr-key-tiles --gkr-residual-stream",
+   "bands_freivalds": "--gkr-key-tiles --gkr-freivalds",
+   "bands_attnout": "--gkr-key-tiles --gkr-attnout", "all_five": "$GKR5"},
  "note": "the 32 layer segments of token block $SAMPLE, proved seven times; the witnesses are headline-c4096's"}
 CFG
 
@@ -192,7 +192,7 @@ printf '%s\n' "$CONFIGS" | while IFS='|' read -r name flags; do
   if [ -s \$OUT/\$name.json ]; then st "\$name already proved"; continue; fi
   rm -f \$R/\$name.mem
   ( while true; do echo "\$(date +%s) \$(nvidia-smi --query-gpu=memory.used --format=csv,noheader,nounits)" >> \$R/\$name.mem; sleep 1; done ) & sampler=\$!
-  B7_M5_PIPE=$PIPELINE \$CUDA compose-chunks $SHARED \$PINS --plan \$OUT/\$name.plan.txt \
+  ZK_PIPELINE=$PIPELINE \$CUDA compose-chunks $SHARED \$PINS --plan \$OUT/\$name.plan.txt \
       > \$OUT/\$name.json 2> \$R/\$name.err || { kill \$sampler; rm -f \$OUT/\$name.json; st "\$name failed, see \$R/\$name.err"; exit 4; }
   kill \$sampler
   grep -c 'kernel fallback:' \$R/\$name.err > \$OUT/\$name.fallbacks || true
