@@ -36,7 +36,7 @@ NBLOCK=$(( (CTX + S) / S ))  # 33: the prompt's 32 blocks and the output block
 NLAY=32
 SHARED="--round even --numbits 9 --z-hi-bits 7 --variants intexp --bands 16,8,8 --tight-table"
 GKR="--gkr-bands --gkr-dequant --gkr-residual-stream --gkr-freivalds --gkr-attnout"
-LAYER_FLAGS="--round even --corner $GKR"   # every binding gadget is on by default; no skip flag anywhere
+LAYER_FLAGS="--round even --diagonal-block $GKR"   # every binding gadget is on by default; no skip flag anywhere
 L0_FLAGS=""
 HEAD_FLAGS="--ao-rem-bits 23 $GKR"
 PIPELINE=1                 # B7_M5_PIPE: generate segment k+1 while proving segment k
@@ -141,11 +141,11 @@ IDSARG="--ids \$IDSFILE"
 if [ ! -f \$WIT/shapes_all.json ]; then
   st "extract: $NBLOCK blocks x $NLAY layers, C=$CTX, $SPEC"
   ( cd \$HSRC && ZK_MODEL=$MODEL ZK_DEVICE=cuda \$PY -m harness.witness.extract --tokens $((CTX + S)) --chunk $S \
-      --layers 0 --spec $SPEC --residual-stream --corner --slim --slim-num --embed \$IDSARG \
+      --layers 0 --spec $SPEC --residual-stream --diagonal-block --slim --slim-num --embed \$IDSARG \
       --blocks all --share \$WIT/shared --out \$WIT/witness )
   for g in 1,2,3,4,5,6,7 8,9,10,11,12,13,14,15 16,17,18,19,20,21,22,23 24,25,26,27,28,29,30,31; do
     ( cd \$HSRC && ZK_MODEL=$MODEL ZK_DEVICE=cuda \$PY -m harness.witness.extract --tokens $((CTX + S)) --chunk $S \
-        --layers \$g --spec $SPEC --residual-stream --corner --slim --slim-num \$IDSARG \
+        --layers \$g --spec $SPEC --residual-stream --diagonal-block --slim --slim-num \$IDSARG \
         --blocks all --share \$WIT/shared --out \$WIT/witness )
   done
   st "shapes"
