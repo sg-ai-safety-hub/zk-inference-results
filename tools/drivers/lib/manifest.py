@@ -91,6 +91,9 @@ def main():
     digests = {f: digests_of(d) for f, d in docs.items() if digests_of(d) is not None}
     skips = sorted({s for _, q in prov for s in q.get("unsound_skips", [])})
     binding = fold_binding([q.get("binding") for _, q in prov])
+    # a run that proves on both backends names both, sorted; one backend stays a string
+    backends = sorted({str(q.get("backend")) for _, q in prov})
+    backend = backends[0] if len(backends) == 1 else backends
     if binding is None:
         sys.exit("manifest.py: no output carries a binding table; a run without one is not admissible")
     manifest = {
@@ -103,7 +106,7 @@ def main():
         "gpu": p.get("gpu"),
         "driver_version": p.get("driver_version"),
         "cuda_version": p.get("cuda_version"),
-        "backend": p.get("backend"),
+        "backend": backend,
         "argv": [p.get("binary"), *p.get("args", [])],
         "outputs": files,
         "digests": digests,
