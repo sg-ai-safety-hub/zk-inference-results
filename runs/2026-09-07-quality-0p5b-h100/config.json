@@ -1,0 +1,6 @@
+{"driver": "quality-0p5b", "label": "quality", "kind": "harness",
+ "model": "Qwen/Qwen2.5-0.5B-Instruct", "device": "cpu", "threads": 20,
+ "chunks": 40, "positions": 20480,
+ "specs": "fp32 dynamic-int8 static w8a16 b6-design-p2o b10-design b10-residual-stream b10-final y-attnout-w10 y-attnout-w11 y-attnout-w12 y-attnout-w16 y-delay-v y-delay-up y-delay-all y-delay-vw12", "required": "fp32 dynamic-int8 static w8a16 b6-design-p2o b10-design b10-residual-stream b10-final y-attnout-w10 y-attnout-w11 y-attnout-w12 y-attnout-w16 y-delay-v y-delay-up y-delay-all y-delay-vw12", "cosine_specs": "",
+ "weights": {"bytes": 999604126, "seconds": 1.2},
+ "corpus": "harness/witness/text.txt, the fixed corpus; every output names it by digest"}

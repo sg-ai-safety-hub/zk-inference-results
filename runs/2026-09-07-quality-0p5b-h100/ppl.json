@@ -1,0 +1,661 @@
+{
+ "provenance": {
+  "kind": "harness",
+  "commit": "33ba9b7a6575b2a1c3894c95ddd095daf1305e84",
+  "dirty": false,
+  "binary": "python -m harness.witness.ppl",
+  "args": [
+   "--spec",
+   "y-delay-vw12",
+   "--chunks",
+   "40"
+  ],
+  "backend": "harness",
+  "gpu": "NVIDIA H100 80GB HBM3, 81559 MiB",
+  "driver_version": "580.178.04",
+  "cuda_version": "13.0",
+  "device": "cpu",
+  "threads": 20,
+  "versions": {
+   "python": "3.12.3",
+   "torch": "2.13.0+cpu",
+   "transformers": "5.15.0",
+   "numpy": "2.5.2"
+  },
+  "model": "Qwen/Qwen2.5-0.5B-Instruct",
+  "model_revision": "7ae557604adf67be50417f59c2c2f167def9a775",
+  "proof_sha256": null,
+  "proof_sha256s": null,
+  "unsound_skips": [],
+  "binding": null,
+  "specs_written": [
+   "y-delay-vw12"
+  ],
+  "specs_in_file": [
+   "b10-design",
+   "b10-final",
+   "b10-residual-stream",
+   "b6-design-p2o",
+   "dynamic-int8",
+   "fp32",
+   "static",
+   "w8a16",
+   "y-attnout-w10",
+   "y-attnout-w11",
+   "y-attnout-w12",
+   "y-attnout-w16",
+   "y-delay-all",
+   "y-delay-up",
+   "y-delay-v",
+   "y-delay-vw12"
+  ],
+  "chunks": 40,
+  "corpus": {
+   "file": "text.txt",
+   "sha256": "a5666f87abf2cbfdaa27ea8c73bd284da9649b9a2ab27b4e6c8f6aeab1bd1c88",
+   "bytes": 738046
+  }
+ },
+ "result": {
+  "fp32": {
+   "spec": {
+    "linear": "fp32",
+    "nonlinear": "fp32",
+    "reduce": "fp32",
+    "qk_int8": false,
+    "fp32_logits": false,
+    "fp32_matmuls": [],
+    "qk_bits": [
+     8,
+     8
+    ],
+    "int_softmax": false,
+    "num_bits": 8,
+    "pow2_scales": "",
+    "attn_scale_mode": "static",
+    "q_scale_mode": "token",
+    "dequant": "fp32",
+    "dequant_round": "even",
+    "attn_out_int8": false,
+    "attn_out_pow2": false,
+    "pow2_matmuls": [],
+    "attn_out_bits": 8,
+    "delay_matmuls": []
+   },
+   "ppl": 21.85474666641613,
+   "nll": 3.0844181366862617,
+   "tokens": 20440,
+   "chunks": 40,
+   "seconds": 206.2
+  },
+  "dynamic-int8": {
+   "spec": {
+    "linear": "dynamic",
+    "nonlinear": "bf16",
+    "reduce": "fp32",
+    "qk_int8": false,
+    "fp32_logits": false,
+    "fp32_matmuls": [],
+    "qk_bits": [
+     8,
+     8
+    ],
+    "int_softmax": false,
+    "num_bits": 8,
+    "pow2_scales": "",
+    "attn_scale_mode": "static",
+    "q_scale_mode": "token",
+    "dequant": "fp32",
+    "dequant_round": "even",
+    "attn_out_int8": false,
+    "attn_out_pow2": false,
+    "pow2_matmuls": [],
+    "attn_out_bits": 8,
+    "delay_matmuls": []
+   },
+   "ppl": 22.80782521677547,
+   "nll": 3.1271036883389645,
+   "tokens": 20440,
+   "chunks": 40,
+   "seconds": 221.0
+  },
+  "static": {
+   "spec": {
+    "linear": "static",
+    "nonlinear": "bf16",
+    "reduce": "fp32",
+    "qk_int8": false,
+    "fp32_logits": false,
+    "fp32_matmuls": [],
+    "qk_bits": [
+     8,
+     8
+    ],
+    "int_softmax": false,
+    "num_bits": 8,
+    "pow2_scales": "",
+    "attn_scale_mode": "static",
+    "q_scale_mode": "token",
+    "dequant": "fp32",
+    "dequant_round": "even",
+    "attn_out_int8": false,
+    "attn_out_pow2": false,
+    "pow2_matmuls": [],
+    "attn_out_bits": 8,
+    "delay_matmuls": []
+   },
+   "ppl": 110.89871928146606,
+   "nll": 4.708617345880856,
+   "tokens": 20440,
+   "chunks": 40,
+   "seconds": 38.4
+  },
+  "w8a16": {
+   "spec": {
+    "linear": "w8a16",
+    "nonlinear": "bf16",
+    "reduce": "fp32",
+    "qk_int8": false,
+    "fp32_logits": false,
+    "fp32_matmuls": [],
+    "qk_bits": [
+     8,
+     8
+    ],
+    "int_softmax": false,
+    "num_bits": 8,
+    "pow2_scales": "",
+    "attn_scale_mode": "static",
+    "q_scale_mode": "token",
+    "dequant": "fp32",
+    "dequant_round": "even",
+    "attn_out_int8": false,
+    "attn_out_pow2": false,
+    "pow2_matmuls": [],
+    "attn_out_bits": 8,
+    "delay_matmuls": []
+   },
+   "ppl": 21.976494682520205,
+   "nll": 3.0899734586652245,
+   "tokens": 20440,
+   "chunks": 40,
+   "seconds": 29.9
+  },
+  "b6-design-p2o": {
+   "spec": {
+    "linear": "dynamic",
+    "nonlinear": "bf16",
+    "reduce": "fp32",
+    "qk_int8": false,
+    "fp32_logits": false,
+    "fp32_matmuls": [],
+    "qk_bits": [
+     12,
+     11
+    ],
+    "int_softmax": true,
+    "num_bits": 8,
+    "pow2_scales": "attn",
+    "attn_scale_mode": "static",
+    "q_scale_mode": "head",
+    "dequant": "bf16-chain",
+    "dequant_round": "even",
+    "attn_out_int8": true,
+    "attn_out_pow2": true,
+    "pow2_matmuls": [],
+    "attn_out_bits": 8,
+    "delay_matmuls": []
+   },
+   "ppl": 22.845927103546273,
+   "nll": 3.1287728565313113,
+   "tokens": 20440,
+   "chunks": 40,
+   "seconds": 60.3
+  },
+  "b10-design": {
+   "spec": {
+    "linear": "dynamic",
+    "nonlinear": "bf16",
+    "reduce": "fp32",
+    "qk_int8": false,
+    "fp32_logits": false,
+    "fp32_matmuls": [],
+    "qk_bits": [
+     12,
+     11
+    ],
+    "int_softmax": true,
+    "num_bits": 9,
+    "pow2_scales": "attn",
+    "attn_scale_mode": "static",
+    "q_scale_mode": "head",
+    "dequant": "bf16-chain",
+    "dequant_round": "away",
+    "attn_out_int8": true,
+    "attn_out_pow2": true,
+    "pow2_matmuls": [],
+    "attn_out_bits": 8,
+    "delay_matmuls": []
+   },
+   "ppl": 22.845896677709888,
+   "nll": 3.1287715247465906,
+   "tokens": 20440,
+   "chunks": 40,
+   "seconds": 208.8
+  },
+  "b10-residual-stream": {
+   "spec": {
+    "linear": "dynamic",
+    "nonlinear": "bf16",
+    "reduce": "bf16-norm",
+    "qk_int8": false,
+    "fp32_logits": false,
+    "fp32_matmuls": [],
+    "qk_bits": [
+     12,
+     11
+    ],
+    "int_softmax": true,
+    "num_bits": 9,
+    "pow2_scales": "attn",
+    "attn_scale_mode": "static",
+    "q_scale_mode": "head",
+    "dequant": "bf16-chain",
+    "dequant_round": "even",
+    "attn_out_int8": true,
+    "attn_out_pow2": true,
+    "pow2_matmuls": [],
+    "attn_out_bits": 8,
+    "delay_matmuls": []
+   },
+   "ppl": 22.723235359020762,
+   "nll": 3.123387985080189,
+   "tokens": 20440,
+   "chunks": 40,
+   "seconds": 63.6
+  },
+  "b10-final": {
+   "spec": {
+    "linear": "dynamic",
+    "nonlinear": "bf16",
+    "reduce": "bf16-norm",
+    "qk_int8": false,
+    "fp32_logits": false,
+    "fp32_matmuls": [],
+    "qk_bits": [
+     12,
+     11
+    ],
+    "int_softmax": true,
+    "num_bits": 9,
+    "pow2_scales": "attn",
+    "attn_scale_mode": "static",
+    "q_scale_mode": "head",
+    "dequant": "bf16-chain",
+    "dequant_round": "even",
+    "attn_out_int8": true,
+    "attn_out_pow2": true,
+    "pow2_matmuls": [
+     "lm_head"
+    ],
+    "attn_out_bits": 8,
+    "delay_matmuls": []
+   },
+   "ppl": 22.93252165654924,
+   "nll": 3.132556062761818,
+   "tokens": 20440,
+   "chunks": 40,
+   "seconds": 63.1
+  },
+  "y-attnout-w10": {
+   "spec": {
+    "linear": "dynamic",
+    "nonlinear": "bf16",
+    "reduce": "bf16-norm",
+    "qk_int8": false,
+    "fp32_logits": false,
+    "fp32_matmuls": [],
+    "qk_bits": [
+     12,
+     11
+    ],
+    "int_softmax": true,
+    "num_bits": 9,
+    "pow2_scales": "attn",
+    "attn_scale_mode": "static",
+    "q_scale_mode": "head",
+    "dequant": "bf16-chain",
+    "dequant_round": "even",
+    "attn_out_int8": true,
+    "attn_out_pow2": true,
+    "pow2_matmuls": [
+     "lm_head"
+    ],
+    "attn_out_bits": 10,
+    "delay_matmuls": []
+   },
+   "ppl": 23.019176635174137,
+   "nll": 3.136327635285439,
+   "tokens": 20440,
+   "chunks": 40,
+   "seconds": 64.2
+  },
+  "y-attnout-w11": {
+   "spec": {
+    "linear": "dynamic",
+    "nonlinear": "bf16",
+    "reduce": "bf16-norm",
+    "qk_int8": false,
+    "fp32_logits": false,
+    "fp32_matmuls": [],
+    "qk_bits": [
+     12,
+     11
+    ],
+    "int_softmax": true,
+    "num_bits": 9,
+    "pow2_scales": "attn",
+    "attn_scale_mode": "static",
+    "q_scale_mode": "head",
+    "dequant": "bf16-chain",
+    "dequant_round": "even",
+    "attn_out_int8": true,
+    "attn_out_pow2": true,
+    "pow2_matmuls": [
+     "lm_head"
+    ],
+    "attn_out_bits": 11,
+    "delay_matmuls": []
+   },
+   "ppl": 23.005134566271384,
+   "nll": 3.135717433026159,
+   "tokens": 20440,
+   "chunks": 40,
+   "seconds": 64.6
+  },
+  "y-attnout-w12": {
+   "spec": {
+    "linear": "dynamic",
+    "nonlinear": "bf16",
+    "reduce": "bf16-norm",
+    "qk_int8": false,
+    "fp32_logits": false,
+    "fp32_matmuls": [],
+    "qk_bits": [
+     12,
+     11
+    ],
+    "int_softmax": true,
+    "num_bits": 9,
+    "pow2_scales": "attn",
+    "attn_scale_mode": "static",
+    "q_scale_mode": "head",
+    "dequant": "bf16-chain",
+    "dequant_round": "even",
+    "attn_out_int8": true,
+    "attn_out_pow2": true,
+    "pow2_matmuls": [
+     "lm_head"
+    ],
+    "attn_out_bits": 12,
+    "delay_matmuls": []
+   },
+   "ppl": 23.020021700213416,
+   "nll": 3.136364345961121,
+   "tokens": 20440,
+   "chunks": 40,
+   "seconds": 68.4
+  },
+  "y-attnout-w16": {
+   "spec": {
+    "linear": "dynamic",
+    "nonlinear": "bf16",
+    "reduce": "bf16-norm",
+    "qk_int8": false,
+    "fp32_logits": false,
+    "fp32_matmuls": [],
+    "qk_bits": [
+     12,
+     11
+    ],
+    "int_softmax": true,
+    "num_bits": 9,
+    "pow2_scales": "attn",
+    "attn_scale_mode": "static",
+    "q_scale_mode": "head",
+    "dequant": "bf16-chain",
+    "dequant_round": "even",
+    "attn_out_int8": true,
+    "attn_out_pow2": true,
+    "pow2_matmuls": [
+     "lm_head"
+    ],
+    "attn_out_bits": 16,
+    "delay_matmuls": []
+   },
+   "ppl": 23.010448036656747,
+   "nll": 3.1359483752465294,
+   "tokens": 20440,
+   "chunks": 40,
+   "seconds": 64.5
+  },
+  "y-delay-v": {
+   "spec": {
+    "linear": "dynamic",
+    "nonlinear": "bf16",
+    "reduce": "bf16-norm",
+    "qk_int8": false,
+    "fp32_logits": false,
+    "fp32_matmuls": [],
+    "qk_bits": [
+     12,
+     11
+    ],
+    "int_softmax": true,
+    "num_bits": 9,
+    "pow2_scales": "attn",
+    "attn_scale_mode": "static",
+    "q_scale_mode": "head",
+    "dequant": "bf16-chain",
+    "dequant_round": "even",
+    "attn_out_int8": true,
+    "attn_out_pow2": true,
+    "pow2_matmuls": [
+     "lm_head"
+    ],
+    "attn_out_bits": 8,
+    "delay_matmuls": [
+     "v"
+    ]
+   },
+   "ppl": 23.01002972984151,
+   "nll": 3.135930196086488,
+   "tokens": 20440,
+   "chunks": 40,
+   "seconds": 66.0
+  },
+  "y-delay-up": {
+   "spec": {
+    "linear": "dynamic",
+    "nonlinear": "bf16",
+    "reduce": "bf16-norm",
+    "qk_int8": false,
+    "fp32_logits": false,
+    "fp32_matmuls": [],
+    "qk_bits": [
+     12,
+     11
+    ],
+    "int_softmax": true,
+    "num_bits": 9,
+    "pow2_scales": "attn",
+    "attn_scale_mode": "static",
+    "q_scale_mode": "head",
+    "dequant": "bf16-chain",
+    "dequant_round": "even",
+    "attn_out_int8": true,
+    "attn_out_pow2": true,
+    "pow2_matmuls": [
+     "lm_head"
+    ],
+    "attn_out_bits": 8,
+    "delay_matmuls": [
+     "up"
+    ]
+   },
+   "ppl": 23.06363251751598,
+   "nll": 3.138257027045621,
+   "tokens": 20440,
+   "chunks": 40,
+   "seconds": 63.9
+  },
+  "y-delay-all": {
+   "spec": {
+    "linear": "dynamic",
+    "nonlinear": "bf16",
+    "reduce": "bf16-norm",
+    "qk_int8": false,
+    "fp32_logits": false,
+    "fp32_matmuls": [],
+    "qk_bits": [
+     12,
+     11
+    ],
+    "int_softmax": true,
+    "num_bits": 9,
+    "pow2_scales": "attn",
+    "attn_scale_mode": "static",
+    "q_scale_mode": "head",
+    "dequant": "bf16-chain",
+    "dequant_round": "even",
+    "attn_out_int8": true,
+    "attn_out_pow2": true,
+    "pow2_matmuls": [
+     "lm_head"
+    ],
+    "attn_out_bits": 12,
+    "delay_matmuls": [
+     "v",
+     "up"
+    ]
+   },
+   "ppl": 23.02018227570161,
+   "nll": 3.1363713214075495,
+   "tokens": 20440,
+   "chunks": 40,
+   "seconds": 64.8
+  },
+  "y-delay-vw12": {
+   "spec": {
+    "linear": "dynamic",
+    "nonlinear": "bf16",
+    "reduce": "bf16-norm",
+    "qk_int8": false,
+    "fp32_logits": false,
+    "fp32_matmuls": [],
+    "qk_bits": [
+     12,
+     11
+    ],
+    "int_softmax": true,
+    "num_bits": 9,
+    "pow2_scales": "attn",
+    "attn_scale_mode": "static",
+    "q_scale_mode": "head",
+    "dequant": "bf16-chain",
+    "dequant_round": "even",
+    "attn_out_int8": true,
+    "attn_out_pow2": true,
+    "pow2_matmuls": [
+     "lm_head"
+    ],
+    "attn_out_bits": 12,
+    "delay_matmuls": [
+     "v"
+    ]
+   },
+   "ppl": 23.02914465831646,
+   "nll": 3.1367605728179275,
+   "tokens": 20440,
+   "chunks": 40,
+   "seconds": 64.6
+  }
+ },
+ "paired": {
+  "dynamic-int8": {
+   "delta_pct": 4.360967644205793,
+   "se_nats": 0.002427169855382462,
+   "positions": 20440
+  },
+  "static": {
+   "delta_pct": 407.43543340137745,
+   "se_nats": 0.014294764214821502,
+   "positions": 20440
+  },
+  "w8a16": {
+   "delta_pct": 0.5570808291395446,
+   "se_nats": 0.0008405621050104799,
+   "positions": 20440
+  },
+  "b6-design-p2o": {
+   "delta_pct": 4.535311573747514,
+   "se_nats": 0.0024899949694232007,
+   "positions": 20440
+  },
+  "b10-design": {
+   "delta_pct": 4.5351709810627305,
+   "se_nats": 0.0024910834981364664,
+   "positions": 20440
+  },
+  "b10-residual-stream": {
+   "delta_pct": 3.9739109117223004,
+   "se_nats": 0.0024544895239266267,
+   "positions": 20440
+  },
+  "b10-final": {
+   "delta_pct": 4.931536292551941,
+   "se_nats": 0.002663154936302496,
+   "positions": 20440
+  },
+  "y-attnout-w10": {
+   "delta_pct": 5.3280487679157496,
+   "se_nats": 0.0026857996628947335,
+   "positions": 20440
+  },
+  "y-attnout-w11": {
+   "delta_pct": 5.263791231978732,
+   "se_nats": 0.002684759938845718,
+   "positions": 20440
+  },
+  "y-attnout-w12": {
+   "delta_pct": 5.33190884096566,
+   "se_nats": 0.0026868085033282833,
+   "positions": 20440
+  },
+  "y-attnout-w16": {
+   "delta_pct": 5.288103130117849,
+   "se_nats": 0.002695595939569163,
+   "positions": 20440
+  },
+  "y-delay-v": {
+   "delta_pct": 5.286188785239365,
+   "se_nats": 0.002697323547316254,
+   "positions": 20440
+  },
+  "y-delay-up": {
+   "delta_pct": 5.531459475133604,
+   "se_nats": 0.0027021668178057404,
+   "positions": 20440
+  },
+  "y-delay-all": {
+   "delta_pct": 5.3326404983790265,
+   "se_nats": 0.0026518003954793252,
+   "positions": 20440
+  },
+  "y-delay-vw12": {
+   "delta_pct": 5.373650335872626,
+   "se_nats": 0.002644344168027833,
+   "positions": 20440
+  }
+ }
+}
