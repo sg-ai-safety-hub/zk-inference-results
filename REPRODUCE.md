@@ -18,6 +18,13 @@ Written, not yet run:
   the prover is fixed. Nothing in the driver gets past it: the flags are what
   the control is. Meanwhile `gkr-ablation-c4096` prices the same five on a
   sample of segments that does not include that block.
+- `tools/drivers/negative-controls.sh`: the control suite on one real segment of
+  `headline-c4096`'s plan and on the three synthetic shapes. Written and run;
+  the suite stops on its own assertion at its 22nd control, which is accepted
+  where it has to be refused (zk-prover #60), and it writes its record only when
+  it finishes, so the run produced no output to keep. The 21 controls before it
+  were refused as designed, on the real segment and on each of the three
+  synthetic shapes alike.
 
 ## synthetic-digests
 
