@@ -32,12 +32,17 @@ def load_json(path):
 
 def digests_of(doc):
     """The proof digest(s) one output carries: one for `compose`, one per
-    segment for `compose-chunks`."""
+    segment for `compose-chunks`.
+
+    `boundary-grid` reports a `chunks` list too -- the cells of the grid, read
+    back off disk -- and those rows carry no digest.  A list of nothing is not
+    a digest list, so an output whose every entry is empty carries none."""
     r = doc.get("result", {})
     if "point" in r and "proof_sha256" in r["point"]:
         return r["point"]["proof_sha256"]
     if "chunks" in r:
-        return [c.get("proof_sha256") for c in r["chunks"]]
+        d = [c.get("proof_sha256") for c in r["chunks"]]
+        return d if any(d) else None
     return None
 
 
@@ -82,7 +87,11 @@ def main():
     if not prov:
         sys.exit("manifest.py: no output carries a `provenance` block; this prover commit "
                  "writes none, and a run without one is not admissible")
-    first, p = prov[0]
+    # The document the manifest takes the run's own fields from: the first that
+    # carries a digest, so `argv` names the command that made the proofs rather
+    # than whichever output sorts first.  A run that made none falls back to the
+    # first, which is what a check-only run has.
+    first, p = next((q for q in prov if digests_of(docs[q[0]])), prov[0])
     commits = {str(q.get("commit") or "") for _, q in prov}
     if any(not c or not (a.prover_commit.startswith(c) or c.startswith(a.prover_commit)) for c in commits):
         sys.exit(f"manifest.py: the outputs were made at {sorted(commits)}, not at the pinned {a.prover_commit}")
