@@ -20,12 +20,17 @@ HOST=${1:?host alias}; REPO=${2:?repository directory}
 DEST=${3:-$(basename "$(cd "$REPO" && pwd)")}
 COMMIT=${4:-}
 cd "$REPO"
+# The source commit is computed before the pipeline: a variable set inside a
+# pipeline stage is set in a subshell and is empty afterwards.
 if [ -n "$COMMIT" ]; then
   SOURCE=$(git rev-parse --verify "$COMMIT^{commit}")
-  git archive --format=tar "$COMMIT"
 else
   SOURCE=$(git rev-parse HEAD)
   [ -z "$(git status --porcelain --untracked-files=no)" ] || SOURCE="$SOURCE dirty"
+fi
+if [ -n "$COMMIT" ]; then
+  git archive --format=tar "$COMMIT"
+else
   git ls-files -z | tar -cf - --null -T -
 fi | ssh -o BatchMode=yes "$HOST" "mkdir -p '$DEST' && tar -C '$DEST' -xmf - && printf '%s\n' '$SOURCE' > '$DEST/.source-commit'"
 echo "push.sh: $REPO${COMMIT:+@$COMMIT} -> $HOST:$DEST ($SOURCE)"
