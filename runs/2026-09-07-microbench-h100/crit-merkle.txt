@@ -1,0 +1,10 @@
+merkle throughput/simd merkle
+                        time:   [1.7509 ms 1.8018 ms 1.8358 ms]
+                        thrpt:  [34.046 GiB/s 34.687 GiB/s 35.696 GiB/s]
+Found 2 outliers among 10 measurements (20.00%)
+  2 (20.00%) low mild
+
+merkle throughput/cpu merkle
+                        time:   [142.63 ms 143.41 ms 144.54 ms]
+                        thrpt:  [442.80 MiB/s 446.27 MiB/s 448.72 MiB/s]
+

@@ -1,0 +1,48 @@
+simd grand product lookup 2^16
+                        time:   [1.9065 ms 1.9103 ms 1.9153 ms]
+Found 3 outliers among 10 measurements (30.00%)
+  1 (10.00%) low mild
+  1 (10.00%) high mild
+  1 (10.00%) high severe
+
+simd grand product lookup batch 4x 2^16
+                        time:   [7.2028 ms 7.2081 ms 7.2176 ms]
+Found 2 outliers among 10 measurements (20.00%)
+  1 (10.00%) high mild
+  1 (10.00%) high severe
+
+simd generic logup lookup 2^16
+                        time:   [3.6132 ms 3.6190 ms 3.6253 ms]
+Found 2 outliers among 10 measurements (20.00%)
+  2 (20.00%) high mild
+
+simd multiplicities logup lookup 2^16
+                        time:   [3.3000 ms 3.3038 ms 3.3064 ms]
+
+simd singles logup lookup 2^16
+                        time:   [2.9655 ms 2.9914 ms 3.0237 ms]
+Found 2 outliers among 10 measurements (20.00%)
+  1 (10.00%) high mild
+  1 (10.00%) high severe
+
+cpu grand product lookup 2^16
+                        time:   [7.5126 ms 7.5136 ms 7.5151 ms]
+Found 1 outliers among 10 measurements (10.00%)
+  1 (10.00%) high severe
+
+cpu grand product lookup batch 4x 2^16
+                        time:   [28.515 ms 28.521 ms 28.527 ms]
+Found 1 outliers among 10 measurements (10.00%)
+  1 (10.00%) high severe
+
+cpu generic logup lookup 2^16
+                        time:   [16.678 ms 16.688 ms 16.697 ms]
+Found 1 outliers among 10 measurements (10.00%)
+  1 (10.00%) high mild
+
+cpu multiplicities logup lookup 2^16
+                        time:   [14.850 ms 14.853 ms 14.857 ms]
+
+cpu singles logup lookup 2^16
+                        time:   [13.274 ms 13.277 ms 13.281 ms]
+

@@ -1,0 +1,5 @@
+{"driver": "microbench", "label": "microbench",
+ "compose_arith": "--round away --variants intsplit6 --table-bits 16", "compose_shape": "--s 32 --ctx 128 --hd 32 --head-groups 2,2 --nin 128 --nout 128 --residual-stream-a 32 --kmax 16 --synth-residual-stream --diagonal-block", "compose_gkr": "--gkr-key-tiles --gkr-dequant --gkr-residual-stream --gkr-freivalds --gkr-attnout",
+ "benches": "field fri lookups merkle pcs", "criterion_args": "--sample-size 10 --measurement-time 5 --warm-up-time 2",
+ "threads": 20,
+ "witness": "synthetic, the prover's own fixed-seed generator; no model and no extraction"}

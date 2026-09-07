@@ -1,0 +1,29 @@
+M31 mul                 time:   [48.793 ms 48.800 ms 48.809 ms]
+Found 1 outliers among 10 measurements (10.00%)
+  1 (10.00%) high mild
+
+M31 add                 time:   [13.630 ms 13.631 ms 13.635 ms]
+Found 1 outliers among 10 measurements (10.00%)
+  1 (10.00%) high severe
+
+CM31 mul                time:   [181.22 ms 182.83 ms 185.16 ms]
+Found 2 outliers among 10 measurements (20.00%)
+  2 (20.00%) high severe
+
+CM31 add                time:   [14.032 ms 14.033 ms 14.035 ms]
+
+SecureField mul         time:   [796.29 ms 797.28 ms 798.55 ms]
+Found 2 outliers among 10 measurements (20.00%)
+  2 (20.00%) high severe
+
+SecureField add         time:   [16.640 ms 16.655 ms 16.686 ms]
+
+mul_simd                time:   [8.5258 ms 8.5307 ms 8.5421 ms]
+
+add_simd                time:   [3.4263 ms 3.4271 ms 3.4279 ms]
+
+sub_simd                time:   [3.4265 ms 3.4289 ms 3.4321 ms]
+Found 2 outliers among 10 measurements (20.00%)
+  1 (10.00%) high mild
+  1 (10.00%) high severe
+

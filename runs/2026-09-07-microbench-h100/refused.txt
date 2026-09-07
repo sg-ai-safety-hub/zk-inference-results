@@ -1,0 +1,8 @@
+b6-dequant: dequant --n 1048576 --per-row 16 --variants limbs,round,pow2,chain,int8 --round even
+b6-pack: pack --s 512 --ctx 1024 --hd 64 --insts 1,2,4,8,16 --variants intexp
+b65-requant: requant --round even
+b65-residual-stream: residual-stream --rows 4096 --leaves 32 --per-row 16 --kmax 18 --round even
+b10-argmax: argmax --tokens 8 --vocab 8192 --per-row 64
+b3-width: width --n 1048576 --widths 4,8,16,32,64,128
+b4-kmax: kmax --n 262144 --per-row 16 --kmax-sweep 10,12,14,16,18,21
+bench pcs
