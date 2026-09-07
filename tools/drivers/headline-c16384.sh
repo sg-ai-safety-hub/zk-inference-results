@@ -122,8 +122,8 @@ if [ -z "\$IDSFILE" ]; then
   IDSFILE=\$WIT/ids.npy
   if [ ! -f \$IDSFILE ]; then
     st "ids: greedy continuation, $SPEC"
-    ( cd \$HSRC && B1_MODEL=$MODEL B1_DEVICE=cuda \$PY -m harness.witness.gen_ids --prefix $CTX --offset 0 --new 513 --spec $SPEC --out \$WIT/ids_513.npy )
-    ( cd \$HSRC && B1_MODEL=$MODEL B1_DEVICE=cuda \$PY -m harness.witness.gen_ids --prefix $CTX --offset 0 --new $S --spec $SPEC --out \$WIT/ids_512.npy )
+    ( cd \$HSRC && ZK_MODEL=$MODEL ZK_DEVICE=cuda \$PY -m harness.witness.gen_ids --prefix $CTX --offset 0 --new 513 --spec $SPEC --out \$WIT/ids_513.npy )
+    ( cd \$HSRC && ZK_MODEL=$MODEL ZK_DEVICE=cuda \$PY -m harness.witness.gen_ids --prefix $CTX --offset 0 --new $S --spec $SPEC --out \$WIT/ids_512.npy )
     ( cd \$HSRC && \$PY -m harness.witness.shift_ids --ids \$WIT/ids_513.npy --prefix $CTX --new $S --out \$IDSFILE )
     ( cd \$HSRC && \$PY -c "
 import numpy as np, sys
@@ -136,11 +136,11 @@ IDSARG="--ids \$IDSFILE"
 # 3b. the witnesses, unless this host already holds them
 if [ ! -f \$WIT/shapes_all.json ]; then
   st "extract: $NBLOCK blocks x $NLAY layers, C=$CTX, $SPEC"
-  ( cd \$HSRC && B1_MODEL=$MODEL B1_DEVICE=cuda \$PY -m harness.witness.extract --tokens $((CTX + S)) --chunk $S \
+  ( cd \$HSRC && ZK_MODEL=$MODEL ZK_DEVICE=cuda \$PY -m harness.witness.extract --tokens $((CTX + S)) --chunk $S \
       --layers 0 --spec $SPEC --glue --corner --slim --slim-num --embed \$IDSARG \
       --blocks all --share \$WIT/shared --out \$WIT/witness )
   for g in 1,2,3,4,5,6,7 8,9,10,11,12,13,14,15 16,17,18,19,20,21,22,23 24,25,26,27,28,29,30,31; do
-    ( cd \$HSRC && B1_MODEL=$MODEL B1_DEVICE=cuda \$PY -m harness.witness.extract --tokens $((CTX + S)) --chunk $S \
+    ( cd \$HSRC && ZK_MODEL=$MODEL ZK_DEVICE=cuda \$PY -m harness.witness.extract --tokens $((CTX + S)) --chunk $S \
         --layers \$g --spec $SPEC --glue --corner --slim --slim-num \$IDSARG \
         --blocks all --share \$WIT/shared --out \$WIT/witness )
   done
@@ -153,7 +153,7 @@ if [ ! -f \$WIT/shapes_all.json ]; then
 fi
 if [ ! -f \$HEADW/manifest.json ]; then
   st "extract: the output head, $HEAD_SPEC"
-  ( cd \$HSRC && B1_MODEL=$MODEL B1_DEVICE=cuda \$PY -m harness.witness.extract --tokens $((CTX + S)) --chunk $S \
+  ( cd \$HSRC && ZK_MODEL=$MODEL ZK_DEVICE=cuda \$PY -m harness.witness.extract --tokens $((CTX + S)) --chunk $S \
       --layer 16 --spec $HEAD_SPEC --head --slim \$IDSARG --out \$HEADW )
 fi
 PINS=\$(python3 - \$WIT/shapes_all.json <<'PY'
