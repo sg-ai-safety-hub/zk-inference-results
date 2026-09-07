@@ -47,14 +47,14 @@ NAME=negative-controls
 SPEC=y-delay-vw12
 CTX=4096; S=512
 SAMPLE_BLOCK=8; SAMPLE_LAYER=16
-SHARED="--round even --numbits 9 --z-hi-bits 7 --variants intexp --bands 16,8,8 --tight-table"
-GKR5="--gkr-bands --gkr-dequant --gkr-residual-stream --gkr-freivalds --gkr-attnout"
+SHARED="--round even --numbits 9 --z-hi-bits 7 --variants intexp --head-groups 16,8,8 --tight-table"
+GKR5="--gkr-key-tiles --gkr-dequant --gkr-residual-stream --gkr-freivalds --gkr-attnout"
 # The synthetic shapes, as `zk-prover`'s recorded digests name them.
 SYN="--round away --variants intsplit6 --table-bits 16 --s 32 --ctx 128 --hd 32"
 RESIDUAL_STREAM="--nout 64 --residual-stream-a 32 --kmax 16 --synth-residual-stream"
-SHAPES="syn_sound|--bands 2,1 $RESIDUAL_STREAM --diagonal-block
-syn_gkrfive|--bands 2,1 $RESIDUAL_STREAM --diagonal-block $GKR5
-syn_aligned|--bands 2,2 --nin 128 --nout 128 --residual-stream-a 32 --kmax 16 --synth-residual-stream --diagonal-block"
+SHAPES="syn_sound|--head-groups 2,1 $RESIDUAL_STREAM --diagonal-block
+syn_gkrfive|--head-groups 2,1 $RESIDUAL_STREAM --diagonal-block $GKR5
+syn_aligned|--head-groups 2,2 --nin 128 --nout 128 --residual-stream-a 32 --kmax 16 --synth-residual-stream --diagonal-block"
 
 drv_finish "$(drv_status)"
 
