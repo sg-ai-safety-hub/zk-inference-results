@@ -70,8 +70,8 @@
 # confused.
 #
 # Not yet run.  `PIPELINE` below is the memory probe's answer and not a
-# preference: the serial loop fits the 80 GB card at this context and the
-# pipelined one was estimated at 85 GB (issue #16).
+# preference: the loop peaks at 78,843 MiB of the 81,559 MiB the card reports,
+# pipelined or not (the memory-probe-c16384 run, which settled issue #16).
 #
 # The first call pushes zk-prover at the two commits to the host, starts the
 # job detached and prints the poll command.  Every later call with the same
@@ -113,11 +113,11 @@ HEAD_LAYER=16              # the layer the head dump is extracted at; the grid p
 WITH_HEAD=0
 OFFSET=0                   # the corpus from its first token; the c4096 row's window ends where this one ends
 # ZK_PIPELINE.  Pipelining generates segment k+1 while segment k is proved and
-# holds two segments' device memory at once, which at this context is what
-# decides whether the loop fits the card at all.  The value below is the memory
-# probe's answer and not a preference: the serial loop fits, the pipelined one
-# was estimated at 85 GB on an 80 GB card.
-PIPELINE=0
+# holds two segments' device memory at once.  The value below is the memory
+# probe's answer (the memory-probe-c16384 run) and not a preference: the loop
+# peaks at 78,843 MiB of the 81,559 MiB the card reports, pipelined or not, and
+# pipelining is 23% faster.
+PIPELINE=1
 SLICE=64                   # segments per process: a group of 4 blocks is 128 segments, so 2 processes
 XTHREADS=20                # torch threads for the extraction
 IDS=${ZK_IDS:-}            # token ids (.npy) already on the host; empty = generate them
@@ -508,7 +508,7 @@ PY
 }
 
 # 9. the prove sweep: extract a group, prove its segments in processes of
-#    $SLICE with the pipeline off, keep the outputs and the serialized
+#    $SLICE pipelined one segment ahead, keep the outputs and the serialized
 #    statements and proofs, delete the group's dumps.  The serialized proofs are
 #    small and they are what the link check reads at the end, so they cross the
 #    groups; the dumps do not.
