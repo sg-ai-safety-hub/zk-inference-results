@@ -44,7 +44,7 @@ MODEL=${ZK_MODEL:-unsloth/Llama-3.1-8B-Instruct}
 SPEC=b10-final             # the fixed quantization configuration the reference row names
 CTX=16384; S=512; LAYER=16
 THREADS=16                 # RAYON_NUM_THREADS, as the recorded reference command has it
-GKR="--gkr-bands --gkr-dequant --gkr-residual-stream --gkr-freivalds --gkr-attnout"
+GKR="--gkr-key-tiles --gkr-dequant --gkr-residual-stream --gkr-freivalds --gkr-attnout"
 # The statement's shape.  Three changes against the reference command recorded
 # before the sound defaults, each of them forced:
 #
@@ -64,9 +64,9 @@ GKR="--gkr-bands --gkr-dequant --gkr-residual-stream --gkr-freivalds --gkr-attno
 #     dimension, which a device caps at 65,535: the CUDA backend stops in
 #     `eval_at_point.cu` with an invalid configuration argument.  With the
 #     five flags the interaction tree is 5,600 columns wide.
-SHARED="--round even --numbits 9 --z-hi-bits 7 --variants intexp --table-bits 25 --bands 16,8,8 --diagonal-block $GKR"
+SHARED="--round even --numbits 9 --z-hi-bits 7 --variants intexp --table-bits 25 --head-groups 16,8,8 --diagonal-block $GKR"
 EXTRACT_FLAGS="--residual-stream --diagonal-block"
-KERNEL_FAMILIES=b65_chan_eval,b65_key_eval,b65_row_eval,b65_attn_out_eval,b65_dequant_eval,b65_freivalds_eval,b65_exp_table_eval,b65_table_eval,b65_residual_stream_eval,b65_residual_stream_table_eval
+KERNEL_FAMILIES=zk_chan_eval,zk_key_eval,zk_row_eval,zk_attn_out_eval,zk_dequant_eval,zk_freivalds_eval,zk_exp_table_eval,zk_table_eval,zk_residual_stream_eval,zk_residual_stream_table_eval
 
 status() { ssh -o BatchMode=yes "$HOST" "cat ~/runs/$NAME.status 2>/dev/null || true"; }
 
