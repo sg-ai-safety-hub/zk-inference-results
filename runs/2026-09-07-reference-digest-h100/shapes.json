@@ -1,0 +1,29 @@
+{
+ "row": {
+  "layer": 16,
+  "c": 16384,
+  "s": 512,
+  "block": 32,
+  "table_bits": 25,
+  "spread": 2.0,
+  "d_bits": 23,
+  "z_max": 10269,
+  "ao_rem_bits": 16,
+  "attn_out_bits": 8,
+  "kmax_needed": 11,
+  "kmax_blind": 19,
+  "fold_q_max": 127,
+  "fold_rem_bits": 0,
+  "fold_gt_min": 0,
+  "fold_gc_min": 0,
+  "slim": false
+ },
+ "worst": {
+  "ao_rem_bits": 16,
+  "kmax": 19,
+  "fold_q_max": 127,
+  "table_bits": {
+   "25": 1
+  }
+ }
+}

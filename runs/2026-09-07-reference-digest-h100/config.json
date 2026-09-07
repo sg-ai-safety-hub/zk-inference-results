@@ -1,0 +1,6 @@
+{"driver": "reference-digest", "model": "unsloth/Llama-3.1-8B-Instruct", "spec": "b10-final",
+ "context": 16384, "s": 512, "layer": 16, "tokens": 16896,
+ "shared_flags": "--round even --numbits 9 --z-hi-bits 7 --variants intexp --table-bits 25 --bands 16,8,8 --diagonal-block --gkr-bands --gkr-dequant --gkr-residual-stream --gkr-freivalds --gkr-attnout", "extract_flags": "--residual-stream --diagonal-block",
+ "rayon_threads": 16,
+ "ids": "the evaluation corpus's first 16896 tokens",
+ "note": "the reference segment; no skip flag, the diagonal block in, both backends"}
