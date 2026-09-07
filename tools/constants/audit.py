@@ -106,11 +106,33 @@ def headline_c4096(a, keys):
     a.exact("mem.headline.c4096.peak_mib", t["peak_mib"])
 
 
+# -- gkr-ablation-c4096 --------------------------------------------------------
+def gkr_ablation_c4096(a, keys):
+    """Each GKR reduction priced on one sample of segments.  A configuration is
+    one process over the sample, so its loop time is that process's own and
+    needs no summing.  Every fraction is `derived` and check.py recomputes it
+    from the rows here."""
+    if not keys:
+        return
+    run = sorted({e["run"] for e in keys.values()})[0]
+    d = ROOT / "runs" / run
+    cfg = artifact(run, "config.json")
+    a.exact("segments.ablation.c4096", cfg["sample_segments"])
+    print(f"  runs/{run}: {len(cfg['configurations'])} configurations over "
+          f"{cfg['sample_segments']} segments of token block {cfg['sample_block']}")
+    for name in cfg["configurations"]:
+        s = json.loads((d / f"{name}.json").read_text())["result"]["summary"]
+        assert s["n"] == cfg["sample_segments"], f"{name}: {s['n']} segments, not the sample's"
+        a.claim(f"cells.ablation.c4096.{name}", s["fresh_sum"])
+        a.claim(f"secs.ablation.c4096.{name}.loop", s["loop_secs"])
+
+
 # -- sections: (driver name, function(audit, keys)) ----------------------------
 # Added when a driver's first run lands; each function re-derives the constants
 # whose `run` was made by that driver.
 SECTIONS = [
     ("headline-c4096", headline_c4096),
+    ("gkr-ablation-c4096", gkr_ablation_c4096),
 ]
 
 

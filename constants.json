@@ -169,6 +169,126 @@
    "value": 1.24813, "unit": "positions/s", "card": "H100", "context": 4096, "timing_scope": "loop",
    "grade": "derived",
    "note": "positions.headline.c4096 / secs.headline.c4096.loop. Positions and not tokens: the prompt is proved as well as the output (docs/decisions)."
+  },
+  "segments.ablation.c4096": {
+   "value": 32, "unit": "segments", "card": "H100", "context": 4096, "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-07-gkr-ablation-c4096-h100", "artifact": "none.json",
+   "note": "The 32 layer segments of token block 8 of headline-c4096's plan, which is the block with the longest prefix. Every configuration below proves these same segments from these same witnesses under these same pins."
+  },
+  "cells.ablation.c4096.none": {
+   "value": 71649799120, "unit": "cells", "card": "H100", "context": 4096, "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-07-gkr-ablation-c4096-h100", "artifact": "none.json",
+   "note": "Fresh committed cells over the sample with none of the five. A control unless it is the row with all five, and that one is the paper's configuration on a sample and not the headline row, which is the whole sequence."
+  },
+  "secs.ablation.c4096.none.loop": {
+   "value": 452.488, "unit": "s", "card": "H100", "context": 4096, "timing_scope": "loop",
+   "grade": "measured",
+   "run": "2026-09-07-gkr-ablation-c4096-h100", "artifact": "none.json",
+   "note": "The segment loop's own wall-clock time over the sample with none of the five, pipelined, in one process."
+  },
+  "cells.ablation.c4096.bands": {
+   "value": 63246904272, "unit": "cells", "card": "H100", "context": 4096, "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-07-gkr-ablation-c4096-h100", "artifact": "bands.json",
+   "note": "Fresh committed cells over the sample with --gkr-bands. A control unless it is the row with all five, and that one is the paper's configuration on a sample and not the headline row, which is the whole sequence."
+  },
+  "secs.ablation.c4096.bands.loop": {
+   "value": 453.312, "unit": "s", "card": "H100", "context": 4096, "timing_scope": "loop",
+   "grade": "measured",
+   "run": "2026-09-07-gkr-ablation-c4096-h100", "artifact": "bands.json",
+   "note": "The segment loop's own wall-clock time over the sample with --gkr-bands, pipelined, in one process."
+  },
+  "cells.ablation.c4096.bands_dequant": {
+   "value": 55059622864, "unit": "cells", "card": "H100", "context": 4096, "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-07-gkr-ablation-c4096-h100", "artifact": "bands_dequant.json",
+   "note": "Fresh committed cells over the sample with --gkr-bands --gkr-dequant. A control unless it is the row with all five, and that one is the paper's configuration on a sample and not the headline row, which is the whole sequence."
+  },
+  "secs.ablation.c4096.bands_dequant.loop": {
+   "value": 453.326, "unit": "s", "card": "H100", "context": 4096, "timing_scope": "loop",
+   "grade": "measured",
+   "run": "2026-09-07-gkr-ablation-c4096-h100", "artifact": "bands_dequant.json",
+   "note": "The segment loop's own wall-clock time over the sample with --gkr-bands --gkr-dequant, pipelined, in one process."
+  },
+  "cells.ablation.c4096.bands_residual_stream": {
+   "value": 54791449552, "unit": "cells", "card": "H100", "context": 4096, "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-07-gkr-ablation-c4096-h100", "artifact": "bands_residual_stream.json",
+   "note": "Fresh committed cells over the sample with --gkr-bands --gkr-residual-stream. A control unless it is the row with all five, and that one is the paper's configuration on a sample and not the headline row, which is the whole sequence."
+  },
+  "secs.ablation.c4096.bands_residual_stream.loop": {
+   "value": 450.594, "unit": "s", "card": "H100", "context": 4096, "timing_scope": "loop",
+   "grade": "measured",
+   "run": "2026-09-07-gkr-ablation-c4096-h100", "artifact": "bands_residual_stream.json",
+   "note": "The segment loop's own wall-clock time over the sample with --gkr-bands --gkr-residual-stream, pipelined, in one process."
+  },
+  "cells.ablation.c4096.bands_freivalds": {
+   "value": 62475152336, "unit": "cells", "card": "H100", "context": 4096, "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-07-gkr-ablation-c4096-h100", "artifact": "bands_freivalds.json",
+   "note": "Fresh committed cells over the sample with --gkr-bands --gkr-freivalds. A control unless it is the row with all five, and that one is the paper's configuration on a sample and not the headline row, which is the whole sequence."
+  },
+  "secs.ablation.c4096.bands_freivalds.loop": {
+   "value": 451.994, "unit": "s", "card": "H100", "context": 4096, "timing_scope": "loop",
+   "grade": "measured",
+   "run": "2026-09-07-gkr-ablation-c4096-h100", "artifact": "bands_freivalds.json",
+   "note": "The segment loop's own wall-clock time over the sample with --gkr-bands --gkr-freivalds, pipelined, in one process."
+  },
+  "cells.ablation.c4096.bands_attnout": {
+   "value": 62374489040, "unit": "cells", "card": "H100", "context": 4096, "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-07-gkr-ablation-c4096-h100", "artifact": "bands_attnout.json",
+   "note": "Fresh committed cells over the sample with --gkr-bands --gkr-attnout. A control unless it is the row with all five, and that one is the paper's configuration on a sample and not the headline row, which is the whole sequence."
+  },
+  "secs.ablation.c4096.bands_attnout.loop": {
+   "value": 456.73, "unit": "s", "card": "H100", "context": 4096, "timing_scope": "loop",
+   "grade": "measured",
+   "run": "2026-09-07-gkr-ablation-c4096-h100", "artifact": "bands_attnout.json",
+   "note": "The segment loop's own wall-clock time over the sample with --gkr-bands --gkr-attnout, pipelined, in one process."
+  },
+  "cells.ablation.c4096.all_five": {
+   "value": 44557347792, "unit": "cells", "card": "H100", "context": 4096, "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-07-gkr-ablation-c4096-h100", "artifact": "all_five.json",
+   "note": "Fresh committed cells over the sample with --gkr-bands --gkr-dequant --gkr-residual-stream --gkr-freivalds --gkr-attnout. A control unless it is the row with all five, and that one is the paper's configuration on a sample and not the headline row, which is the whole sequence."
+  },
+  "secs.ablation.c4096.all_five.loop": {
+   "value": 454.954, "unit": "s", "card": "H100", "context": 4096, "timing_scope": "loop",
+   "grade": "measured",
+   "run": "2026-09-07-gkr-ablation-c4096-h100", "artifact": "all_five.json",
+   "note": "The segment loop's own wall-clock time over the sample with --gkr-bands --gkr-dequant --gkr-residual-stream --gkr-freivalds --gkr-attnout, pipelined, in one process."
+  },
+  "gkr.ablation.bands.leave_frac_cells": {
+   "value": 0.11728, "unit": "fraction", "card": "H100", "context": 4096, "timing_scope": "n/a",
+   "grade": "derived",
+   "note": "1 - cells.ablation.c4096.bands / cells.ablation.c4096.none: the fraction of the committed cells that this configuration removes against none. Four of the five reductions join the key tiles' own backend and the prover refuses them without it, so each is priced on top of the key tiles and the key tiles against no reduction at all."
+  },
+  "gkr.ablation.bands_dequant.leave_frac_cells": {
+   "value": 0.12945, "unit": "fraction", "card": "H100", "context": 4096, "timing_scope": "n/a",
+   "grade": "derived",
+   "note": "1 - cells.ablation.c4096.bands_dequant / cells.ablation.c4096.bands: the fraction of the committed cells that this configuration removes against bands. Four of the five reductions join the key tiles' own backend and the prover refuses them without it, so each is priced on top of the key tiles and the key tiles against no reduction at all."
+  },
+  "gkr.ablation.bands_residual_stream.leave_frac_cells": {
+   "value": 0.13369, "unit": "fraction", "card": "H100", "context": 4096, "timing_scope": "n/a",
+   "grade": "derived",
+   "note": "1 - cells.ablation.c4096.bands_residual_stream / cells.ablation.c4096.bands: the fraction of the committed cells that this configuration removes against bands. Four of the five reductions join the key tiles' own backend and the prover refuses them without it, so each is priced on top of the key tiles and the key tiles against no reduction at all."
+  },
+  "gkr.ablation.bands_freivalds.leave_frac_cells": {
+   "value": 0.0122, "unit": "fraction", "card": "H100", "context": 4096, "timing_scope": "n/a",
+   "grade": "derived",
+   "note": "1 - cells.ablation.c4096.bands_freivalds / cells.ablation.c4096.bands: the fraction of the committed cells that this configuration removes against bands. Four of the five reductions join the key tiles' own backend and the prover refuses them without it, so each is priced on top of the key tiles and the key tiles against no reduction at all."
+  },
+  "gkr.ablation.bands_attnout.leave_frac_cells": {
+   "value": 0.01379, "unit": "fraction", "card": "H100", "context": 4096, "timing_scope": "n/a",
+   "grade": "derived",
+   "note": "1 - cells.ablation.c4096.bands_attnout / cells.ablation.c4096.bands: the fraction of the committed cells that this configuration removes against bands. Four of the five reductions join the key tiles' own backend and the prover refuses them without it, so each is priced on top of the key tiles and the key tiles against no reduction at all."
+  },
+  "gkr.ablation.all_five.leave_frac_cells": {
+   "value": 0.37812, "unit": "fraction", "card": "H100", "context": 4096, "timing_scope": "n/a",
+   "grade": "derived",
+   "note": "1 - cells.ablation.c4096.all_five / cells.ablation.c4096.none: the fraction of the committed cells that this configuration removes against none. Four of the five reductions join the key tiles' own backend and the prover refuses them without it, so each is priced on top of the key tiles and the key tiles against no reduction at all."
   }
  },
  "discrepancies": []

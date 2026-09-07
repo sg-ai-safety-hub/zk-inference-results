@@ -208,6 +208,59 @@ shape's generation kernels are not in the store (zk-prover #57), and
 `genemit-refused.txt` in the run directory says which line it was. It cost
 nothing measurable: no lookup took the host route on any of the five processes.
 
+## gkr-ablation-c4096
+
+    tools/drivers/gkr-ablation-c4096.sh <host> <prover-commit> <harness-commit>
+
+runs: 2026-09-07-gkr-ablation-c4096-h100
+prover commit: aed0f37   harness commit: aed0f37
+digests: 224, one per proof, in the manifest's `digests` map under the
+  configuration that proved it: 32 for each of the seven
+binding (from the manifest, folded over the 224 proofs): 1 to 15 bound; 16
+  absent, because the sample is layer segments and no output head
+unsound skips: none
+kernel fallback lines: 0 on each of the seven processes
+constants backed: `segments.ablation.c4096`, `cells.ablation.c4096.<name>` and
+  `secs.ablation.c4096.<name>.loop` for each of the seven configurations, and
+  `gkr.ablation.<name>.leave_frac_cells` for the six that remove anything
+
+What the run checks. One sample of segments proved seven times: the 32 layer
+segments of the last token block of `headline-c4096`'s plan, which is the block
+with the longest prefix and therefore the one where the reductions weigh most.
+The seven configurations are no reduction at all, the key tiles' reduction
+alone, each of the other four on top of it, and all five together. Every one of
+them proves the same witnesses under the same shared pins with every binding
+gadget on and no skip flag, so the seven differ in their proofs and not in what
+they claim, and what one reduction removes is read off the pair that differ in
+it alone.
+
+Four of the five are not configurations on their own. The dequantization
+gadgets, the residual stream, the Freivalds checks and the attention output all
+join the key tiles' own reduction rather than standing up one of their own, and
+the prover refuses each of them without it: "it composes with `--gkr-bands`; it
+does not replace it". So the sample prices each of the four against the key
+tiles, and the key tiles against no reduction at all.
+
+What the run says. The five together remove 37.8 per cent of the committed
+cells. They remove no time: the seven loop times lie between 450.6 and 456.7
+seconds, a spread of six seconds on runs of seven and a half minutes, so at this
+shape and on this card the reductions buy committed cells and not wall-clock
+time. The commitment path alone does move with them, from 34.1 seconds with none
+to 21.4 with all five, but the commitment path is 5 per cent of the loop here and
+the rest does not follow it. The peak the card reported holding follows the cells
+closely, from 75.4 GiB with none to 65.9 GiB with all five.
+
+How the run is made. The witnesses are the ones `headline-c4096` extracted, and
+the driver refuses to run without them rather than extracting a second set: a
+comparison across configurations is only a comparison if the witnesses are the
+same. Each configuration's plan is written over the whole sequence, so a line is
+the line the headline plan carries, and then the sample block's lines are taken
+out of it; the distinct kernel shapes among them are emitted into the one store,
+the store is installed once and the CUDA backend is rebuilt once, and the seven
+are proved one process each, pipelined. No statement is serialized: the sample
+is one token block, and what this run measures is the price of a reduction
+rather than the chain, which the headline run checks over the whole sequence.
+
 ## Entry template
 
 ```

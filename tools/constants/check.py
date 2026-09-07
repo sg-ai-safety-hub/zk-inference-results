@@ -52,6 +52,20 @@ DERIVED = {
         v("cells.headline.c4096.fresh") / v(f"secs.headline.c4096.{s}") / 1e6,
         f"rate.headline.c4096.{s}", 0.001))
        for s in ("commit", "stwo_total", "whole_wall", "loop")},
+    # The ablation: what one reduction removes, as a fraction of the figure
+    # without it.  The key tiles' reduction is measured against no reduction at
+    # all; the other four extend it, so each is measured against it.
+    **{f"gkr.ablation.{name}.leave_frac_{what}": (lambda name=name, what=what, base=base: chk(
+        f"{name} removes, {what}",
+        1 - v(f"{'cells' if what == 'cells' else 'secs'}.ablation.c4096.{name}"
+              f"{'' if what == 'cells' else '.loop'}")
+          / v(f"{'cells' if what == 'cells' else 'secs'}.ablation.c4096.{base}"
+              f"{'' if what == 'cells' else '.loop'}"),
+        f"gkr.ablation.{name}.leave_frac_{what}", 0.002))
+       for what in ("cells", "loop")
+       for name, base in (("bands", "none"), ("bands_dequant", "bands"),
+                          ("bands_residual_stream", "bands"), ("bands_freivalds", "bands"),
+                          ("bands_attnout", "bands"), ("all_five", "none"))},
     **{f"pos_s.headline.c4096.{s}": (lambda s=s: chk(
         f"c4096 headline positions/s, {s.replace('_', ' ')}",
         v("positions.headline.c4096") / v(f"secs.headline.c4096.{s}"),
