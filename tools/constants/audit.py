@@ -125,6 +125,48 @@ def gkr_ablation_c4096(a, keys):
         assert s["n"] == cfg["sample_segments"], f"{name}: {s['n']} segments, not the sample's"
         a.claim(f"cells.ablation.c4096.{name}", s["fresh_sum"])
         a.claim(f"secs.ablation.c4096.{name}.loop", s["loop_secs"])
+# -- memory-probe-c16384 -------------------------------------------------------
+def memory_probe_c16384(a, keys):
+    """The segment loops at context 16,384: what each cost and what each peaked at.
+
+    The probe proves the same four segments once with the pipeline off and once
+    with it on, so those two rows differ in one variable and the cells are the
+    same cells; `layer0` is a third row, one segment on its own, and is not
+    comparable with either.  A loop's peak is the largest sample the card returned while
+    that loop ran; the prover's own `mem_after_prove_max` is in the loop's
+    output beside it, and the audit checks that the two agree rather than
+    choosing between them.  A loop the card could not hold writes its sampler
+    file and no output, and has no constants here to re-derive.
+    """
+    if not keys:
+        return
+    run = sorted({e["run"] for e in keys.values()})[0]
+    cfg = artifact(run, "config.json")
+    print(f"  runs/{run}: block {cfg['probe_block']} of {cfg['blocks']}, "
+          f"{cfg['probe_segments']} segments per loop")
+    if "segments.probe.c16384" in keys:
+        a.exact("segments.probe.c16384", cfg["probe_segments"])
+    for tag in ("serial", "pipelined", "layer0", "pipelined_l0"):
+        if f"mem.probe.c16384.{tag}_peak_mib" not in keys:
+            continue
+        m = artifact(run, f"mem_{tag}.json")
+        d = artifact(run, f"{tag}.json")["result"]["summary"]
+        sampled, reported = m["max_mib"], round(d["mem_after_prove_max"] / 2 ** 20)
+        if sampled != reported:
+            a.fails.append(f"audit: {tag}: the card sampler says {sampled} MiB and the "
+                           f"prover says {reported} MiB for the same loop")
+        if bool(d["pipe"]) != bool(m["pipeline"]):
+            a.fails.append(f"audit: {tag}: the loop reports pipe={d['pipe']} where the "
+                           f"probe asked for {m['pipeline']}")
+        want = {"layer0": 1, "pipelined_l0": 2}.get(tag, cfg["probe_segments"])
+        if d["n"] != want:
+            a.fails.append(f"audit: {tag}: {d['n']} segments proved, {want} asked for")
+        a.exact(f"mem.probe.c16384.{tag}_peak_mib", sampled)
+        if f"secs.probe.c16384.{tag}_loop" in keys:
+            a.claim(f"secs.probe.c16384.{tag}_loop", d["loop_secs"])
+    if "cells.probe.c16384.fresh" in keys:
+        a.claim("cells.probe.c16384.fresh",
+                artifact(run, "serial.json")["result"]["summary"]["fresh_sum"])
 
 
 # -- sections: (driver name, function(audit, keys)) ----------------------------
@@ -133,6 +175,7 @@ def gkr_ablation_c4096(a, keys):
 SECTIONS = [
     ("headline-c4096", headline_c4096),
     ("gkr-ablation-c4096", gkr_ablation_c4096),
+    ("memory-probe-c16384", memory_probe_c16384),
 ]
 
 

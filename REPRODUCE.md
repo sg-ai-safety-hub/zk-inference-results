@@ -8,8 +8,12 @@ Written, not yet run:
 
 - `tools/drivers/headline-c16384.sh`: the paper's headline configuration, one
   16,384-token prompt and its 512 output tokens proved from the embedding up,
-  on the CUDA backend, pipelined. Waits for the prover's sound defaults and
-  provenance block.
+  on the CUDA backend, pipelined. Written on `lib/sequence-job.sh`, which is the
+  job body the context 4,096 campaign ran. It waits on disk, not on the card:
+  `memory-probe-c16384` measured the loop at 78,843 MiB of an 81,559 MiB card,
+  and measured one token block of this context's witness at 12.16 GiB, so the
+  33 blocks the plan reads are 310 GiB of extraction. Its `pipeline` is 1
+  because that probe measured the pipeline to cost nothing on this card.
 - `tools/drivers/control-flags-off-c4096.sh`: `headline-c4096`'s plan with the
   five GKR reductions off, which is what prices them. Written and started; the
   first segment of the first token block does not prove in that configuration,
@@ -265,6 +269,61 @@ the store is installed once and the CUDA backend is rebuilt once, and the seven
 are proved one process each, pipelined. No statement is serialized: the sample
 is one token block, and what this run measures is the price of a reduction
 rather than the chain, which the headline run checks over the whole sequence.
+## memory-probe-c16384
+
+    tools/drivers/memory-probe-c16384.sh <host> <prover-commit> <harness-commit>
+
+runs: 2026-09-07-memory-probe-c16384-h100
+prover commit: 81a5ec9   harness commit: 81a5ec9
+digests: the four segments of the compared loops, first 16 hex, the same
+  whether the loop was pipelined or not:
+  `cd28d8a02717a76d`, `21b745e99128a861`, `7185c76c704a8f87`, `169e3b2ae3a397c8`
+  and the first of them again from the reference backend, in `reference-simd.json`
+binding: 1 to 15 bound; 16 absent   (from the manifest)
+unsound skips: none
+constants backed: `segments.probe.c16384`, `cells.probe.c16384.fresh`,
+  `mem.probe.c16384.{serial,pipelined,layer0,pipelined_l0}_peak_mib`,
+  `secs.probe.c16384.{serial,pipelined,layer0,pipelined_l0}_loop`
+
+What the run measures. Whether the headline sequence at context 16,384 fits an
+80 GB card, and what it would cost. The sequence is 33 token blocks of 32 layer
+segments; a block's segments grow with the prefix it reads, so the last block's
+are the largest in the whole plan and they are what sets the peak. The probe
+extracts that block alone and proves four of its segments twice, once with the
+pipeline off and once with it on, the same four segments in the same order both
+times, sampling the card once a second while each loop runs. Layer 0 is measured
+twice more, on its own and paired with layer 1 under the pipeline, because its
+statement carries the embedding gadget and it is the largest segment in the
+plan: the pair that decides whether the campaign can be pipelined is the one
+containing it.
+
+Four segments are not a sequence and no number here is a throughput row. They
+prove no statement about a prompt and its output, the plan they are sliced from
+has no output head in it, and the run's label is `probe`, so a reader of the run
+directory cannot mistake it for a headline. What they do carry is every binding
+gadget the sound defaults switch on, and the driver passes no skip flag, so a
+segment that could not state one would have been refused rather than proved.
+
+The same segment is proved again on the reference backend, which proves in host
+memory and so cannot run the card out of it. That proof is the run's provenance
+anchor: a loop the card cannot hold writes no output at all, and without an
+anchor the answer most worth recording could not be recorded. It is also a
+digest gate. Its proof bytes hash to what the card's proof of the same segment
+hashed to, which is the first time the two backends have been compared on a
+segment of the headline plan at this context under the variant the paper
+reports; the digest frozen before it was a single layer under the output head's
+variant.
+
+How the run is made. The extraction runs the whole forward pass over all 33
+blocks either way, because a block reads the keys and values of every block
+before it; only the last block's dumps are written, which is what makes the
+probe affordable on disk where the whole plan's extraction is not. Layer 0 is a
+pass of its own because the embedding table is written into every dump of the
+pass it is given. The CUDA backend proves through device kernels generated per
+segment shape, so the job emits the kernels for this block's six shapes,
+installs them into the vendored library and rebuilds; the built tree then
+differs from the pushed commit, which is why the manifest records the build as
+dirty.
 
 ## Entry template
 
