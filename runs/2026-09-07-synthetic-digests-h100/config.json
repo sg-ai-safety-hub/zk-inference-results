@@ -1,0 +1,5 @@
+{"driver": "synthetic-digests", "witness": "none: synthetic segments",
+ "shared_flags": "--round away --variants intsplit6 --table-bits 16 --s 32 --ctx 128 --hd 32",
+ "shapes": {"sound": "--bands 2,1 --nout 64 --glue-a 32 --kmax 16 --synth-glue --corner",
+            "sound_gkrfive": "--bands 2,1 --nout 64 --glue-a 32 --kmax 16 --synth-glue --corner --gkr-bands --gkr-dequant --gkr-glue --gkr-walks --gkr-attnout",
+            "sound_aligned": "--bands 2,2 --nin 128 --nout 128 --glue-a 32 --kmax 16 --synth-glue --corner"}}

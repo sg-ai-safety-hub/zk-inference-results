@@ -1,0 +1,166 @@
+{
+ "argv": [
+  "zk-prover",
+  "compose",
+  "--round",
+  "away",
+  "--variants",
+  "intsplit6",
+  "--table-bits",
+  "16",
+  "--s",
+  "32",
+  "--ctx",
+  "128",
+  "--hd",
+  "32",
+  "--bands",
+  "2,1",
+  "--nout",
+  "64",
+  "--glue-a",
+  "32",
+  "--kmax",
+  "16",
+  "--synth-glue",
+  "--corner"
+ ],
+ "backend": "cuda",
+ "binding": {
+  "all_bound": false,
+  "edges": [
+   {
+    "edge": "residual stream into the first norm's reduction",
+    "n": 1,
+    "state": "bound",
+    "why": null
+   },
+   {
+    "edge": "first norm's output into the q, k, v matmul inputs",
+    "n": 2,
+    "state": "bound",
+    "why": null
+   },
+   {
+    "edge": "q, k, v outputs into the attention block",
+    "n": 3,
+    "state": "unbound",
+    "why": "the statement carries no rotation parameters, so q, k and v publish output claims with no counterparty (deq_out_open)"
+   },
+   {
+    "edge": "attention scores and values into the attention output",
+    "n": 4,
+    "state": "bound",
+    "why": null
+   },
+   {
+    "edge": "attention output into the o matmul input",
+    "n": 5,
+    "state": "unbound",
+    "why": "the o matmul reads 64 channels and the attention output has 96 (nh x hd), so the two folds run over different sequences (ao_q_open)"
+   },
+   {
+    "edge": "o output into the first residual add",
+    "n": 6,
+    "state": "bound",
+    "why": null
+   },
+   {
+    "edge": "first residual add into the second norm's reduction",
+    "n": 7,
+    "state": "bound",
+    "why": null
+   },
+   {
+    "edge": "second norm's output into the gate and up matmul inputs",
+    "n": 8,
+    "state": "bound",
+    "why": null
+   },
+   {
+    "edge": "gate and up outputs into the SwiGLU product",
+    "n": 9,
+    "state": "bound",
+    "why": null
+   },
+   {
+    "edge": "SwiGLU output into the down matmul input",
+    "n": 10,
+    "state": "bound",
+    "why": null
+   },
+   {
+    "edge": "down output into the second residual add",
+    "n": 11,
+    "state": "bound",
+    "why": null
+   },
+   {
+    "edge": "each matmul's input times the pinned weights into its accumulator",
+    "n": 12,
+    "state": "bound",
+    "why": null
+   },
+   {
+    "edge": "residual stream out of this segment into the next layer's segment",
+    "n": 13,
+    "state": "bound",
+    "why": null
+   },
+   {
+    "edge": "keys and values out of this token block into the next block",
+    "n": 14,
+    "state": "bound",
+    "why": null
+   },
+   {
+    "edge": "embedding row into the first segment's residual stream",
+    "n": 15,
+    "state": "absent",
+    "why": null
+   },
+   {
+    "edge": "logits into the emitted token",
+    "n": 16,
+    "state": "absent",
+    "why": null
+   }
+  ],
+  "proofs": 6,
+  "unbound": [
+   3,
+   5
+  ]
+ },
+ "cuda_version": "13.0",
+ "date": "2026-09-07",
+ "digests": {
+  "sound-cuda.json": "82085896a8408f3645adc4866ef0c88730a5461d6187f0584420be798b5d3638",
+  "sound-simd.json": "82085896a8408f3645adc4866ef0c88730a5461d6187f0584420be798b5d3638",
+  "sound_aligned-cuda.json": "9c3cdebd97a7d57b0fd35391430e430e09ebf0c415a4ce3c8ac0e0212db59b26",
+  "sound_aligned-simd.json": "9c3cdebd97a7d57b0fd35391430e430e09ebf0c415a4ce3c8ac0e0212db59b26",
+  "sound_gkrfive-cuda.json": "6bee5972d6f616aaa76ccda517e1621fbe2c35be1cb71198ec21de73bbcbf4ab",
+  "sound_gkrfive-simd.json": "6bee5972d6f616aaa76ccda517e1621fbe2c35be1cb71198ec21de73bbcbf4ab"
+ },
+ "driver": "tools/drivers/synthetic-digests.sh",
+ "driver_version": "580.178.04",
+ "gpu": "NVIDIA H100 80GB HBM3, 81559 MiB",
+ "harness_commit": "e378539",
+ "imported": false,
+ "outputs": [
+  "config.json",
+  "sound-cuda.fallbacks",
+  "sound-cuda.json",
+  "sound-simd.json",
+  "sound_aligned-cuda.fallbacks",
+  "sound_aligned-cuda.json",
+  "sound_aligned-simd.json",
+  "sound_gkrfive-cuda.fallbacks",
+  "sound_gkrfive-cuda.json",
+  "sound_gkrfive-simd.json"
+ ],
+ "prover_commit": "e378539",
+ "prover_dirty": true,
+ "run_id": "2026-09-07-synthetic-digests-h100",
+ "unsound_skips": []
+}
