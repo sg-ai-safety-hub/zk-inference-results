@@ -201,7 +201,7 @@ while [ \$lo -lt \$N ]; do
 done
 
 # 7. every link between segments, checked on the verifier side over the serialized proofs
-\$SIMD bounds-grid --dir \$SER --plan \$OUT/plan.txt \
+\$SIMD boundary-grid --dir \$SER --plan \$OUT/plan.txt \
     --expect-layer-links $((NBLOCK * (NLAY - 1))) --expect-token-links $(((NBLOCK - 1) * NLAY)) \
     > \$OUT/grid.json 2> \$R/grid.err
 st "links checked"
