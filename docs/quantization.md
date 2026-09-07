@@ -44,7 +44,7 @@ are measured against a byte-identical fp32 control on the same items
   weakest int8 there is (`quality.8b.ppl_static_w8a8`).
 - `w8a16`: weight-only per-channel int8 with float activations, the int8
   variant a reader would actually deploy (`quality.8b.ppl_w8a16`).
-- `b6-design-p2o`, `b10-design`, `b10-glue`, `b10-final`: the sequence of
+- `b6-design-p2o`, `b10-design`, `b10-residual-stream`, `b10-final`: the sequence of
   configurations that led to the reported one, each adding one choice; the
   perplexity of each is a measured row (`quality.8b.ppl_b10_final`).
 - `y-attnout-w10`, `-w11`, `-w12`, `-w16` and `y-delay-v`, `y-delay-up`,
