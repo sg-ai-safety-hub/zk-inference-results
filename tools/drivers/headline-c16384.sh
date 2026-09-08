@@ -678,10 +678,16 @@ PY
 #    install carries every group's shapes.
 K=\$SRC/prover/kernels
 [ -d \$K ] || { st "no prover/kernels in this prover commit; the CUDA backend would evaluate constraints on the CPU"; exit 3; }
+# The two install scripts by either name: zk-prover #108 renamed `m2b_kernels.py`
+# and `m4b_kernels.py` to what they do, and a driver that names only the new ones
+# cannot be run at a prover commit before the rename -- 355c19d, which is the
+# commit this campaign's run is pinned to, is one.  The name that is there wins.
+KC=\$K/install_constraint_kernels.py;  [ -f \$KC ] || KC=\$K/m2b_kernels.py
+KW=\$K/install_witness_gen_kernels.py; [ -f \$KW ] || KW=\$K/m4b_kernels.py
 if [ ! -f \$R/install.done ]; then
   KT0=\$(date +%s)
-  python3 \$K/install_constraint_kernels.py --fork \$SRC/nitroo --gen \$GEN
-  python3 \$K/install_witness_gen_kernels.py --fork \$SRC/nitroo --gen \$GEN --src \$K
+  python3 \$KC --fork \$SRC/nitroo --gen \$GEN
+  python3 \$KW --fork \$SRC/nitroo --gen \$GEN --src \$K
   find \$SRC/nitroo/crates/stwo/src/stwo_cuda/cuda \( -name '*.cu' -o -name '*.cuh' \) -exec touch {} +
   cp \$GEN/cudakernels.rs \$GEN/gencudakernels.rs \$SRC/prover/src/
   # an installed tree is no longer the commit that was pushed, and says so
