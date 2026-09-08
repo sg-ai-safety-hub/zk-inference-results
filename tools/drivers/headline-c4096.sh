@@ -47,15 +47,15 @@ LAYER_FLAGS="--round even --diagonal-block $GKR"   # every binding gadget is on 
 L0_FLAGS=""
 HEAD_FLAGS="--ao-rem-bits 23 $GKR"
 HEAD_LAYER=16              # the layer the head dump is extracted at; the grid places the segment after the last layer
-# The output head's segment is out of the plan (zk-prover #58): an honest head
-# segment is rejected under the sound defaults, because the seam between the
-# attention output and the o matmul is checked on a chunk whose family is the
-# final norm and cannot state it.  Nothing in a driver gets past that -- the
-# loader refuses a head dump without its layer's o matmul -- so the sequence is
-# proved from the embedding up to the last layer's residual, and the token the
-# head emits is bound by nothing until the prover is fixed.  One variable back
-# to 1 when it is.
-WITH_HEAD=0
+# The output head's segment is in the plan, so the token each position emits is
+# bound to the logits computed for it.  It was out while an honest head segment
+# was rejected under the sound defaults -- the seam between the attention output
+# and the o matmul was checked on a chunk whose kernel group is the final norm
+# and cannot state it (zk-prover #58) -- and zk-prover #61 fixed that.  A prover
+# commit without the fix refuses the head segment and this variable goes back to
+# 0; the plan, the extraction, the link count and the run's own segment count
+# all follow it.
+WITH_HEAD=1
 # The corpus opens with front matter, and a 4,096-token prompt taken from token
 # 0 ends inside its list of illustrations, where the greedy continuation is a
 # repeating index line -- a real decode and a degenerate benchmark.  The window
@@ -63,6 +63,11 @@ WITH_HEAD=0
 # context 16,384 row read the same prose (harness/witness/gen_ids.py).
 OFFSET=$(( 16384 - CTX ))
 PIPELINE=1                 # ZK_PIPELINE: generate segment k+1 while proving segment k
+# The serialized statements and proofs are kept after the link check instead of
+# being deleted with the run, because the model-commitment campaign checks each
+# of them against the published model commitment and cannot make them again for
+# less than this run's price.  They are on the host, never here.
+KEEP_SER=1
 SLICE=64                   # segments per process: 289 -> 5 processes
 XTHREADS=20                # torch threads for the extraction
 IDS=${ZK_IDS:-}            # token ids (.npy) already on the host; empty = generate them

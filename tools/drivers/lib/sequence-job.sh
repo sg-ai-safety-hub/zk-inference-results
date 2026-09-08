@@ -13,7 +13,15 @@
 #
 # Variables the driver sets: NAME BUILD MODEL SPEC HEAD_SPEC HEAD_LAYER CTX S
 # NBLOCK NLAY OFFSET SHARED LAYER_FLAGS L0_FLAGS HEAD_FLAGS WITH_HEAD PIPELINE
-# SLICE XTHREADS IDS KERNEL_FAMILIES LAYER_LINKS TOKEN_LINKS HARNESS LABEL.
+# SLICE XTHREADS IDS KERNEL_FAMILIES LAYER_LINKS TOKEN_LINKS HARNESS LABEL, and
+# KEEP_SER.
+#
+# `KEEP_SER` is 1 when the serialized statements and proofs stay on the host
+# after the link check has read them, and 0 -- the default -- when the run is
+# done with them and they go.  A campaign that checks another campaign's proofs
+# is what keeping them is for, and remaking them costs that campaign's whole
+# price.  They are large, they hold the model's activations, and they stay on
+# the host either way; the run records how many files and how many bytes.
 #
 # `WITH_HEAD` is 1 when the plan ends with the output head's segment and 0 when
 # it does not; the driver says which, and `LAYER_LINKS` follows it.
@@ -262,7 +270,22 @@ if bad:
     sys.exit("; ".join(bad))
 print("no skip; every edge bound; every implied link passed; no kernel fallback")
 PY
-rm -rf \$SER
+if [ "${KEEP_SER:-0}" = 1 ]; then
+  python3 - \$SER \$OUT/ser.json <<'SERPY'
+import json, os, sys
+ser = sys.argv[1]
+n = b = 0
+for root, _, files in os.walk(ser):
+    for f in files:
+        n += 1
+        b += os.path.getsize(os.path.join(root, f))
+json.dump({"kept": True, "files": n, "bytes": b}, open(sys.argv[2], "w"))
+print(f"serialized statements and proofs: {n} files, {b / 2 ** 30:.1f} GiB, kept on the host")
+SERPY
+else
+  rm -rf \$SER
+  printf '{"kept": false}\n' > \$OUT/ser.json
+fi
 st "done"
 JOBEOF
 }
