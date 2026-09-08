@@ -6,6 +6,17 @@ digests, the binding table from the manifest, and the constants keys it backs.
 
 Written, not yet run:
 
+- `tools/drivers/predict-14b.sh`: Qwen2.5-14B's 48 layer segments at context
+  4,096 on the reference backend, one proof per layer, measured against a
+  registered prediction. Written and started; the extraction ran and the first
+  layer did not prove. The rotation gadget requires the product of the block
+  length and the attention head count to be a power of two, this model has 40
+  heads, and 40 carries a factor of five that no block length divides out
+  (zk-prover #73). The same is true of the campaign's fallback-large shape,
+  which also has 40 heads. Separately, the prediction cannot be registered:
+  the script that writes it cannot be imported (zk-prover #67), and a prediction
+  written after the measurement is not a prediction.
+
 - `tools/drivers/headline-c16384.sh`: the paper's headline configuration, one
   16,384-token prompt and its 512 output tokens proved from the embedding up,
   1,057 segments on the CUDA backend, pipelined one segment ahead: the memory
