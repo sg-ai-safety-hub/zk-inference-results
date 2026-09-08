@@ -16,6 +16,11 @@
 # VERIFY PIPELINE SLICE XTHREADS IDS KERNEL_FAMILIES LAYER_LINKS TOKEN_LINKS
 # HARNESS LABEL, and KEEP_SER.
 #
+# HEAD_FLAGS carries what the head segments' lines need beyond their own pins;
+# the pins are read off the head dumps' shape rows here and appended to it,
+# because a pin written by hand for one quantization variant is wrong under
+# another and nothing catches that until the plan has been written.
+#
 # `KEEP_SER` is 1 when the serialized statements and proofs stay on the host
 # after the link check has read them, and 0 -- the default -- when the run is
 # done with them and they go.  A campaign that checks another campaign's proofs
@@ -49,6 +54,12 @@
 # failed after the loop is restarted for the price of what it did not finish.
 
 drv_sequence_job() {
+# The head dumps, named here because the job needs the list and the extractor's
+# block tagging is what decides it.
+HEAD_DUMPS=""
+for hb in $(echo "${HEAD_BLOCKS:-}" | tr ',' ' '); do
+    HEAD_DUMPS="$HEAD_DUMPS \${HEADW}_B$hb"
+done
 # `--verify` needs `--prompt`, and the prompt is only checkable where the plan's
 # head segments back every generated id; the driver decides that with VERIFY and
 # this is the one place the two arguments are written.
@@ -198,12 +209,40 @@ PY
 )
 st "pins: \$PINS"
 
+# The head segments' own pins.  A head dump is its layer's dump with the head's
+# arrays beside it, so it has a shape row like any other, and that row is what
+# says how many bits the attention output's remainder needs.  Reading it off the
+# dump rather than writing it out by hand is the whole of it: a pin written for
+# one quantization variant is wrong under another, and the assertion that
+# catches that fires after the plan is written.  The layers' merged pins cover
+# the rest, and the job stops here if they do not.
+HEADPINS=""
+if [ -n "${HEAD_BLOCKS:-}" ]; then
+  HEADPINS=\$( cd \$HSRC && \$PY - \$OUT/shapes_head.json "\$PINS" $HEAD_DUMPS <<'HEADPY'
+import json, sys
+from harness.witness.shapes import shape_of, worst_of
+out, pins, dumps = sys.argv[1], sys.argv[2].split(), sys.argv[3:]
+rows = [shape_of(d) for d in dumps]
+worst, _ = worst_of(rows)
+json.dump({"rows": rows, "worst": worst, "dumps": dumps}, open(out, "w"), indent=1)
+shared = {pins[i]: int(pins[i + 1]) for i in range(0, len(pins), 2)}
+for flag, key in (("--kmax", "kmax"), ("--fold-rem-bits", "fold_rem_bits")):
+    need, have = worst.get(key, 0), shared.get(flag, 0)
+    assert need <= have, (
+        f"the head dumps need {flag} {need} and the layers' merged pin is {have}; "
+        "the shared pins do not cover the head")
+print(f"--ao-rem-bits {worst['ao_rem_bits']}")
+HEADPY
+)
+  st "head pins: \$HEADPINS"
+fi
+
 # 4. the plan: one line per segment, and the distinct kernel shapes
 if [ -n "${HEAD_BLOCKS:-}" ]; then
   ( cd \$HSRC && \$PY -m harness.witness.plan --dir \$WIT --blocks $NBLOCK --with-block-0 --layers 0-$((NLAY - 1)) \
       --head \$HEADW --head-per-block --head-blocks $HEAD_BLOCKS \
       --layer-flags="$LAYER_FLAGS" --l0-flags="$L0_FLAGS" --l0-dir \$WIT \
-      --head-flags="$HEAD_FLAGS" --out \$OUT/plan.txt --emit-out \$R/emit.txt )
+      --head-flags="$HEAD_FLAGS \$HEADPINS" --out \$OUT/plan.txt --emit-out \$R/emit.txt )
 else
   ( cd \$HSRC && \$PY -m harness.witness.plan --dir \$WIT --blocks $NBLOCK --with-block-0 --layers 0-$((NLAY - 1)) \
       --layer-flags="$LAYER_FLAGS" --l0-flags="$L0_FLAGS" --l0-dir \$WIT \

@@ -40,7 +40,7 @@ NAME=headline-c4096
 LABEL=headline             # a configuration the paper cites, not a control
 MODEL=${ZK_MODEL:-unsloth/Llama-3.1-8B-Instruct}
 SPEC=y-delay-vw12          # the quantization variant the paper reports (docs/decisions)
-HEAD_SPEC=b10-final        # the output head's variant; both variants give the head the same arithmetic
+HEAD_SPEC=$SPEC            # the head proves the argmax of THIS variant's residual stream
 CTX=4096; S=512
 NBLOCK=$(( (CTX + S) / S ))  # 9: the prompt's 8 blocks and the output block
 NLAY=32
@@ -48,7 +48,7 @@ SHARED="--round even --numbits 9 --z-hi-bits 7 --variants intexp --head-groups 1
 GKR="--gkr-key-tiles --gkr-dequant --gkr-residual-stream --gkr-freivalds --gkr-attnout"
 LAYER_FLAGS="--round even --diagonal-block $GKR"   # every binding gadget is on by default; no skip flag anywhere
 L0_FLAGS=""
-HEAD_FLAGS="--ao-rem-bits 23 $GKR"
+HEAD_FLAGS="$GKR"            # the head line's pins come off the head dumps, not from here
 HEAD_LAYER=16              # the layer the head dump is extracted at; the grid places the segment after the last layer
 # The output head is proved over the last prompt block and over the generated
 # block, so every token the sequence emits is bound to a proved argmax
