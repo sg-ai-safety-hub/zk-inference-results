@@ -218,14 +218,14 @@ if [ ! -f \$R/kernels.done ]; then
   while read -r line; do
     case "\$line" in '#'*|'') continue ;; esac
     args=\$(printf '%s\n' "\$line" | sed 's/--ser-tag [A-Za-z0-9_]*//')
-    # zk-prover #57: the emitters' placeholder claims are one entry short on the
-    # segment with no prefix, which is the one that also carries the embedding
-    # gadget.  With the five reductions on only the generation emitter runs out;
-    # with them off the constraint emitter does too.  A kernel is looked up by
-    # fingerprint and the plan's shapes share theirs, so what a refused lowering
-    # costs is either nothing or an announced kernel fallback line, and the gate
-    # below fails the run on any such line.  Which shapes were refused is in the
-    # run directory, not in an exit code.
+    # A refused lowering is recorded and never fatal here: a kernel is looked up
+    # by fingerprint and the plan's shapes share theirs, so what a refusal costs
+    # is either nothing or an announced kernel fallback line, and the gate below
+    # fails the run on any such line.  Which shapes were refused is in the run
+    # directory, not in an exit code.  The one refusal this used to see was the
+    # segment with no prefix, whose placeholder claims were one entry short
+    # (zk-prover #57, fixed by #62); a refusal at the pinned commit is a new one
+    # and worth reading.
     for emit in cudaemit genemit; do
       case \$emit in
         cudaemit) opts="--block 256 --min-blocks 2" ;;
@@ -302,7 +302,7 @@ PROMPTPY
     > \$OUT/grid.json 2> \$R/grid.err
 st "links checked"
 
-# 8. the gate: no skip in effect, every edge bound, every link run and passed,
+# 9. the gate: no skip in effect, every edge bound, every link run and passed,
 #    and no lookup evaluated on the host instead of by its generated kernel
 python3 - \$OUT <<'PY'
 import json, pathlib, sys
