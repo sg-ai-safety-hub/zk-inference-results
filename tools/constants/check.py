@@ -83,6 +83,21 @@ DERIVED = {
         v("positions.headline.c4096") / v(f"secs.headline.c4096.{s}"),
         f"pos_s.headline.c4096.{s}", 0.001))
        for s in ("whole_wall", "loop")},
+    # What one proved position costs (docs/decisions): the seconds it took and
+    # the dollars those seconds are worth at the card's reference rate.  Both
+    # sides of every division are entries of this file, so nothing here is a
+    # second measurement; the rate is `external` and names its source.
+    **{f"secs_per_position.headline.c4096.{s}": (lambda s=s: chk(
+        f"c4096 headline seconds per proved position, {s.replace('_', ' ')}",
+        v(f"secs.headline.c4096.{s}") / v("positions.headline.c4096"),
+        f"secs_per_position.headline.c4096.{s}", 0.001))
+       for s in ("whole_wall", "loop")},
+    **{f"usd_per_1k_positions.headline.c4096.{s}": (lambda s=s: chk(
+        f"c4096 headline USD per 1,000 proved positions, {s.replace('_', ' ')}",
+        v(f"secs.headline.c4096.{s}") / v("positions.headline.c4096")
+        * v("cost.h100_reference_usd_per_hour") / 3600 * 1000,
+        f"usd_per_1k_positions.headline.c4096.{s}", 0.001))
+       for s in ("whole_wall", "loop")},
     # The cost model's commitment-rate input: committed cells over the seconds
     # the commitment path took, both measured on the same proof.
     "rate.microbench.commit": lambda: chk(
