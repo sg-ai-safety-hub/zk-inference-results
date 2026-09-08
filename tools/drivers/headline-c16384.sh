@@ -164,6 +164,23 @@ BLOCK_EST_MIB=12452        # 12.16 GiB, the probe's disk.json for block 32
 SHARED_EST_MIB=7680        # 7.5 GiB of block-invariant files, written once and kept
 RESERVE_MIB=10240          # 10 GiB kept free at all times
 SAMPLE_MS=200              # the card's memory is sampled this often for the whole of every process
+# The final link check always publishes the prompt, and asks the verifier to
+# replay every chunk proof only where the proofs are still whole.
+#
+# --prompt costs nothing and is never off: the ids it compares are published in
+# the statements, which this run keeps, so the grid checks every prompt
+# position's id against the prompt and every generated position's against the
+# token the head proved for the position before it.  Without it the grid says
+# those positions are unchecked, which is what the c4096 row has.
+#
+# --verify replays the verifier over every chunk proof and needs the proof
+# whole.  At this context 1,058 of them are 108 GiB against a 216 GiB volume
+# that also holds the weights, the build trees and a group's layer dumps, so
+# this run keeps a proof only until the verifier has accepted it and then
+# shrinks it to the roots the grid reads; the per-group records are the evidence
+# and they are in the run directory.  A host that can hold the proofs to the end
+# sets this to 1 and the final grid does both at once.
+GRID_VERIFY=0
 # The links the grid implies, which the grid is told before it counts them.
 # Inside a block, consecutive layers: 31 per block, and one more for each block
 # that carries a head segment, because a head sits at the layer coordinate after
@@ -267,6 +284,17 @@ print('ids: determinism check passed', len(a), 'tokens')" )
   fi
 fi
 IDSARG="--ids \$IDSFILE"
+# The prompt the statement publishes, as the link check wants it: a JSON list.
+# It is an output of the run and not a working file -- it is the input side of
+# the statement, and the grid's id check is against this and nothing else.
+if [ ! -f \$OUT/prompt.json ]; then
+  ( cd \$HSRC && \$PY -c "
+import json, sys
+import numpy as np
+a = np.load(sys.argv[1])[:$CTX]
+json.dump({'ids': [int(x) for x in a]}, open(sys.argv[2], 'w'))
+print('prompt:', len(a), 'ids')" \$IDSFILE \$OUT/prompt.json )
+fi
 
 # ---- the group machinery -----------------------------------------------------
 # How many blocks fit beside the block-invariant files and the reserve, right
@@ -777,7 +805,10 @@ st "serialized statements and proofs: \$NSER files for \$N segments"
 [ "\$NSER" -ge "\$N" ] ||
   { st "the serialized statements and proofs are \$NSER files for \$N segments. A restart skips a group whose slice outputs are already written, so proofs deleted after those outputs were written are never made again; delete out/slice_*.json for the groups whose proofs are gone and run the job again"; exit 7; }
 GRIDT0=\$(date +%s)
-\$SIMD boundary-grid --dir \$SER --plan \$OUT/plan.txt \
+GRIDV=""
+[ "$GRID_VERIFY" != 1 ] || GRIDV="--verify"
+st "links: over $SEGMENTS segments, with the prompt\${GRIDV:+ and the verifier}"
+\$SIMD boundary-grid --dir \$SER --plan \$OUT/plan.txt --prompt \$OUT/prompt.json \$GRIDV \
     --expect-layer-links $LAYER_LINKS --expect-token-links $TOKEN_LINKS \
     > \$OUT/grid.json 2> \$R/grid.err
 GRID_SECS=\$((\$(date +%s) - GRIDT0))
@@ -854,8 +885,12 @@ for g in json.loads((out / "groups.json").read_text()):
 g = json.loads((out / "grid.json").read_text())["result"]
 print(f"grid: {g['links_passed']}/{g['links_run']} of {g['links_expected']} implied links passed; "
       f"all_chain {g['all_chain']}")
+t = g.get("tokens") or {}
+print(f"ids: {t.get('prompt_positions')} prompt and {t.get('generated_positions')} generated "
+      f"positions checked, {len(t.get('mismatches') or [])} bad, "
+      f"{len(t.get('unbacked') or [])} unbacked; verified {(g.get('verified') or {}).get('run', 0)}")
 if not g["all_chain"]:
-    bad.append(f"the grid did not chain: {g['failures']}")
+    bad.append(f"the grid did not chain: {g['failures'][:3]}")
 peak = max((json.loads(f.read_text())["max_mib"] for f in out.glob("mem_*.json")), default=0)
 print(f"total: {n} segments, {fresh:,.0f} fresh cells, the card held at most {peak} MiB")
 if bad:

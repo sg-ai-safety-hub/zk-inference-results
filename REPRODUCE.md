@@ -33,8 +33,10 @@ Written, not yet run:
   and emits their kernels while the dumps are still there, deletes the dumps,
   and goes on to the next few; then it installs the kernels once and extracts
   each group again to prove it. The link check reads the serialized proofs of
-  every group at the end. The run's end-to-end figure is the sum over the
-  groups of the proving processes. Started once on 2026-09-08 and stopped on
+  every group at the end and is given the prompt, so every prompt position's
+  published id is compared against it and every generated position's against
+  the token a head proved for the position before it. The run's end-to-end
+  figure is the sum over the groups of the proving processes. Started once on 2026-09-08 and stopped on
   its first proof, because that first version emitted the kernels after the
   dumps were deleted and every emitter refused; the record of that attempt is
   not kept, since it produced no proof.
