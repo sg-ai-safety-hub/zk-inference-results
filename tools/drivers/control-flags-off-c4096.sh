@@ -48,7 +48,7 @@ NAME=control-flags-off-c4096
 LABEL=control              # not a configuration the paper cites
 MODEL=${ZK_MODEL:-unsloth/Llama-3.1-8B-Instruct}
 SPEC=y-delay-vw12
-HEAD_SPEC=b10-final
+HEAD_SPEC=$SPEC            # the head proves the argmax of THIS variant's residual stream
 CTX=4096; S=512
 NBLOCK=$(( (CTX + S) / S ))
 NLAY=32
@@ -56,7 +56,7 @@ SHARED="--round even --numbits 9 --z-hi-bits 7 --variants intexp --head-groups 1
 # no GKR here: that is the whole of the difference from headline-c4096
 LAYER_FLAGS="--round even --diagonal-block"   # every binding gadget is still on; no skip flag anywhere
 L0_FLAGS=""
-HEAD_FLAGS="--ao-rem-bits 23"
+HEAD_FLAGS=""              # no reduction here, and the pins come off the head dumps
 HEAD_LAYER=16              # the layer the head dump is extracted at; the grid places the segment after the last layer
 # The output head is proved over the last prompt block and over the generated
 # block, exactly as `headline-c4096.sh` proves it: the two plans have to be the
