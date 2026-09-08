@@ -13,13 +13,18 @@ HERE=$(cd "$(dirname "$0")" && pwd)
 "$HERE/lock.sh" "$HOST" acquire "$NAME"
 # The wrapper records the status, runs the command, records the exit code and
 # frees the lock.  Single quotes around $CMD are the caller's responsibility.
-ssh -o BatchMode=yes "$HOST" "mkdir -p ~/runs && setsid nohup sh -c '
-  S=\$HOME/runs/$NAME.status
-  echo \"running \$(date -u +%Y-%m-%dT%H:%M:%SZ) pid \$\$\" > \$S
-  sh -c \"$CMD\"; rc=\$?
-  echo \"done exit=\$rc \$(date -u +%Y-%m-%dT%H:%M:%SZ)\" >> \$S
-  rm -f \$HOME/.zk-run.lock
-' > ~/runs/$NAME.log 2>&1 < /dev/null &"
+#
+# It is read by the host's shell on standard input rather than passed as a
+# command argument.  A command argument does not survive every connection: on
+# one reached through a vendor's proxy this wrapper arrived with its newlines
+# rewritten as spaces and its command substitutions dropped, so the status
+# file was never written, the job never started and the lock was never freed,
+# while the same bytes on standard input arrived whole.  The heredoc also
+# gives ssh an end of input, so it returns instead of waiting on a stdin the
+# detached job no longer holds.
+ssh -o BatchMode=yes "$HOST" sh <<SHEOF
+mkdir -p ~/runs && setsid nohup sh -c 'S=\$HOME/runs/$NAME.status; echo "running \$(date -u +%Y-%m-%dT%H:%M:%SZ) pid \$\$" > \$S; sh -c "$CMD"; rc=\$?; echo "done exit=\$rc \$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> \$S; rm -f \$HOME/.zk-run.lock' > ~/runs/$NAME.log 2>&1 < /dev/null &
+SHEOF
 echo "run.sh: $NAME started on $HOST"
 echo "poll:   ssh $HOST cat '~/runs/$NAME.status'"
 echo "tail:   ssh $HOST tail -20 '~/runs/$NAME.log'"

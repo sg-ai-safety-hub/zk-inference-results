@@ -28,9 +28,13 @@ else
   SOURCE=$(git rev-parse HEAD)
   [ -z "$(git status --porcelain --untracked-files=no)" ] || SOURCE="$SOURCE dirty"
 fi
+# `echo` and not `printf '%s\n'`: the tar stream holds standard input, so this
+# command has to travel as an argument, and a connection that does not deliver
+# a backslash escape verbatim writes a literal `n` on the end of the commit
+# instead of a newline.  `echo` ends its line with no escape to lose.
 if [ -n "$COMMIT" ]; then
   git archive --format=tar "$COMMIT"
 else
   git ls-files -z | tar -cf - --null -T -
-fi | ssh -o BatchMode=yes "$HOST" "mkdir -p '$DEST' && tar -C '$DEST' -xmf - && printf '%s\n' '$SOURCE' > '$DEST/.source-commit'"
+fi | ssh -o BatchMode=yes "$HOST" "mkdir -p '$DEST' && tar -C '$DEST' -xmf - && echo '$SOURCE' > '$DEST/.source-commit'"
 echo "push.sh: $REPO${COMMIT:+@$COMMIT} -> $HOST:$DEST ($SOURCE)"
