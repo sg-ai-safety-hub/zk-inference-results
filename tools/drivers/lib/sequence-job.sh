@@ -80,21 +80,8 @@ if [ -z "\$IDSFILE" ]; then
   IDSFILE=\$WIT/ids.npy
   if [ ! -f \$IDSFILE ]; then
     st "ids: greedy continuation, $SPEC, corpus offset $OFFSET"
-    # zk-prover #51: gen_ids imports the bare name ppl where every other caller
-    # of that function writes the submodule, so running it with -m stops at the
-    # import.  This shim binds the name to the submodule and changes nothing
-    # else; it goes when the import is fixed.
-    cat > \$R/gen_ids_shim.py <<'SHIM'
-import runpy
-import sys
-
-import harness.witness.ppl
-
-sys.modules.setdefault("ppl", harness.witness.ppl)
-runpy.run_module("harness.witness.gen_ids", run_name="__main__")
-SHIM
-    ( cd \$HSRC && ZK_MODEL=$MODEL ZK_DEVICE=cuda ZK_THREADS=$XTHREADS \$PY \$R/gen_ids_shim.py --prefix $CTX --offset $OFFSET --new 513 --spec $SPEC --out \$WIT/ids_513.npy )
-    ( cd \$HSRC && ZK_MODEL=$MODEL ZK_DEVICE=cuda ZK_THREADS=$XTHREADS \$PY \$R/gen_ids_shim.py --prefix $CTX --offset $OFFSET --new $S --spec $SPEC --out \$WIT/ids_512.npy )
+    ( cd \$HSRC && ZK_MODEL=$MODEL ZK_DEVICE=cuda ZK_THREADS=$XTHREADS \$PY -m harness.witness.gen_ids --prefix $CTX --offset $OFFSET --new 513 --spec $SPEC --out \$WIT/ids_513.npy )
+    ( cd \$HSRC && ZK_MODEL=$MODEL ZK_DEVICE=cuda ZK_THREADS=$XTHREADS \$PY -m harness.witness.gen_ids --prefix $CTX --offset $OFFSET --new $S --spec $SPEC --out \$WIT/ids_512.npy )
     ( cd \$HSRC && \$PY -m harness.witness.shift_ids --ids \$WIT/ids_513.npy --prefix $CTX --new $S --out \$IDSFILE )
     ( cd \$HSRC && \$PY -c "
 import numpy as np
@@ -128,15 +115,7 @@ xpass() {   # xpass <tag> <layers> <last layer of the group> <extra flags>
       "\$tag" "\$group" $XTHREADS \$((T1 - T0)) > \$WIT/extract_\$tag.json
   st "extract: layers \$group done in \$((T1 - T0))s"
 }
-# zk-prover #55: a one-layer extraction writes <base>_B<b> where the shape table
-# and the plan both read <base>_B<b>_L<k>, so layer 0's dumps are moved into the
-# name the next two steps look for.  Only the directory moves; no dump changes.
 xpass l0 0 0 --embed
-b=0
-while [ \$b -lt $NBLOCK ]; do
-  [ ! -d \$WIT/witness_B\$b ] || mv \$WIT/witness_B\$b \$WIT/witness_B\${b}_L0
-  b=\$((b + 1))
-done
 xpass l1 1,2,3,4,5,6,7 7
 xpass l2 8,9,10,11,12,13,14,15 15
 xpass l3 16,17,18,19,20,21,22,23 23

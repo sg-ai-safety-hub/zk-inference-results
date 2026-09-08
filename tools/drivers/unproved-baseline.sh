@@ -3,11 +3,15 @@
 #
 #   tools/drivers/unproved-baseline.sh <host> <prover-commit> <harness-commit>
 #
-# Llama-3.1-8B-Instruct on the card, decoding 512 tokens at two contexts and a
-# ladder of batch sizes, with nothing proved about any of it. This is the
-# denominator of every "times slower" the paper states, so what it has to be is
-# honest about the machine and the arithmetic: the same card, the same weights,
-# the same context lengths as the proved rows, and a backend a reader would
+# Llama-3.1-8B-Instruct on the card, prefilling the prompt and decoding 512
+# tokens at two contexts and a ladder of batch sizes, with nothing proved about
+# any of it. Each point records three rates, positions per second over their
+# own positions: the prefill alone, the decode alone, and the two end to end.
+# None of them is an overhead denominator: the paper quotes cost per proved
+# position and the reader applies their own prompt and generation mix (the
+# decision of 2026-09-08 in docs/decisions/). What the run has to be is honest
+# about the machine and the arithmetic: the same card, the same weights, the
+# same context lengths as the proved rows, and a backend a reader would
 # actually deploy.
 #
 # Two backends, and they answer different questions. The one that ships with the
@@ -168,11 +172,13 @@ for f in sorted(out.glob("*.json")):
     be = d.get("backend", {}).get("name", p.get("decode_backend"))
     run = d.get("run", {})
     if m:
-        rate = next((m[k] for k in ("tokens_per_s", "tok_s", "decode_tok_s",
-                                    "throughput_tok_s") if k in m), None)
+        rates = {k: m.get(f"pos_s_{k}_per_stream") for k in ("prefill", "decode", "end_to_end")}
+        if any(v is None for v in rates.values()):
+            bad.append(f"{f.name}: a point carries fewer than the three rates "
+                       f"(prefill, decode, end to end): {sorted(m)}")
         rows.append({"backend": be, "context": run.get("context_keys"),
                      "batch": run.get("batch_size"), "file": f.name,
-                     "rate": rate, "measured_keys": sorted(m)})
+                     "rates": rates, "measured_keys": sorted(m)})
     else:
         note = d.get("failure", {}).get("type") or d.get("backend", {}).get("reason")
         print(f"{f.name}: no number ({note})")
@@ -183,7 +189,8 @@ for c in contexts:
             bad.append(f"hf did not measure context {c} at batch {b}")
 for r in sorted(rows, key=lambda r: (r["backend"], r["context"] or 0, r["batch"] or 0)):
     print(f"{r['backend']:<6s} C={r['context']:<6} batch={r['batch']:<4} "
-          f"rate={r['rate']}  [{r['file']}]  fields={r['measured_keys']}")
+          f"prefill={r['rates']['prefill']} decode={r['rates']['decode']} "
+          f"end_to_end={r['rates']['end_to_end']} positions/s  [{r['file']}]")
 refused = (out / "refused.txt").read_text().split("\n") if (out / "refused.txt").exists() else []
 refused = [x for x in refused if x]
 if refused:
