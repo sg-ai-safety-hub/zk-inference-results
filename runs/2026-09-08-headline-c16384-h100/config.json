@@ -1,0 +1,13 @@
+{"driver": "headline-c16384", "label": "headline",
+ "model": "unsloth/Llama-3.1-8B-Instruct", "spec": "y-delay-vw12", "head_spec": "y-delay-vw12",
+ "context": 16384, "s": 512, "positions": 16896, "blocks": 33, "layers": 32,
+ "segments": 1058, "with_head": 1, "head_blocks": "31,32", "heads": 2,
+ "slice": 64, "pipeline": 1,
+ "grouped": true, "group_max": 5, "group_order": "descending",
+ "block_est_mib": 12452, "shared_est_mib": 7680, "reserve_mib": 10240,
+ "sample_ms": 200,
+ "shared_flags": "--round even --numbits 9 --z-hi-bits 7 --variants intexp --head-groups 16,8,8 --tight-table", "layer_flags": "--round even --diagonal-block --gkr-key-tiles --gkr-dequant --gkr-residual-stream --gkr-freivalds --gkr-attnout", "layer0_flags": "",
+ "head_flags": "--gkr-key-tiles --gkr-dequant --gkr-residual-stream --gkr-freivalds --gkr-attnout plus an --ao-rem-bits read off the head dumps; see head.json",
+ "expect_layer_links": 1025, "expect_token_links": 1024,
+ "ids": "generated: the corpus's tokens 0 to 16384 and the model's own greedy continuation under y-delay-vw12",
+ "corpus_offset": 0}

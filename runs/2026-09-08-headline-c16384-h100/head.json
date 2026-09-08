@@ -1,0 +1,48 @@
+{
+ "blocks": [
+  "31",
+  "32"
+ ],
+ "ao_rem_bits": 15,
+ "rows": {
+  "31": {
+   "layer": 16,
+   "c": 15872,
+   "s": 512,
+   "block": 31,
+   "table_bits": 25,
+   "spread": 2.0,
+   "d_bits": 23,
+   "z_max": 12622,
+   "ao_rem_bits": 15,
+   "attn_out_bits": 12,
+   "kmax_needed": 13,
+   "kmax_blind": 19,
+   "fold_q_max": 2046,
+   "fold_rem_bits": 13,
+   "fold_gt_min": 10,
+   "fold_gc_min": 11,
+   "slim": true
+  },
+  "32": {
+   "layer": 16,
+   "c": 16384,
+   "s": 512,
+   "block": 32,
+   "table_bits": 25,
+   "spread": 2.0,
+   "d_bits": 23,
+   "z_max": 11240,
+   "ao_rem_bits": 15,
+   "attn_out_bits": 12,
+   "kmax_needed": 13,
+   "kmax_blind": 19,
+   "fold_q_max": 2043,
+   "fold_rem_bits": 13,
+   "fold_gt_min": 11,
+   "fold_gc_min": 11,
+   "slim": true
+  }
+ },
+ "note": "A head dump carries the o matmul of the layer it was extracted at, so ao_rem_bits is a property of the dump and the head line is pinned from it rather than from a number written in the driver."
+}

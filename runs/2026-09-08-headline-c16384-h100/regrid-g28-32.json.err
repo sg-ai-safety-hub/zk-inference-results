@@ -1,0 +1,319 @@
+grid B28L0 -> B28L1 [layer]: ok
+grid B28L1 -> B28L2 [layer]: ok
+grid B28L2 -> B28L3 [layer]: ok
+grid B28L3 -> B28L4 [layer]: ok
+grid B28L4 -> B28L5 [layer]: ok
+grid B28L5 -> B28L6 [layer]: ok
+grid B28L6 -> B28L7 [layer]: ok
+grid B28L7 -> B28L8 [layer]: ok
+grid B28L8 -> B28L9 [layer]: ok
+grid B28L9 -> B28L10 [layer]: ok
+grid B28L10 -> B28L11 [layer]: ok
+grid B28L11 -> B28L12 [layer]: ok
+grid B28L12 -> B28L13 [layer]: ok
+grid B28L13 -> B28L14 [layer]: ok
+grid B28L14 -> B28L15 [layer]: ok
+grid B28L15 -> B28L16 [layer]: ok
+grid B28L16 -> B28L17 [layer]: ok
+grid B28L17 -> B28L18 [layer]: ok
+grid B28L18 -> B28L19 [layer]: ok
+grid B28L19 -> B28L20 [layer]: ok
+grid B28L20 -> B28L21 [layer]: ok
+grid B28L21 -> B28L22 [layer]: ok
+grid B28L22 -> B28L23 [layer]: ok
+grid B28L23 -> B28L24 [layer]: ok
+grid B28L24 -> B28L25 [layer]: ok
+grid B28L25 -> B28L26 [layer]: ok
+grid B28L26 -> B28L27 [layer]: ok
+grid B28L27 -> B28L28 [layer]: ok
+grid B28L28 -> B28L29 [layer]: ok
+grid B28L29 -> B28L30 [layer]: ok
+grid B28L30 -> B28L31 [layer]: ok
+grid B29L0 -> B29L1 [layer]: ok
+grid B29L1 -> B29L2 [layer]: ok
+grid B29L2 -> B29L3 [layer]: ok
+grid B29L3 -> B29L4 [layer]: ok
+grid B29L4 -> B29L5 [layer]: ok
+grid B29L5 -> B29L6 [layer]: ok
+grid B29L6 -> B29L7 [layer]: ok
+grid B29L7 -> B29L8 [layer]: ok
+grid B29L8 -> B29L9 [layer]: ok
+grid B29L9 -> B29L10 [layer]: ok
+grid B29L10 -> B29L11 [layer]: ok
+grid B29L11 -> B29L12 [layer]: ok
+grid B29L12 -> B29L13 [layer]: ok
+grid B29L13 -> B29L14 [layer]: ok
+grid B29L14 -> B29L15 [layer]: ok
+grid B29L15 -> B29L16 [layer]: ok
+grid B29L16 -> B29L17 [layer]: ok
+grid B29L17 -> B29L18 [layer]: ok
+grid B29L18 -> B29L19 [layer]: ok
+grid B29L19 -> B29L20 [layer]: ok
+grid B29L20 -> B29L21 [layer]: ok
+grid B29L21 -> B29L22 [layer]: ok
+grid B29L22 -> B29L23 [layer]: ok
+grid B29L23 -> B29L24 [layer]: ok
+grid B29L24 -> B29L25 [layer]: ok
+grid B29L25 -> B29L26 [layer]: ok
+grid B29L26 -> B29L27 [layer]: ok
+grid B29L27 -> B29L28 [layer]: ok
+grid B29L28 -> B29L29 [layer]: ok
+grid B29L29 -> B29L30 [layer]: ok
+grid B29L30 -> B29L31 [layer]: ok
+grid B30L0 -> B30L1 [layer]: ok
+grid B30L1 -> B30L2 [layer]: ok
+grid B30L2 -> B30L3 [layer]: ok
+grid B30L3 -> B30L4 [layer]: ok
+grid B30L4 -> B30L5 [layer]: ok
+grid B30L5 -> B30L6 [layer]: ok
+grid B30L6 -> B30L7 [layer]: ok
+grid B30L7 -> B30L8 [layer]: ok
+grid B30L8 -> B30L9 [layer]: ok
+grid B30L9 -> B30L10 [layer]: ok
+grid B30L10 -> B30L11 [layer]: ok
+grid B30L11 -> B30L12 [layer]: ok
+grid B30L12 -> B30L13 [layer]: ok
+grid B30L13 -> B30L14 [layer]: ok
+grid B30L14 -> B30L15 [layer]: ok
+grid B30L15 -> B30L16 [layer]: ok
+grid B30L16 -> B30L17 [layer]: ok
+grid B30L17 -> B30L18 [layer]: ok
+grid B30L18 -> B30L19 [layer]: ok
+grid B30L19 -> B30L20 [layer]: ok
+grid B30L20 -> B30L21 [layer]: ok
+grid B30L21 -> B30L22 [layer]: ok
+grid B30L22 -> B30L23 [layer]: ok
+grid B30L23 -> B30L24 [layer]: ok
+grid B30L24 -> B30L25 [layer]: ok
+grid B30L25 -> B30L26 [layer]: ok
+grid B30L26 -> B30L27 [layer]: ok
+grid B30L27 -> B30L28 [layer]: ok
+grid B30L28 -> B30L29 [layer]: ok
+grid B30L29 -> B30L30 [layer]: ok
+grid B30L30 -> B30L31 [layer]: ok
+grid B31L0 -> B31L1 [layer]: ok
+grid B31L1 -> B31L2 [layer]: ok
+grid B31L2 -> B31L3 [layer]: ok
+grid B31L3 -> B31L4 [layer]: ok
+grid B31L4 -> B31L5 [layer]: ok
+grid B31L5 -> B31L6 [layer]: ok
+grid B31L6 -> B31L7 [layer]: ok
+grid B31L7 -> B31L8 [layer]: ok
+grid B31L8 -> B31L9 [layer]: ok
+grid B31L9 -> B31L10 [layer]: ok
+grid B31L10 -> B31L11 [layer]: ok
+grid B31L11 -> B31L12 [layer]: ok
+grid B31L12 -> B31L13 [layer]: ok
+grid B31L13 -> B31L14 [layer]: ok
+grid B31L14 -> B31L15 [layer]: ok
+grid B31L15 -> B31L16 [layer]: ok
+grid B31L16 -> B31L17 [layer]: ok
+grid B31L17 -> B31L18 [layer]: ok
+grid B31L18 -> B31L19 [layer]: ok
+grid B31L19 -> B31L20 [layer]: ok
+grid B31L20 -> B31L21 [layer]: ok
+grid B31L21 -> B31L22 [layer]: ok
+grid B31L22 -> B31L23 [layer]: ok
+grid B31L23 -> B31L24 [layer]: ok
+grid B31L24 -> B31L25 [layer]: ok
+grid B31L25 -> B31L26 [layer]: ok
+grid B31L26 -> B31L27 [layer]: ok
+grid B31L27 -> B31L28 [layer]: ok
+grid B31L28 -> B31L29 [layer]: ok
+grid B31L29 -> B31L30 [layer]: ok
+grid B31L30 -> B31L31 [layer]: ok
+grid B32L0 -> B32L1 [layer]: ok
+grid B32L1 -> B32L2 [layer]: ok
+grid B32L2 -> B32L3 [layer]: ok
+grid B32L3 -> B32L4 [layer]: ok
+grid B32L4 -> B32L5 [layer]: ok
+grid B32L5 -> B32L6 [layer]: ok
+grid B32L6 -> B32L7 [layer]: ok
+grid B32L7 -> B32L8 [layer]: ok
+grid B32L8 -> B32L9 [layer]: ok
+grid B32L9 -> B32L10 [layer]: ok
+grid B32L10 -> B32L11 [layer]: ok
+grid B32L11 -> B32L12 [layer]: ok
+grid B32L12 -> B32L13 [layer]: ok
+grid B32L13 -> B32L14 [layer]: ok
+grid B32L14 -> B32L15 [layer]: ok
+grid B32L15 -> B32L16 [layer]: ok
+grid B32L16 -> B32L17 [layer]: ok
+grid B32L17 -> B32L18 [layer]: ok
+grid B32L18 -> B32L19 [layer]: ok
+grid B32L19 -> B32L20 [layer]: ok
+grid B32L20 -> B32L21 [layer]: ok
+grid B32L21 -> B32L22 [layer]: ok
+grid B32L22 -> B32L23 [layer]: ok
+grid B32L23 -> B32L24 [layer]: ok
+grid B32L24 -> B32L25 [layer]: ok
+grid B32L25 -> B32L26 [layer]: ok
+grid B32L26 -> B32L27 [layer]: ok
+grid B32L27 -> B32L28 [layer]: ok
+grid B32L28 -> B32L29 [layer]: ok
+grid B32L29 -> B32L30 [layer]: ok
+grid B32L30 -> B32L31 [layer]: ok
+grid B32L31 -> head [layer]: FAILED -- the first chunk's residual out root is not the second's in root
+grid B28L0 -> B29L0 [token]: ok
+grid B29L0 -> B30L0 [token]: ok
+grid B30L0 -> B31L0 [token]: ok
+grid B31L0 -> B32L0 [token]: ok
+grid B28L1 -> B29L1 [token]: ok
+grid B29L1 -> B30L1 [token]: ok
+grid B30L1 -> B31L1 [token]: ok
+grid B31L1 -> B32L1 [token]: ok
+grid B28L2 -> B29L2 [token]: ok
+grid B29L2 -> B30L2 [token]: ok
+grid B30L2 -> B31L2 [token]: ok
+grid B31L2 -> B32L2 [token]: ok
+grid B28L3 -> B29L3 [token]: ok
+grid B29L3 -> B30L3 [token]: ok
+grid B30L3 -> B31L3 [token]: ok
+grid B31L3 -> B32L3 [token]: ok
+grid B28L4 -> B29L4 [token]: ok
+grid B29L4 -> B30L4 [token]: ok
+grid B30L4 -> B31L4 [token]: ok
+grid B31L4 -> B32L4 [token]: ok
+grid B28L5 -> B29L5 [token]: ok
+grid B29L5 -> B30L5 [token]: ok
+grid B30L5 -> B31L5 [token]: ok
+grid B31L5 -> B32L5 [token]: ok
+grid B28L6 -> B29L6 [token]: ok
+grid B29L6 -> B30L6 [token]: ok
+grid B30L6 -> B31L6 [token]: ok
+grid B31L6 -> B32L6 [token]: ok
+grid B28L7 -> B29L7 [token]: ok
+grid B29L7 -> B30L7 [token]: ok
+grid B30L7 -> B31L7 [token]: ok
+grid B31L7 -> B32L7 [token]: ok
+grid B28L8 -> B29L8 [token]: ok
+grid B29L8 -> B30L8 [token]: ok
+grid B30L8 -> B31L8 [token]: ok
+grid B31L8 -> B32L8 [token]: ok
+grid B28L9 -> B29L9 [token]: ok
+grid B29L9 -> B30L9 [token]: ok
+grid B30L9 -> B31L9 [token]: ok
+grid B31L9 -> B32L9 [token]: ok
+grid B28L10 -> B29L10 [token]: ok
+grid B29L10 -> B30L10 [token]: ok
+grid B30L10 -> B31L10 [token]: ok
+grid B31L10 -> B32L10 [token]: ok
+grid B28L11 -> B29L11 [token]: ok
+grid B29L11 -> B30L11 [token]: ok
+grid B30L11 -> B31L11 [token]: ok
+grid B31L11 -> B32L11 [token]: ok
+grid B28L12 -> B29L12 [token]: ok
+grid B29L12 -> B30L12 [token]: ok
+grid B30L12 -> B31L12 [token]: ok
+grid B31L12 -> B32L12 [token]: ok
+grid B28L13 -> B29L13 [token]: ok
+grid B29L13 -> B30L13 [token]: ok
+grid B30L13 -> B31L13 [token]: ok
+grid B31L13 -> B32L13 [token]: ok
+grid B28L14 -> B29L14 [token]: ok
+grid B29L14 -> B30L14 [token]: ok
+grid B30L14 -> B31L14 [token]: ok
+grid B31L14 -> B32L14 [token]: ok
+grid B28L15 -> B29L15 [token]: ok
+grid B29L15 -> B30L15 [token]: ok
+grid B30L15 -> B31L15 [token]: ok
+grid B31L15 -> B32L15 [token]: ok
+grid B28L16 -> B29L16 [token]: ok
+grid B29L16 -> B30L16 [token]: ok
+grid B30L16 -> B31L16 [token]: ok
+grid B31L16 -> B32L16 [token]: ok
+grid B28L17 -> B29L17 [token]: ok
+grid B29L17 -> B30L17 [token]: ok
+grid B30L17 -> B31L17 [token]: ok
+grid B31L17 -> B32L17 [token]: ok
+grid B28L18 -> B29L18 [token]: ok
+grid B29L18 -> B30L18 [token]: ok
+grid B30L18 -> B31L18 [token]: ok
+grid B31L18 -> B32L18 [token]: ok
+grid B28L19 -> B29L19 [token]: ok
+grid B29L19 -> B30L19 [token]: ok
+grid B30L19 -> B31L19 [token]: ok
+grid B31L19 -> B32L19 [token]: ok
+grid B28L20 -> B29L20 [token]: ok
+grid B29L20 -> B30L20 [token]: ok
+grid B30L20 -> B31L20 [token]: ok
+grid B31L20 -> B32L20 [token]: ok
+grid B28L21 -> B29L21 [token]: ok
+grid B29L21 -> B30L21 [token]: ok
+grid B30L21 -> B31L21 [token]: ok
+grid B31L21 -> B32L21 [token]: ok
+grid B28L22 -> B29L22 [token]: ok
+grid B29L22 -> B30L22 [token]: ok
+grid B30L22 -> B31L22 [token]: ok
+grid B31L22 -> B32L22 [token]: ok
+grid B28L23 -> B29L23 [token]: ok
+grid B29L23 -> B30L23 [token]: ok
+grid B30L23 -> B31L23 [token]: ok
+grid B31L23 -> B32L23 [token]: ok
+grid B28L24 -> B29L24 [token]: ok
+grid B29L24 -> B30L24 [token]: ok
+grid B30L24 -> B31L24 [token]: ok
+grid B31L24 -> B32L24 [token]: ok
+grid B28L25 -> B29L25 [token]: ok
+grid B29L25 -> B30L25 [token]: ok
+grid B30L25 -> B31L25 [token]: ok
+grid B31L25 -> B32L25 [token]: ok
+grid B28L26 -> B29L26 [token]: ok
+grid B29L26 -> B30L26 [token]: ok
+grid B30L26 -> B31L26 [token]: ok
+grid B31L26 -> B32L26 [token]: ok
+grid B28L27 -> B29L27 [token]: ok
+grid B29L27 -> B30L27 [token]: ok
+grid B30L27 -> B31L27 [token]: ok
+grid B31L27 -> B32L27 [token]: ok
+grid B28L28 -> B29L28 [token]: ok
+grid B29L28 -> B30L28 [token]: ok
+grid B30L28 -> B31L28 [token]: ok
+grid B31L28 -> B32L28 [token]: ok
+grid B28L29 -> B29L29 [token]: ok
+grid B29L29 -> B30L29 [token]: ok
+grid B30L29 -> B31L29 [token]: ok
+grid B31L29 -> B32L29 [token]: ok
+grid B28L30 -> B29L30 [token]: ok
+grid B29L30 -> B30L30 [token]: ok
+grid B30L30 -> B31L30 [token]: ok
+grid B31L30 -> B32L30 [token]: ok
+grid B28L31 -> B29L31 [token]: ok
+grid B29L31 -> B30L31 [token]: ok
+grid B30L31 -> B31L31 [token]: ok
+grid B31L31 -> B32L31 [token]: ok
+grid: 5 block(s), 161 chunk(s) on the grid, 0 off it; layer 155/156 of 156 implied, token 128/128 of 128 implied; verified 0/0; ids prompt 0 + generated 511 (34 bad, 2049 unbacked) -- FAILED
+grid: FAIL the id at position 16387 is not the one that reaches it: {"block":32,"from":{"block":32,"t":2,"tag":"head"},"got":358,"kind":"generated","pos":16387,"t":3,"tag":"B32L0","want":2030}
+grid: FAIL the id at position 16398 is not the one that reaches it: {"block":32,"from":{"block":32,"t":13,"tag":"head"},"got":279,"kind":"generated","pos":16398,"t":14,"tag":"B32L0","want":539}
+grid: FAIL the id at position 16432 is not the one that reaches it: {"block":32,"from":{"block":32,"t":47,"tag":"head"},"got":13,"kind":"generated","pos":16432,"t":48,"tag":"B32L0","want":11}
+grid: FAIL the id at position 16447 is not the one that reaches it: {"block":32,"from":{"block":32,"t":62,"tag":"head"},"got":701,"kind":"generated","pos":16447,"t":63,"tag":"B32L0","want":14392}
+grid: FAIL the id at position 16452 is not the one that reaches it: {"block":32,"from":{"block":32,"t":67,"tag":"head"},"got":617,"kind":"generated","pos":16452,"t":68,"tag":"B32L0","want":1097}
+grid: FAIL the id at position 16468 is not the one that reaches it: {"block":32,"from":{"block":32,"t":83,"tag":"head"},"got":358,"kind":"generated","pos":16468,"t":84,"tag":"B32L0","want":11}
+grid: FAIL the id at position 16474 is not the one that reaches it: {"block":32,"from":{"block":32,"t":89,"tag":"head"},"got":3055,"kind":"generated","pos":16474,"t":90,"tag":"B32L0","want":548}
+grid: FAIL the id at position 16483 is not the one that reaches it: {"block":32,"from":{"block":32,"t":98,"tag":"head"},"got":4856,"kind":"generated","pos":16483,"t":99,"tag":"B32L0","want":315}
+grid: FAIL the id at position 16484 is not the one that reaches it: {"block":32,"from":{"block":32,"t":99,"tag":"head"},"got":4040,"kind":"generated","pos":16484,"t":100,"tag":"B32L0","want":30571}
+grid: FAIL the id at position 16493 is not the one that reaches it: {"block":32,"from":{"block":32,"t":108,"tag":"head"},"got":2019,"kind":"generated","pos":16493,"t":109,"tag":"B32L0","want":48466}
+grid: FAIL the id at position 16496 is not the one that reaches it: {"block":32,"from":{"block":32,"t":111,"tag":"head"},"got":656,"kind":"generated","pos":16496,"t":112,"tag":"B32L0","want":617}
+grid: FAIL the id at position 16502 is not the one that reaches it: {"block":32,"from":{"block":32,"t":117,"tag":"head"},"got":304,"kind":"generated","pos":16502,"t":118,"tag":"B32L0","want":13}
+grid: FAIL the id at position 16503 is not the one that reaches it: {"block":32,"from":{"block":32,"t":118,"tag":"head"},"got":1124,"kind":"generated","pos":16503,"t":119,"tag":"B32L0","want":264}
+grid: FAIL the id at position 16511 is not the one that reaches it: {"block":32,"from":{"block":32,"t":126,"tag":"head"},"got":13,"kind":"generated","pos":16511,"t":127,"tag":"B32L0","want":279}
+grid: FAIL the id at position 16523 is not the one that reaches it: {"block":32,"from":{"block":32,"t":138,"tag":"head"},"got":22934,"kind":"generated","pos":16523,"t":139,"tag":"B32L0","want":1917}
+grid: FAIL the id at position 16536 is not the one that reaches it: {"block":32,"from":{"block":32,"t":151,"tag":"head"},"got":13,"kind":"generated","pos":16536,"t":152,"tag":"B32L0","want":2950}
+grid: FAIL the id at position 16553 is not the one that reaches it: {"block":32,"from":{"block":32,"t":168,"tag":"head"},"got":539,"kind":"generated","pos":16553,"t":169,"tag":"B32L0","want":387}
+grid: FAIL the id at position 16576 is not the one that reaches it: {"block":32,"from":{"block":32,"t":191,"tag":"head"},"got":36956,"kind":"generated","pos":16576,"t":192,"tag":"B32L0","want":27698}
+grid: FAIL the id at position 16593 is not the one that reaches it: {"block":32,"from":{"block":32,"t":208,"tag":"head"},"got":872,"kind":"generated","pos":16593,"t":209,"tag":"B32L0","want":1884}
+grid: FAIL the id at position 16595 is not the one that reaches it: {"block":32,"from":{"block":32,"t":210,"tag":"head"},"got":13,"kind":"generated","pos":16595,"t":211,"tag":"B32L0","want":11}
+grid: FAIL the id at position 16611 is not the one that reaches it: {"block":32,"from":{"block":32,"t":226,"tag":"head"},"got":3697,"kind":"generated","pos":16611,"t":227,"tag":"B32L0","want":311}
+grid: FAIL the id at position 16640 is not the one that reaches it: {"block":32,"from":{"block":32,"t":255,"tag":"head"},"got":30571,"kind":"generated","pos":16640,"t":256,"tag":"B32L0","want":85367}
+grid: FAIL the id at position 16678 is not the one that reaches it: {"block":32,"from":{"block":32,"t":293,"tag":"head"},"got":11,"kind":"generated","pos":16678,"t":294,"tag":"B32L0","want":13}
+grid: FAIL the id at position 16732 is not the one that reaches it: {"block":32,"from":{"block":32,"t":347,"tag":"head"},"got":198,"kind":"generated","pos":16732,"t":348,"tag":"B32L0","want":3697}
+grid: FAIL the id at position 16777 is not the one that reaches it: {"block":32,"from":{"block":32,"t":392,"tag":"head"},"got":11,"kind":"generated","pos":16777,"t":393,"tag":"B32L0","want":382}
+grid: FAIL the id at position 16780 is not the one that reaches it: {"block":32,"from":{"block":32,"t":395,"tag":"head"},"got":568,"kind":"generated","pos":16780,"t":396,"tag":"B32L0","want":814}
+grid: FAIL the id at position 16840 is not the one that reaches it: {"block":32,"from":{"block":32,"t":455,"tag":"head"},"got":539,"kind":"generated","pos":16840,"t":456,"tag":"B32L0","want":15910}
+grid: FAIL the id at position 16856 is not the one that reaches it: {"block":32,"from":{"block":32,"t":471,"tag":"head"},"got":889,"kind":"generated","pos":16856,"t":472,"tag":"B32L0","want":323}
+grid: FAIL the id at position 16861 is not the one that reaches it: {"block":32,"from":{"block":32,"t":476,"tag":"head"},"got":2686,"kind":"generated","pos":16861,"t":477,"tag":"B32L0","want":52790}
+grid: FAIL the id at position 16867 is not the one that reaches it: {"block":32,"from":{"block":32,"t":482,"tag":"head"},"got":62,"kind":"generated","pos":16867,"t":483,"tag":"B32L0","want":15571}
+grid: FAIL the id at position 16868 is not the one that reaches it: {"block":32,"from":{"block":32,"t":483,"tag":"head"},"got":32,"kind":"generated","pos":16868,"t":484,"tag":"B32L0","want":2028}
+grid: FAIL the id at position 16876 is not the one that reaches it: {"block":32,"from":{"block":32,"t":491,"tag":"head"},"got":358,"kind":"generated","pos":16876,"t":492,"tag":"B32L0","want":721}
+grid: FAIL the id at position 16881 is not the one that reaches it: {"block":32,"from":{"block":32,"t":496,"tag":"head"},"got":779,"kind":"generated","pos":16881,"t":497,"tag":"B32L0","want":682}
+grid: FAIL the id at position 16890 is not the one that reaches it: {"block":32,"from":{"block":32,"t":505,"tag":"head"},"got":264,"kind":"generated","pos":16890,"t":506,"tag":"B32L0","want":4491}

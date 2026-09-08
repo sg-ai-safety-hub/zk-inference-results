@@ -1,0 +1,14 @@
+{"blocks": "28-32", "k": 5, "plan_lo": 896, "plan_hi": 1057, "extract_seconds": 2023, "group_seconds": 7285, "block_bytes": 13060046978, "ser_bytes_after": 26591135609}
+{"blocks": "23-27", "k": 5, "plan_lo": 736, "plan_hi": 896, "extract_seconds": 1938, "group_seconds": 6567, "block_bytes": 12053413970, "ser_bytes_after": 50099574674}
+{"blocks": "18-22", "k": 5, "plan_lo": 576, "plan_hi": 736, "extract_seconds": 1693, "group_seconds": 5464, "block_bytes": 11046781029, "ser_bytes_after": 44900820977}
+{"blocks": "13-17", "k": 5, "plan_lo": 416, "plan_hi": 576, "extract_seconds": 1374, "group_seconds": 4420, "block_bytes": 10040147791, "ser_bytes_after": 19846588301}
+{"blocks": "8-12", "k": 5, "plan_lo": 256, "plan_hi": 416, "extract_seconds": 1162, "group_seconds": 3647, "block_bytes": 9033514672, "ser_bytes_after": 17402192493}
+{"blocks": "3-7", "k": 5, "plan_lo": 96, "plan_hi": 256, "extract_seconds": 897, "group_seconds": 3041, "block_bytes": 8026881663, "ser_bytes_after": 14935875774}
+{"blocks": "0-2", "k": 3, "plan_lo": 0, "plan_hi": 96, "extract_seconds": 596, "group_seconds": 1762, "block_bytes": 7020248456, "ser_bytes_after": 9129079534}
+{"blocks": "28-32", "k": 5, "plan_lo": 896, "plan_hi": 1058, "extract_seconds": 2075, "group_seconds": 3207, "block_bytes": 13060046978, "ser_bytes_after": 9211012172}
+{"blocks": "23-27", "k": 5, "plan_lo": 736, "plan_hi": 896, "extract_seconds": 0, "group_seconds": 0, "block_bytes": 0, "ser_bytes_after": 9211012172}
+{"blocks": "18-22", "k": 5, "plan_lo": 576, "plan_hi": 736, "extract_seconds": 0, "group_seconds": 0, "block_bytes": 0, "ser_bytes_after": 9211012172}
+{"blocks": "13-17", "k": 5, "plan_lo": 416, "plan_hi": 576, "extract_seconds": 0, "group_seconds": 0, "block_bytes": 0, "ser_bytes_after": 9211012172}
+{"blocks": "8-12", "k": 5, "plan_lo": 256, "plan_hi": 416, "extract_seconds": 0, "group_seconds": 0, "block_bytes": 0, "ser_bytes_after": 9211012172}
+{"blocks": "3-7", "k": 5, "plan_lo": 96, "plan_hi": 256, "extract_seconds": 0, "group_seconds": 0, "block_bytes": 0, "ser_bytes_after": 9211012172}
+{"blocks": "0-2", "k": 3, "plan_lo": 0, "plan_hi": 96, "extract_seconds": 0, "group_seconds": 0, "block_bytes": 0, "ser_bytes_after": 9211012172}

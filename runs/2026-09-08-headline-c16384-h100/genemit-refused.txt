@@ -1,0 +1,1 @@
+--table-bits 27 --round even --diagonal-block --gkr-key-tiles --gkr-dequant --gkr-residual-stream --gkr-freivalds --gkr-attnout --witness /root/witness/38a3919988ec/y-delay-vw12-c16384/witness_B0_L0 --ser-tag B0L0

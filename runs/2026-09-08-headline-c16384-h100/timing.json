@@ -1,0 +1,82 @@
+{
+ "groups": [
+  {
+   "blocks": "28-32",
+   "k": 5,
+   "plan_lo": 896,
+   "plan_hi": 1058,
+   "extract_seconds": 2075,
+   "group_seconds": 3207,
+   "block_bytes": 13060046978,
+   "ser_bytes_after": 9211012172
+  },
+  {
+   "blocks": "23-27",
+   "k": 5,
+   "plan_lo": 736,
+   "plan_hi": 896,
+   "extract_seconds": 0,
+   "group_seconds": 0,
+   "block_bytes": 0,
+   "ser_bytes_after": 9211012172
+  },
+  {
+   "blocks": "18-22",
+   "k": 5,
+   "plan_lo": 576,
+   "plan_hi": 736,
+   "extract_seconds": 0,
+   "group_seconds": 0,
+   "block_bytes": 0,
+   "ser_bytes_after": 9211012172
+  },
+  {
+   "blocks": "13-17",
+   "k": 5,
+   "plan_lo": 416,
+   "plan_hi": 576,
+   "extract_seconds": 0,
+   "group_seconds": 0,
+   "block_bytes": 0,
+   "ser_bytes_after": 9211012172
+  },
+  {
+   "blocks": "8-12",
+   "k": 5,
+   "plan_lo": 256,
+   "plan_hi": 416,
+   "extract_seconds": 0,
+   "group_seconds": 0,
+   "block_bytes": 0,
+   "ser_bytes_after": 9211012172
+  },
+  {
+   "blocks": "3-7",
+   "k": 5,
+   "plan_lo": 96,
+   "plan_hi": 256,
+   "extract_seconds": 0,
+   "group_seconds": 0,
+   "block_bytes": 0,
+   "ser_bytes_after": 9211012172
+  },
+  {
+   "blocks": "0-2",
+   "k": 3,
+   "plan_lo": 0,
+   "plan_hi": 96,
+   "extract_seconds": 0,
+   "group_seconds": 0,
+   "block_bytes": 0,
+   "ser_bytes_after": 9211012172
+  }
+ ],
+ "extract_seconds": {
+  "prove": 9735,
+  "survey": 9330
+ },
+ "kernel_seconds": 1204,
+ "grid_seconds": 12,
+ "job_seconds": 4525,
+ "note": "The loop, commit, stwo total and whole wall scopes are the prover's own and live in the slice outputs. The extraction, the kernel work and the deletions between the groups are here and are in none of them."
+}
