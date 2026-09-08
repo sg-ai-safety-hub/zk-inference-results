@@ -49,6 +49,17 @@ Written, not yet run:
   it finishes, so the run produced no output to keep. The 21 controls before it
   were refused as designed, on the real segment and on each of the three
   synthetic shapes alike.
+- `tools/drivers/unproved-baseline.sh`: how fast the same model decodes when
+  nothing is proved, at both contexts and a range of batch sizes, on the
+  backend that ships with the model library and on a serving engine. Written and
+  started; neither backend produced a record. The first generated at both
+  contexts and then stopped without writing anything, because the like-for-like
+  reporter it calls needs five constants that do not exist here, and one of them
+  cannot be written consistently: the reporter's own note says the proved
+  seconds never include the prompt, while this repository decided that every
+  proved number covers the whole forward pass over every position. The second
+  built an environment of its own and loaded the model, and its engine failed
+  during a sampling warmup. Both are zk-prover #74.
 
 ## synthetic-digests
 
