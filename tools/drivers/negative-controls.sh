@@ -26,7 +26,14 @@
 # A target's exit code is recorded beside its output, so a control run that
 # dies is visible as a crash and not as a missing file.  The gate fails on a
 # crash, on any control the verifier accepted, and on the absence of a control
-# over the model tree.
+# over the model tree.  A control the shape cannot state is not a failure: the
+# prover skips it by name with its reason, and the run's record carries both.
+#
+# The seam between the attention output and the o matmul is the one control
+# known to crash on a real dump rather than reject (zk-prover #24), and it is
+# late in the list, so a crash there would take the whole suite's record with
+# it.  It therefore also runs on its own, in a process of its own, through
+# `--probe`: whatever the whole suite does, that one control has a record.
 #
 # The first call pushes zk-prover at the two commits to the host, starts the
 # job detached and prints the poll command.  Every later call with the same
@@ -131,6 +138,10 @@ run_target() {
 
 # shellcheck disable=SC2086
 run_target real \$LINE $SHARED \$PINS
+# zk-prover #24: the o seam's control on its own, so it has a record whatever
+# the whole suite above does with it.
+# shellcheck disable=SC2086
+run_target real_o_seam \$LINE $SHARED \$PINS --probe 'o seam'
 printf '%s\n' "$SHAPES" | while IFS='|' read -r name flags; do
   [ -n "\$name" ] || continue
   # shellcheck disable=SC2086
@@ -152,7 +163,8 @@ for rcf in sorted(out.glob("*.rc")):
     except Exception as e:
         doc = None
         bad.append(f"{name}: no readable output ({e})")
-    n_reject = n_skip = 0
+    n_reject = 0
+    skipped, unselected, model_tree = [], 0, False
     if doc:
         probes = doc["result"]["probes"]
         for p in probes:
@@ -160,26 +172,41 @@ for rcf in sorted(out.glob("*.rc")):
                 if not p["result"]["accepts"]:
                     bad.append(f"{name}: the honest proof was rejected")
                 continue
-            if "skipped" in p:
-                n_skip += 1
+            why = p.get("skipped")
+            if why:
+                # a target run through --probe reports every control it did not
+                # select; that is the filter, not a control the shape cannot state
+                if why == "not selected by --probe":
+                    unselected += 1
+                else:
+                    skipped.append({"probe": p["probe"], "why": why})
                 continue
             if p.get("accepted"):
                 bad.append(f"{name}: the control {p['probe']!r} was accepted")
-            else:
-                n_reject += 1
-        # a control over the model tree: the suite pins Fixed.pre_root and
-        # compares commitments[0], and nothing here names the model tree
-        names = " ".join(str(p.get("probe", "")) for p in probes).lower()
-        model_tree = "model" in names and "tree" in names
-    else:
-        model_tree = False
+                continue
+            n_reject += 1
+            # The control that says the norm weight is the model's and not the
+            # prover's is the one that covers the model tree. Since the
+            # preprocessed trace was split in two it rejects through the model
+            # root, and compose-probes pins both of the honest run's roots
+            # (zk-prover #66), so what identifies it is the refusal it was
+            # written for and the root that moved. Its name says norm_scale, so
+            # the name is not what this reads.
+            if ("model root" in str(p.get("expect_reject_by", "")).lower()
+                    and p.get("model_root_differs_from_honest")):
+                model_tree = True
     if rc:
         crashed.append(f"{name} (exit {rc})")
     total += n_reject
-    summary[name] = {"exit": rc, "designed_rejections": n_reject, "skipped": n_skip,
+    summary[name] = {"exit": rc, "designed_rejections": n_reject,
+                     "skipped": [s["probe"] for s in skipped],
+                     "skipped_why": skipped, "not_selected": unselected,
                      "model_tree_control": model_tree}
-    print(f"{name:14s} exit {rc}  designed rejections {n_reject}  skipped {n_skip}  "
+    print(f"{name:14s} exit {rc}  designed rejections {n_reject}  "
+          f"skipped {len(skipped)}  not selected {unselected}  "
           f"model-tree control {model_tree}")
+    for s in skipped:
+        print(f"{'':14s}   skipped by name: {s['probe']} -- {s['why']}")
 (out / "controls.json").write_text(json.dumps(
     {"targets": summary, "designed_rejections": total, "crashes": len(crashed)}, indent=1) + "\n")
 print(f"total: {total} designed rejections, {len(crashed)} crash(es)")
