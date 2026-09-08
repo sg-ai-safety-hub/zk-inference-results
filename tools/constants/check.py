@@ -52,6 +52,18 @@ DERIVED = {
         v("cells.headline.c4096.fresh") / v(f"secs.headline.c4096.{s}") / 1e6,
         f"rate.headline.c4096.{s}", 0.001))
        for s in ("commit", "stwo_total", "whole_wall", "loop")},
+    # The sequence at context 16,384: the same two divisions over the same
+    # kind of rows, one campaign up.
+    **{f"rate.headline.c16384.{s}": (lambda s=s: chk(
+        f"c16384 headline {s.replace('_', ' ')} rate",
+        v("cells.headline.c16384.fresh") / v(f"secs.headline.c16384.{s}") / 1e6,
+        f"rate.headline.c16384.{s}", 0.001))
+       for s in ("commit", "stwo_total", "whole_wall", "loop")},
+    **{f"pos_s.headline.c16384.{s}": (lambda s=s: chk(
+        f"c16384 headline positions/s, {s.replace('_', ' ')}",
+        v("positions.headline.c16384") / v(f"secs.headline.c16384.{s}"),
+        f"pos_s.headline.c16384.{s}", 0.001))
+       for s in ("whole_wall", "loop")},
     # The ablation: what one reduction removes, as a fraction of the figure
     # without it.  The key tiles' reduction is measured against no reduction at
     # all; the other four extend it, so each is measured against it.

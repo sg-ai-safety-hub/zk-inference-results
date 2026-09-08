@@ -17,29 +17,6 @@ Written, not yet run:
   the script that writes it cannot be imported (zk-prover #67), and a prediction
   written after the measurement is not a prediction.
 
-- `tools/drivers/headline-c16384.sh`: the paper's headline configuration, one
-  16,384-token prompt and its 512 output tokens proved from the embedding up,
-  1,058 segments on the CUDA backend, pipelined one segment ahead: the memory
-  probe measured the loop at 78,843 MiB of the 81,559 MiB the card reports,
-  pipelined or not (issue #16). A head segment sits over the last block of the
-  prompt as well as over the generated block, so the token each position emits
-  is bound to the logits computed for it, the first generated token included
-  (docs/decisions/2026-09-08-the-head-is-proved-over-the-last-prompt-block.md);
-  that needed zk-prover #61. Both head dumps are extracted under the variant
-  the layers use, and the head line's `--ao-rem-bits` is read off those dumps
-  rather than written here. It proves in groups of token
-  blocks, because the whole witness set at this context is 302 GiB against
-  about 76 GiB free: the job extracts a few blocks, writes their shape tables
-  and emits their kernels while the dumps are still there, deletes the dumps,
-  and goes on to the next few; then it installs the kernels once and extracts
-  each group again to prove it. The link check reads the serialized proofs of
-  every group at the end and is given the prompt, so every prompt position's
-  published id is compared against it and every generated position's against
-  the token a head proved for the position before it. The run's end-to-end
-  figure is the sum over the groups of the proving processes. Started once on 2026-09-08 and stopped on
-  its first proof, because that first version emitted the kernels after the
-  dumps were deleted and every emitter refused; the record of that attempt is
-  not kept, since it produced no proof.
 - `tools/drivers/control-flags-off-c4096.sh`: `headline-c4096`'s plan with the
   five GKR reductions off, which is what prices them. Written and started; the
   first segment of the first token block does not prove in that configuration,
@@ -635,6 +612,150 @@ layer, so the points differ in the block length alone. The reference backend
 proves all of them: this is a cell count and a shape, the two backends prove the
 same statement to the same digest, and the largest point is bounded by host
 memory rather than by the card. The whole sweep is 73 seconds of proving.
+
+## headline-c16384
+
+    tools/drivers/headline-c16384.sh <host> <prover-commit> <harness-commit>
+
+runs: 2026-09-08-headline-c16384-h100
+prover commit: 355c19d   harness commit: 355c19d
+digests: 1,058, one per segment, in the manifest's `digests` map under the slice
+  output that proved it; the first is `8ad70411f2ee0016` and the last
+  `be4e9f38c17a36ac`
+binding (from the manifest, folded over the 1,058 proofs): 1 to 16 bound, the
+  embedding edge and the head's logits-to-token edge among them; none unbound,
+  none absent
+unsound skips: none
+links: 2,049 of 2,049 the grid implies ran and passed, 1,025 on the layer axis
+  and 1,024 on the token axis
+ids: 16,384 prompt positions checked against the run's own published prompt and
+  512 generated positions against the token a head proved for the position
+  before, 0 wrong and 0 unbacked
+kernel fallback lines: 0 on each of the 20 processes
+constants backed: `cells.headline.c16384.fresh`, `mem.headline.c16384.peak_mib`,
+  `pos_s.headline.c16384.loop`, `pos_s.headline.c16384.whole_wall`,
+  `positions.headline.c16384`, `rate.headline.c16384.commit`,
+  `rate.headline.c16384.loop`, `rate.headline.c16384.stwo_total`,
+  `rate.headline.c16384.whole_wall`, `secs.headline.c16384.commit`,
+  `secs.headline.c16384.loop`, `secs.headline.c16384.stwo_total`,
+  `secs.headline.c16384.whole_wall`, `segments.headline.c16384`
+
+What the run checks. A 16,384-token prompt and the 512 tokens the model goes on
+to write are proved as one statement: 33 token blocks of 32 layer segments and
+two output head segments, 1,058 proofs. A layer segment's proof binds the residual stream it consumed to
+the previous layer's output and the keys and values it wrote to the next
+block's input, so the 1,058 proofs are not 1,058 separate claims; a head
+segment binds the residual its final norm consumed to the last layer's output
+and proves which token the logits at each of its positions make the largest.
+`boundary-grid` compares each root a segment committed with the root the
+segment that reads it committed, over the serialized statements and proofs and
+nothing else, and it is given the run's own prompt: every prompt position's
+published id is compared against that file and every generated position's
+against the token a head proved for the position before it. The first layer of
+every block binds the residual stream it starts from to the rows of the
+embedding matrix that the block's published ids select. Every proof's own
+binding table names each of the fourteen edges inside a segment as bound, the
+embedding edge with them and the head's edge as well; the driver passes no skip
+flag and the manifest's list of them is empty. The five GKR reductions are on,
+which is the paper's configuration.
+
+Why the head sits over two blocks. The first generated token's id is the
+argmax of the logits at the last prompt position, so a plan with a head over the
+generated block alone leaves that one id compared against nothing and the grid
+reports it unbacked
+(docs/decisions/2026-09-08-the-head-is-proved-over-the-last-prompt-block.md).
+The head over block 31 closes it, and it is why this plan is 1,058 segments and
+2,049 links where issue #1 asked for 1,057 and 2,047. Both head chunks sit at
+layer coordinate 32, one past the last layer, and each emits 512 tokens.
+
+What it does not check. Two ends, and the grid output names them: each segment's
+shape root is compared only against its own statement, and each layer's model
+root -- the grid reads 33 distinct ones and none is missing -- only against the
+proofs that carry it, not against a published model commitment. The head chunk
+commits no tree 4, so it is the last chunk of the layer axis and its norm's
+output is nobody's residual.
+
+How the run is made. The prompt is the evaluation corpus's first 16,384 tokens
+and the output is the model's own greedy continuation under the reported
+quantization configuration, decoded once with 513 new tokens and once with 512
+so that the two can be compared. The whole witness set at this context is 302
+GiB against about 76 GiB free, so the job never holds it: it extracts a few
+token blocks, writes each block's shape table and emits its device kernels while
+the dumps are still there, deletes the dumps and goes on to the next few; then
+it installs the kernels once, rebuilds the CUDA backend, and extracts each group
+a second time to prove it. How many blocks a group holds is measured and not
+written down -- the job divides the free space it sees by the block size it
+measured, up to five -- and it came out five blocks for six groups and three for
+the last. One block of this context is 13,060,046,978 bytes at block 32 falling
+to 7,020,248,456 at block 0, and the block-invariant files another
+8,047,558,656; `disk.json` and `groups.json` carry what the job measured. The
+groups run highest block first, because `ao_rem_bits` and the master table width
+grow with the prefix a block reads and the pins the emitters are given have to
+be the pins the proving processes are given. The link check runs on the SIMD
+backend of the same commit, which is why the manifest names both backends.
+
+The head. The first pass of this run extracted the output head under
+`b10-final`, a driver default inherited from `headline-c4096.sh` where it never
+mattered because that plan carried no head segment. The two specs give the
+`lm_head` matmul the same arithmetic but not the same residual stream, so the head proved the argmax of a
+model the 1,056 layer segments do not prove; the head dump's own manifest said
+so at extraction time, `emits_next_token` 477 of 511. The per-group
+verification caught it: every proof of the group holding the head verified, and
+34 of the 511 generated positions failed the check that a position's published
+id is the token the head proved for the position before it. The layer proofs
+were kept, both heads were re-extracted under `y-delay-vw12` and proved, and the
+final grid covers 1,058 segments -- 1,025 links on the layer axis and 1,024 on
+the token axis. The head line's `--ao-rem-bits` is read off the head dumps' own
+shape rows, which came out as 15, where the driver used to pin 23. A head dump
+under the layers' variant is extracted with `--diagonal-block`: `y-delay-vw12`
+delays the v matmul, so the extractor checks the v fold's identity against the
+diagonal block's `vvc` before it writes the chunk and refuses a dump made
+without the flag. The head line itself carries no `--diagonal-block`, because
+the head chunk performs no attention.
+
+Which check ran where. Every one of the 1,058 chunk proofs was replayed by the
+verifier on its whole serialized bytes -- 1,024 of them group by group as the
+run went, recorded in `verify-g<blocks>.json`, and the 34 the fix-up re-proved
+in `verify-fixup.json`. Every implied link was checked once over all 1,058
+segments at the end, and so was every published id, against `prompt.json` for
+the 16,384 prompt positions and against a head's proved argmax for the 512
+generated ones. The final grid did not re-run the verifier: 1,058 whole proofs
+are about 108 GiB against a 216 GiB volume, so each group's proofs were shrunk
+to the roots the grid reads once the verifier had accepted them, and
+`proofs-g<blocks>.json` carries the sha256 and the size of every proof as the
+prover wrote it. `proof_bytes` in `grid.json` is therefore the shrunk size and
+not the proof's for the 1,024 that were shrunk, 1,447 to 1,931 bytes; the 34 the
+fix-up re-proved were never shrunk and theirs is the true size, 118.0 to 163.9
+MiB.
+
+Host time. The extraction took 19,065 s on the card over 70 passes, 9,330 s in
+the survey sweep and 9,735 s in the prove sweep. The kernels for the plan's
+distinct shapes were installed and compiled in 1,204 s. The seven groups of the
+first pass took 7,285, 6,567, 5,464, 4,420, 3,647, 3,041 and 1,762 seconds of
+wall-clock time, highest block first, each including its own extraction of
+2,023, 1,938, 1,693, 1,374, 1,162, 897 and 596 s; the fix-up pass took 4,525 s
+end to end, of which 2,075 s re-extracted group 28-32 and 1,089.7 s of segment
+loop proved the 34 segments. The link check over all 1,058 segments took 12 s.
+The 1,057 proofs the first pass wrote were 49.6 to 163.9 MiB each and 108.8 GiB
+in all, and a segment's statement as the grid reads it is 99,710 to 319,425
+bytes. The card held at most 78,799 MiB of the 81,559 MiB it reports.
+
+The run directory's `groups.json` is the fix-up pass's and reads zero for the
+six groups it did not touch, because the job writes it from the last row per
+group; `groups.jsonl` beside it carries every row of every pass, which is where
+the seven group times above come from.
+
+Three workarounds are in the driver and each names its issue. The token
+generator is run through a shim, because it imports a module under a name that
+does not resolve (zk-prover #51); the layer-0 dumps are moved into the name the
+shape table and the plan read, because a one-layer extraction writes another
+(zk-prover #55); and the two kernel install scripts are called by whichever name
+the prover commit has, because zk-prover #108 renamed them after this run was
+pinned. A fourth defect is recorded rather than worked around: the kernel
+emitter refuses the shape of the block with no prefix, so that one shape's
+generation kernels are not in the store (zk-prover #57), and
+`genemit-refused.txt` in the run directory says which line it was. It cost
+nothing measurable: no lookup took the host route on any of the 20 processes.
 
 ## Entry template
 

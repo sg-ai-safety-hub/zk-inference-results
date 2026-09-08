@@ -287,6 +287,148 @@
    "grade": "derived",
    "note": "positions.headline.c4096 / secs.headline.c4096.loop. Positions and not tokens: the prompt is proved as well as the output (docs/decisions)."
   },
+  "cells.headline.c16384.fresh": {
+   "value": 1775391426272,
+   "unit": "cells",
+   "card": "H100",
+   "context": 16384,
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-08-headline-c16384-h100",
+   "artifact": "slice_0000.json",
+   "note": "Fresh committed cells over the sequence's 1,058 segments, added up from the run's 20 slice outputs; 105.078 M per proved position."
+  },
+  "secs.headline.c16384.commit": {
+   "value": 897.112,
+   "unit": "s",
+   "card": "H100",
+   "context": 16384,
+   "timing_scope": "commit",
+   "grade": "measured",
+   "run": "2026-09-08-headline-c16384-h100",
+   "artifact": "slice_0000.json",
+   "note": "The commitment path, added up over every segment of the sequence."
+  },
+  "secs.headline.c16384.stwo_total": {
+   "value": 1495.451,
+   "unit": "s",
+   "card": "H100",
+   "context": 16384,
+   "timing_scope": "stwo total",
+   "grade": "measured",
+   "run": "2026-09-08-headline-c16384-h100",
+   "artifact": "slice_0000.json",
+   "note": "Commit plus the prover's own call, added up over every segment."
+  },
+  "secs.headline.c16384.whole_wall": {
+   "value": 29922.658,
+   "unit": "s",
+   "card": "H100",
+   "context": 16384,
+   "timing_scope": "whole wall",
+   "grade": "measured",
+   "run": "2026-09-08-headline-c16384-h100",
+   "artifact": "slice_0000.json",
+   "note": "Trace generation, interaction generation, stwo total and serialization, added up per segment; it does not count reading the witness or building the segment, which is what the loop scope adds."
+  },
+  "secs.headline.c16384.loop": {
+   "value": 21585.851,
+   "unit": "s",
+   "card": "H100",
+   "context": 16384,
+   "timing_scope": "loop",
+   "grade": "measured",
+   "run": "2026-09-08-headline-c16384-h100",
+   "artifact": "slice_0000.json",
+   "note": "The 20 segment-loop processes' own wall-clock time added up. It counts reading the witness and building the segment, and each segment's generation overlaps the previous one's proving, so it is neither a subset nor a superset of the whole-wall row. The extraction, the kernel work and the deletions between the groups of token blocks fall between the processes and are in none of the four scopes; timing.json holds them."
+  },
+  "segments.headline.c16384": {
+   "value": 1058,
+   "unit": "segments",
+   "card": "H100",
+   "context": 16384,
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-08-headline-c16384-h100",
+   "artifact": "slice_0000.json",
+   "note": "33 token blocks of 32 layer segments, and an output head segment over the last block of the prompt as well as over the generated block, so the token every position emits is bound to the logits computed for it, the first generated one included."
+  },
+  "positions.headline.c16384": {
+   "value": 16896,
+   "unit": "positions",
+   "card": "H100",
+   "context": 16384,
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-08-headline-c16384-h100",
+   "artifact": "config.json",
+   "note": "16,384 prompt positions and 512 output positions, every one of them proved from the embedding up through all 32 layers and through the head."
+  },
+  "mem.headline.c16384.peak_mib": {
+   "value": 78799,
+   "unit": "MiB",
+   "card": "H100",
+   "context": 16384,
+   "timing_scope": "loop",
+   "grade": "measured",
+   "run": "2026-09-08-headline-c16384-h100",
+   "artifact": "mem_0000.json",
+   "note": "The most the card reported holding at any moment of any of the 20 segment loops, sampled every 200 ms. The card has 81,559 MiB."
+  },
+  "rate.headline.c16384.commit": {
+   "value": 1979.0073,
+   "unit": "Mcell/s",
+   "card": "H100",
+   "context": 16384,
+   "timing_scope": "commit",
+   "grade": "derived",
+   "note": "cells.headline.c16384.fresh / secs.headline.c16384.commit."
+  },
+  "rate.headline.c16384.stwo_total": {
+   "value": 1187.1944,
+   "unit": "Mcell/s",
+   "card": "H100",
+   "context": 16384,
+   "timing_scope": "stwo total",
+   "grade": "derived",
+   "note": "cells.headline.c16384.fresh / secs.headline.c16384.stwo_total."
+  },
+  "rate.headline.c16384.whole_wall": {
+   "value": 59.3327,
+   "unit": "Mcell/s",
+   "card": "H100",
+   "context": 16384,
+   "timing_scope": "whole wall",
+   "grade": "derived",
+   "note": "cells.headline.c16384.fresh / secs.headline.c16384.whole_wall."
+  },
+  "rate.headline.c16384.loop": {
+   "value": 82.2479,
+   "unit": "Mcell/s",
+   "card": "H100",
+   "context": 16384,
+   "timing_scope": "loop",
+   "grade": "derived",
+   "note": "cells.headline.c16384.fresh / secs.headline.c16384.loop."
+  },
+  "pos_s.headline.c16384.whole_wall": {
+   "value": 0.56466,
+   "unit": "positions/s",
+   "card": "H100",
+   "context": 16384,
+   "timing_scope": "whole wall",
+   "grade": "derived",
+   "note": "positions.headline.c16384 / secs.headline.c16384.whole_wall. Positions and not tokens: the prompt is proved as well as the output (docs/decisions)."
+  },
+  "pos_s.headline.c16384.loop": {
+   "value": 0.78273,
+   "unit": "positions/s",
+   "card": "H100",
+   "context": 16384,
+   "timing_scope": "loop",
+   "grade": "derived",
+   "note": "positions.headline.c16384 / secs.headline.c16384.loop. Positions and not tokens: the prompt is proved as well as the output (docs/decisions)."
+  },
   "segments.ablation.c4096": {
    "value": 32, "unit": "segments", "card": "H100", "context": 4096, "timing_scope": "n/a",
    "grade": "measured",

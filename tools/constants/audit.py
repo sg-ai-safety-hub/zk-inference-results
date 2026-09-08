@@ -106,6 +106,34 @@ def headline_c4096(a, keys):
     a.exact("mem.headline.c4096.peak_mib", t["peak_mib"])
 
 
+# -- headline-c16384 -----------------------------------------------------------
+def headline_c16384(a, keys):
+    """The sequence at context 16,384: the same arithmetic as the c4096 row.
+
+    The plan is proved in groups of token blocks and each group in processes of
+    64 segments, so there are more slice outputs than at the smaller context;
+    the grouping sits between the processes and is in none of the four timing
+    scopes, so the run's own cost is still the sum over the slices and
+    `_sequence_totals` reads this run exactly as it reads that one.  Every rate
+    is `derived` and recomputed by check.py from the entries here.
+    """
+    if not keys:
+        return
+    run = sorted({e["run"] for e in keys.values()})[0]
+    cfg = artifact(run, "config.json")
+    t = _sequence_totals(run)
+    print(f"  runs/{run}: {t['slices']} slices, {t['segments']} segments, "
+          f"{t['fresh']:,.0f} fresh cells")
+    a.exact("segments.headline.c16384", t["segments"])
+    a.exact("positions.headline.c16384", cfg["positions"])
+    a.claim("cells.headline.c16384.fresh", t["fresh"])
+    a.claim("secs.headline.c16384.commit", t["commit"])
+    a.claim("secs.headline.c16384.stwo_total", t["stwo"])
+    a.claim("secs.headline.c16384.whole_wall", t["whole"])
+    a.claim("secs.headline.c16384.loop", t["loop"])
+    a.exact("mem.headline.c16384.peak_mib", t["peak_mib"])
+
+
 # -- gkr-ablation-c4096 --------------------------------------------------------
 def gkr_ablation_c4096(a, keys):
     """Each GKR reduction priced on one sample of segments.  A configuration is
@@ -479,6 +507,7 @@ def predict_14b(a, keys):
 
 SECTIONS = [
     ("headline-c4096", headline_c4096),
+    ("headline-c16384", headline_c16384),
     ("gkr-ablation-c4096", gkr_ablation_c4096),
     ("memory-probe-c16384", memory_probe_c16384),
     ("microbench", microbench),
