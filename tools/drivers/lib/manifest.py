@@ -46,7 +46,15 @@ def digests_of(doc):
 
     `boundary-grid` reports a `chunks` list too -- the cells of the grid, read
     back off disk -- and those rows carry no digest.  A list of nothing is not
-    a digest list, so an output whose every entry is empty carries none."""
+    a digest list, so an output whose every entry is empty carries none.
+
+    A run directory may also hold a JSON file that is not an output document at
+    all: `headline-c16384` writes `groups.json`, which is a list of the token
+    block groups the job divided the plan into.  A document that is not an
+    object carries no digest, the same answer the `provenance` scan already
+    gives it."""
+    if not isinstance(doc, dict):
+        return None
     r = doc.get("result", {})
     if "point" in r and "proof_sha256" in r["point"]:
         return r["point"]["proof_sha256"]
