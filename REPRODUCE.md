@@ -19,11 +19,15 @@ Written, not yet run:
 
 - `tools/drivers/headline-c16384.sh`: the paper's headline configuration, one
   16,384-token prompt and its 512 output tokens proved from the embedding up,
-  1,057 segments on the CUDA backend, pipelined one segment ahead: the memory
+  1,058 segments on the CUDA backend, pipelined one segment ahead: the memory
   probe measured the loop at 78,843 MiB of the 81,559 MiB the card reports,
-  pipelined or not (issue #16). The output head's segment is in the plan, so
-  the token each position emits is bound to the logits computed for it; that
-  needed zk-prover #61. It proves in groups of token
+  pipelined or not (issue #16). A head segment sits over the last block of the
+  prompt as well as over the generated block, so the token each position emits
+  is bound to the logits computed for it, the first generated token included
+  (docs/decisions/2026-09-08-the-head-is-proved-over-the-last-prompt-block.md);
+  that needed zk-prover #61. Both head dumps are extracted under the variant
+  the layers use, and the head line's `--ao-rem-bits` is read off those dumps
+  rather than written here. It proves in groups of token
   blocks, because the whole witness set at this context is 302 GiB against
   about 76 GiB free: the job extracts a few blocks, writes their shape tables
   and emits their kernels while the dumps are still there, deletes the dumps,

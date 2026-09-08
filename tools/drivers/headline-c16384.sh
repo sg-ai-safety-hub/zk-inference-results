@@ -102,7 +102,16 @@ NAME=headline-c16384
 LABEL=headline             # a configuration the paper cites, not a control
 MODEL=${ZK_MODEL:-unsloth/Llama-3.1-8B-Instruct}
 SPEC=y-delay-vw12          # the quantization variant the paper reports (docs/decisions)
-HEAD_SPEC=b10-final        # the output head's variant; both variants give the head the same arithmetic
+# The head's variant is the layers' variant.  It was `b10-final`, a default
+# inherited from `headline-c4096.sh`, where it never mattered because that plan
+# had no head segment.  The two specs give the `lm_head` matmul the same
+# arithmetic -- `y-delay-vw12` is `b10-final` plus a delayed `v` requantize and a
+# 12-bit attention output (harness/witness/common.py) -- but not the same
+# residual stream, so a head extracted under `b10-final` proves the argmax of a
+# model the 1,056 layer segments do not prove.  The first pass of this run did
+# exactly that and its head dump said so in its own manifest: `emits_next_token`
+# 477 of 511.
+HEAD_SPEC=$SPEC
 CTX=16384; S=512
 NBLOCK=$(( (CTX + S) / S ))  # 33: the prompt's 32 blocks and the output block
 NLAY=32
@@ -110,8 +119,19 @@ SHARED="--round even --numbits 9 --z-hi-bits 7 --variants intexp --head-groups 1
 GKR="--gkr-key-tiles --gkr-dequant --gkr-residual-stream --gkr-freivalds --gkr-attnout"
 LAYER_FLAGS="--round even --diagonal-block $GKR"   # every binding gadget is on by default; no skip flag anywhere
 L0_FLAGS=""
-HEAD_FLAGS="--ao-rem-bits 23 $GKR"
+# The head's own flags.  `--ao-rem-bits` is not pinned here: a head dump carries
+# the o matmul of the layer it was extracted at, so its `ao_rem_bits` is a
+# property of the dump and the job reads it off the dumps' own shape rows, the
+# way the layer pins come off the layer shape tables.  Under `b10-final` it came
+# out 15 against the 23 that used to be written here.
+HEAD_FLAGS_BASE="$GKR"
 HEAD_LAYER=16              # the layer the head dump is extracted at; the grid places the segment after the last layer
+# Which blocks carry a head segment: the last block of the prompt and the
+# generated block (docs/decisions/2026-09-08-the-head-is-proved-over-the-last-prompt-block.md).
+# The first generated token's id is the argmax of the logits at the last prompt
+# position, so a plan with a head over the generated block alone leaves that one
+# id compared against nothing.
+HEAD_BLOCKS=$((NBLOCK - 2)),$((NBLOCK - 1))
 # The output head's segment is in the plan, so the token each position emits is
 # bound to the logits computed for it.  It was out while an honest head segment
 # was rejected under the sound defaults -- the seam between the attention output
@@ -145,14 +165,17 @@ SHARED_EST_MIB=7680        # 7.5 GiB of block-invariant files, written once and 
 RESERVE_MIB=10240          # 10 GiB kept free at all times
 SAMPLE_MS=200              # the card's memory is sampled this often for the whole of every process
 # The links the grid implies, which the grid is told before it counts them.
-# Inside a block, consecutive layers: 31 per block, and one more on the last
-# block when the head is in the plan, because the head sits at the layer
-# coordinate after the last layer and commits the residual it consumed as its
-# own input side.  Across blocks, at each of the 32 layers, consecutive blocks;
-# the head performs no attention, holds no key/value cache and is never a
-# token-axis edge.  Without the head that is 1,023 and 1,024, the 2,047 links
-# issue #1 names.
-LAYER_LINKS=$(( NBLOCK * (NLAY - 1) + WITH_HEAD ))
+# Inside a block, consecutive layers: 31 per block, and one more for each block
+# that carries a head segment, because a head sits at the layer coordinate after
+# the last layer and commits the residual it consumed as its own input side.
+# Across blocks, at each of the 32 layers, consecutive blocks; a head performs no
+# attention, holds no key/value cache and is never a token-axis edge.  With the
+# two heads that is 1,025 and 1,024 over 1,058 segments; without them, the 1,023
+# and 1,024 that issue #1 calls 2,047.
+NHEAD=0
+[ "$WITH_HEAD" = 1 ] && NHEAD=$(printf '%s' "$HEAD_BLOCKS" | tr ',' '\n' | grep -c .)
+SEGMENTS=$(( NBLOCK * NLAY + NHEAD ))
+LAYER_LINKS=$(( NBLOCK * (NLAY - 1) + NHEAD ))
 TOKEN_LINKS=$(( (NBLOCK - 1) * NLAY ))
 
 drv_finish "$(drv_status)"
@@ -185,13 +208,13 @@ cat > \$OUT/config.json <<CFG
 {"driver": "$NAME", "label": "$LABEL",
  "model": "$MODEL", "spec": "$SPEC", "head_spec": "$HEAD_SPEC",
  "context": $CTX, "s": $S, "positions": $((CTX + S)), "blocks": $NBLOCK, "layers": $NLAY,
- "segments": $((NBLOCK * NLAY + WITH_HEAD)), "with_head": $WITH_HEAD,
+ "segments": $SEGMENTS, "with_head": $WITH_HEAD, "head_blocks": "$HEAD_BLOCKS", "heads": $NHEAD,
  "slice": $SLICE, "pipeline": $PIPELINE,
  "grouped": true, "group_max": $GROUP_MAX, "group_order": "descending",
  "block_est_mib": $BLOCK_EST_MIB, "shared_est_mib": $SHARED_EST_MIB, "reserve_mib": $RESERVE_MIB,
  "sample_ms": $SAMPLE_MS,
  "shared_flags": "$SHARED", "layer_flags": "$LAYER_FLAGS", "layer0_flags": "$L0_FLAGS",
- "head_flags": "$HEAD_FLAGS",
+ "head_flags": "$HEAD_FLAGS_BASE plus an --ao-rem-bits read off the head dumps; see head.json",
  "expect_layer_links": $LAYER_LINKS, "expect_token_links": $TOKEN_LINKS,
  "ids": "${IDS:-generated: the corpus's tokens $OFFSET to $((OFFSET + CTX)) and the model's own greedy continuation under $SPEC}",
  "corpus_offset": $OFFSET}
@@ -339,13 +362,38 @@ xdrop() {   # xdrop <first block> <last block>: the dumps go, the shape tables s
   done
   st "dumps of blocks \$1-\$2 deleted"
 }
-# 4. the output head's dump.  Before the survey, because the group that holds
-#    the last block writes the head's plan line and emits its kernel, and the
-#    plan reads the master table width out of this dump.
-if [ "$WITH_HEAD" = 1 ] && [ ! -f \$HEADW/manifest.json ]; then
-  st "extract: the output head, $HEAD_SPEC"
+# 4. the output head's dumps, one per block that carries a head segment, from
+#    one forward pass.  Before the survey, because the plan reads the master
+#    table width and the head's own ao_rem_bits out of these dumps.
+HEAD_LAST=\$(printf '%s' "$HEAD_BLOCKS" | tr ',' ' ' | awk '{print \$NF}')
+if [ "$WITH_HEAD" = 1 ] && [ ! -f \${HEADW}_B\${HEAD_LAST}/manifest.json ]; then
+  st "extract: the output head over blocks $HEAD_BLOCKS, $HEAD_SPEC"
   ( cd \$HSRC && ZK_MODEL=$MODEL ZK_DEVICE=cuda ZK_THREADS=$XTHREADS \$PY -m harness.witness.extract --tokens $((CTX + S)) --chunk $S \
-      --layer $HEAD_LAYER --spec $HEAD_SPEC --head --slim \$IDSARG --out \$HEADW )
+      --layer $HEAD_LAYER --spec $HEAD_SPEC --head --slim --blocks $HEAD_BLOCKS \$IDSARG --out \$HEADW )
+fi
+# The head line's own flags.  A head dump carries the o matmul of the layer it
+# was extracted at, so ao_rem_bits is a property of the dump and is read off
+# it, exactly as the layer pins are read off the layer shape tables; the pin on
+# the command line is the layers' and a head that needs more says so here.
+HEAD_FLAGS="$HEAD_FLAGS_BASE"
+if [ "$WITH_HEAD" = 1 ]; then
+  ( cd \$HSRC && \$PY -c "
+import json, sys
+from harness.witness.shapes import shape_of
+rows = {d.rsplit('_B', 1)[1]: shape_of(d) for d in sys.argv[2:]}
+ao = max(r['ao_rem_bits'] for r in rows.values())
+json.dump({'blocks': sorted(rows), 'ao_rem_bits': ao, 'rows': rows,
+           'note': 'A head dump carries the o matmul of the layer it was extracted at, '
+                   'so ao_rem_bits is a property of the dump and the head line is pinned '
+                   'from it rather than from a number written in the driver.'},
+          open(sys.argv[1], 'w'), indent=1)
+print(ao)
+" \$OUT/head.json \$(for b in \$(printf '%s' "$HEAD_BLOCKS" | tr ',' ' '); do echo \${HEADW}_B\$b; done) )
+  HEAD_AO=\$(python3 -c "
+import json, sys
+print(json.load(open(sys.argv[1]))['ao_rem_bits'])" \$OUT/head.json)
+  HEAD_FLAGS="--ao-rem-bits \$HEAD_AO $HEAD_FLAGS_BASE"
+  st "head: --ao-rem-bits \$HEAD_AO, from the head dumps' own shape rows (out/head.json)"
 fi
 
 # 5. the survey sweep: every block's shape table and every block's kernels, a
@@ -395,28 +443,10 @@ PY
 # Every shape of one group, lowered into the one accumulating store.  A store
 # dedups by fingerprint and only grows, so the groups add to it in turn and the
 # install after the sweep installs all of them at once.
-emit_group() {   # emit_group <first block> <last block>
-  el=\$1; eh=\$2
-  # only this group's shape tables are visible, so --blocks auto writes this
-  # group's lines and names this group's dumps, which are on disk right now
-  rm -f \$WIT/shapes_B*.json
-  b=\$el; while [ \$b -le \$eh ]; do cp \$WIT/shapes/shapes_B\$b.json \$WIT/; b=\$((b + 1)); done
-  GPLAN=\$R/plan-g\$el-\$eh.txt; GEMIT=\$R/emit-g\$el-\$eh.txt
-  # the head sits after the last block's layers and belongs to the group that
-  # holds the last block, and to no other
-  if [ "$WITH_HEAD" = 1 ] && [ \$eh = $((NBLOCK - 1)) ]; then
-    ( cd \$HSRC && \$PY -m harness.witness.plan --dir \$WIT --blocks auto --with-block-0 --layers 0-$((NLAY - 1)) \
-        --head \$HEADW --layer-flags="$LAYER_FLAGS" --l0-flags="$L0_FLAGS" --l0-dir \$WIT \
-        --head-flags="$HEAD_FLAGS" --out \$GPLAN --emit-out \$GEMIT )
-  else
-    ( cd \$HSRC && \$PY -m harness.witness.plan --dir \$WIT --blocks auto --with-block-0 --layers 0-$((NLAY - 1)) \
-        --layer-flags="$LAYER_FLAGS" --l0-flags="$L0_FLAGS" --l0-dir \$WIT \
-        --out \$GPLAN --emit-out \$GEMIT )
-  fi
-  rm -f \$WIT/shapes_B*.json
-  NS=\$(grep -cv '^#' \$GEMIT)
-  st "kernels: blocks \$el-\$eh, \$NS distinct shapes of \$(grep -cv '^#' \$GPLAN) segments"
-  i=0
+emit_lines() {   # emit_lines <file of plan lines> <what they are>
+  ef=\$1; ewhat=\$2
+  NS=\$(grep -cv '^#' \$ef); i=0
+  st "kernels: \$ewhat, \$NS distinct shapes"
   while read -r line; do
     case "\$line" in '#'*|'') continue ;; esac
     args=\$(printf '%s\n' "\$line" | sed 's/--ser-tag [A-Za-z0-9_]*//')
@@ -447,8 +477,25 @@ emit_group() {   # emit_group <first block> <last block>
       exit 8
     done
     i=\$((i + 1))
-    [ \$((i % 10)) -ne 0 ] || st "kernels: \$i of \$NS shapes of blocks \$el-\$eh emitted"
-  done < \$GEMIT
+    [ \$((i % 10)) -ne 0 ] || st "kernels: \$i of \$NS shapes of \$ewhat emitted"
+  done < \$ef
+}
+emit_group() {   # emit_group <first block> <last block>
+  el=\$1; eh=\$2
+  # only this group's shape tables are visible, so --blocks auto writes this
+  # group's lines and names this group's dumps, which are on disk right now
+  rm -f \$WIT/shapes_B*.json
+  b=\$el; while [ \$b -le \$eh ]; do cp \$WIT/shapes/shapes_B\$b.json \$WIT/; b=\$((b + 1)); done
+  GPLAN=\$R/plan-g\$el-\$eh.txt; GEMIT=\$R/emit-g\$el-\$eh.txt
+  # Layers only.  A head segment's shape comes off its own dump, which is kept
+  # for the whole run, so it needs no layer dump and no group: it is emitted
+  # once, after the whole plan is written, and a head that changes is re-emitted
+  # without re-extracting anybody's layers.
+  ( cd \$HSRC && \$PY -m harness.witness.plan --dir \$WIT --blocks auto --with-block-0 --layers 0-$((NLAY - 1)) \
+      --layer-flags="$LAYER_FLAGS" --l0-flags="$L0_FLAGS" --l0-dir \$WIT \
+      --out \$GPLAN --emit-out \$GEMIT )
+  rm -f \$WIT/shapes_B*.json
+  emit_lines \$GEMIT "blocks \$el-\$eh"
   b=\$el; while [ \$b -le \$eh ]; do touch \$R/emitted/B\$b; b=\$((b + 1)); done
   # a store that grew is a store that is not installed
   rm -f \$R/install.done
@@ -532,20 +579,36 @@ PY
   { st "pins: the merge over every block asks for \$ALLPINS and the store was emitted under \$PINS"; exit 9; }
 if [ "$WITH_HEAD" = 1 ]; then
   ( cd \$HSRC && \$PY -m harness.witness.plan --dir \$WIT --blocks auto --with-block-0 --layers 0-$((NLAY - 1)) \
-      --head \$HEADW --layer-flags="$LAYER_FLAGS" --l0-flags="$L0_FLAGS" --l0-dir \$WIT \
-      --head-flags="$HEAD_FLAGS" --out \$OUT/plan.txt --emit-out \$R/emit.txt )
+      --head \$HEADW --head-blocks $HEAD_BLOCKS --head-per-block \
+      --layer-flags="$LAYER_FLAGS" --l0-flags="$L0_FLAGS" --l0-dir \$WIT \
+      --head-flags="\$HEAD_FLAGS" --out \$OUT/plan.txt --emit-out \$R/emit.txt )
 else
   ( cd \$HSRC && \$PY -m harness.witness.plan --dir \$WIT --blocks auto --with-block-0 --layers 0-$((NLAY - 1)) \
       --layer-flags="$LAYER_FLAGS" --l0-flags="$L0_FLAGS" --l0-dir \$WIT \
       --out \$OUT/plan.txt --emit-out \$R/emit.txt )
 fi
 N=\$(grep -cv '^#' \$OUT/plan.txt); st "plan: \$N segments"
-[ "\$N" = "$((NBLOCK * NLAY + WITH_HEAD))" ] ||
-  { st "plan: \$N segments, and this configuration is $((NBLOCK * NLAY + WITH_HEAD)); the shape tables are not all here"; exit 6; }
+[ "\$N" = "$SEGMENTS" ] ||
+  { st "plan: \$N segments, and this configuration is $SEGMENTS; the shape tables or the head dumps are not all here"; exit 6; }
 # Every segment of the plan the run will prove must be a segment some group
 # emitted the kernels for.  The groups' plans and this one are written from the
 # same shape tables with the same flags, so they are the same lines; if they are
 # not, the store is short and the loop would stop on a fingerprint.
+# The head segments, which no group emitted for: their shape comes off their own
+# dump and not off a layer's.  head-plan.txt is every head line of the plan and
+# emit-head.txt the distinct shapes among them, which is what plan.py's own
+# emit list already holds -- two head dumps of one master table width are one
+# shape and are emitted once.
+grep -v '^#' \$OUT/plan.txt | grep -- '--ser-tag [A-Za-z0-9]*head' > \$R/head-plan.txt || true
+grep -v '^#' \$R/emit.txt | grep -- '--ser-tag [A-Za-z0-9]*head' > \$R/emit-head.txt || true
+NH=\$(grep -c . \$R/head-plan.txt || true)
+[ "\$NH" = "$NHEAD" ] ||
+  { st "plan: \$NH head segments, and this configuration is $NHEAD"; exit 6; }
+if [ "$NHEAD" != 0 ] && [ ! -f \$R/emitted/head ]; then
+  emit_lines \$R/emit-head.txt "the head segments"
+  touch \$R/emitted/head
+  rm -f \$R/install.done
+fi
 python3 - \$OUT/plan.txt \$R/emit.txt \$R <<'PY'
 import glob, os, sys
 plan, emit, r = sys.argv[1], sys.argv[2], sys.argv[3]
@@ -553,19 +616,23 @@ def body(p):
     return [l.rstrip("\n") for l in open(p) if l.strip() and not l.startswith("#")]
 whole = body(plan)
 parts = [l for p in sorted(glob.glob(os.path.join(r, "plan-g*.txt"))) for l in body(p)]
+parts += body(os.path.join(r, "head-plan.txt")) if os.path.exists(os.path.join(r, "head-plan.txt")) else []
 missing = sorted(set(whole) - set(parts))
-extra = sorted(set(parts) - set(whole))
-if missing or extra:
-    for l in (missing + extra)[:3]:
+if missing:
+    for l in missing[:3]:
         print("  ", l[:160])
-    sys.exit(f"the groups' plans and the whole plan differ: {len(missing)} segment(s) no group "
-             f"emitted for, {len(extra)} the groups have and the plan does not")
-ne = len(body(emit))
-ng = sum(len(body(p)) for p in sorted(glob.glob(os.path.join(r, "emit-g*.txt"))))
-if ne != ng:
-    sys.exit(f"the whole plan has {ne} distinct shapes and the groups emitted {ng}")
+    sys.exit(f"{len(missing)} of the plan's segments are segments no group emitted for; "
+             f"the store would be short a kernel and the loop would stop on a fingerprint")
+# A shape the groups emitted and the plan no longer names costs nothing: a store
+# dedups by fingerprint and only grows, and an unused kernel is never looked up.
+# It happens when a plan is rewritten -- a head re-extracted under another
+# variant, say -- and it is worth saying, not worth stopping for.
+extra = sorted(set(parts) - set(whole))
+if extra:
+    print(f"note: {len(extra)} shape(s) were emitted for a plan line this plan does not "
+          f"have; an unused kernel in the store costs nothing")
 print(f"every one of the {len(whole)} plan segments is a segment its group emitted for; "
-      f"{ne} distinct shapes in the store")
+      f"{len(body(emit))} distinct shapes in the plan")
 PY
 
 # 7. the emitted kernels, installed into the vendored library and compiled into
