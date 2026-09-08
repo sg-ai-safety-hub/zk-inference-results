@@ -20,10 +20,21 @@
 # batch. Both are measured here where they can be, and neither is presented as
 # the other.
 #
+# The sweep over batch sizes is bounded by the card and not by this file. A
+# point the card has no memory for is recorded where it stopped, the run keeps
+# every point that fit, and the gate below reads that record rather than
+# demanding a number the card cannot produce.
+#
 # The serving engine needs an environment of its own, which is built here and
 # never committed. If it cannot be built or cannot run, the run records that and
 # keeps the rows it did measure: a baseline that names one backend and says the
 # other is missing is worth more than no baseline.
+#
+# It is built with `--clear`, so a re-run rebuilds it rather than refusing it.
+# Without that, a job that is restarted -- which is the normal way to recover a
+# run -- finds the environment its first attempt left behind, `uv venv` declines
+# to replace it, and the serving engine is recorded as refused for a reason that
+# is not about the serving engine at all.
 #
 # This is a harness run and not a prover run. Nothing here proves anything, so
 # its outputs carry no binding table and no proof digest, and its manifest says
@@ -129,8 +140,8 @@ fi
 #    the rows above still stand.
 st "vllm: building an environment for it"
 T0=\$(date +%s)
-if ( cd \$B && uv venv --python 3.12 .venv-vllm >/dev/null 2>&1 \
-     && uv pip install --python .venv-vllm --quiet vllm transformers >/dev/null 2>&1 ); then
+if ( cd \$B && uv venv --clear --python 3.12 .venv-vllm >/dev/null 2>&1 \
+     && uv pip install --python .venv-vllm --quiet vllm transformers ninja >/dev/null 2>&1 ); then
   st "vllm environment built in \$(( \$(date +%s) - T0 ))s"
   st "vllm: contexts $CONTEXTS, batches $BATCHES"
   T0=\$(date +%s)
@@ -160,7 +171,7 @@ out = pathlib.Path(sys.argv[1])
 contexts = [int(x) for x in sys.argv[2].split()]
 batches = [int(x) for x in sys.argv[3].split()]
 new = int(sys.argv[4])
-bad, rows = [], []
+bad, rows, stopped = [], [], set()
 for f in sorted(out.glob("*.json")):
     if f.name == "config.json":
         continue
@@ -180,13 +191,23 @@ for f in sorted(out.glob("*.json")):
                      "batch": run.get("batch_size"), "file": f.name,
                      "rates": rates, "measured_keys": sorted(m)})
     else:
-        note = d.get("failure", {}).get("type") or d.get("backend", {}).get("reason")
+        fail = d.get("failure", {})
+        note = fail.get("type") or d.get("backend", {}).get("reason")
+        if fail.get("oom"):
+            stopped.add((be, run.get("context_keys"), run.get("batch_size")))
         print(f"{f.name}: no number ({note})")
 seen = {(r["backend"], r["context"], r["batch"]) for r in rows}
+# A point the card had no memory for is a result and not a gap: the sweep's
+# last batch that fit is the row to quote, and where it stops is itself a
+# measurement of the card.  The harness records such a point rather than
+# skipping it, and the gate reads that record.  A point that is simply absent
+# -- no file, no reason -- is still a failure.
 for c in contexts:
     for b in batches:
-        if ("hf", c, b) not in seen:
-            bad.append(f"hf did not measure context {c} at batch {b}")
+        if ("hf", c, b) not in seen and ("hf", c, b) not in stopped:
+            bad.append(f"hf did not measure context {c} at batch {b}, and recorded no reason")
+for be_, c, b in sorted(stopped, key=lambda k: (k[0], k[1] or 0, k[2] or 0)):
+    print(f"{be_}: the sweep stopped at context {c}, batch {b}: out of memory")
 for r in sorted(rows, key=lambda r: (r["backend"], r["context"] or 0, r["batch"] or 0)):
     print(f"{r['backend']:<6s} C={r['context']:<6} batch={r['batch']:<4} "
           f"prefill={r['rates']['prefill']} decode={r['rates']['decode']} "
