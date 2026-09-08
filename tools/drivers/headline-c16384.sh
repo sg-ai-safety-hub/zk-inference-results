@@ -575,8 +575,8 @@ K=\$SRC/prover/kernels
 [ -d \$K ] || { st "no prover/kernels in this prover commit; the CUDA backend would evaluate constraints on the CPU"; exit 3; }
 if [ ! -f \$R/install.done ]; then
   KT0=\$(date +%s)
-  python3 \$K/m2b_kernels.py --fork \$SRC/nitroo --gen \$GEN
-  python3 \$K/m4b_kernels.py --fork \$SRC/nitroo --gen \$GEN --src \$K
+  python3 \$K/install_constraint_kernels.py --fork \$SRC/nitroo --gen \$GEN
+  python3 \$K/install_witness_gen_kernels.py --fork \$SRC/nitroo --gen \$GEN --src \$K
   find \$SRC/nitroo/crates/stwo/src/stwo_cuda/cuda \( -name '*.cu' -o -name '*.cuh' \) -exec touch {} +
   cp \$GEN/cudakernels.rs \$GEN/gencudakernels.rs \$SRC/prover/src/
   # an installed tree is no longer the commit that was pushed, and says so

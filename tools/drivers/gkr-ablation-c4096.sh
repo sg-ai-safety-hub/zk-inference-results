@@ -171,8 +171,8 @@ if [ ! -f \$R/kernels.done ]; then
       done
     done < \$R/\$name.emit.txt
   done
-  python3 \$K/m2b_kernels.py --fork \$SRC/nitroo --gen \$GEN
-  python3 \$K/m4b_kernels.py --fork \$SRC/nitroo --gen \$GEN --src \$K
+  python3 \$K/install_constraint_kernels.py --fork \$SRC/nitroo --gen \$GEN
+  python3 \$K/install_witness_gen_kernels.py --fork \$SRC/nitroo --gen \$GEN --src \$K
   find \$SRC/nitroo/crates/stwo/src/stwo_cuda/cuda \( -name '*.cu' -o -name '*.cuh' \) -exec touch {} +
   cp \$GEN/cudakernels.rs \$GEN/gencudakernels.rs \$SRC/prover/src/
   grep -q ' dirty\$' \$SRC/.source-commit || sed -i 's/\$/ dirty/' \$SRC/.source-commit
