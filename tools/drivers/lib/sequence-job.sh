@@ -149,6 +149,10 @@ xpass() {   # xpass <tag> <layers> <last layer of the group> <extra flags>
       "\$tag" "\$group" $XTHREADS \$((T1 - T0)) > \$WIT/extract_\$tag.json
   st "extract: layers \$group done in \$((T1 - T0))s"
 }
+# Layer 0's pass used to need a rename after it, because a one-layer pass
+# wrote <base>_B<b> where the shape table and the plan both read
+# <base>_B<b>_L<k> (zk-prover #55).  The pinned commit names every dump of a
+# `--layers` pass the same way, one layer or eight, so the rename is gone.
 xpass l0 0 0 --embed
 xpass l1 1,2,3,4,5,6,7 7
 xpass l2 8,9,10,11,12,13,14,15 15
