@@ -188,6 +188,15 @@ PY
 # position its block starts at and the plan reads block b's head from
 # <base>_B<b>.  One extraction pass covers every head block: the pass costs what
 # its highest block costs and the dumps are written from inside the forward loop.
+#
+# `--diagonal-block` is on the extraction and not on the head line.  A spec that
+# delays the v matmul -- `y-delay-vw12` does -- has the extractor check the v
+# fold's identity against the diagonal block's `vvc` before it writes anything,
+# and it refuses a dump made without the flag (`harness/witness/extract.py`,
+# "the v fold's identity check reads the diagonal block's vvc").  `b10-final`
+# delays nothing, which is why the head dump used to be made without it.  The
+# head line must still not carry the flag: the head chunk performs no attention
+# and reads no diagonal block (`harness/witness/plan.py`).
 if [ -n "${HEAD_BLOCKS:-}" ]; then
   need=0
   for hb in $(echo "${HEAD_BLOCKS:-}" | tr ',' ' '); do
@@ -196,7 +205,7 @@ if [ -n "${HEAD_BLOCKS:-}" ]; then
   if [ \$need = 1 ]; then
     st "extract: the output head over token blocks $HEAD_BLOCKS, $HEAD_SPEC"
     ( cd \$HSRC && ZK_MODEL=$MODEL ZK_DEVICE=cuda ZK_THREADS=$XTHREADS \$PY -m harness.witness.extract --tokens $((CTX + S)) --chunk $S \
-        --layer $HEAD_LAYER --spec $HEAD_SPEC --head --slim --blocks $HEAD_BLOCKS \$IDSARG --out \$HEADW )
+        --layer $HEAD_LAYER --spec $HEAD_SPEC --head --slim --diagonal-block --blocks $HEAD_BLOCKS \$IDSARG --out \$HEADW )
   fi
 fi
 du -sh \$WIT | awk '{print "witness size: " \$1 "  " \$2}'
