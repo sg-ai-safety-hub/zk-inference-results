@@ -9,6 +9,7 @@ constant without an artifact it has read.  Run through `check.py`.
 """
 import json
 import pathlib
+import statistics
 import sys
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
@@ -501,6 +502,87 @@ def predict_14b(a, keys):
                 a.claim(key, value)
 
 
+# -- unproved-baseline ---------------------------------------------------------
+# The three rates one point of the baseline records, and the positions each is
+# over: the prompt for `prefill`, the generated positions less the one the
+# prefill call already emitted for `decode`, and every position for `end_to_end`.
+_BASELINE_PARTS = ("prefill", "decode", "end_to_end")
+_BASELINE_SECONDS = {"prefill": "prefill_s", "decode": "decode_s",
+                     "end_to_end": "wall_s"}
+
+
+def _baseline_points(run, cfg):
+    """Every point this run wrote, as (backend, context, batch, document).
+
+    The file names are the harness's own -- model tag, backend, context, batch
+    and the number of generated tokens -- and the driver's own `config.json`
+    says which of them were asked for, so a point that was asked for and is
+    absent is visible here as a missing file rather than as a silence.
+    """
+    tag = cfg["model"].split("/")[-1].lower().replace(".", "")
+    n = cfg["new_tokens"]
+    for be in cfg["backends"].split():
+        for c in (int(x) for x in cfg["contexts"].split()):
+            for b in (int(x) for x in cfg["batches"].split()):
+                f = ROOT / "runs" / run / f"{tag}_{be}_c{c}_b{b}_n{n}.json"
+                if f.exists():
+                    yield be, c, b, json.loads(f.read_text())
+
+
+def unproved_baseline(a, keys):
+    """The baseline's three rates per point, recomputed from the repetitions.
+
+    Nothing here is proved, so there is no binding table and no digest to gate
+    on.  What is gated instead is that every record says so -- it declares
+    itself a harness record and carries no proof digest -- and that its seconds
+    came off a card rather than out of the mock backend, which a record marked
+    synthetic is refused for.
+
+    Each stored value is the median over the repetitions of that repetition's
+    own rate, so this takes the median again from `per_rep` rather than reading
+    the summary back, and it recomputes each repetition's rate from the
+    positions and the seconds first.  That is the arithmetic the constant rests
+    on: the prompt over the prefill's wall-clock time, the generated positions
+    less one over the decode's, and every position over the whole pass's.
+    """
+    if not keys:
+        return
+    run = sorted({e["run"] for e in keys.values()})[0]
+    cfg = artifact(run, "config.json")
+    npoints = 0
+    for be, c, b, doc in _baseline_points(run, cfg):
+        where = f"baseline {be} C={c} batch={b}"
+        prov = doc["provenance"]
+        if prov.get("kind") != "harness":
+            a.fails.append(f"audit: {where} does not say it is a harness record")
+        if prov.get("proof_sha256") or prov.get("proof_sha256s"):
+            a.fails.append(f"audit: {where} says it is unproved and carries a proof")
+        if prov.get("unsound_skips"):
+            a.fails.append(f"audit: {where} ran with skips {prov['unsound_skips']}")
+        m = doc.get("measured")
+        if not m:
+            continue
+        if doc["run"].get("synthetic") or doc["backend"].get("synthetic"):
+            a.fails.append(f"audit: {where} reports synthetic seconds")
+            continue
+        npoints += 1
+        pos = m["positions"]
+        for part in _BASELINE_PARTS:
+            secs = _BASELINE_SECONDS[part]
+            for i, r in enumerate(m["per_rep"]):
+                want = pos[part] / r[secs]
+                if abs(r[f"pos_s_{part}"] / want - 1) > 1e-6:
+                    a.fails.append(
+                        f"audit: {where} repetition {i}: the {part} rate "
+                        f"{r[f'pos_s_{part}']} is not {pos[part]} positions over "
+                        f"{r[secs]} s")
+            key = f"pos_s.unproved.{be}.c{c}.b{b}.{part}"
+            if key in keys:
+                a.claim(key, statistics.median(r[f"pos_s_{part}"] for r in m["per_rep"]))
+    print(f"  runs/{run}: {npoints} measured points over "
+          f"{len(cfg['backends'].split())} backend(s), three rates each")
+
+
 # -- sections: (driver name, function(audit, keys)) ----------------------------
 # Added when a driver's first run lands; each function re-derives the constants
 # whose `run` was made by that driver.
@@ -516,6 +598,7 @@ SECTIONS = [
     ("quality-suite", quality_suite),
     ("prefill-sweep", prefill_sweep),
     ("predict-14b", predict_14b),
+    ("unproved-baseline", unproved_baseline),
 ]
 
 
