@@ -145,7 +145,12 @@ if ( cd \$B && uv venv --clear --python 3.12 .venv-vllm >/dev/null 2>&1 \
   st "vllm environment built in \$(( \$(date +%s) - T0 ))s"
   st "vllm: contexts $CONTEXTS, batches $BATCHES"
   T0=\$(date +%s)
-  if ( cd \$B && PYTHONPATH=\$B/harness-src ZK_BASELINE_OUT=\$WORK \
+  # The environment's own bin goes on the path, and not only its interpreter.
+  # The engine compiles its startup kernels in a child process and runs the
+  # build tool by name; calling the interpreter by path leaves that name
+  # unresolvable, and the engine stops with a file not found on it before it
+  # has generated a token.
+  if ( cd \$B && PATH=\$B/.venv-vllm/bin:\$PATH PYTHONPATH=\$B/harness-src ZK_BASELINE_OUT=\$WORK \
        ./.venv-vllm/bin/python -m harness.eval.baseline.decode_bench --backend vllm \
        --model $MODEL --dtype $DTYPE --device $DEVICE \
        \$CTXARGS \$BATCHARGS --new-tokens $NEW_TOKENS --reps $REPS --warmup $WARMUP ); then
