@@ -1,0 +1,11 @@
+{"driver": "quality-suite", "label": "quality", "kind": "harness",
+ "model": "unsloth/Llama-3.1-8B-Instruct", "device": "cuda", "threads": 20, "batch": 32,
+ "chunks": 40, "positions": 20480,
+ "ppl_specs": "fp32 dynamic-int8 static w8a16 b6-design-p2o b10-design b10-residual-stream b10-final y-attnout-w10 y-attnout-w11 y-attnout-w12 y-attnout-w16 y-delay-v y-delay-up y-delay-all y-delay-vw12", "required_ppl": "fp32 b10-final y-delay-vw12 static w8a16",
+ "task_specs": "fp32 y-delay-vw12", "tasks": "gpqa mmlu_pro ifeval",
+ "weights": {"bytes": 16077897571, "seconds": 0.4},
+ "datasets": {"gpqa": "0 0", "mmlu_pro": "0 0", "ifeval": "0 0",
+              "units": "bytes seconds; 0 0 means the host already held it"},
+ "dataset_urls": {"gpqa": "https://huggingface.co/datasets/JingzeShi/gpqa_diamond/resolve/main/data/test-00000-of-00001.parquet", "mmlu_pro": "https://huggingface.co/datasets/TIGER-Lab/MMLU-Pro/resolve/main/data/test-00000-of-00001.parquet", "ifeval": "https://huggingface.co/datasets/google/IFEval/resolve/main/ifeval_input_data.jsonl"},
+ "packages_added_for_scoring": "--with pandas --with pyarrow --with lm-eval --with langdetect --with immutabledict",
+ "corpus": "harness/witness/text.txt, the fixed corpus; every output names it by digest"}
