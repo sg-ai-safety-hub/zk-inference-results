@@ -785,6 +785,76 @@ generation kernels are not in the store (zk-prover #57), and
 `genemit-refused.txt` in the run directory says which line it was. It cost
 nothing measurable: no lookup took the host route on any of the 20 processes.
 
+## reference-digest-plain
+
+    tools/drivers/reference-digest-plain.sh <host> <prover-commit> <harness-commit>
+
+runs: 2026-09-08-reference-digest-plain-h100
+prover commit: a603db1ddf1e2372d1f9761d684df8f2294199a9 (zk-prover pull request 107)
+harness commit: a603db1ddf1e2372d1f9761d684df8f2294199a9
+digests: first 16 hex:
+  `full-simd.json`, `full-cuda.json`: `05580c4a4b766666`
+  `short-simd.json`, `short-cuda.json`: `65d588904d613bff`
+  `plain-simd.json`: `d2f2afd860a491d9` (the reference backend only; see below)
+binding (from the manifest, folded over the five proofs): 1 to 14 bound;
+  15 and 16 absent; unbound none
+unsound skips: none
+constants backed: none; this run freezes digests, not numbers
+
+What the run proves. Two statements about the same Llama-3.1-8B layer 16, under
+the fixed quantization configuration `b10-final`, each with its own diagonal
+block and the residual-stream columns and no skip flag: the reference segment,
+512 output positions against a 16,384-key prefix with the five GKR reductions
+on, which is the paper's configuration; and the short segment, 128 output
+positions against a 4,096-key prefix with none of them on. Each is proved on
+the SIMD backend and then on the CUDA backend of the same commit, and equal
+digests are the gate.
+
+What the short segment is for. Without the reductions the segment's key tiles
+each publish their own interaction columns, and the vendored library's
+out-of-domain sampling evaluates the polynomials of one size in a single launch
+with the polynomial index in a thread block grid's y dimension, which a device
+caps at 65,535. zk-prover pull request 107 launches that axis in slices of at
+most that many; the evidence a card has to give it is a proof whose sampling
+axis is wider than the cap and whose digest is the reference backend's. The
+short segment's interaction tree is 102,608 columns wide, 80,424 of them key
+tiles, against the reference segment's 93,184 and 70,920.
+
+The reference segment's digest is not the one `prover/README.md` records.
+The page records `25741d12f315aae7`, taken on 2026-09-07 at another prover
+commit and from a dump another harness commit wrote; at the commit this run
+pins, the same command on the same statement proves 05580c4a4b766666 on both backends.
+Thirty-seven prover commits and a changed extractor lie between the two, so
+which of them moved it is not this run's to say; the comparison is recorded in
+`full-digest.json` and the digest that stands at this commit is the one above.
+
+Why the block length moves rather than the context. The key tile count follows
+the key blocks -- the prefix and the segment's own block, in blocks of S keys
+-- times the head groups, not the context on its own. Both segments here have
+33 key blocks and three head groups, so the short segment stays past the cap
+while committing 1,227,190,880 cells against the reference segment's
+4,131,033,024. Lowering the context alone does the opposite: at 512 output
+positions a shorter prefix has fewer key blocks and the axis falls back under
+the cap, which is what zk-prover #29 saw from the other side when it put the
+threshold at a 15,872-key prefix.
+
+The reference segment without the reductions is proved here on the reference
+backend only: it does not fit this card. Its CUDA proof was attempted once, at
+this prover commit on 2026-09-08, and stopped in the quotient stage
+(`quotients.cu:370`, out of memory) with 82.2 GB of the 85.0 GB the driver
+reports in use at the composition commitment and a 256 MB allocation refused;
+the card was otherwise empty. The driver does not attempt it again, and
+`out/plain-cuda-refused.json` records that, the shape's committed cells and the
+memory the card reports.
+
+How the run is made. The extractions read the card; the reference segment's
+dump is the one `reference-digest.sh` leaves under the remote home and is
+reused, and the short segment's is extracted in seconds. The CUDA backend
+proves through device kernels generated per segment shape, so the job emits the
+kernels for both shapes that run on the card, installs them into the vendored
+library and rebuilds; the built tree then differs from the pushed commit, which
+is why the manifest records the build as dirty.
+
 ## Entry template
 
 ```
