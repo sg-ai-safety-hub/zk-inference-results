@@ -108,7 +108,7 @@ if [ -z "\$IDSFILE" ]; then
   IDSFILE=\$WIT/ids.npy
   if [ ! -f \$IDSFILE ]; then
     st "ids: greedy continuation, $SPEC, corpus offset $OFFSET"
-    # `--help` loads the module and nothing else, so it is the check that the
+    # --help loads the module and nothing else, so it is the check that the
     # generator's imports resolve before the card is asked for anything.  It
     # used to need a shim, because the module imported one name outside its own
     # package and could not be run with -m at all (zk-prover #51); the pinned
@@ -152,7 +152,7 @@ xpass() {   # xpass <tag> <layers> <last layer of the group> <extra flags>
 # Layer 0's pass used to need a rename after it, because a one-layer pass
 # wrote <base>_B<b> where the shape table and the plan both read
 # <base>_B<b>_L<k> (zk-prover #55).  The pinned commit names every dump of a
-# `--layers` pass the same way, one layer or eight, so the rename is gone.
+# --layers pass the same way, one layer or eight, so the rename is gone.
 xpass l0 0 0 --embed
 xpass l1 1,2,3,4,5,6,7 7
 xpass l2 8,9,10,11,12,13,14,15 15
