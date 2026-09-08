@@ -4,12 +4,15 @@
 #   tools/drivers/headline-c4096.sh <host> <prover-commit> <harness-commit>
 #
 # One 4,096-token prompt and its 512 output tokens, every position proved from
-# the embedding up: 9 token blocks of 32 layer segments plus the output head,
-# 289 segments, on the CUDA backend, pipelined one segment ahead, in processes
-# of 64 segments each.  Every layer segment binds its residual stream to the
-# next layer's and its keys and values to the next block's; the verifier side
-# checks every link afterwards.  The five GKR reductions are on, which is the
-# paper's configuration (docs/decisions), and no skip flag appears anywhere.
+# the embedding up: 9 token blocks of 32 layer segments, and the output head over
+# the last prompt block and the generated block, 290 segments, on the CUDA
+# backend, pipelined one segment ahead, in processes of 64 segments each.  Every
+# layer segment binds its residual stream to the next layer's and its keys and
+# values to the next block's; the verifier side checks every link afterwards,
+# verifies every segment's proof, and chains every published id to the prompt or
+# to the argmax a head segment proved for the position before it.  The five GKR
+# reductions are on, which is the paper's configuration (docs/decisions), and no
+# skip flag appears anywhere.
 #
 # The same statement as `headline-c16384.sh` at a quarter of the context, and
 # the first of the four campaigns at this context: it extracts the witnesses
@@ -47,15 +50,26 @@ LAYER_FLAGS="--round even --diagonal-block $GKR"   # every binding gadget is on 
 L0_FLAGS=""
 HEAD_FLAGS="--ao-rem-bits 23 $GKR"
 HEAD_LAYER=16              # the layer the head dump is extracted at; the grid places the segment after the last layer
-# The output head's segment is in the plan, so the token each position emits is
-# bound to the logits computed for it.  It was out while an honest head segment
-# was rejected under the sound defaults -- the seam between the attention output
-# and the o matmul was checked on a chunk whose kernel group is the final norm
-# and cannot state it (zk-prover #58) -- and zk-prover #61 fixed that.  A prover
-# commit without the fix refuses the head segment and this variable goes back to
-# 0; the plan, the extraction, the link count and the run's own segment count
-# all follow it.
-WITH_HEAD=1
+# The output head is proved over the last prompt block and over the generated
+# block, so every token the sequence emits is bound to a proved argmax
+# (docs/decisions/2026-09-08-the-head-is-proved-over-the-last-prompt-block.md).
+# A generated position's id has to equal the argmax the head proved for the
+# position before it, and the position before the FIRST generated one is the
+# last position of the last prompt block, so a plan with a head on the
+# generated block alone leaves that one id backed by nothing. Two head
+# segments, one head dump per block because a head dump carries the position its
+# block starts at, and `boundary-grid --verify --prompt` then backs every
+# generated id and verifies every segment's proof.
+#
+# The head segment needed zk-prover #61: an honest one was rejected under the
+# sound defaults, because the seam between the attention output and the o matmul
+# was checked on a chunk whose kernel group is the final norm and cannot state
+# it (zk-prover #58). A prover commit without the fix refuses it and HEAD_BLOCKS
+# goes back to empty; the plan, the extraction, the link count, the run's own
+# segment count and the verifier's two arguments all follow it.
+HEAD_BLOCKS="$((NBLOCK - 2)),$((NBLOCK - 1))"   # the last prompt block and the generated one
+NHEAD=2
+VERIFY=1                   # the head segments back every generated id, so the grid checks them
 # The corpus opens with front matter, and a 4,096-token prompt taken from token
 # 0 ends inside its list of illustrations, where the greedy continuation is a
 # repeating index line -- a real decode and a degenerate benchmark.  The window
@@ -79,7 +93,7 @@ KERNEL_FAMILIES=zk_chan_eval,zk_key_eval,zk_row_eval,zk_attn_out_eval,zk_dequant
 # own input side.  Across blocks, at each of the 32 layers, consecutive blocks;
 # the head performs no attention, holds no key/value cache and is never a
 # token-axis edge.
-LAYER_LINKS=$(( NBLOCK * (NLAY - 1) + WITH_HEAD ))
+LAYER_LINKS=$(( NBLOCK * (NLAY - 1) + NHEAD ))
 TOKEN_LINKS=$(( (NBLOCK - 1) * NLAY ))
 
 drv_finish "$(drv_status)"
