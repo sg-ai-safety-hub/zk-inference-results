@@ -103,9 +103,12 @@ PY
 )
 
 # The real segment's own plan line, taken from the plan headline-c4096 wrote
-# rather than written again here.  The line goes first on the command line: a
-# repeated flag resolves to its first occurrence (zk-prover #30), and the line's
-# own pins are the ones the headline run proved this segment under.
+# rather than written again here.  The line goes LAST on the command line: a
+# repeated flag resolves to its last occurrence since zk-prover #92, and the
+# line's own pins are the ones the headline run proved this segment under, so
+# they have to be the ones that win.  It went first while the first occurrence
+# won (zk-prover #30), and either way the rule is the same: the shared prefix is
+# the default and the line decides.
 ( cd \$HSRC && \$PY -m harness.witness.plan --dir \$WIT --blocks $((CTX / S + 1)) --with-block-0 \
     --layers 0-31 --layer-flags="--round even --diagonal-block $GKR5" --out \$R/plan.txt )
 LINE=\$(grep -- '--ser-tag B${SAMPLE_BLOCK}L${SAMPLE_LAYER}\$' \$R/plan.txt | sed 's/--ser-tag [A-Za-z0-9_]*//')
@@ -137,11 +140,11 @@ run_target() {
 }
 
 # shellcheck disable=SC2086
-run_target real \$LINE $SHARED \$PINS
+run_target real $SHARED \$PINS \$LINE
 # zk-prover #24: the o seam's control on its own, so it has a record whatever
 # the whole suite above does with it.
 # shellcheck disable=SC2086
-run_target real_o_seam \$LINE $SHARED \$PINS --probe 'o seam'
+run_target real_o_seam $SHARED \$PINS \$LINE --probe 'o seam'
 printf '%s\n' "$SHAPES" | while IFS='|' read -r name flags; do
   [ -n "\$name" ] || continue
   # shellcheck disable=SC2086
