@@ -422,6 +422,61 @@ def prefill_sweep(a, keys):
 # Added when a driver's first run lands; each function re-derives the constants
 # whose `run` was made by that driver.
 
+# -- predict-14b ---------------------------------------------------------------
+def predict_14b(a, keys):
+    """The 14B model's layer proofs: what the shape cost, added up over its layers.
+
+    The run's own summary is written from the per-layer outputs by the job, and
+    this section re-derives that summary from those outputs rather than trusting
+    it: every layer's proof is opened, checked to have accepted with no skip and
+    every edge bound, and the sums are taken here.
+
+    What is not here is the comparison against the registered prediction. The
+    registration cannot be produced at this harness commit (zk-prover #67), and
+    a prediction written after the measurement is not a prediction, so the
+    measured side is frozen and the comparison waits.
+    """
+    if not keys:
+        return
+    run = sorted({e["run"] for e in keys.values()})[0]
+    cfg = artifact(run, "config.json")
+    n = cfg["layers"]
+    fresh = tiles = 0.0
+    rss = 0
+    for k in range(n):
+        doc = artifact(run, f"L{k}.json")
+        p, prov = doc["result"]["point"], doc["provenance"]
+        if not p["accepts"]:
+            a.fails.append(f"audit: layer {k} did not accept")
+        if p.get("off_table") or p.get("ref_mismatch"):
+            a.fails.append(f"audit: layer {k}: off_table {p.get('off_table')}, "
+                           f"ref_mismatch {p.get('ref_mismatch')}")
+        if prov["unsound_skips"]:
+            a.fails.append(f"audit: layer {k} ran with skips {prov['unsound_skips']}")
+        if not prov["binding"]["all_bound"]:
+            a.fails.append(f"audit: layer {k} left edges {prov['binding']['unbound']} unbound")
+        fresh += p["cells"]["fresh"]
+        tiles += p["family_cells"]["key_tiles"]
+        rss = max(rss, p["peak_rss_bytes"])
+    print(f"  runs/{run}: {n} layers, {fresh:,.0f} fresh cells, "
+          f"largest process {rss / 2 ** 30:.1f} GiB")
+    for key, value in (
+            ("e4.qwen2p5_14b.c4096.layers", n),
+            ("e4.qwen2p5_14b.c4096.cells_fresh", fresh),
+            ("e4.qwen2p5_14b.c4096.cells_per_token_layers", fresh / cfg["s"]),
+            ("e4.qwen2p5_14b.c4096.key_tiles_cells", tiles),
+            ("e4.qwen2p5_14b.c4096.peak_rss_bytes", rss)):
+        if key in keys:
+            if isinstance(value, int):
+                a.exact(key, value)
+            else:
+                a.claim(key, value)
+
+
+# -- sections: (driver name, function(audit, keys)) ----------------------------
+# Added when a driver's first run lands; each function re-derives the constants
+# whose `run` was made by that driver.
+
 SECTIONS = [
     ("headline-c4096", headline_c4096),
     ("gkr-ablation-c4096", gkr_ablation_c4096),
@@ -431,6 +486,7 @@ SECTIONS = [
     ("quality-gemma270m", _quality("quality.gemma270m")),
     ("quality-suite", quality_suite),
     ("prefill-sweep", prefill_sweep),
+    ("predict-14b", predict_14b),
 ]
 
 
