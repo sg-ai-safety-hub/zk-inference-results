@@ -490,6 +490,60 @@ the run's outputs and not into them: those are inputs, they are specific to the
 model, and a run directory holds outputs. What is fetched is the rows, the
 per-token losses they were computed from, COSINE and nothing else.
 
+## quality-suite
+
+    tools/drivers/quality-suite.sh <host> <prover-commit> <harness-commit>
+
+runs: 2026-09-08-quality-suite-h100
+prover commit: none -- this run builds and runs no prover
+harness commit: 5c0dbfe
+digests: none; this run makes no proof
+binding: none; this run makes no proof
+unsound skips: none
+constants backed: `quality.8b.ppl_*` for each of the sixteen variants and the
+  paired difference of five of them, `quality.8b.{gpqa_d, mmlu_pro,
+  ifeval_prompt_strict}_*` for both configurations and their paired difference,
+  and `suite.decode_positions` with `suite.e11_positions`
+
+What the run measures. What the quantization configuration the paper reports
+costs on the model the paper reports, in the two ways a reader will ask. First
+perplexity, under every variant `docs/quantization.md` names, on forty chunks of
+512 tokens of the fixed corpus: 20,440 scored positions, the same positions for
+every variant. Then three task suites -- a graduate-level science set, a subset
+of a professional knowledge set, and an instruction-following set -- under the
+reported variant and under a float control that answers the same items in the
+same order.
+
+The control is what makes the task numbers mean anything. Two accuracies
+measured on the same items are not two independent samples: the items both
+configurations get right carry no information about the difference between them,
+so the error on that difference is built from the items they disagree on and is
+far smaller than the error on either accuracy. The harness computes it item by
+item and writes it beside the scores, and the difference is what the paper
+claims something about.
+
+It is a harness run and not a prover run. Nothing in it proves anything: it
+measures the arithmetic the prover constrains, which is what makes
+`docs/quantization.md`'s claim -- that the quality numbers describe exactly the
+arithmetic that is proved -- a claim about measured things on both sides. So its
+outputs carry no binding table and no proof digest, its manifest says `kind`
+`harness` and names no prover commit, and `lib/manifest.py` has a second path
+for that shape of run. The prover commit argument is unused.
+
+How the run is made. The three task sets are not carried in either repository
+and are fetched from their published locations, each timed and sized into the
+run's own configuration record and named afterwards by digest in every output
+that read it. Four packages the harness's lockfile does not carry are brought in
+for the commands that need them and never written into the pinned environment:
+two to read a parquet file, and two the instruction checkers need. A task lane
+whose items are all answered is not run again and a variant already measured is
+not measured again, so the scoring can be redone without regenerating anything
+-- which is what happened here, because the first attempt reached the scoring
+step and stopped on a package the instruction checkers import and do not name.
+
+What is fetched is the perplexity rows, the per-token losses they were computed
+from, the task scores, and the per-item answers those were computed over.
+
 ## Entry template
 
 ```

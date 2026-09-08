@@ -284,6 +284,91 @@ def _quality(group):
 # Added when a driver's first run lands; each function re-derives the constants
 # whose `run` was made by that driver.
 
+# -- quality-suite -------------------------------------------------------------
+_TASK_SCORE = {"gpqa_d": ("gpqa", "acc"), "mmlu_pro": ("mmlu_pro", "acc"),
+               "ifeval_prompt_strict": ("ifeval", "prompt_strict")}
+# the perplexity rows this page names differently from their variants
+_DOC_SPELLING = {"static": "ppl_static_w8a8"}
+
+
+def quality_suite(a, keys):
+    """The 8B model's quality rows: perplexity, three task suites, and the size
+    of the suite itself.
+
+    A harness run proves nothing, so the audit first checks that it says so.
+    Then every number is read back from the file the harness wrote it into: the
+    perplexities and their paired differences from the rows, the task scores and
+    their item-by-item differences from the scored suites, and the suite's own
+    position counts from the per-item rows those scores were computed over.
+    """
+    if not keys:
+        return
+    run = sorted({e["run"] for e in keys.values()})[0]
+    ppl = artifact(run, "ppl.json")
+    p, rows, pairs = ppl["provenance"], ppl["result"], ppl.get("paired", {})
+    cfg = artifact(run, "config.json")
+    if p.get("kind") != "harness":
+        a.fails.append(f"audit: {run} is not marked a harness run")
+    if p.get("binding") is not None or p.get("proof_sha256") is not None:
+        a.fails.append(f"audit: {run} says it is a harness run and carries a proof")
+    tdoc = artifact(run, "tasks.json")
+    tasks = tdoc["result"] if "provenance" in tdoc else tdoc
+    print(f"  runs/{run}: {p['model']} at {str(p['model_revision'])[:12]}, "
+          f"{len(rows)} variants and {len(tasks)} scored configurations")
+    for spec in cfg["ppl_specs"].split():
+        n = _DOC_SPELLING.get(spec, "ppl_" + spec.replace("-", "_"))
+        for key, value in ((f"quality.8b.{n}", rows.get(spec, {}).get("ppl")),
+                           (f"quality.8b.{n}_delta_pct", pairs.get(spec, {}).get("delta_pct")),
+                           (f"quality.8b.{n}_se_nats", pairs.get(spec, {}).get("se_nats"))):
+            if key in keys:
+                if value is None:
+                    a.fails.append(f"audit: {key} has no number in the run's outputs")
+                else:
+                    a.claim(key, value)
+    for label, (task, field) in _TASK_SCORE.items():
+        for spec in cfg["task_specs"].split():
+            t = tasks.get(spec, {}).get(task)
+            key = f"quality.8b.{label}_{spec.replace('-', '_')}"
+            if key in keys:
+                if not t:
+                    a.fails.append(f"audit: {key}: {task} under {spec} did not score")
+                    continue
+                if not t["complete"]:
+                    a.fails.append(f"audit: {task} under {spec} scored only part of the suite")
+                a.claim(key, t[field])
+        q = (tasks.get("y-delay-vw12", {}).get(task) or {}).get("paired_vs_fp32")
+        for key, value in ((f"quality.8b.{label}_paired_delta_y_delay_vw12",
+                            (q or {}).get("delta")),
+                           (f"quality.8b.{label}_paired_se_vs_fp32_y_delay_vw12",
+                            (q or {}).get("se"))):
+            if key in keys:
+                if value is None:
+                    a.fails.append(f"audit: {key} has no number in the run's outputs")
+                else:
+                    a.claim(key, value)
+    # the suite's own size, counted from the per-item rows the scores came from
+    if {"suite.decode_positions", "suite.e11_positions"} & set(keys):
+        import glob
+        items = prompt = gen = 0
+        for task in ("gpqa", "mmlu_pro", "ifeval"):
+            for f in glob.glob(str(ROOT / "runs" / run / "tasks" /
+                                   f"{task}.y-delay-vw12.*.jsonl")):
+                for line in open(f):
+                    if line.strip():
+                        d = json.loads(line)
+                        items += 1
+                        prompt += d.get("n_prompt", 0)
+                        gen += d.get("n_gen", 0)
+        if "suite.decode_positions" in keys:
+            a.exact("suite.decode_positions", items + gen)
+        if "suite.e11_positions" in keys:
+            a.exact("suite.e11_positions", prompt + gen)
+
+
+# -- sections: (driver name, function(audit, keys)) ----------------------------
+# Added when a driver's first run lands; each function re-derives the constants
+# whose `run` was made by that driver.
+
 SECTIONS = [
     ("headline-c4096", headline_c4096),
     ("gkr-ablation-c4096", gkr_ablation_c4096),
@@ -291,6 +376,7 @@ SECTIONS = [
     ("microbench", microbench),
     ("quality-0p5b", _quality("quality.0p5b")),
     ("quality-gemma270m", _quality("quality.gemma270m")),
+    ("quality-suite", quality_suite),
 ]
 
 
