@@ -544,6 +544,10 @@ step and stopped on a package the instruction checkers import and do not name.
 What is fetched is the perplexity rows, the per-token losses they were computed
 from, the task scores, and the per-item answers those were computed over.
 
+The per-item rows kept under `tasks/` carry each item's id and its prompt and
+generated token counts, which is what the audit reads; the generated text
+itself stays on the host, since it is the model's output and not a measurement.
+
 ## Entry template
 
 ```
