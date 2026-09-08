@@ -32,8 +32,11 @@ this repository.
 Its perplexity against the fp32 model (`quality.8b.ppl_y_delay_vw12_delta_pct`)
 and its scores on the three tasks (`quality.8b.gpqa_d_y_delay_vw12`,
 `quality.8b.mmlu_pro_y_delay_vw12`, `quality.8b.ifeval_prompt_strict_y_delay_vw12`)
-are measured against a byte-identical fp32 control on the same items
-(`quality.8b.task_paired_se_vs_fp32_y_delay_vw12`).
+are measured against a byte-identical fp32 control on the same items; each
+task carries its own paired standard error, since the item counts differ
+(`quality.8b.gpqa_d_paired_se_vs_fp32_y_delay_vw12`,
+`quality.8b.mmlu_pro_paired_se_vs_fp32_y_delay_vw12`,
+`quality.8b.ifeval_prompt_strict_paired_se_vs_fp32_y_delay_vw12`).
 
 ## Variants measured beside it
 
