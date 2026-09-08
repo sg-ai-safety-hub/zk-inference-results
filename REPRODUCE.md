@@ -548,6 +548,66 @@ The per-item rows kept under `tasks/` carry each item's id and its prompt and
 generated token counts, which is what the audit reads; the generated text
 itself stays on the host, since it is the model's output and not a measurement.
 
+## prefill-sweep
+
+    tools/drivers/prefill-sweep.sh <host> <prover-commit> <harness-commit>
+
+runs: 2026-09-08-prefill-sweep-h100
+prover commit: 81a5ec9   harness commit: 81a5ec9
+digests: one per point, in `dd_s256.json` and its three siblings
+binding: 1 to 14 bound; 15 and 16 absent   (from the manifest); a synthetic
+  segment has neither an embedding row nor an output head
+unsound skips: none
+constants backed: `cells.b9_prefill.c*.key_tiles` and `.fresh` at four block
+  lengths, `design.prefill_key_tile_s_squared`, `design.prefill_key_tile_s`
+
+What the run measures. What one layer segment costs in committed cells as the
+block it proves grows, with the context equal to the block length, at 256, 512,
+1,024 and 2,048. The segment is synthetic: without a witness the prover draws
+the queries, keys, values, weights and the residual-stream columns from a
+pseudorandom generator with a fixed seed, so nothing in it comes from a model
+and no extraction runs. What moves between the four points is the block length
+and nothing else.
+
+The number the cost model wants is the price of the attention key tiles, which
+is the part of a segment that grows with the square of the block length while
+everything else grows with the length itself. That part is counted on its own,
+so the rest of the segment does not dilute it, and the four points give it
+exactly: 24 cells per squared block length and 784 per block length, reproducing
+all four measured counts with a residual of zero over an eightfold range. That
+is a closed form read off a measurement rather than a fit with an error.
+
+Which arithmetic, and why not the paper's. A synthetic layer under the softmax
+variant the paper reports cannot be proved at any of these block lengths. Its
+master table is sized from its own data and clamped to 2^22 rows, the data needs
+23 bits of key, and neither pinning the width nor asking for a tight table
+raises the clamp; the honest proof is rejected on values that fall off the table
+(zk-prover #72). The run proves one small block under both variants to compare
+their key-tile counts, finds that the paper's does not prove even there, records
+that, and sweeps under the variant that has no exponential table. Every constant
+the run backs says which variant it is, and none of them is the paper's
+attention grid.
+
+What the shape is, and what it is not. Four attention heads of 32 channels in
+two key tiles, with the matmul widths equal to their product, which is what lets
+every edge bind: at a head count and head dimension whose product the matmuls do
+not match, the attention output and the o matmul run over different sequences
+and two edges of the statement have no counterparty. It is not the 8B model's 32
+heads of 128, which cannot be proved synthetically for the same table reason.
+
+What the sweep cannot separate. The cost model's key-tile term has three
+coefficients, one on the product of the block length and the context, one on the
+context and one on the block length. With the context set equal to the block
+length the first two multiply the same quantity, so two coefficients come out
+and three do not. Separating all three needs points where the context and the
+block length differ, which this campaign's issue puts out of scope.
+
+How the run is made. Every pin is named in the driver and none is left to the
+layer, so the points differ in the block length alone. The reference backend
+proves all of them: this is a cell count and a shape, the two backends prove the
+same statement to the same digest, and the largest point is bounded by host
+memory rather than by the card. The whole sweep is 73 seconds of proving.
+
 ## Entry template
 
 ```

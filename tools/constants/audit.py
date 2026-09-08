@@ -369,6 +369,59 @@ def quality_suite(a, keys):
 # Added when a driver's first run lands; each function re-derives the constants
 # whose `run` was made by that driver.
 
+# -- prefill-sweep -------------------------------------------------------------
+def prefill_sweep(a, keys):
+    """The key tiles' cost against the block length, at the context equal to it.
+
+    Each point's cells come from that point's own proof, which the audit opens
+    and checks accepted with no skip and every edge bound.  The two coefficients
+    are refitted here from those points rather than read out of the run's
+    summary: two unknowns and no intercept, which is four lines of arithmetic
+    and worth doing rather than trusting.
+    """
+    if not keys:
+        return
+    run = sorted({e["run"] for e in keys.values()})[0]
+    cfg = artifact(run, "config.json")
+    pts = []
+    for s in [int(x) for x in cfg["points"].split()]:
+        doc = artifact(run, f"dd_s{s}.json")
+        p, prov = doc["result"]["point"], doc["provenance"]
+        if not p["accepts"] or p.get("off_table"):
+            a.fails.append(f"audit: S={s} did not accept, or has {p.get('off_table')} off the table")
+        if prov["unsound_skips"]:
+            a.fails.append(f"audit: S={s} ran with skips {prov['unsound_skips']}")
+        if not prov["binding"]["all_bound"]:
+            a.fails.append(f"audit: S={s} left edges {prov['binding']['unbound']} unbound")
+        pts.append((s, p["family_cells"]["key_tiles"], p["cells"]["fresh"]))
+        for key, value in ((f"cells.b9_prefill.c{s}.key_tiles", p["family_cells"]["key_tiles"]),
+                           (f"cells.b9_prefill.c{s}.fresh", p["cells"]["fresh"])):
+            if key in keys:
+                a.exact(key, value)
+    print(f"  runs/{run}: {len(pts)} points, {cfg['sweep_variant']}, "
+          f"key tiles {pts[0][1]:,} to {pts[-1][1]:,}")
+    if {"design.prefill_key_tile_s_squared", "design.prefill_key_tile_s"} & set(keys):
+        # least squares for y = g S^2 + d S, no intercept
+        a11 = sum(s ** 4 for s, _, _ in pts); a12 = sum(s ** 3 for s, _, _ in pts)
+        a22 = sum(s ** 2 for s, _, _ in pts)
+        b1 = sum(s ** 2 * y for s, y, _ in pts); b2 = sum(s * y for s, y, _ in pts)
+        det = a11 * a22 - a12 * a12
+        g = (b1 * a22 - b2 * a12) / det
+        d = (a11 * b2 - a12 * b1) / det
+        resid = max(abs(y - (g * s * s + d * s)) for s, y, _ in pts)
+        if resid > 1.0:
+            a.fails.append(f"audit: the two-coefficient form does not reproduce the points; "
+                           f"largest residual {resid:,.0f} cells")
+        if "design.prefill_key_tile_s_squared" in keys:
+            a.claim("design.prefill_key_tile_s_squared", g)
+        if "design.prefill_key_tile_s" in keys:
+            a.claim("design.prefill_key_tile_s", d)
+
+
+# -- sections: (driver name, function(audit, keys)) ----------------------------
+# Added when a driver's first run lands; each function re-derives the constants
+# whose `run` was made by that driver.
+
 SECTIONS = [
     ("headline-c4096", headline_c4096),
     ("gkr-ablation-c4096", gkr_ablation_c4096),
@@ -377,6 +430,7 @@ SECTIONS = [
     ("quality-0p5b", _quality("quality.0p5b")),
     ("quality-gemma270m", _quality("quality.gemma270m")),
     ("quality-suite", quality_suite),
+    ("prefill-sweep", prefill_sweep),
 ]
 
 

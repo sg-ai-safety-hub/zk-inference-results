@@ -1517,6 +1517,116 @@
    "run": "2026-09-08-quality-suite-h100",
    "artifact": "tasks.json",
    "note": "What the suite costs proved from the embedding up: the 430250 prompt positions of every item plus the 207977 generated."
+  },
+  "cells.b9_prefill.c256.key_tiles": {
+   "value": 1773568,
+   "unit": "cells",
+   "card": "none",
+   "context": "n/a",
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-08-prefill-sweep-h100",
+   "artifact": "dd_s256.json",
+   "note": "Committed cells of the attention key tiles in one segment at a block length of 256 with the context equal to it, on a synthetic layer of 2 key tiles covering 4 attention heads of 32 channels, under the softmax variant `intsplit6`. The diagonal block is on, which at C = S is one more tile per prefix tile, so this is twice the attention score block on its own. The variant is not the one the paper reports: a synthetic layer under the paper's `intexp` cannot be proved at any of these block lengths, because its exponential table is sized from its own data and clamped to 2^22 rows while the data needs 23 (zk-prover #72). The two variants could not be compared, so this number is the key-tile cost of the shape and variant named and not of the paper's."
+  },
+  "cells.b9_prefill.c256.fresh": {
+   "value": 45752368,
+   "unit": "cells",
+   "card": "none",
+   "context": "n/a",
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-08-prefill-sweep-h100",
+   "artifact": "dd_s256.json",
+   "note": "Every committed cell of that same segment, of which the key tiles above are 3.9 per cent. The variant is not the one the paper reports: a synthetic layer under the paper's `intexp` cannot be proved at any of these block lengths, because its exponential table is sized from its own data and clamped to 2^22 rows while the data needs 23 (zk-prover #72). The two variants could not be compared, so this number is the key-tile cost of the shape and variant named and not of the paper's."
+  },
+  "cells.b9_prefill.c512.key_tiles": {
+   "value": 6692864,
+   "unit": "cells",
+   "card": "none",
+   "context": "n/a",
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-08-prefill-sweep-h100",
+   "artifact": "dd_s512.json",
+   "note": "Committed cells of the attention key tiles in one segment at a block length of 512 with the context equal to it, on a synthetic layer of 2 key tiles covering 4 attention heads of 32 channels, under the softmax variant `intsplit6`. The diagonal block is on, which at C = S is one more tile per prefix tile, so this is twice the attention score block on its own. The variant is not the one the paper reports: a synthetic layer under the paper's `intexp` cannot be proved at any of these block lengths, because its exponential table is sized from its own data and clamped to 2^22 rows while the data needs 23 (zk-prover #72). The two variants could not be compared, so this number is the key-tile cost of the shape and variant named and not of the paper's."
+  },
+  "cells.b9_prefill.c512.fresh": {
+   "value": 64644144,
+   "unit": "cells",
+   "card": "none",
+   "context": "n/a",
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-08-prefill-sweep-h100",
+   "artifact": "dd_s512.json",
+   "note": "Every committed cell of that same segment, of which the key tiles above are 10.4 per cent. The variant is not the one the paper reports: a synthetic layer under the paper's `intexp` cannot be proved at any of these block lengths, because its exponential table is sized from its own data and clamped to 2^22 rows while the data needs 23 (zk-prover #72). The two variants could not be compared, so this number is the key-tile cost of the shape and variant named and not of the paper's."
+  },
+  "cells.b9_prefill.c1024.key_tiles": {
+   "value": 25968640,
+   "unit": "cells",
+   "card": "none",
+   "context": "n/a",
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-08-prefill-sweep-h100",
+   "artifact": "dd_s1024.json",
+   "note": "Committed cells of the attention key tiles in one segment at a block length of 1024 with the context equal to it, on a synthetic layer of 2 key tiles covering 4 attention heads of 32 channels, under the softmax variant `intsplit6`. The diagonal block is on, which at C = S is one more tile per prefix tile, so this is twice the attention score block on its own. The variant is not the one the paper reports: a synthetic layer under the paper's `intexp` cannot be proved at any of these block lengths, because its exponential table is sized from its own data and clamped to 2^22 rows while the data needs 23 (zk-prover #72). The two variants could not be compared, so this number is the key-tile cost of the shape and variant named and not of the paper's."
+  },
+  "cells.b9_prefill.c1024.fresh": {
+   "value": 117986192,
+   "unit": "cells",
+   "card": "none",
+   "context": "n/a",
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-08-prefill-sweep-h100",
+   "artifact": "dd_s1024.json",
+   "note": "Every committed cell of that same segment, of which the key tiles above are 22.0 per cent. The variant is not the one the paper reports: a synthetic layer under the paper's `intexp` cannot be proved at any of these block lengths, because its exponential table is sized from its own data and clamped to 2^22 rows while the data needs 23 (zk-prover #72). The two variants could not be compared, so this number is the key-tile cost of the shape and variant named and not of the paper's."
+  },
+  "cells.b9_prefill.c2048.key_tiles": {
+   "value": 102268928,
+   "unit": "cells",
+   "card": "none",
+   "context": "n/a",
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-08-prefill-sweep-h100",
+   "artifact": "dd_s2048.json",
+   "note": "Committed cells of the attention key tiles in one segment at a block length of 2048 with the context equal to it, on a synthetic layer of 2 key tiles covering 4 attention heads of 32 channels, under the softmax variant `intsplit6`. The diagonal block is on, which at C = S is one more tile per prefix tile, so this is twice the attention score block on its own. The variant is not the one the paper reports: a synthetic layer under the paper's `intexp` cannot be proved at any of these block lengths, because its exponential table is sized from its own data and clamped to 2^22 rows while the data needs 23 (zk-prover #72). The two variants could not be compared, so this number is the key-tile cost of the shape and variant named and not of the paper's."
+  },
+  "cells.b9_prefill.c2048.fresh": {
+   "value": 269896592,
+   "unit": "cells",
+   "card": "none",
+   "context": "n/a",
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-08-prefill-sweep-h100",
+   "artifact": "dd_s2048.json",
+   "note": "Every committed cell of that same segment, of which the key tiles above are 37.9 per cent. The variant is not the one the paper reports: a synthetic layer under the paper's `intexp` cannot be proved at any of these block lengths, because its exponential table is sized from its own data and clamped to 2^22 rows while the data needs 23 (zk-prover #72). The two variants could not be compared, so this number is the key-tile cost of the shape and variant named and not of the paper's."
+  },
+  "design.prefill_key_tile_s_squared": {
+   "value": 24.0,
+   "unit": "cells per S squared",
+   "card": "none",
+   "context": "n/a",
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-08-prefill-sweep-h100",
+   "artifact": "sweep.json",
+   "note": "The coefficient of the squared block length in the key tiles' cost, fitted over the 4 points above with the context equal to the block length. The fit is exact: the largest residual over four points spanning eight times in the block length is 0 cells, so this is a closed form read off a measurement and not a regression. The variant is not the one the paper reports: a synthetic layer under the paper's `intexp` cannot be proved at any of these block lengths, because its exponential table is sized from its own data and clamped to 2^22 rows while the data needs 23 (zk-prover #72). The two variants could not be compared, so this number is the key-tile cost of the shape and variant named and not of the paper's."
+  },
+  "design.prefill_key_tile_s": {
+   "value": 784.0,
+   "unit": "cells per S",
+   "card": "none",
+   "context": "n/a",
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-08-prefill-sweep-h100",
+   "artifact": "sweep.json",
+   "note": "The coefficient of the block length itself, from the same exact fit. At the context equal to the block length the cost model's separate terms in the context and in the block length multiply the same quantity, so what is separable here is these two coefficients and not the three the model carries. The variant is not the one the paper reports: a synthetic layer under the paper's `intexp` cannot be proved at any of these block lengths, because its exponential table is sized from its own data and clamped to 2^22 rows while the data needs 23 (zk-prover #72). The two variants could not be compared, so this number is the key-tile cost of the shape and variant named and not of the paper's."
   }
  },
  "discrepancies": []
