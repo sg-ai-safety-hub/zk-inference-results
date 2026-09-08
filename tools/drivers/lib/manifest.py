@@ -10,15 +10,24 @@ run id is `<date>-<driver>-<gpu>` with the GPU as the machine reported it.  A
 fetched directory whose outputs carry no provenance block is refused: such a run
 is not admissible.
 
-Two kinds of run, and the manifest says which in `kind`.  A **prover** run makes
-proofs, and its outputs carry a binding table saying what each proof binds; one
-that carries none is refused, which is the whole point of the check.  A
-**harness** run makes no proof: it measures the arithmetic the prover
+Three kinds of run, and the manifest says which in `kind`.  A **prover** run
+makes proofs, and its outputs carry a binding table saying what each proof
+binds; one that carries none is refused, which is the whole point of the check.
+A **harness** run makes no proof: it measures the arithmetic the prover
 constrains -- a perplexity, a task score -- so it has no binding table and no
 proof digest, and it says so by declaring `kind` `harness` in every one of its
 provenance blocks.  Only a directory that declares itself that way, and that
 carries no proof digest anywhere, takes the second path; a prover run that lost
 its binding table still cannot.
+
+A **verifier** run runs the prover binary and makes no proof either: it reads
+proofs another run made and checks them, or derives from the model the public
+input those checks compare against.  The prover writes a binding table for each
+proof it produces and there are none here, so such a run cannot say what it is
+in its own outputs; the driver says it on the command line with `--kind
+verifier`, and the same two checks the harness path makes are made here -- no
+proof digest anywhere, no binding table -- so a prover run that lost its table
+still cannot take this path either.
 """
 import argparse
 import datetime
@@ -50,9 +59,9 @@ def digests_of(doc):
 
     A run directory may also hold a JSON file that is not an output document at
     all: `headline-c16384` writes `groups.json`, which is a list of the token
-    block groups the job divided the plan into.  A document that is not an
-    object carries no digest, the same answer the `provenance` scan already
-    gives it."""
+    block groups the job divided the plan into, and `model-roots --out` writes a
+    bare list of rows.  A document that is not an object carries no digest, the
+    same answer the `provenance` scan already gives it."""
     if not isinstance(doc, dict):
         return None
     r = doc.get("result", {})
@@ -97,6 +106,10 @@ def main():
     ap.add_argument("--prover-commit", required=True)
     ap.add_argument("--harness-commit", required=True)
     ap.add_argument("--date", default=datetime.date.today().isoformat())
+    ap.add_argument("--kind", choices=("prover", "harness", "verifier"), default=None,
+                    help="the kind of run, where the outputs cannot say it themselves: "
+                         "`verifier` for a run that makes no proof and checks proofs another "
+                         "run made")
     a = ap.parse_args()
 
     files = list(outputs_of(a.fetched))
@@ -109,10 +122,17 @@ def main():
     if len(kinds) != 1:
         sys.exit(f"manifest.py: the outputs declare more than one kind of run, {sorted(kinds)}; "
                  "a run is one or the other")
-    kind = kinds.pop()
-    if kind not in ("prover", "harness"):
-        sys.exit(f"manifest.py: an output declares kind {kind!r}, which is neither "
+    declared = kinds.pop()
+    if declared not in ("prover", "harness"):
+        sys.exit(f"manifest.py: an output declares kind {declared!r}, which is neither "
                  "`prover` nor `harness`")
+    # The prover writes no `kind`, so `prover` is what an output that says
+    # nothing says.  A driver may name `verifier` over that, and over nothing
+    # else: a run whose outputs declare themselves a harness run is one.
+    if a.kind and declared != "prover" and a.kind != declared:
+        sys.exit(f"manifest.py: the outputs declare kind {declared!r} and the driver says "
+                 f"{a.kind!r}; a run is one or the other")
+    kind = a.kind or declared
     # The document the manifest takes the run's own fields from: the first that
     # carries a digest, so `argv` names the command that made the proofs rather
     # than whichever output sorts first.  A run that made none falls back to the
@@ -132,10 +152,19 @@ def main():
     # a run that proves on both backends names both, sorted; one backend stays a string
     backends = sorted({str(q.get("backend")) for _, q in prov})
     backend = backends[0] if len(backends) == 1 else backends
-    if binding is None and kind != "harness":
-        sys.exit("manifest.py: no output carries a binding table, and the outputs do not "
-                 "declare themselves a harness run; a prover run without one is not "
-                 "admissible")
+    if binding is None and kind not in ("harness", "verifier"):
+        sys.exit("manifest.py: no output carries a binding table, and neither the outputs "
+                 "nor the driver declare the run a harness or a verifier run; a prover run "
+                 "without one is not admissible")
+    if kind == "verifier":
+        # The same two checks the harness path makes, from the other side: a run
+        # that says it makes no proof must make none.
+        if digests:
+            sys.exit(f"manifest.py: a verifier run carries proof digests {sorted(digests)}; "
+                     "a run that declares it makes no proof must make none")
+        if binding is not None:
+            sys.exit("manifest.py: a verifier run carries a binding table; a run that makes "
+                     "no proof binds nothing")
     if kind == "harness":
         # A run that says it proves nothing must prove nothing, and every file
         # that carries a measurement must say where it came from.  `config.json`

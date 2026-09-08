@@ -39,8 +39,12 @@ drv_finish() {
       *"done exit=0"*)
         TMP=$(mktemp -d "$ROOT/runs/.fetch-$NAME.XXXXXX")
         "$ROOT/tools/remote/fetch.sh" "$HOST" "$NAME" "$TMP"
+        # DRV_KIND, when the driver sets it, is what the run's outputs cannot say
+        # for themselves: `verifier` for a run that makes no proof and checks
+        # proofs another run made.  Unset is the prover's own answer.
         python3 "$HERE/lib/manifest.py" --driver "tools/drivers/$NAME.sh" --fetched "$TMP" \
             --runs "$ROOT/runs" --prover-commit "$PROVER" --harness-commit "$HARNESS" \
+            ${DRV_KIND:+--kind "$DRV_KIND"} \
             --date "$(printf '%s\n' "$ST" | awk '/^done/ {print substr($3, 1, 10)}')"
         rmdir "$TMP" 2>/dev/null || true
         (cd "$ROOT" && python3 tools/constants/check.py)
