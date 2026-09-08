@@ -1,0 +1,8 @@
+{"driver": "reference-digest-plain", "label": "digest", "model": "unsloth/Llama-3.1-8B-Instruct", "spec": "b10-final", "layer": 16,
+ "reference": {"context": 16384, "s": 512, "tokens": 16896, "flags": "--round even --numbits 9 --z-hi-bits 7 --variants intexp --table-bits 25 --head-groups 16,8,8 --diagonal-block --gkr-key-tiles --gkr-dequant --gkr-residual-stream --gkr-freivalds --gkr-attnout"},
+ "short": {"context": 4096, "s": 128, "tokens": 4224, "flags": "--round even --numbits 9 --z-hi-bits 7 --variants intexp --table-bits 25 --head-groups 16,8,8 --diagonal-block"},
+ "plain_flags": "--round even --numbits 9 --z-hi-bits 7 --variants intexp --table-bits 25 --head-groups 16,8,8 --diagonal-block", "full_flags": "--round even --numbits 9 --z-hi-bits 7 --variants intexp --table-bits 25 --head-groups 16,8,8 --diagonal-block --gkr-key-tiles --gkr-dequant --gkr-residual-stream --gkr-freivalds --gkr-attnout",
+ "extract_flags": "--residual-stream --diagonal-block", "rayon_threads": 16,
+ "recorded_full_digest": "25741d12f315aae7", "grid_cap": 65535,
+ "ids": "the evaluation corpus's first tokens, at each segment's own length",
+ "note": "the reference segment with the five GKR reductions on both backends, and the short segment without any of them on both backends; no skip flag"}
