@@ -1,0 +1,8 @@
+{"driver": "prefill-sweep", "label": "design",
+ "points": "256 512 1024 2048", "context_equals_s": true,
+ "hd": 32, "head_groups": "2,2", "nin": 128, "nout": 128,
+ "residual_stream_a": 32, "kmax": 16, "threads": 20,
+ "shared_arithmetic": "--round even --numbits 9 --z-hi-bits 7", "paper_variant": "intexp",
+ "sweep_variant": "intsplit6", "check_s": 128,
+ "gkr_flags": "--gkr-key-tiles --gkr-dequant --gkr-residual-stream --gkr-freivalds --gkr-attnout", "shape_flags": "--hd 32 --head-groups 2,2 --nin 128 --nout 128 --residual-stream-a 32 --kmax 16 --synth-residual-stream --diagonal-block",
+ "backend": "simd", "witness": "synthetic, the prover's own fixed-seed generator"}
