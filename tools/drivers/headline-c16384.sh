@@ -393,11 +393,21 @@ xdrop() {   # xdrop <first block> <last block>: the dumps go, the shape tables s
 # 4. the output head's dumps, one per block that carries a head segment, from
 #    one forward pass.  Before the survey, because the plan reads the master
 #    table width and the head's own ao_rem_bits out of these dumps.
+#
+#    `--diagonal-block` is on the extraction and not on the head line.  A spec
+#    that delays the v matmul -- `y-delay-vw12` does -- has the extractor check
+#    the v fold's identity against the diagonal block's `vvc` before it writes
+#    anything, and it refuses a dump made without the flag
+#    (`harness/witness/extract.py`, "the v fold's identity check reads the
+#    diagonal block's vvc").  `b10-final` delays nothing, which is why the head
+#    dump used to be made without it.  The head line must still not carry the
+#    flag: the head chunk performs no attention and reads no diagonal block
+#    (`harness/witness/plan.py`).
 HEAD_LAST=\$(printf '%s' "$HEAD_BLOCKS" | tr ',' ' ' | awk '{print \$NF}')
 if [ "$WITH_HEAD" = 1 ] && [ ! -f \${HEADW}_B\${HEAD_LAST}/manifest.json ]; then
   st "extract: the output head over blocks $HEAD_BLOCKS, $HEAD_SPEC"
   ( cd \$HSRC && ZK_MODEL=$MODEL ZK_DEVICE=cuda ZK_THREADS=$XTHREADS \$PY -m harness.witness.extract --tokens $((CTX + S)) --chunk $S \
-      --layer $HEAD_LAYER --spec $HEAD_SPEC --head --slim --blocks $HEAD_BLOCKS \$IDSARG --out \$HEADW )
+      --layer $HEAD_LAYER --spec $HEAD_SPEC --head --slim --diagonal-block --blocks $HEAD_BLOCKS \$IDSARG --out \$HEADW )
 fi
 # The head line's own flags.  A head dump carries the o matmul of the layer it
 # was extracted at, so ao_rem_bits is a property of the dump and is read off
