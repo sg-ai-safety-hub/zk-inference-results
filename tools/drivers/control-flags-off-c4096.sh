@@ -4,11 +4,19 @@
 #
 #   tools/drivers/control-flags-off-c4096.sh <host> <prover-commit> <harness-commit>
 #
-# The same 289 segments, the same witnesses, the same shared pins and the same
+# The same 290 segments, the same witnesses, the same shared pins and the same
 # binding gadgets as `headline-c4096.sh`; the five `--gkr-*` reductions are the
 # only difference, and they choose the LogUp backend for a component without
 # changing what is proved.  So the pair prices the reductions: what they remove
 # from the committed cells and from the proving time, measured on one plan.
+#
+# The first segment of the first token block would not prove in this
+# configuration until zk-prover #62: the placeholder claims the prover lowers
+# its evaluators from were sized by a formula with a margin, and the segment
+# with no prefix is the shape that ran the margin out.  Both kernel emitters ran
+# out of the same margin on the same shape and both refusals are recorded beside
+# the outputs whatever happens, because a refused lowering costs either nothing
+# or a lookup evaluated on the host, and the gate fails the run on any of those.
 #
 # The paper's configuration has all five on.  Every constant this driver backs
 # names the control it came from and no number here is a throughput the paper
@@ -50,15 +58,15 @@ LAYER_FLAGS="--round even --diagonal-block"   # every binding gadget is still on
 L0_FLAGS=""
 HEAD_FLAGS="--ao-rem-bits 23"
 HEAD_LAYER=16              # the layer the head dump is extracted at; the grid places the segment after the last layer
-# The output head's segment is out of the plan (zk-prover #58): an honest head
-# segment is rejected under the sound defaults, because the seam between the
-# attention output and the o matmul is checked on a chunk whose family is the
-# final norm and cannot state it.  Nothing in a driver gets past that -- the
-# loader refuses a head dump without its layer's o matmul -- so the sequence is
-# proved from the embedding up to the last layer's residual, and the token the
-# head emits is bound by nothing until the prover is fixed.  One variable back
-# to 1 when it is.
-WITH_HEAD=0
+# The output head is proved over the last prompt block and over the generated
+# block, exactly as `headline-c4096.sh` proves it: the two plans have to be the
+# same plan or the pair does not price the reductions, and a control that proved
+# one segment fewer than the row it is compared with would price that segment as
+# well.  The decision that puts a head segment on the last prompt block is
+# docs/decisions/2026-09-08-the-head-is-proved-over-the-last-prompt-block.md.
+HEAD_BLOCKS="$((NBLOCK - 2)),$((NBLOCK - 1))"   # the last prompt block and the generated one
+NHEAD=2
+VERIFY=1                   # the same check the headline row's grid makes
 # The corpus opens with front matter, and a 4,096-token prompt taken from token
 # 0 ends inside its list of illustrations, where the greedy continuation is a
 # repeating index line -- a real decode and a degenerate benchmark.  The window
@@ -70,7 +78,7 @@ SLICE=64
 XTHREADS=20
 IDS=${ZK_IDS:-}
 KERNEL_FAMILIES=zk_chan_eval,zk_key_eval,zk_row_eval,zk_attn_out_eval,zk_dequant_eval,zk_freivalds_eval,zk_exp_table_eval,zk_table_eval,zk_residual_stream_eval,zk_residual_stream_table_eval
-LAYER_LINKS=$(( NBLOCK * (NLAY - 1) + WITH_HEAD ))
+LAYER_LINKS=$(( NBLOCK * (NLAY - 1) + NHEAD ))
 TOKEN_LINKS=$(( (NBLOCK - 1) * NLAY ))
 
 drv_finish "$(drv_status)"
