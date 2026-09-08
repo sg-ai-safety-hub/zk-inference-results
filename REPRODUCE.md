@@ -8,12 +8,21 @@ Written, not yet run:
 
 - `tools/drivers/headline-c16384.sh`: the paper's headline configuration, one
   16,384-token prompt and its 512 output tokens proved from the embedding up,
-  on the CUDA backend, pipelined. Written on `lib/sequence-job.sh`, which is the
-  job body the context 4,096 campaign ran. It waits on disk, not on the card:
-  `memory-probe-c16384` measured the loop at 78,843 MiB of an 81,559 MiB card,
-  and measured one token block of this context's witness at 12.16 GiB, so the
-  33 blocks the plan reads are 310 GiB of extraction. Its `pipeline` is 1
-  because that probe measured the pipeline to cost nothing on this card.
+  1,057 segments on the CUDA backend, pipelined one segment ahead: the memory
+  probe measured the loop at 78,843 MiB of the 81,559 MiB the card reports,
+  pipelined or not (issue #16). The output head's segment is in the plan, so
+  the token each position emits is bound to the logits computed for it; that
+  needed zk-prover #61. It proves in groups of token
+  blocks, because the whole witness set at this context is 302 GiB against
+  about 76 GiB free: the job extracts a few blocks, writes their shape tables
+  and emits their kernels while the dumps are still there, deletes the dumps,
+  and goes on to the next few; then it installs the kernels once and extracts
+  each group again to prove it. The link check reads the serialized proofs of
+  every group at the end. The run's end-to-end figure is the sum over the
+  groups of the proving processes. Started once on 2026-09-08 and stopped on
+  its first proof, because that first version emitted the kernels after the
+  dumps were deleted and every emitter refused; the record of that attempt is
+  not kept, since it produced no proof.
 - `tools/drivers/control-flags-off-c4096.sh`: `headline-c4096`'s plan with the
   five GKR reductions off, which is what prices them. Written and started; the
   first segment of the first token block does not prove in that configuration,
