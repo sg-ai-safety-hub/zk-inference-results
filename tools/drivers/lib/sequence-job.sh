@@ -108,6 +108,12 @@ if [ -z "\$IDSFILE" ]; then
   IDSFILE=\$WIT/ids.npy
   if [ ! -f \$IDSFILE ]; then
     st "ids: greedy continuation, $SPEC, corpus offset $OFFSET"
+    # `--help` loads the module and nothing else, so it is the check that the
+    # generator's imports resolve before the card is asked for anything.  It
+    # used to need a shim, because the module imported one name outside its own
+    # package and could not be run with -m at all (zk-prover #51); the pinned
+    # commit has that import fixed and the shim is gone with it.
+    ( cd \$HSRC && \$PY -m harness.witness.gen_ids --help > /dev/null )
     ( cd \$HSRC && ZK_MODEL=$MODEL ZK_DEVICE=cuda ZK_THREADS=$XTHREADS \$PY -m harness.witness.gen_ids --prefix $CTX --offset $OFFSET --new 513 --spec $SPEC --out \$WIT/ids_513.npy )
     ( cd \$HSRC && ZK_MODEL=$MODEL ZK_DEVICE=cuda ZK_THREADS=$XTHREADS \$PY -m harness.witness.gen_ids --prefix $CTX --offset $OFFSET --new $S --spec $SPEC --out \$WIT/ids_512.npy )
     ( cd \$HSRC && \$PY -m harness.witness.shift_ids --ids \$WIT/ids_513.npy --prefix $CTX --new $S --out \$IDSFILE )
