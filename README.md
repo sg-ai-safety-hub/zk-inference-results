@@ -42,7 +42,8 @@ proof binds. `REPRODUCE.md` has one entry per driver once it has run.
 ```
 
 Every entry names its card, its context and its timing scope (`commit`,
-`stwo total`, `whole wall` or `loop`, defined at the top of the file). The
+`stwo total`, `whole wall`, `loop`, or `primitive` for one primitive of the
+proof system timed on its own, defined at the top of the file). The
 grade says how the value is checked: `measured` is re-derived from the named
 artifact by `tools/constants/audit.py`; `derived` is recomputed by `check.py`
 from the entries it names; `projected` comes from the cost model with its
