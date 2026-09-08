@@ -4,8 +4,8 @@
 #   tools/drivers/headline-c16384.sh <host> <prover-commit> <harness-commit>
 #
 # One 16,384-token prompt and its 512 output tokens, every position proved from
-# the embedding up: 33 token blocks of 32 layer segments, 1,056 segments, on the
-# CUDA backend, in processes of 64 segments each.  Every layer segment binds its
+# the embedding up: 33 token blocks of 32 layer segments and the output head,
+# 1,057 segments, on the CUDA backend, in processes of 64 segments each.  Every layer segment binds its
 # residual stream to the next layer's and its keys and values to the next
 # block's; the verifier side checks every link afterwards.  The five GKR
 # reductions are on, which is the paper's configuration (docs/decisions), and no
@@ -30,13 +30,15 @@
 #
 # The job therefore runs two sweeps over the blocks, highest block first:
 #
-#   - the survey sweep extracts a group, writes each block's shape table, and
-#     deletes the group's dumps.  A shape table is a few kilobytes and they all
-#     stay.  Nothing is proved here.
-#   - then, once, the 33 shape tables are merged into the pins the whole run is
-#     launched with, the plan's 1,056 lines are written from them, and the
-#     device kernels for every distinct shape in the plan are emitted, installed
-#     and compiled in.
+#   - the survey sweep extracts a group, writes each block's shape table, emits
+#     the device kernels for the group's shapes into one accumulating store, and
+#     then deletes the group's dumps.  The kernels are emitted inside the group
+#     and not after the sweep because an emitter reads the segment's dump to
+#     lower its shape: a store built after the dumps were deleted is an empty
+#     store, and the first proof stops on a fingerprint it cannot find.  A shape
+#     table is a few kilobytes and they all stay.  Nothing is proved here.
+#   - then, once, the store is installed into the vendored library and compiled
+#     in, and the plan's 1,057 lines are written from the 33 shape tables.
 #   - the prove sweep extracts a group again, proves the group's segments in
 #     processes of 64, keeps their outputs and their serialized statements and
 #     proofs, and deletes the group's dumps.
@@ -45,10 +47,13 @@
 # time, against the two hours of rebuilds that emitting kernels group by group
 # would cost instead, and it buys one plan, one set of pins over the merge of
 # every block's shape table, and one kernel store, which is what the context
-# 4,096 campaign had.  Highest block first because the last block reads the
-# longest prefix: it holds the largest segments, so it sets the pins and the
-# loop's peak card memory, and a card that cannot hold the loop fails in the
-# first group rather than after eleven hours.
+# 4,096 campaign had.  Highest block first is not a preference either: the pins
+# the emitters are given have to be the pins the proving processes are given,
+# and `ao_rem_bits` and the table width grow with the prefix a block reads, so
+# the first group has to be the one that holds the worst of them.  Every later
+# group re-merges the tables and the job stops if the worst has moved.  The same
+# order puts the largest segments first, so a card that cannot hold the loop
+# fails in the first group rather than after eleven hours.
 #
 # The group size is not written here.  The job measures the free space and takes
 # as many blocks as fit beside the block-invariant files and a reserve, up to
@@ -69,9 +74,16 @@
 # processes, and `timing.json` keeps the phases apart so the two cannot be
 # confused.
 #
-# Not yet run.  `PIPELINE` below is the memory probe's answer and not a
-# preference: the loop peaks at 78,843 MiB of the 81,559 MiB the card reports,
-# pipelined or not (the memory-probe-c16384 run, which settled issue #16).
+# `PIPELINE` below is the memory probe's answer and not a preference: the loop
+# peaks at 78,843 MiB of the 81,559 MiB the card reports, pipelined or not (the
+# memory-probe-c16384 run, which settled issue #16).
+#
+# The first attempt of this run, at 02:04 on 2026-09-08, emitted the kernels
+# after the survey sweep instead of inside it, and its first proof stopped with
+# no feed kernel for a fingerprint: all 165 emit lines had been refused, because
+# the dumps the emitters read had already been deleted.  That is what the survey
+# sweep's emit step is for, and why the job now refuses any emitter refusal but
+# the one zk-prover #57 makes on block 0's layer 0.
 #
 # The first call pushes zk-prover at the two commits to the host, starts the
 # job detached and prints the poll command.  Every later call with the same
@@ -100,17 +112,15 @@ LAYER_FLAGS="--round even --diagonal-block $GKR"   # every binding gadget is on 
 L0_FLAGS=""
 HEAD_FLAGS="--ao-rem-bits 23 $GKR"
 HEAD_LAYER=16              # the layer the head dump is extracted at; the grid places the segment after the last layer
-# The output head's segment is out of the plan (zk-prover #58): an honest head
-# segment is rejected under the sound defaults, because the seam between the
-# attention output and the o matmul is checked on a chunk whose kernel group is
-# the final norm and cannot state it.  Nothing in a driver gets past that -- the
-# loader refuses a head dump without its layer's o matmul -- so the sequence is
-# proved from the embedding up to the last layer's residual, and the token the
-# head emits is bound by nothing until the prover is fixed.  zk-prover #61 is
-# the fix and is open at the time of writing; one variable back to 1 when it
-# merges, and the plan, the extraction, the link count and the run's own segment
-# count all follow it.
-WITH_HEAD=0
+# The output head's segment is in the plan, so the token each position emits is
+# bound to the logits computed for it.  It was out while an honest head segment
+# was rejected under the sound defaults -- the seam between the attention output
+# and the o matmul was checked on a chunk whose kernel group is the final norm
+# and cannot state it (zk-prover #58) -- and zk-prover #61 fixed that.  A prover
+# commit without the fix refuses the head segment and this variable goes back to
+# 0; the plan, the extraction, the link count and the run's own segment count
+# all follow it.
+WITH_HEAD=1
 OFFSET=0                   # the corpus from its first token; the c4096 row's window ends where this one ends
 # ZK_PIPELINE.  Pipelining generates segment k+1 while segment k is proved and
 # holds two segments' device memory at once.  The value below is the memory
@@ -118,7 +128,7 @@ OFFSET=0                   # the corpus from its first token; the c4096 row's wi
 # peaks at 78,843 MiB of the 81,559 MiB the card reports, pipelined or not, and
 # pipelining is 23% faster.
 PIPELINE=1
-SLICE=64                   # segments per process: a group of 4 blocks is 128 segments, so 2 processes
+SLICE=64                   # segments per process: a group of 5 blocks is 160 segments, so 3 processes
 XTHREADS=20                # torch threads for the extraction
 IDS=${ZK_IDS:-}            # token ids (.npy) already on the host; empty = generate them
 KERNEL_FAMILIES=zk_chan_eval,zk_key_eval,zk_row_eval,zk_attn_out_eval,zk_dequant_eval,zk_freivalds_eval,zk_exp_table_eval,zk_table_eval,zk_residual_stream_eval,zk_residual_stream_table_eval
@@ -329,26 +339,145 @@ xdrop() {   # xdrop <first block> <last block>: the dumps go, the shape tables s
   done
   st "dumps of blocks \$1-\$2 deleted"
 }
+# 4. the output head's dump.  Before the survey, because the group that holds
+#    the last block writes the head's plan line and emits its kernel, and the
+#    plan reads the master table width out of this dump.
+if [ "$WITH_HEAD" = 1 ] && [ ! -f \$HEADW/manifest.json ]; then
+  st "extract: the output head, $HEAD_SPEC"
+  ( cd \$HSRC && ZK_MODEL=$MODEL ZK_DEVICE=cuda ZK_THREADS=$XTHREADS \$PY -m harness.witness.extract --tokens $((CTX + S)) --chunk $S \
+      --layer $HEAD_LAYER --spec $HEAD_SPEC --head --slim \$IDSARG --out \$HEADW )
+fi
 
-# 4. the survey sweep: every block's shape table, a group at a time, highest
-#    block first.  A shape table is a few kilobytes and they all stay; the dumps
-#    they were read from do not.
-st "survey: the 33 shape tables, group by group, highest block first"
+# 5. the survey sweep: every block's shape table and every block's kernels, a
+#    group at a time, highest block first.
+#
+#    A shape table is a few kilobytes and they all stay; the dumps they were
+#    read from do not.  The kernels are emitted here, inside the group, and not
+#    after the sweep: an emitter reads the segment's dump to lower its shape and
+#    refuses a shape whose witness is not there, so a store built after the
+#    dumps were deleted is an empty store and the first proof stops on a
+#    fingerprint it cannot find.  The plan's distinct shapes span every block --
+#    the table width follows the prefix the block reads -- so every group has
+#    shapes of its own and every group emits.
+#
+#    The pins the emitters are given have to be the pins the proving processes
+#    are given, and they are the worst case over every block.  Highest block
+#    first is what makes that possible: ao_rem_bits and the table width grow
+#    with the prefix a block reads, so the first group holds the worst of them,
+#    and every later group re-merges and is refused if the worst has moved.
+mkdir -p \$WIT/shapes \$R/emitted
+# The shape tables live in a directory of their own, so that only the group
+# being emitted is ever visible to the plan's --blocks auto.  A run that wrote
+# them beside the dumps moves them here once and keeps its work.
+for q in \$WIT/shapes_B*.json; do
+  [ -e "\$q" ] || continue
+  [ -e "\$WIT/shapes/\$(basename \$q)" ] || mv "\$q" "\$WIT/shapes/"
+done
+rm -f \$WIT/shapes_B*.json
+# the marker of the run that emitted into an empty store: this job does not use
+# the name and a stale one must not be read as an installed store
+rm -f \$R/kernels.done
+[ -d \$R/emitted ] && [ -n "\$(ls -A \$R/emitted 2>/dev/null)" ] ||
+  rm -f \$OUT/cudaemit-refused.txt \$OUT/genemit-refused.txt
+
+# The pins over every shape table written so far.  The first group writes them
+# down and every group after it must agree: a store emitted under one set of
+# pins and a loop launched under another do not meet.
+pins_now() {
+  ( cd \$HSRC && \$PY -m harness.witness.shapes --merge \$WIT/shapes/shapes_B*.json --out \$R/shapes-sofar.json ) > /dev/null
+  python3 - \$R/shapes-sofar.json <<'PY'
+import json, sys
+w = json.load(open(sys.argv[1]))["worst"]
+print(f"--kmax {w['kmax']} --ao-rem-bits {w['ao_rem_bits']} --fold-rem-bits {w['fold_rem_bits']} --fold-alpha {w['fold_alpha']}")
+PY
+}
+
+# Every shape of one group, lowered into the one accumulating store.  A store
+# dedups by fingerprint and only grows, so the groups add to it in turn and the
+# install after the sweep installs all of them at once.
+emit_group() {   # emit_group <first block> <last block>
+  el=\$1; eh=\$2
+  # only this group's shape tables are visible, so --blocks auto writes this
+  # group's lines and names this group's dumps, which are on disk right now
+  rm -f \$WIT/shapes_B*.json
+  b=\$el; while [ \$b -le \$eh ]; do cp \$WIT/shapes/shapes_B\$b.json \$WIT/; b=\$((b + 1)); done
+  GPLAN=\$R/plan-g\$el-\$eh.txt; GEMIT=\$R/emit-g\$el-\$eh.txt
+  # the head sits after the last block's layers and belongs to the group that
+  # holds the last block, and to no other
+  if [ "$WITH_HEAD" = 1 ] && [ \$eh = $((NBLOCK - 1)) ]; then
+    ( cd \$HSRC && \$PY -m harness.witness.plan --dir \$WIT --blocks auto --with-block-0 --layers 0-$((NLAY - 1)) \
+        --head \$HEADW --layer-flags="$LAYER_FLAGS" --l0-flags="$L0_FLAGS" --l0-dir \$WIT \
+        --head-flags="$HEAD_FLAGS" --out \$GPLAN --emit-out \$GEMIT )
+  else
+    ( cd \$HSRC && \$PY -m harness.witness.plan --dir \$WIT --blocks auto --with-block-0 --layers 0-$((NLAY - 1)) \
+        --layer-flags="$LAYER_FLAGS" --l0-flags="$L0_FLAGS" --l0-dir \$WIT \
+        --out \$GPLAN --emit-out \$GEMIT )
+  fi
+  rm -f \$WIT/shapes_B*.json
+  NS=\$(grep -cv '^#' \$GEMIT)
+  st "kernels: blocks \$el-\$eh, \$NS distinct shapes of \$(grep -cv '^#' \$GPLAN) segments"
+  i=0
+  while read -r line; do
+    case "\$line" in '#'*|'') continue ;; esac
+    args=\$(printf '%s\n' "\$line" | sed 's/--ser-tag [A-Za-z0-9_]*//')
+    for emit in cudaemit genemit; do
+      case \$emit in
+        cudaemit) opts="--block 256 --min-blocks 2" ;;
+        genemit)  opts="--families $KERNEL_FAMILIES" ;;
+      esac
+      if \$SIMD \$emit $SHARED \$PINS \$args \$opts --out \$GEN > /dev/null 2> \$R/emit.err; then
+        continue
+      fi
+      printf '%s\n' "\$line" >> \$OUT/\$emit-refused.txt
+      # zk-prover #57: the generation emitter's placeholder claims are one entry
+      # short on the segment with no prefix, which is the one that also carries
+      # the embedding gadget.  That is block 0's layer 0 and nothing else -- the
+      # context 4,096 run refused that one line and no other -- and a kernel is
+      # looked up by fingerprint, so a shape that shares its fingerprint with an
+      # emitted one costs nothing.  Any other refusal is a hole in the store and
+      # the loop stops on it hours later, so it stops the job here instead.
+      case "\$emit \$line" in
+        "genemit "*"--ser-tag B0L0")
+          st "genemit refused block 0's layer 0 (zk-prover #57); recorded in out/genemit-refused.txt"
+          continue ;;
+      esac
+      st "\$emit refused a shape that is not block 0's embedding segment; the store would be short a kernel and the loop would stop on it"
+      st "the line: \$line"
+      tail -5 \$R/emit.err
+      exit 8
+    done
+    i=\$((i + 1))
+    [ \$((i % 10)) -ne 0 ] || st "kernels: \$i of \$NS shapes of blocks \$el-\$eh emitted"
+  done < \$GEMIT
+  b=\$el; while [ \$b -le \$eh ]; do touch \$R/emitted/B\$b; b=\$((b + 1)); done
+  # a store that grew is a store that is not installed
+  rm -f \$R/install.done
+  st "kernels: blocks \$el-\$eh emitted"
+}
+
+st "survey: the $NBLOCK shape tables and their kernels, group by group, highest block first"
+SURVEY_T0=\$(date +%s)
 hi=$((NBLOCK - 1))
 while [ \$hi -ge 0 ]; do
   GK=\$(group_k \$hi)
   [ "\$GK" -ge 1 ] || { st "disk: no room for even one block's dumps; the job stops here"; exit 5; }
   lo=\$((hi - GK + 1)); [ \$lo -ge 0 ] || lo=0
+  # a group is done when every one of its blocks has a shape table and has been
+  # emitted; a table without its kernels is the failure this arrangement fixes
   need=0; b=\$lo
-  while [ \$b -le \$hi ]; do [ -f \$WIT/shapes_B\$b.json ] || need=1; b=\$((b + 1)); done
+  while [ \$b -le \$hi ]; do
+    [ -f \$WIT/shapes/shapes_B\$b.json ] || need=1
+    [ -f \$R/emitted/B\$b ] || need=1
+    b=\$((b + 1))
+  done
   if [ \$need = 0 ]; then
-    st "survey: blocks \$lo-\$hi already have their shape tables"
+    st "survey: blocks \$lo-\$hi have their shape tables and their kernels"
   else
     xgroup survey \$lo \$hi
     b=\$lo
     while [ \$b -le \$hi ]; do
-      [ -f \$WIT/shapes_B\$b.json ] ||
-        ( cd \$HSRC && \$PY -m harness.witness.shapes \$WIT/witness_B\${b}_L $NLAY \$WIT/shapes_B\$b.json )
+      [ -f \$WIT/shapes/shapes_B\$b.json ] ||
+        ( cd \$HSRC && \$PY -m harness.witness.shapes \$WIT/witness_B\${b}_L $NLAY \$WIT/shapes/shapes_B\$b.json )
       b=\$((b + 1))
     done
     if [ ! -f \$WIT/blocksize.json ]; then
@@ -366,42 +495,41 @@ print(f"disk: one block of this context is {gb / 2**30:.2f} GiB, "
       f"the block-invariant files are {sb / 2**30:.2f} GiB")
 PY
     fi
+    P=\$(pins_now)
+    if [ -f \$R/pins.txt ]; then
+      [ "\$P" = "\$(cat \$R/pins.txt)" ] ||
+        { st "pins: blocks \$lo-\$hi ask for \$P and the store was emitted under \$(cat \$R/pins.txt). The worst case is not the highest block's; delete the kernel store and the emitted markers and run the job again"; exit 9; }
+    else
+      printf '%s\n' "\$P" > \$R/pins.txt
+      st "pins: \$P, from the group that holds the highest block"
+    fi
+    PINS=\$P
+    emit_group \$lo \$hi
     xdrop \$lo \$hi
   fi
   hi=\$((lo - 1))
 done
+SURVEY_SECS=\$((\$(date +%s) - SURVEY_T0))
+PINS=\$(cat \$R/pins.txt)
+st "survey done in \${SURVEY_SECS}s; pins: \$PINS"
 
-# 4b. the output head's dump, which the plan reads the master table width from
-#     and the last group proves.  It is one layer of the last block and it stays
-#     on the host for the whole run.
-if [ "$WITH_HEAD" = 1 ] && [ ! -f \$HEADW/manifest.json ]; then
-  st "extract: the output head, $HEAD_SPEC"
-  ( cd \$HSRC && ZK_MODEL=$MODEL ZK_DEVICE=cuda ZK_THREADS=$XTHREADS \$PY -m harness.witness.extract --tokens $((CTX + S)) --chunk $S \
-      --layer $HEAD_LAYER --spec $HEAD_SPEC --head --slim \$IDSARG --out \$HEADW )
-fi
-
-# 5. one shape table over all $NBLOCK blocks, and the pins the whole run is
-#    launched with.  ao_rem_bits grows with the prefix a block reads, so the
-#    pins have to come from the merge and not from any one block.
+# 6. one shape table over all $NBLOCK blocks, and the plan the proving processes
+#    and the link check read.  The dumps the tables came from are gone and the
+#    plan does not open them, it names them.
+cp \$WIT/shapes/shapes_B*.json \$WIT/
 if [ ! -f \$WIT/shapes_all.json ]; then
   st "shapes: the merge over $NBLOCK blocks"
-  LIST=""; b=0
-  while [ \$b -lt $NBLOCK ]; do LIST="\$LIST \$WIT/shapes_B\$b.json"; b=\$((b + 1)); done
-  ( cd \$HSRC && \$PY -m harness.witness.shapes --merge \$LIST --out \$WIT/shapes_all.json )
+  ( cd \$HSRC && \$PY -m harness.witness.shapes --merge \$WIT/shapes/shapes_B*.json --out \$WIT/shapes_all.json )
 fi
 cp \$WIT/shapes_all.json \$OUT/shapes.json
-PINS=\$(python3 - \$WIT/shapes_all.json <<'PY'
+ALLPINS=\$(python3 - \$WIT/shapes_all.json <<'PY'
 import json, sys
 w = json.load(open(sys.argv[1]))["worst"]
 print(f"--kmax {w['kmax']} --ao-rem-bits {w['ao_rem_bits']} --fold-rem-bits {w['fold_rem_bits']} --fold-alpha {w['fold_alpha']}")
 PY
 )
-st "pins: \$PINS"
-
-# 6. the plan: one line per segment over every block, and the distinct kernel
-#    shapes.  --blocks auto reads the shape tables on this host, which is all
-#    $NBLOCK of them; the dumps they came from are gone and the plan does not
-#    open them, it names them.
+[ "\$ALLPINS" = "\$PINS" ] ||
+  { st "pins: the merge over every block asks for \$ALLPINS and the store was emitted under \$PINS"; exit 9; }
 if [ "$WITH_HEAD" = 1 ]; then
   ( cd \$HSRC && \$PY -m harness.witness.plan --dir \$WIT --blocks auto --with-block-0 --layers 0-$((NLAY - 1)) \
       --head \$HEADW --layer-flags="$LAYER_FLAGS" --l0-flags="$L0_FLAGS" --l0-dir \$WIT \
@@ -414,38 +542,39 @@ fi
 N=\$(grep -cv '^#' \$OUT/plan.txt); st "plan: \$N segments"
 [ "\$N" = "$((NBLOCK * NLAY + WITH_HEAD))" ] ||
   { st "plan: \$N segments, and this configuration is $((NBLOCK * NLAY + WITH_HEAD)); the shape tables are not all here"; exit 6; }
+# Every segment of the plan the run will prove must be a segment some group
+# emitted the kernels for.  The groups' plans and this one are written from the
+# same shape tables with the same flags, so they are the same lines; if they are
+# not, the store is short and the loop would stop on a fingerprint.
+python3 - \$OUT/plan.txt \$R/emit.txt \$R <<'PY'
+import glob, os, sys
+plan, emit, r = sys.argv[1], sys.argv[2], sys.argv[3]
+def body(p):
+    return [l.rstrip("\n") for l in open(p) if l.strip() and not l.startswith("#")]
+whole = body(plan)
+parts = [l for p in sorted(glob.glob(os.path.join(r, "plan-g*.txt"))) for l in body(p)]
+missing = sorted(set(whole) - set(parts))
+extra = sorted(set(parts) - set(whole))
+if missing or extra:
+    for l in (missing + extra)[:3]:
+        print("  ", l[:160])
+    sys.exit(f"the groups' plans and the whole plan differ: {len(missing)} segment(s) no group "
+             f"emitted for, {len(extra)} the groups have and the plan does not")
+ne = len(body(emit))
+ng = sum(len(body(p)) for p in sorted(glob.glob(os.path.join(r, "emit-g*.txt"))))
+if ne != ng:
+    sys.exit(f"the whole plan has {ne} distinct shapes and the groups emitted {ng}")
+print(f"every one of the {len(whole)} plan segments is a segment its group emitted for; "
+      f"{ne} distinct shapes in the store")
+PY
 
-# 7. the device kernels for every shape in the plan, compiled into the CUDA
-#    backend.  Once, for the whole plan: this is what the survey sweep bought.
+# 7. the emitted kernels, installed into the vendored library and compiled into
+#    the CUDA backend.  Once, after the sweep: the store only grows, so one
+#    install carries every group's shapes.
 K=\$SRC/prover/kernels
 [ -d \$K ] || { st "no prover/kernels in this prover commit; the CUDA backend would evaluate constraints on the CPU"; exit 3; }
-if [ ! -f \$R/kernels.done ]; then
-  KT0=\$(date +%s); i=0
-  NSHAPE=\$(grep -cv '^#' \$R/emit.txt); st "kernels: \$NSHAPE distinct shapes for \$N segments"
-  while read -r line; do
-    case "\$line" in '#'*|'') continue ;; esac
-    args=\$(printf '%s\n' "\$line" | sed 's/--ser-tag [A-Za-z0-9_]*//')
-    # zk-prover #57: the emitters' placeholder claims are one entry short on the
-    # segment with no prefix, which is the one that also carries the embedding
-    # gadget.  With the five reductions on only the generation emitter runs out;
-    # with them off the constraint emitter does too.  A kernel is looked up by
-    # fingerprint and the plan's shapes share theirs, so what a refused lowering
-    # costs is either nothing or an announced kernel fallback line, and the gate
-    # below fails the run on any such line.  Which shapes were refused is in the
-    # run directory, not in an exit code.
-    for emit in cudaemit genemit; do
-      case \$emit in
-        cudaemit) opts="--block 256 --min-blocks 2" ;;
-        genemit)  opts="--families $KERNEL_FAMILIES" ;;
-      esac
-      if ! \$SIMD \$emit $SHARED \$PINS \$args \$opts --out \$GEN > /dev/null; then
-        printf '%s\n' "\$line" >> \$OUT/\$emit-refused.txt
-        st "\$emit refused a shape (zk-prover #57); recorded in out/\$emit-refused.txt"
-      fi
-    done
-    i=\$((i + 1))
-    [ \$((i % 10)) -ne 0 ] || st "kernels: \$i of \$NSHAPE shapes emitted"
-  done < \$R/emit.txt
+if [ ! -f \$R/install.done ]; then
+  KT0=\$(date +%s)
   python3 \$K/m2b_kernels.py --fork \$SRC/nitroo --gen \$GEN
   python3 \$K/m4b_kernels.py --fork \$SRC/nitroo --gen \$GEN --src \$K
   find \$SRC/nitroo/crates/stwo/src/stwo_cuda/cuda \( -name '*.cu' -o -name '*.cuh' \) -exec touch {} +
@@ -453,12 +582,11 @@ if [ ! -f \$R/kernels.done ]; then
   # an installed tree is no longer the commit that was pushed, and says so
   grep -q ' dirty\$' \$SRC/.source-commit || sed -i 's/\$/ dirty/' \$SRC/.source-commit
   ( cd \$SRC && CARGO_TARGET_DIR=\$B/t-cuda cargo build --release --locked -p zk-prover --features cuda )
-  echo \$((\$(date +%s) - KT0)) > \$R/kernels.done
+  echo \$((\$(date +%s) - KT0)) > \$R/install.done
 fi
-KERNEL_SECS=\$(cat \$R/kernels.done 2>/dev/null || echo 0)
+KERNEL_SECS=\$(cat \$R/install.done 2>/dev/null || echo 0)
 [ -n "\$KERNEL_SECS" ] || KERNEL_SECS=0
 st "kernels installed"
-
 # 8. the card's memory sampler.  One nvidia-smi that loops in milliseconds if
 #    this driver supports it, and a once-a-second shell loop if it does not;
 #    which one ran is in every mem_*.json beside the period it sampled at.
