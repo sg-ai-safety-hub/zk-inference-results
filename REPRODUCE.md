@@ -32,17 +32,6 @@ Written, not yet run:
   it finishes, so the run produced no output to keep. The 21 controls before it
   were refused as designed, on the real segment and on each of the three
   synthetic shapes alike.
-- `tools/drivers/unproved-baseline.sh`: how fast the same model decodes when
-  nothing is proved, at both contexts and a range of batch sizes, on the
-  backend that ships with the model library and on a serving engine. Written and
-  started; neither backend produced a record. The first generated at both
-  contexts and then stopped without writing anything, because the like-for-like
-  reporter it calls needs five constants that do not exist here, and one of them
-  cannot be written consistently: the reporter's own note says the proved
-  seconds never include the prompt, while this repository decided that every
-  proved number covers the whole forward pass over every position. The second
-  built an environment of its own and loaded the model, and its engine failed
-  during a sampling warmup. Both are zk-prover #74.
 
 ## synthetic-digests
 
@@ -854,6 +843,85 @@ proves through device kernels generated per segment shape, so the job emits the
 kernels for both shapes that run on the card, installs them into the vendored
 library and rebuilds; the built tree then differs from the pushed commit, which
 is why the manifest records the build as dirty.
+
+## unproved-baseline
+
+    tools/drivers/unproved-baseline.sh <host> <prover-commit> <harness-commit>
+
+runs: 2026-09-08-unproved-baseline-h100
+prover commit: none; this run proves nothing   harness commit: 3c876f55fb5ece2565355aa1e4dc59b36fbd855d
+digests: none; a harness run carries no proof
+binding: none; a harness run binds nothing
+unsound skips: none
+constants backed: `pos_s.unproved.<backend>.c<context>.b<batch>.{prefill,decode,end_to_end}`,
+  57 of them: three rates at each of 19 points
+
+What the run measures. Llama-3.1-8B-Instruct on the card, in bf16, prefilling a
+prompt and decoding 512 tokens after it, at the two contexts the proved rows are
+measured at and over a range of batch sizes, with nothing proved about any of
+it. These are the rows a proved cost per position is read against.
+
+What a rate is. Every recorded rate is positions per second for one request:
+the prompt's positions over the prefill's wall-clock time, the generated
+positions over the decode's, and every position over the whole pass's. A host
+serving B requests at once produces B times the recorded rate; the entries are
+per request so that the single-request row and the batched rows are the same
+kind of number. The two parts fall one position short of the end-to-end count,
+because the first generated position is produced inside the prefill call and is
+charged to neither part.
+
+Why three and not one. The paper quotes a cost per proved position and the
+reader applies their own mix of prompt and generated positions, so no row here
+is an overhead denominator and none of them subtracts the prompt out (the
+decisions of 2026-09-08 in `docs/decisions/`). A reader who wants a prefill-only
+comparison takes the prefill rate; one who wants decode takes the decode rate;
+one who wants a whole request takes the end-to-end rate.
+
+The two backends answer different questions. `hf` is what a reader gets by
+loading the model and calling it, and `vllm` is what a reader gets by deploying
+it. Both ran here. The serving engine decodes 2.5 times as fast at a single
+request and 2.2 times as fast at 16, and it holds a batch of 16 at the longer
+context where the other backend cannot: at a 4,096-token prompt it decodes
+153.3 positions per second per request against 62.3, and at 16,384 it decodes
+140.3 against 62.6. A reader who takes one of these as "what the model runs at"
+picks a number that differs by more than a factor of two depending on which
+backend they had in mind, which is the reason both are here.
+
+Where the sweep stops. The backend that ships with the model library runs out
+of card memory at a 16,384-token prompt and 16 requests at a time: it asks for
+another 7.00 GiB with 4.76 GiB free of the 79.18 GiB the card reports it, having
+74.41 GiB in use. Every other point of the sweep fits, and the serving engine
+fits all twenty. That is a measurement of the card and not
+a gap in the run: the harness records such a point with its reason, and the
+gate reads that record rather than demanding a number the card cannot
+produce.
+
+What the spread means. Each point is three timed repetitions after one untimed
+warmup, and the recorded value is the median over them of that repetition's own
+rate. The warmup makes the same two calls a timed repetition makes and generates
+the same 512 tokens, which is what tells a reader this record apart from one
+made before it: the warmup used to generate 8 tokens, so the first timed
+repetition of every point was the first long decode its process had run, and the
+recorded spread was tens of times the run's own variation (zk-prover #106). The
+spread recorded here is 3 per cent at its widest, and under 1 per cent at
+most points.
+
+What the run does not check. Nothing here is proved, so there is no binding
+table, no digest and no statement: the manifest says `kind` `harness` and names
+no prover commit. The generated text is not compared between the two backends,
+and the harness's own digest of it is not stable across repetitions of the same
+greedy point (noted in zk-prover #106). Nothing here says the two backends
+compute the same tokens; they are timed, not compared.
+
+How the run is made. The driver pushes the harness at its pinned commit, syncs
+the environment the model library needs and builds a second one for the serving
+engine, which is never committed; the weights come from the machine's cache. A
+timing that shares a card is not a timing, so the run is started only with the
+card empty and with the machine's other work held off it, and afterwards the
+machine's own logs are read to see whether anything else ran while it did.
+Nothing did here: no other job wrote a line between this run's first stamp and
+its last, and the card read 0 MiB at both ends. It takes 18 minutes, ten of them
+the first backend.
 
 ## Entry template
 
