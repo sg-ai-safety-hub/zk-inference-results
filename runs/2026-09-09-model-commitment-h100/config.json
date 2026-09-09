@@ -1,0 +1,7 @@
+{"driver": "model-commitment", "label": "verifier",
+ "sequence_run": "headline-c4096", "spec": "y-delay-vw12", "context": 4096, "s": 512,
+ "segments": 290, "serialized_files": 870,
+ "shared_flags": "--round even --numbits 9 --z-hi-bits 7 --variants intexp --head-groups 16,8,8 --tight-table", "pins": "--kmax 19 --ao-rem-bits 20 --fold-rem-bits 15 --fold-alpha 6",
+ "expect_layer_links": 281, "expect_token_links": 256,
+ "verifier_form_limit": 32,
+ "note": "the published model commitment, derived from the model over the plan headline-c4096 proved, and every one of that run's segments checked against it"}

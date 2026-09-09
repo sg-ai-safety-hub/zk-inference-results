@@ -1,0 +1,2106 @@
+{
+  "bench": "model_roots",
+  "env": {
+    "arch": "x86_64",
+    "gpu": "NVIDIA H100 80GB HBM3, 81559 MiB",
+    "mem_total_bytes": 253347459072,
+    "os": "linux",
+    "simd_n_lanes": 16,
+    "threads": 20
+  },
+  "modes": {
+    "COMMIT_BY_REFERENCE": {
+      "source": "default",
+      "value": 1
+    },
+    "DEVICE_ACCUMULATORS": {
+      "source": "default",
+      "value": 0
+    },
+    "DEVICE_PREPROCESSED": {
+      "source": "default",
+      "value": 0
+    },
+    "DEVICE_RESIDUAL_STREAM_BINDING": {
+      "source": "default",
+      "value": 0
+    },
+    "DEVICE_STAGING_POOL": {
+      "source": "default",
+      "value": 0
+    },
+    "DEVICE_TABLES": {
+      "source": "default",
+      "value": 0
+    },
+    "DEVICE_WITNESS_GEN_ATTENTION_FREIVALDS": {
+      "source": "default",
+      "value": 0
+    },
+    "DEVICE_WITNESS_GEN_DEQUANT": {
+      "source": "default",
+      "value": 0
+    },
+    "DEVICE_WITNESS_GEN_DIAGONAL_BLOCK": {
+      "source": "default",
+      "value": 0
+    },
+    "DEVICE_WITNESS_GEN_KEY_TILE": {
+      "source": "default",
+      "value": 0
+    },
+    "DEVICE_WITNESS_GEN_RESIDUAL_STREAM": {
+      "source": "default",
+      "value": 0
+    },
+    "GENERATED_LOGUP": {
+      "source": "default",
+      "value": 0
+    },
+    "KERNEL_REFERENCE_CHECK": {
+      "source": "default",
+      "value": 1
+    },
+    "LDE_ONLY": {
+      "source": "default",
+      "value": 0
+    },
+    "LOWERING_CACHE": {
+      "source": "default",
+      "value": 0
+    },
+    "PARALLEL_GATHER": {
+      "source": "default",
+      "value": 1
+    },
+    "PARALLEL_SCAN": {
+      "source": "default",
+      "value": 1
+    },
+    "PIPELINE": {
+      "source": "default",
+      "value": 0
+    },
+    "PREPROCESSED_TREE_CACHE": {
+      "source": "default",
+      "value": 0
+    }
+  },
+  "provenance": {
+    "args": [
+      "model-roots",
+      "--plan",
+      "/root/runs/headline-c4096/out/plan.txt",
+      "--pins",
+      "--round even --numbits 9 --z-hi-bits 7 --variants intexp --head-groups 16,8,8 --kmax 19 --ao-rem-bits 20 --fold-rem-bits 15 --fold-alpha 6",
+      "--weights-only",
+      "--params-dir",
+      "/root/runs/headline-c4096/ser",
+      "--limit",
+      "32",
+      "--out",
+      "/root/runs/model-commitment/out/model-roots-verifier.json"
+    ],
+    "backend": "simd",
+    "binary": "zk-prover",
+    "binding": null,
+    "commit": "a603db1ddf1e2372d1f9761d684df8f2294199a9",
+    "cuda_version": "13.0",
+    "dirty": true,
+    "driver_version": "580.178.04",
+    "gpu": "NVIDIA H100 80GB HBM3, 81559 MiB",
+    "proof_sha256": null,
+    "proof_sha256s": null,
+    "unsound_skips": []
+  },
+  "result": {
+    "distinct_cells": 32,
+    "from_params": false,
+    "layers": 32,
+    "model_roots_by_layer": [
+      {
+        "layer": 0,
+        "model_root": [
+          "5dfc380bbfa96679eb3a5905ea04fe367a620b7b537c9d7bee3e21562ed5d935"
+        ]
+      },
+      {
+        "layer": 1,
+        "model_root": [
+          "7900f33a24e9aa265d90a00aa6f3350abb4e463ce507724c84ef3a5db8951e2e"
+        ]
+      },
+      {
+        "layer": 2,
+        "model_root": [
+          "e9536625d1ffe01fe80337425adced3757628c479a2f127c3d6dcc5930627d54"
+        ]
+      },
+      {
+        "layer": 3,
+        "model_root": [
+          "9f1f8e5e9c911821adc05479406cd43183e1d272e28d0f098e458440de3ad515"
+        ]
+      },
+      {
+        "layer": 4,
+        "model_root": [
+          "ec7c5174376b6e314f49a73292dca677b15cc231e8af6917d6b43f34306ff030"
+        ]
+      },
+      {
+        "layer": 5,
+        "model_root": [
+          "f6719a443c7b910305849152a024491850ad756edc32996a95f9ec4f97455f22"
+        ]
+      },
+      {
+        "layer": 6,
+        "model_root": [
+          "8ad2691d4928694652a3c65913e75c35c3996d0cc957aa30c16ec54f4ff62863"
+        ]
+      },
+      {
+        "layer": 7,
+        "model_root": [
+          "92878570a2433343d333e3113ac69a462e19ad43d49ae31205ae8b21f727d117"
+        ]
+      },
+      {
+        "layer": 8,
+        "model_root": [
+          "3c2a2770d1b0f4080c399805a29e396f341e852726d1475cf2e9ca38cf77431f"
+        ]
+      },
+      {
+        "layer": 9,
+        "model_root": [
+          "e6b8fe55ec7bc6641b5fe375150475117e8acd185bb07970e434a41f0daa751d"
+        ]
+      },
+      {
+        "layer": 10,
+        "model_root": [
+          "37df31542955000db82a0e1bf037466c2284292d199f882f6fe29e68281ca61d"
+        ]
+      },
+      {
+        "layer": 11,
+        "model_root": [
+          "611984797c05e008712ed6083a5c9e5a83ec9950893a5b6effda671b05dab355"
+        ]
+      },
+      {
+        "layer": 12,
+        "model_root": [
+          "72a5b9332dffff5a487a8f421ddff73e1ae7d84244dc7769747a9b12167ef261"
+        ]
+      },
+      {
+        "layer": 13,
+        "model_root": [
+          "de6dc3587d62df143cf1322fbbdb744753e04d035dcbdd7d33df524733754665"
+        ]
+      },
+      {
+        "layer": 14,
+        "model_root": [
+          "d8e7642d0f69b31351cc041acf06526433b379350bd67b746f53c464fba3ec3c"
+        ]
+      },
+      {
+        "layer": 15,
+        "model_root": [
+          "f605541e5204c568bec5d8200f97412cc97b9936e92bca477f88d748ed379c2d"
+        ]
+      },
+      {
+        "layer": 16,
+        "model_root": [
+          "6691bf29361d517146e16c2b7e8286627b30a37a87190863ccdc963598f8d25a"
+        ]
+      },
+      {
+        "layer": 17,
+        "model_root": [
+          "099e1b046b88962dc0930970cc4a611296983742238a155a4e23154401eee32d"
+        ]
+      },
+      {
+        "layer": 18,
+        "model_root": [
+          "232f3b4777e6c025617ea7362b721f53c8fba653d63c6a55cc776e16de834f6a"
+        ]
+      },
+      {
+        "layer": 19,
+        "model_root": [
+          "141d3e7c8a6442143b9f17676b56466a7e547f2afc85497d0c6e2d7a8d536246"
+        ]
+      },
+      {
+        "layer": 20,
+        "model_root": [
+          "d2d1f07e0621da2556cc40306e39bc4c95716a6fd945a9791b3e7c247e7f6e5d"
+        ]
+      },
+      {
+        "layer": 21,
+        "model_root": [
+          "626d7d55e1aeba7401e3730db53c830518044d0b38d1aa5fc7dbfe31745a4d2c"
+        ]
+      },
+      {
+        "layer": 22,
+        "model_root": [
+          "51a22854f2f36e0ec27b0c2535f162617424f664578260289fe5a91fd5f0f354"
+        ]
+      },
+      {
+        "layer": 23,
+        "model_root": [
+          "ec75790a50b0517faabfd12a2f9a1c6fa3939a49cdd93d672d1546394fde892f"
+        ]
+      },
+      {
+        "layer": 24,
+        "model_root": [
+          "04695333b2ac492c28699c0392707e6c3d4b6b6ee38f054fcd713e1f9a10a931"
+        ]
+      },
+      {
+        "layer": 25,
+        "model_root": [
+          "c794646db31035687fd8d874dd8ba83fd72b910b7f21c83ee2e6485577137b4e"
+        ]
+      },
+      {
+        "layer": 26,
+        "model_root": [
+          "4caa5e20f477c02e058e3f5b166f0726a7e87e3731c0375b900de451aae9c93c"
+        ]
+      },
+      {
+        "layer": 27,
+        "model_root": [
+          "2425bd686378fb5bb3a3ea541f8c705a515c712faeb4f8675db0634277471300"
+        ]
+      },
+      {
+        "layer": 28,
+        "model_root": [
+          "0cf318376a37c446a390d30efda0f13229d6c16b20d2ae4282b0e00a7d4ed407"
+        ]
+      },
+      {
+        "layer": 29,
+        "model_root": [
+          "d8720a73eb10454b1142067006fa837bb545970a05e79e65de3a443235dc9360"
+        ]
+      },
+      {
+        "layer": 30,
+        "model_root": [
+          "02c03b5c73af2b06e1aa7c46485e4a6b05d5b52104158c427b488e7c8e6f611e"
+        ]
+      },
+      {
+        "layer": 31,
+        "model_root": [
+          "79b7c447925ebe2b2764834ecdaada5b80a1b1414343ba087846450263f70c17"
+        ]
+      }
+    ],
+    "models": 32,
+    "no_statement": [],
+    "plan": "/root/runs/headline-c4096/out/plan.txt",
+    "rejections": [],
+    "repeat_cells": 0,
+    "rows": [
+      {
+        "block": 0,
+        "c": 0,
+        "frac_per_head": [
+          17.0,
+          17.0,
+          16.0,
+          17.0,
+          19.0,
+          19.0,
+          18.0,
+          19.0,
+          18.0,
+          17.0,
+          17.0,
+          17.0,
+          18.0,
+          19.0,
+          18.0,
+          18.0,
+          18.0,
+          18.0,
+          18.0,
+          18.0,
+          18.0,
+          19.0,
+          19.0,
+          18.0,
+          17.0,
+          17.0,
+          18.0,
+          18.0,
+          18.0,
+          18.0,
+          19.0,
+          18.0
+        ],
+        "frac_shared_per_head": true,
+        "layer": 0,
+        "log_table": 25,
+        "master_table_bits": 27,
+        "model": "729106231f32c111881c4c0279b8de79e7cf6a81cfb6b2fab46fcf3396badebe",
+        "model_root": "5dfc380bbfa96679eb3a5905ea04fe367a620b7b537c9d7bee3e21562ed5d935",
+        "pre_root": "182b6847fa352d2cd656fc1807e72e366e700c647f631e54b4d0170f3cef4d26",
+        "shape_key": "b44465496c421b1f3d65a7b03fb2cf0c1af07b5342944e2cab91a8d86edd30a9",
+        "source": "B6.5 model-only witness [/root/witness/a603db1ddf1e/y-delay-vw12-c4096/witness_B0_L0]",
+        "tag": "B0L0",
+        "weights_only": true
+      },
+      {
+        "block": 0,
+        "c": 0,
+        "frac_per_head": [
+          18.0,
+          18.0,
+          17.0,
+          18.0,
+          17.0,
+          17.0,
+          17.0,
+          16.0,
+          18.0,
+          18.0,
+          17.0,
+          18.0,
+          16.0,
+          18.0,
+          17.0,
+          18.0,
+          18.0,
+          17.0,
+          17.0,
+          17.0,
+          18.0,
+          19.0,
+          19.0,
+          18.0,
+          18.0,
+          18.0,
+          18.0,
+          18.0,
+          17.0,
+          17.0,
+          18.0,
+          18.0
+        ],
+        "frac_shared_per_head": true,
+        "layer": 1,
+        "log_table": 24,
+        "master_table_bits": 27,
+        "model": "ebbf210cf78264b089249e8b5a8a8bdf3b09864d7ad9ab72e34ce766001374bd",
+        "model_root": "7900f33a24e9aa265d90a00aa6f3350abb4e463ce507724c84ef3a5db8951e2e",
+        "pre_root": "93f12a53b4bd451df7b5d53b7da04f7a9d232419228f923a9924ee76d1f18b3d",
+        "shape_key": "b17ee56443102aefd1ea13d6bf0483a2555aca6855dc18d191dae12d126ef2e7",
+        "source": "B6.5 model-only witness [/root/witness/a603db1ddf1e/y-delay-vw12-c4096/witness_B0_L1]",
+        "tag": "B0L1",
+        "weights_only": true
+      },
+      {
+        "block": 0,
+        "c": 0,
+        "frac_per_head": [
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          18.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          16.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0
+        ],
+        "frac_shared_per_head": true,
+        "layer": 2,
+        "log_table": 23,
+        "master_table_bits": 24,
+        "model": "661ef2bcf7a3db504038cc67b5d2424c82a1bfc8057514dd8b34f5766ad4d15b",
+        "model_root": "e9536625d1ffe01fe80337425adced3757628c479a2f127c3d6dcc5930627d54",
+        "pre_root": "36805c229a40ad0d9561074b679f3d41c1b616239e24335dd45fb566d13f5411",
+        "shape_key": "ed427308e53991b4103c9429d2f53a289513e74a546759dce697344bf753a74b",
+        "source": "B6.5 model-only witness [/root/witness/a603db1ddf1e/y-delay-vw12-c4096/witness_B0_L2]",
+        "tag": "B0L2",
+        "weights_only": true
+      },
+      {
+        "block": 0,
+        "c": 0,
+        "frac_per_head": [
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          16.0,
+          16.0,
+          16.0,
+          16.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          16.0,
+          16.0,
+          16.0,
+          16.0
+        ],
+        "frac_shared_per_head": true,
+        "layer": 3,
+        "log_table": 22,
+        "master_table_bits": 23,
+        "model": "070e29be9bfc14b4ba122d8c5e86eaa74bb035f9ba5619fa65fce13aa4da1a97",
+        "model_root": "9f1f8e5e9c911821adc05479406cd43183e1d272e28d0f098e458440de3ad515",
+        "pre_root": "b1465a3dee1f1e5b276e8d4ae9a3fb11a3e41d3860631670b51f9169774a5946",
+        "shape_key": "e94ee7ff10b35cfc30848ebb9cc637ac37d71c627bb3e17c0d8aecc62d490abc",
+        "source": "B6.5 model-only witness [/root/witness/a603db1ddf1e/y-delay-vw12-c4096/witness_B0_L3]",
+        "tag": "B0L3",
+        "weights_only": true
+      },
+      {
+        "block": 0,
+        "c": 0,
+        "frac_per_head": [
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          16.0,
+          16.0,
+          16.0,
+          16.0,
+          17.0,
+          17.0,
+          17.0,
+          18.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0
+        ],
+        "frac_shared_per_head": true,
+        "layer": 4,
+        "log_table": 23,
+        "master_table_bits": 24,
+        "model": "25c56d7d5ded933d98863baf97eb67cb6da7125bcfa9ba26e34c69af3f5e5af2",
+        "model_root": "ec7c5174376b6e314f49a73292dca677b15cc231e8af6917d6b43f34306ff030",
+        "pre_root": "cff3b9021322ed2a2937b552f665033dd5ad231de8f895108483323c996bbc10",
+        "shape_key": "f254860fa5392ec2736813f002fed46a01414a59835d07398b5cf486e7cd77aa",
+        "source": "B6.5 model-only witness [/root/witness/a603db1ddf1e/y-delay-vw12-c4096/witness_B0_L4]",
+        "tag": "B0L4",
+        "weights_only": true
+      },
+      {
+        "block": 0,
+        "c": 0,
+        "frac_per_head": [
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          16.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          16.0,
+          16.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          16.0,
+          16.0,
+          16.0,
+          16.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0
+        ],
+        "frac_shared_per_head": true,
+        "layer": 5,
+        "log_table": 22,
+        "master_table_bits": 23,
+        "model": "d9960552d39b27a80bb4dc02d24093edb2ed7f305b06a6844fcb32943bc2ea2f",
+        "model_root": "f6719a443c7b910305849152a024491850ad756edc32996a95f9ec4f97455f22",
+        "pre_root": "0bbc9d5f786fe06de5fcdb742ae6680d31de6d0cd67ec86220902c706eeaa32f",
+        "shape_key": "de0f9eb4583571c995cd7e210effc3cbd150416d5f96c7f5f992ce5cafa11c45",
+        "source": "B6.5 model-only witness [/root/witness/a603db1ddf1e/y-delay-vw12-c4096/witness_B0_L5]",
+        "tag": "B0L5",
+        "weights_only": true
+      },
+      {
+        "block": 0,
+        "c": 0,
+        "frac_per_head": [
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          16.0,
+          16.0,
+          15.0,
+          16.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          16.0,
+          17.0,
+          16.0,
+          16.0,
+          16.0,
+          16.0,
+          16.0,
+          16.0,
+          17.0,
+          18.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          18.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0
+        ],
+        "frac_shared_per_head": true,
+        "layer": 6,
+        "log_table": 23,
+        "master_table_bits": 25,
+        "model": "757947bae13401c4cee1827b83cb7388fd558c61df200c241046a256d9042bef",
+        "model_root": "8ad2691d4928694652a3c65913e75c35c3996d0cc957aa30c16ec54f4ff62863",
+        "pre_root": "aaddb152446bd53066e4d468c248676a93f3fc6570d9aa5895ed6c070214f716",
+        "shape_key": "fad7bb913223322bff789f26e6f8aa6ece06efbd76ffbcb99a91694692648146",
+        "source": "B6.5 model-only witness [/root/witness/a603db1ddf1e/y-delay-vw12-c4096/witness_B0_L6]",
+        "tag": "B0L6",
+        "weights_only": true
+      },
+      {
+        "block": 0,
+        "c": 0,
+        "frac_per_head": [
+          16.0,
+          16.0,
+          17.0,
+          17.0,
+          16.0,
+          16.0,
+          16.0,
+          16.0,
+          16.0,
+          16.0,
+          16.0,
+          16.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          16.0,
+          16.0,
+          16.0,
+          16.0,
+          17.0,
+          18.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          16.0,
+          16.0,
+          16.0,
+          16.0
+        ],
+        "frac_shared_per_head": true,
+        "layer": 7,
+        "log_table": 23,
+        "master_table_bits": 24,
+        "model": "f668a4e0632c92464c83b9ed4094ec9f3f808edf9a3e4ff27ab7e8c2110825f9",
+        "model_root": "92878570a2433343d333e3113ac69a462e19ad43d49ae31205ae8b21f727d117",
+        "pre_root": "14e73c6655e7e95df8c0810107a0520946208d5c8e15093530d25021552eb543",
+        "shape_key": "3fdd12addadcb6c1081047dfea132cbd17fe0960dfb95865f50d4bed293bc653",
+        "source": "B6.5 model-only witness [/root/witness/a603db1ddf1e/y-delay-vw12-c4096/witness_B0_L7]",
+        "tag": "B0L7",
+        "weights_only": true
+      },
+      {
+        "block": 0,
+        "c": 0,
+        "frac_per_head": [
+          17.0,
+          16.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          18.0,
+          18.0,
+          17.0,
+          17.0,
+          16.0,
+          16.0,
+          16.0,
+          16.0,
+          16.0,
+          16.0,
+          16.0,
+          16.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0
+        ],
+        "frac_shared_per_head": true,
+        "layer": 8,
+        "log_table": 23,
+        "master_table_bits": 25,
+        "model": "16adcf5671955835b2066c9dca6b5005dc3a4d7d33ab5d24040c03317ea56cd2",
+        "model_root": "3c2a2770d1b0f4080c399805a29e396f341e852726d1475cf2e9ca38cf77431f",
+        "pre_root": "c5992f507c7161040712fe1529132e2e88fbb30a8f5d9966fc286d5580cff136",
+        "shape_key": "c52fc76afe33559818f51adea791bbd165095dbd296a9691844df1ddc2c59bb6",
+        "source": "B6.5 model-only witness [/root/witness/a603db1ddf1e/y-delay-vw12-c4096/witness_B0_L8]",
+        "tag": "B0L8",
+        "weights_only": true
+      },
+      {
+        "block": 0,
+        "c": 0,
+        "frac_per_head": [
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          16.0,
+          16.0,
+          16.0,
+          16.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          16.0,
+          16.0,
+          16.0,
+          16.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0
+        ],
+        "frac_shared_per_head": true,
+        "layer": 9,
+        "log_table": 22,
+        "master_table_bits": 23,
+        "model": "ecbb06a39d1700954e7b5ab2860dd4121af7da97b2d32156f63e861ee73b6f1d",
+        "model_root": "e6b8fe55ec7bc6641b5fe375150475117e8acd185bb07970e434a41f0daa751d",
+        "pre_root": "a84e5b3c20248b6db3c31a295b3cc074d81b7265513c886f007bfc73a37df364",
+        "shape_key": "71b143256cb40c99b7fae2acf0c10160ce831300dbdeedd69eafdbb0f8c29c98",
+        "source": "B6.5 model-only witness [/root/witness/a603db1ddf1e/y-delay-vw12-c4096/witness_B0_L9]",
+        "tag": "B0L9",
+        "weights_only": true
+      },
+      {
+        "block": 0,
+        "c": 0,
+        "frac_per_head": [
+          16.0,
+          16.0,
+          16.0,
+          16.0,
+          17.0,
+          17.0,
+          18.0,
+          17.0,
+          17.0,
+          16.0,
+          17.0,
+          16.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          16.0,
+          16.0,
+          16.0,
+          16.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0
+        ],
+        "frac_shared_per_head": true,
+        "layer": 10,
+        "log_table": 23,
+        "master_table_bits": 24,
+        "model": "5fea956f56f620c3c17424a2913e336cf955c394c1c74c43ab9478cba634a3e3",
+        "model_root": "37df31542955000db82a0e1bf037466c2284292d199f882f6fe29e68281ca61d",
+        "pre_root": "7e12101593ef586ab903b26ab608b636e2362038d94ade3e04ef0661b99c7712",
+        "shape_key": "dd9266931fe553e2579051e910ee1473980817cecca297364fb2a11d659941ed",
+        "source": "B6.5 model-only witness [/root/witness/a603db1ddf1e/y-delay-vw12-c4096/witness_B0_L10]",
+        "tag": "B0L10",
+        "weights_only": true
+      },
+      {
+        "block": 0,
+        "c": 0,
+        "frac_per_head": [
+          16.0,
+          16.0,
+          16.0,
+          16.0,
+          17.0,
+          17.0,
+          17.0,
+          18.0,
+          15.0,
+          15.0,
+          15.0,
+          15.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0
+        ],
+        "frac_shared_per_head": true,
+        "layer": 11,
+        "log_table": 23,
+        "master_table_bits": 26,
+        "model": "6750f2f652606c04f15f9bdc6f3aec20292ef0c080700860aebf070ce8e9ed94",
+        "model_root": "611984797c05e008712ed6083a5c9e5a83ec9950893a5b6effda671b05dab355",
+        "pre_root": "a6db4f46b105245c3c6d394fc88529482a764f6e38163f43f29e8d46caabda7f",
+        "shape_key": "238615ea298c6fda401f10d0afd4ad3da73ce49eb1c6098c75db9b68d04436e0",
+        "source": "B6.5 model-only witness [/root/witness/a603db1ddf1e/y-delay-vw12-c4096/witness_B0_L11]",
+        "tag": "B0L11",
+        "weights_only": true
+      },
+      {
+        "block": 0,
+        "c": 0,
+        "frac_per_head": [
+          16.0,
+          17.0,
+          17.0,
+          17.0,
+          16.0,
+          16.0,
+          16.0,
+          16.0,
+          16.0,
+          16.0,
+          16.0,
+          16.0,
+          16.0,
+          16.0,
+          17.0,
+          16.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          16.0,
+          16.0,
+          16.0,
+          16.0,
+          16.0,
+          16.0,
+          16.0,
+          16.0,
+          16.0,
+          16.0,
+          16.0,
+          16.0
+        ],
+        "frac_shared_per_head": true,
+        "layer": 12,
+        "log_table": 22,
+        "master_table_bits": 23,
+        "model": "9c13eb3debebdf56eed6037457444fda77db93fe5edb68bec52a735d4ad3baf1",
+        "model_root": "72a5b9332dffff5a487a8f421ddff73e1ae7d84244dc7769747a9b12167ef261",
+        "pre_root": "a56eaf425f909d22488ceb4d98ea6e62e672521a971ee340dc7b5e4d835e0439",
+        "shape_key": "0196d147324df9f0b08b575be7b1b11ff3628395fe008af894db865deca8887c",
+        "source": "B6.5 model-only witness [/root/witness/a603db1ddf1e/y-delay-vw12-c4096/witness_B0_L12]",
+        "tag": "B0L12",
+        "weights_only": true
+      },
+      {
+        "block": 0,
+        "c": 0,
+        "frac_per_head": [
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          16.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          16.0,
+          16.0
+        ],
+        "frac_shared_per_head": true,
+        "layer": 13,
+        "log_table": 22,
+        "master_table_bits": 23,
+        "model": "444ccdc8c777d70edddf8a196054e6a613886a997ce998000ad939619226eae7",
+        "model_root": "de6dc3587d62df143cf1322fbbdb744753e04d035dcbdd7d33df524733754665",
+        "pre_root": "63a38259b08fdb019eaec03fb52e0a522978ba5b7ade044f6b5ae922c881c422",
+        "shape_key": "e0b20eb05e40f8c2487417bce211732e50ac45b2b874f7e8b64b92370b9109cd",
+        "source": "B6.5 model-only witness [/root/witness/a603db1ddf1e/y-delay-vw12-c4096/witness_B0_L13]",
+        "tag": "B0L13",
+        "weights_only": true
+      },
+      {
+        "block": 0,
+        "c": 0,
+        "frac_per_head": [
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          16.0,
+          16.0,
+          16.0,
+          16.0,
+          16.0,
+          16.0,
+          16.0,
+          16.0,
+          16.0,
+          16.0,
+          16.0,
+          16.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0
+        ],
+        "frac_shared_per_head": true,
+        "layer": 14,
+        "log_table": 23,
+        "master_table_bits": 24,
+        "model": "1d02684318cb4ce7243b96ac4952299da7747aaeb5533c890fe60a0b7ccd5d04",
+        "model_root": "d8e7642d0f69b31351cc041acf06526433b379350bd67b746f53c464fba3ec3c",
+        "pre_root": "5704d673d536333a91952b77cccf3a463f137108cb4c56596fd53751e9c92655",
+        "shape_key": "c3d55e2bdac5c11708d3b06cfd4070a24be480b285cb14162e2d0c543bf9dc7b",
+        "source": "B6.5 model-only witness [/root/witness/a603db1ddf1e/y-delay-vw12-c4096/witness_B0_L14]",
+        "tag": "B0L14",
+        "weights_only": true
+      },
+      {
+        "block": 0,
+        "c": 0,
+        "frac_per_head": [
+          17.0,
+          16.0,
+          17.0,
+          17.0,
+          16.0,
+          17.0,
+          17.0,
+          16.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          16.0,
+          16.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0
+        ],
+        "frac_shared_per_head": true,
+        "layer": 15,
+        "log_table": 22,
+        "master_table_bits": 23,
+        "model": "a1347d7c1b5c94ab4aad71304a0d5502101dcc758c8c10fae4a54eaa31e61ac2",
+        "model_root": "f605541e5204c568bec5d8200f97412cc97b9936e92bca477f88d748ed379c2d",
+        "pre_root": "d7b2a25ccc36d57ab4f8ac75c7a6c12989107b54e48a230a206463300e856344",
+        "shape_key": "c1973e355e44f0728395fcb67a3d69270cb20b3262ae9b21a51530938717869d",
+        "source": "B6.5 model-only witness [/root/witness/a603db1ddf1e/y-delay-vw12-c4096/witness_B0_L15]",
+        "tag": "B0L15",
+        "weights_only": true
+      },
+      {
+        "block": 0,
+        "c": 0,
+        "frac_per_head": [
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          16.0,
+          16.0,
+          16.0,
+          16.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          16.0,
+          16.0,
+          16.0,
+          16.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          16.0,
+          16.0,
+          16.0,
+          15.0
+        ],
+        "frac_shared_per_head": true,
+        "layer": 16,
+        "log_table": 22,
+        "master_table_bits": 24,
+        "model": "cc1bade95d6138a9e5a3ba8d7e988c20d687f1e4e65a7949aaa1eb8f600f2907",
+        "model_root": "6691bf29361d517146e16c2b7e8286627b30a37a87190863ccdc963598f8d25a",
+        "pre_root": "80b3b26c0179526baa3fcd358501f42e1abb3e67ebc3674bbb175e5e6764a65d",
+        "shape_key": "ab7096e0b6d7d87b0cd75a9dd2fe38a89d87ff6bac2af84a083b27de05406a69",
+        "source": "B6.5 model-only witness [/root/witness/a603db1ddf1e/y-delay-vw12-c4096/witness_B0_L16]",
+        "tag": "B0L16",
+        "weights_only": true
+      },
+      {
+        "block": 0,
+        "c": 0,
+        "frac_per_head": [
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          15.0,
+          15.0,
+          16.0,
+          15.0,
+          17.0,
+          17.0,
+          17.0,
+          16.0,
+          17.0,
+          16.0,
+          17.0,
+          16.0,
+          17.0,
+          16.0,
+          16.0,
+          17.0,
+          16.0,
+          16.0,
+          16.0,
+          16.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0
+        ],
+        "frac_shared_per_head": true,
+        "layer": 17,
+        "log_table": 22,
+        "master_table_bits": 24,
+        "model": "ce94fa92ef4d1cf930e12013c3d0738e9cf373a7ddf3b91d0128facc70ab81e1",
+        "model_root": "099e1b046b88962dc0930970cc4a611296983742238a155a4e23154401eee32d",
+        "pre_root": "6f70582fea90b35b0f792956705b3e43af64b65a674b2005c5470753c78b961d",
+        "shape_key": "0b0666615166f79882de8204462cc3759405814af39aed4a2da7cd7422de9d52",
+        "source": "B6.5 model-only witness [/root/witness/a603db1ddf1e/y-delay-vw12-c4096/witness_B0_L17]",
+        "tag": "B0L17",
+        "weights_only": true
+      },
+      {
+        "block": 0,
+        "c": 0,
+        "frac_per_head": [
+          16.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          16.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0
+        ],
+        "frac_shared_per_head": true,
+        "layer": 18,
+        "log_table": 22,
+        "master_table_bits": 23,
+        "model": "85229597d7eaf8a281ef56bd17fa7bc597c528d35a863d1fb6b416b905581b21",
+        "model_root": "232f3b4777e6c025617ea7362b721f53c8fba653d63c6a55cc776e16de834f6a",
+        "pre_root": "3c98fe7cfd0f8b0e5f8fd3340fa0767ddcd0e07fdbb428774ea4c6195e15e033",
+        "shape_key": "baa0b01ffd067e2f6d619c67058fde5494b5e903a60fafc92f7703802fb3354b",
+        "source": "B6.5 model-only witness [/root/witness/a603db1ddf1e/y-delay-vw12-c4096/witness_B0_L18]",
+        "tag": "B0L18",
+        "weights_only": true
+      },
+      {
+        "block": 0,
+        "c": 0,
+        "frac_per_head": [
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          16.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          16.0,
+          16.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          16.0,
+          16.0,
+          15.0,
+          16.0
+        ],
+        "frac_shared_per_head": true,
+        "layer": 19,
+        "log_table": 22,
+        "master_table_bits": 24,
+        "model": "398dc4161e175b07c6f420452f42f255d5b171363b719e3095bcf066adff9c64",
+        "model_root": "141d3e7c8a6442143b9f17676b56466a7e547f2afc85497d0c6e2d7a8d536246",
+        "pre_root": "f943614ebf49ed681531bb6a5f5deb68f5852b0a00101841ef0a5d46f228b50e",
+        "shape_key": "8c41fc7a32e63b44caa72de2f61f5503cc86beba4f270186ae1d742bb11e613c",
+        "source": "B6.5 model-only witness [/root/witness/a603db1ddf1e/y-delay-vw12-c4096/witness_B0_L19]",
+        "tag": "B0L19",
+        "weights_only": true
+      },
+      {
+        "block": 0,
+        "c": 0,
+        "frac_per_head": [
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          16.0,
+          16.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          16.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0
+        ],
+        "frac_shared_per_head": true,
+        "layer": 20,
+        "log_table": 22,
+        "master_table_bits": 23,
+        "model": "471777dfe3117e1e300461711c9640e05e486232507a7e98828ecde09fe7aaef",
+        "model_root": "d2d1f07e0621da2556cc40306e39bc4c95716a6fd945a9791b3e7c247e7f6e5d",
+        "pre_root": "c0d4173362c9197ca4ec2e75fb8404666856f26b02574248ecc6ee79ffaf9c3a",
+        "shape_key": "49dce5cf145a1339778d405c126dc41f398c830283229b1e7d9fe55a67eb5da8",
+        "source": "B6.5 model-only witness [/root/witness/a603db1ddf1e/y-delay-vw12-c4096/witness_B0_L20]",
+        "tag": "B0L20",
+        "weights_only": true
+      },
+      {
+        "block": 0,
+        "c": 0,
+        "frac_per_head": [
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          16.0,
+          16.0,
+          16.0,
+          16.0,
+          16.0,
+          16.0,
+          16.0,
+          16.0,
+          17.0,
+          17.0,
+          17.0,
+          16.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          16.0,
+          17.0,
+          17.0,
+          16.0,
+          16.0,
+          16.0,
+          16.0,
+          16.0,
+          16.0,
+          16.0,
+          16.0
+        ],
+        "frac_shared_per_head": true,
+        "layer": 21,
+        "log_table": 22,
+        "master_table_bits": 23,
+        "model": "a09a729757392cec4a2bc60cff683cf5d79aba7479fe4b0e41d108550c2388da",
+        "model_root": "626d7d55e1aeba7401e3730db53c830518044d0b38d1aa5fc7dbfe31745a4d2c",
+        "pre_root": "322c8e51ffb4e8786918484a3648c663cfa858495bfefa20b644c13dd1ea4405",
+        "shape_key": "da356e5b189f96562caa03e604cde98e8f56a6d8caece3b539a8e9cc23b47a08",
+        "source": "B6.5 model-only witness [/root/witness/a603db1ddf1e/y-delay-vw12-c4096/witness_B0_L21]",
+        "tag": "B0L21",
+        "weights_only": true
+      },
+      {
+        "block": 0,
+        "c": 0,
+        "frac_per_head": [
+          16.0,
+          16.0,
+          16.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          16.0,
+          17.0,
+          17.0,
+          15.0,
+          15.0,
+          16.0,
+          15.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          16.0
+        ],
+        "frac_shared_per_head": true,
+        "layer": 22,
+        "log_table": 22,
+        "master_table_bits": 24,
+        "model": "fab370dadea3261d698ef34cd62ab8eda36768769d0b91a7b6c28b06350291f0",
+        "model_root": "51a22854f2f36e0ec27b0c2535f162617424f664578260289fe5a91fd5f0f354",
+        "pre_root": "275cd84d63e63c4b3fabe620edc3d12062139d6bc8ceb420d2abc74e98ff2726",
+        "shape_key": "1ddc9c4f355aa9809c0f0a40cea2f187430906667cec37272ea8a6bcf43e801c",
+        "source": "B6.5 model-only witness [/root/witness/a603db1ddf1e/y-delay-vw12-c4096/witness_B0_L22]",
+        "tag": "B0L22",
+        "weights_only": true
+      },
+      {
+        "block": 0,
+        "c": 0,
+        "frac_per_head": [
+          16.0,
+          16.0,
+          16.0,
+          16.0,
+          17.0,
+          16.0,
+          16.0,
+          17.0,
+          16.0,
+          16.0,
+          16.0,
+          16.0,
+          16.0,
+          16.0,
+          17.0,
+          17.0,
+          16.0,
+          16.0,
+          16.0,
+          16.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0
+        ],
+        "frac_shared_per_head": true,
+        "layer": 23,
+        "log_table": 22,
+        "master_table_bits": 23,
+        "model": "9929466df051f5c70042d3f209195557e669254dde9363b14ec48346f761d4f9",
+        "model_root": "ec75790a50b0517faabfd12a2f9a1c6fa3939a49cdd93d672d1546394fde892f",
+        "pre_root": "a6d21225b5bf0e471054ec04e66c161626aa47230425a53b82a3f271d456c34d",
+        "shape_key": "376b762d49d0bf8244c4af656dcad7ff6746dad73b46560873c1dd720fb797cb",
+        "source": "B6.5 model-only witness [/root/witness/a603db1ddf1e/y-delay-vw12-c4096/witness_B0_L23]",
+        "tag": "B0L23",
+        "weights_only": true
+      },
+      {
+        "block": 0,
+        "c": 0,
+        "frac_per_head": [
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          16.0,
+          16.0,
+          16.0,
+          16.0,
+          16.0,
+          16.0,
+          16.0,
+          16.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          16.0,
+          16.0,
+          16.0,
+          17.0,
+          16.0,
+          17.0,
+          16.0,
+          17.0,
+          17.0,
+          16.0,
+          17.0,
+          17.0,
+          16.0,
+          16.0,
+          17.0,
+          16.0
+        ],
+        "frac_shared_per_head": true,
+        "layer": 24,
+        "log_table": 22,
+        "master_table_bits": 23,
+        "model": "63b862a5713e59030bab3980e25b1871c5e2b83add3d04be7764eeb5de49f970",
+        "model_root": "04695333b2ac492c28699c0392707e6c3d4b6b6ee38f054fcd713e1f9a10a931",
+        "pre_root": "166c77511084d66c9fd8f00b37048f4061195c28f6d8d6627ebb4e15cc0aef46",
+        "shape_key": "f8a1ddd7c73795eda862264878cae83b900f094b3f428523c2eec083b37d0618",
+        "source": "B6.5 model-only witness [/root/witness/a603db1ddf1e/y-delay-vw12-c4096/witness_B0_L24]",
+        "tag": "B0L24",
+        "weights_only": true
+      },
+      {
+        "block": 0,
+        "c": 0,
+        "frac_per_head": [
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          16.0,
+          16.0,
+          16.0,
+          16.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          16.0,
+          16.0,
+          16.0,
+          16.0,
+          16.0,
+          16.0,
+          16.0,
+          16.0,
+          16.0,
+          16.0,
+          16.0,
+          16.0,
+          16.0,
+          16.0,
+          16.0,
+          16.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0
+        ],
+        "frac_shared_per_head": true,
+        "layer": 25,
+        "log_table": 22,
+        "master_table_bits": 23,
+        "model": "5a47841d0af1ba52de9c05b988c4243706b8a4e5261c476980d6342d8518f527",
+        "model_root": "c794646db31035687fd8d874dd8ba83fd72b910b7f21c83ee2e6485577137b4e",
+        "pre_root": "984bcc18e625ac29b5dbbe7ce34c222afd0aa87f9e13213b8bc8232dd4fafa4d",
+        "shape_key": "49a9d44290e725279026d659d2c3f690deca7efbe5c5f198fc500b7e80e0a15e",
+        "source": "B6.5 model-only witness [/root/witness/a603db1ddf1e/y-delay-vw12-c4096/witness_B0_L25]",
+        "tag": "B0L25",
+        "weights_only": true
+      },
+      {
+        "block": 0,
+        "c": 0,
+        "frac_per_head": [
+          16.0,
+          16.0,
+          16.0,
+          16.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          16.0,
+          16.0,
+          16.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          16.0,
+          15.0,
+          16.0,
+          15.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          16.0,
+          17.0,
+          16.0
+        ],
+        "frac_shared_per_head": true,
+        "layer": 26,
+        "log_table": 22,
+        "master_table_bits": 24,
+        "model": "6fafb1a9fba26e46746524f919eaa393dc5fc8f4e544beba1d64b7db8179815e",
+        "model_root": "4caa5e20f477c02e058e3f5b166f0726a7e87e3731c0375b900de451aae9c93c",
+        "pre_root": "6b577473d46bfa594483ef7cba5560137c8bcd6e60eb861788494128d115867e",
+        "shape_key": "f5e13eca62fe53d504f52a28dd737bb0861b71b4d40069090f68a4db0193c4e8",
+        "source": "B6.5 model-only witness [/root/witness/a603db1ddf1e/y-delay-vw12-c4096/witness_B0_L26]",
+        "tag": "B0L26",
+        "weights_only": true
+      },
+      {
+        "block": 0,
+        "c": 0,
+        "frac_per_head": [
+          16.0,
+          16.0,
+          16.0,
+          16.0,
+          16.0,
+          16.0,
+          16.0,
+          16.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          16.0,
+          17.0,
+          16.0,
+          16.0,
+          16.0,
+          16.0,
+          16.0,
+          16.0,
+          17.0,
+          17.0,
+          17.0,
+          16.0
+        ],
+        "frac_shared_per_head": true,
+        "layer": 27,
+        "log_table": 22,
+        "master_table_bits": 23,
+        "model": "92194894198ea943a7abcabe52fc7ba75994d64b227613c753c2ab66f36af005",
+        "model_root": "2425bd686378fb5bb3a3ea541f8c705a515c712faeb4f8675db0634277471300",
+        "pre_root": "005a0728443b47082f03986156fc6b60515d67041d7f0e57adcc9504f8c16a7b",
+        "shape_key": "d92b7eba4a34e8f9e3c7bdc84d65e4bd3db5476325aa8e66b95d36c1a1800738",
+        "source": "B6.5 model-only witness [/root/witness/a603db1ddf1e/y-delay-vw12-c4096/witness_B0_L27]",
+        "tag": "B0L27",
+        "weights_only": true
+      },
+      {
+        "block": 0,
+        "c": 0,
+        "frac_per_head": [
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          16.0,
+          17.0,
+          16.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          15.0,
+          16.0,
+          16.0,
+          15.0,
+          17.0,
+          17.0,
+          17.0,
+          16.0,
+          16.0,
+          16.0,
+          16.0,
+          16.0
+        ],
+        "frac_shared_per_head": true,
+        "layer": 28,
+        "log_table": 22,
+        "master_table_bits": 24,
+        "model": "63e50322e139a0d02577852a29689d1a63a1aba19c30e429072fb4496e02d3bf",
+        "model_root": "0cf318376a37c446a390d30efda0f13229d6c16b20d2ae4282b0e00a7d4ed407",
+        "pre_root": "89b7f74abba9ca27d8cbda2a8692f26716fcfc1a2b98921b0937965d32413c7b",
+        "shape_key": "b8c6a1148375e486d6de1bfb3869e6e98a57a8934a7c4bef4808f4d8481d9a35",
+        "source": "B6.5 model-only witness [/root/witness/a603db1ddf1e/y-delay-vw12-c4096/witness_B0_L28]",
+        "tag": "B0L28",
+        "weights_only": true
+      },
+      {
+        "block": 0,
+        "c": 0,
+        "frac_per_head": [
+          15.0,
+          16.0,
+          16.0,
+          16.0,
+          16.0,
+          16.0,
+          16.0,
+          16.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          16.0,
+          16.0,
+          16.0,
+          16.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          15.0,
+          16.0,
+          15.0,
+          15.0,
+          16.0,
+          16.0,
+          16.0,
+          16.0
+        ],
+        "frac_shared_per_head": true,
+        "layer": 29,
+        "log_table": 23,
+        "master_table_bits": 24,
+        "model": "1658a14f9742c120f266e8fe64dadd436d11b4ed9c1c66cd8150bb89e9269c7b",
+        "model_root": "d8720a73eb10454b1142067006fa837bb545970a05e79e65de3a443235dc9360",
+        "pre_root": "cefd9005a2c9a65cd5a5dd4b4dff520edd75a30a1119ef4c6e8c731dff553231",
+        "shape_key": "da188015cf61086307b8cdc4fecd31796c91b2ee6d1cb40d5bde80449cbbea62",
+        "source": "B6.5 model-only witness [/root/witness/a603db1ddf1e/y-delay-vw12-c4096/witness_B0_L29]",
+        "tag": "B0L29",
+        "weights_only": true
+      },
+      {
+        "block": 0,
+        "c": 0,
+        "frac_per_head": [
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          16.0,
+          16.0,
+          16.0,
+          16.0,
+          17.0,
+          17.0,
+          17.0,
+          16.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          16.0,
+          17.0,
+          16.0,
+          16.0,
+          16.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          16.0,
+          17.0,
+          17.0
+        ],
+        "frac_shared_per_head": true,
+        "layer": 30,
+        "log_table": 22,
+        "master_table_bits": 23,
+        "model": "3664eb241d626ea5718dc627660e2f0d18b63759000b634312bd1dda729e93dc",
+        "model_root": "02c03b5c73af2b06e1aa7c46485e4a6b05d5b52104158c427b488e7c8e6f611e",
+        "pre_root": "8f6f700e6deb5f0d220a02581135830d06a7587de0073b63f75ac75b76e72f1a",
+        "shape_key": "51868e7755d645c0f90a820dfe79abfb77ec4cf670958248136174e96b6b4c3d",
+        "source": "B6.5 model-only witness [/root/witness/a603db1ddf1e/y-delay-vw12-c4096/witness_B0_L30]",
+        "tag": "B0L30",
+        "weights_only": true
+      },
+      {
+        "block": 0,
+        "c": 0,
+        "frac_per_head": [
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          16.0,
+          16.0,
+          14.0,
+          16.0,
+          16.0,
+          17.0,
+          17.0,
+          16.0,
+          16.0,
+          16.0,
+          16.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          17.0,
+          16.0,
+          16.0
+        ],
+        "frac_shared_per_head": true,
+        "layer": 31,
+        "log_table": 23,
+        "master_table_bits": 25,
+        "model": "07e4df87a7ea5d31fd6cd98e4943cd02c4f4f2f0ae520fe7794d67b5560692b7",
+        "model_root": "79b7c447925ebe2b2764834ecdaada5b80a1b1414343ba087846450263f70c17",
+        "pre_root": "0c014f612f591233e8d2673887f9165d7822bc0440c2e46890abbc47a4c9d14b",
+        "shape_key": "1fa99255dbe990838b35993ad0c5bfb2fb35a1d69abb3f17753f501b28d7750b",
+        "source": "B6.5 model-only witness [/root/witness/a603db1ddf1e/y-delay-vw12-c4096/witness_B0_L31]",
+        "tag": "B0L31",
+        "weights_only": true
+      }
+    ],
+    "secs": 503.213479023,
+    "table_bits_by_layer": [
+      {
+        "layer": 0,
+        "log_table": [
+          25
+        ]
+      },
+      {
+        "layer": 1,
+        "log_table": [
+          24
+        ]
+      },
+      {
+        "layer": 2,
+        "log_table": [
+          23
+        ]
+      },
+      {
+        "layer": 3,
+        "log_table": [
+          22
+        ]
+      },
+      {
+        "layer": 4,
+        "log_table": [
+          23
+        ]
+      },
+      {
+        "layer": 5,
+        "log_table": [
+          22
+        ]
+      },
+      {
+        "layer": 6,
+        "log_table": [
+          23
+        ]
+      },
+      {
+        "layer": 7,
+        "log_table": [
+          23
+        ]
+      },
+      {
+        "layer": 8,
+        "log_table": [
+          23
+        ]
+      },
+      {
+        "layer": 9,
+        "log_table": [
+          22
+        ]
+      },
+      {
+        "layer": 10,
+        "log_table": [
+          23
+        ]
+      },
+      {
+        "layer": 11,
+        "log_table": [
+          23
+        ]
+      },
+      {
+        "layer": 12,
+        "log_table": [
+          22
+        ]
+      },
+      {
+        "layer": 13,
+        "log_table": [
+          22
+        ]
+      },
+      {
+        "layer": 14,
+        "log_table": [
+          23
+        ]
+      },
+      {
+        "layer": 15,
+        "log_table": [
+          22
+        ]
+      },
+      {
+        "layer": 16,
+        "log_table": [
+          22
+        ]
+      },
+      {
+        "layer": 17,
+        "log_table": [
+          22
+        ]
+      },
+      {
+        "layer": 18,
+        "log_table": [
+          22
+        ]
+      },
+      {
+        "layer": 19,
+        "log_table": [
+          22
+        ]
+      },
+      {
+        "layer": 20,
+        "log_table": [
+          22
+        ]
+      },
+      {
+        "layer": 21,
+        "log_table": [
+          22
+        ]
+      },
+      {
+        "layer": 22,
+        "log_table": [
+          22
+        ]
+      },
+      {
+        "layer": 23,
+        "log_table": [
+          22
+        ]
+      },
+      {
+        "layer": 24,
+        "log_table": [
+          22
+        ]
+      },
+      {
+        "layer": 25,
+        "log_table": [
+          22
+        ]
+      },
+      {
+        "layer": 26,
+        "log_table": [
+          22
+        ]
+      },
+      {
+        "layer": 27,
+        "log_table": [
+          22
+        ]
+      },
+      {
+        "layer": 28,
+        "log_table": [
+          22
+        ]
+      },
+      {
+        "layer": 29,
+        "log_table": [
+          23
+        ]
+      },
+      {
+        "layer": 30,
+        "log_table": [
+          22
+        ]
+      },
+      {
+        "layer": 31,
+        "log_table": [
+          23
+        ]
+      }
+    ],
+    "table_bits_vary": [],
+    "weights_only": true
+  },
+  "security": {
+    "blowup_factor": 2,
+    "fold_step": 1,
+    "hash": "Blake2s (Blake2sM31MerkleChannel)",
+    "log_blowup_factor": 1,
+    "log_last_layer_degree_bound": 0,
+    "m3": {
+      "device_merkle_reduce": true,
+      "fri_gather": true,
+      "launch_sync": false,
+      "lde_only": false,
+      "merkle_mode": "1",
+      "prewarm": true,
+      "store_coeffs": true
+    },
+    "n_queries": 100,
+    "pow_bits": 0,
+    "security_bits_conjectured": 100
+  }
+}

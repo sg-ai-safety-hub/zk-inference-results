@@ -1,0 +1,6 @@
+{
+ "model_roots_seconds": 6425,
+ "model_roots_verifier_seconds": 503,
+ "grid_seconds": 171,
+ "note": "wall-clock seconds of the three steps; this run proves nothing, so none of the four proving timing scopes applies to it"
+}
