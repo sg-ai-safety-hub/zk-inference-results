@@ -33,14 +33,34 @@
 # the CUDA backend reached 82.2 GB of the 85.0 GB the driver reports before
 # the quotient stage asked for another 256 MB and the allocation failed
 # (2026-09-08, this driver's first run; zk-prover #29 reports the same shape
-# stopping on a 141 GB card for the launch cap this pull request fixes). Its
-# SIMD digest is recorded here; its CUDA side is not attempted, and the job
-# writes what it did not attempt and why into `out/plain-cuda-refused.json`.
+# stopping on a 141 GB card for the launch cap zk-prover pull request 107
+# fixes).
 #
-# The gate is that each shape proves on both backends to one digest, that the
-# short segment's sampling axis really is wider than 65,535 polynomials, that
-# every proof accepts with every edge bound and no skip in effect, and that no
-# proof took the host route for a lookup.
+# So whether that shape runs on the card is a question about the card, and the
+# job asks the card rather than the driver: it reads the memory the device
+# reports and attempts the shape on a card that reports at least
+# `PLAIN_CUDA_MIN_MIB`, which is half again the 85.0 GB card the shape ran out
+# of memory on. What the shape needs is not known: 82.2 GB is where it had got
+# to when the quotient stage's first allocation was refused, and that stage's
+# own demand was never measured. So the threshold is not a requirement read off
+# a measurement, it is the line this driver draws between a card already shown
+# not to hold the shape and one with half as much again. An 80 GB card is below it,
+# does not attempt the shape, and writes what it did not attempt and why into
+# `out/plain-cuda-refused.json`, which is what this driver's first run did. A
+# card above it emits that shape's kernels too, proves it, and writes the
+# outcome and the memory marks into `out/plain-cuda-attempted.json`.
+#
+# A card that attempts the shape and stops is a result and not a broken run:
+# what a card can hold is what this part measures, so the job records the stop
+# with the marks it reached and the gate reads that record. What the gate does
+# hold to is the proof: a shape that produced one must accept, agree with the
+# reference backend and take no host route.
+#
+# The gate is that each shape proves on both backends to one digest -- for the
+# reference segment without the reductions, on the cards that attempt it --
+# that the short segment's sampling axis really is wider than 65,535
+# polynomials, that every proof accepts with every edge bound and no skip in
+# effect, and that no proof took the host route for a lookup.
 #
 # Whether the reference segment's digest is still the `25741d12f315aae7` that
 # `prover/README.md` records is a result and not a gate: the recorded one was
@@ -93,6 +113,10 @@ FULL_DIGEST=25741d12f315aae7
 # What the short segment is evidence for: an out-of-domain sampling axis wider
 # than the grid dimension a device caps at.
 GRID_CAP=65535
+# The memory a card must report before the job attempts the reference segment
+# without the reductions on it: 120 GiB, half again the 85.0 GB card that shape
+# ran out of memory on. Read from the device, not from the host's name.
+PLAIN_CUDA_MIN_MIB=122880
 EXTRACT_FLAGS="--residual-stream --diagonal-block"
 KERNEL_FAMILIES=zk_chan_eval,zk_key_eval,zk_row_eval,zk_attn_out_eval,zk_dequant_eval,zk_freivalds_eval,zk_exp_table_eval,zk_table_eval,zk_residual_stream_eval,zk_residual_stream_table_eval
 
@@ -125,12 +149,23 @@ cat > \$OUT/config.json <<CFG
  "plain_flags": "$PLAIN", "full_flags": "$FULL",
  "extract_flags": "$EXTRACT_FLAGS", "rayon_threads": $THREADS,
  "recorded_full_digest": "$FULL_DIGEST", "grid_cap": $GRID_CAP,
+ "plain_cuda_min_mib": $PLAIN_CUDA_MIN_MIB,
  "ids": "the evaluation corpus's first tokens, at each segment's own length",
  "note": "the reference segment with the five GKR reductions on both backends, and the short segment without any of them on both backends; no skip flag"}
 CFG
 
 st "gpu: \$(nvidia-smi --query-gpu=name,memory.total,driver_version --format=csv,noheader)"
 st "nvcc: \$(nvcc --version | tail -2 | head -1)"
+
+# whether this card attempts the reference segment without the reductions
+CARD_MIB=\$(nvidia-smi --query-gpu=memory.total --format=csv,noheader,nounits | head -1)
+if [ "\$CARD_MIB" -ge $PLAIN_CUDA_MIN_MIB ]; then
+  PLAIN_CUDA=1
+  st "card memory: \$CARD_MIB MiB of the $PLAIN_CUDA_MIN_MIB this shape needs; the reference segment without the reductions is proved on the card too"
+else
+  PLAIN_CUDA=0
+  st "card memory: \$CARD_MIB MiB of the $PLAIN_CUDA_MIN_MIB this shape needs; the reference segment without the reductions is not attempted on the card"
+fi
 
 # 1. the SIMD backend of the pinned prover commit
 st "build: simd"
@@ -189,8 +224,15 @@ emit() {
 }
 emit full \$WIT $FULL
 emit short \$WIT2 $PLAIN
-python3 \$K/m2b_kernels.py --fork \$SRC/nitroo --gen \$GEN
-python3 \$K/m4b_kernels.py --fork \$SRC/nitroo --gen \$GEN --src \$K
+# without its own kernels this shape would take the host route for every
+# lookup, which the gate refuses; a card that does not prove it emits nothing
+if [ \$PLAIN_CUDA = 1 ]; then emit plain \$WIT $PLAIN; fi
+# the two installers were renamed after this driver's first run; a pinned
+# commit is whichever side of that it is on
+M2B=\$K/install_constraint_kernels.py; [ -f \$M2B ] || M2B=\$K/m2b_kernels.py
+M4B=\$K/install_witness_gen_kernels.py; [ -f \$M4B ] || M4B=\$K/m4b_kernels.py
+python3 \$M2B --fork \$SRC/nitroo --gen \$GEN
+python3 \$M4B --fork \$SRC/nitroo --gen \$GEN --src \$K
 find \$SRC/nitroo/crates/stwo/src/stwo_cuda/cuda \( -name '*.cu' -o -name '*.cuh' \) -exec touch {} +
 cp \$GEN/cudakernels.rs \$GEN/gencudakernels.rs \$SRC/prover/src/
 # an installed tree is no longer the commit that was pushed, and says so
@@ -207,41 +249,95 @@ grep -c 'kernel fallback:' \$R/full-cuda.err > \$OUT/full-cuda.fallbacks || true
 st "prove: cuda, the short segment without them"
 \$CUDA compose $PLAIN --witness \$WIT2/witness > \$OUT/short-cuda.json 2> \$R/short-cuda.err
 grep -c 'kernel fallback:' \$R/short-cuda.err > \$OUT/short-cuda.fallbacks || true
+# The reference segment without the reductions, on a card that reports the
+# memory for it.  A stop here is this part's result: the output is moved aside
+# so a half-written document cannot be read as a proof, and step 7 records what
+# the marks reached.
+PLAIN_CUDA_RC=skipped
+if [ \$PLAIN_CUDA = 1 ]; then
+  st "prove: cuda, the reference segment without them"
+  if \$CUDA compose $PLAIN --witness \$WIT/witness > \$OUT/plain-cuda.json 2> \$R/plain-cuda.err; then
+    PLAIN_CUDA_RC=proved
+    grep -c 'kernel fallback:' \$R/plain-cuda.err > \$OUT/plain-cuda.fallbacks || true
+  else
+    PLAIN_CUDA_RC=stopped
+    mv \$OUT/plain-cuda.json \$R/plain-cuda.partial.json
+  fi
+  st "prove: cuda, the reference segment without them: \$PLAIN_CUDA_RC"
+fi
 
-# 7. what the run did not attempt, and the two numbers that decision rests on:
-#    the shape's own committed cells, from the proof of it made above, and the
-#    memory the card reports.  The same shape's CUDA proof was attempted once,
-#    on 2026-09-08 at this commit, and stopped in the quotient stage with 82.2
-#    of 85.0 GB in use; it is not attempted again.
-python3 - \$OUT "\$(nvidia-smi --query-gpu=memory.total --format=csv,noheader)" <<'PY'
+# 7. the reference segment without the reductions on the card: what the job did
+#    with it and the numbers that decision rests on -- the shape's own committed
+#    cells, from the proof of it made above, and the memory the card reports.
+#    A card below the threshold writes why it did not attempt it; a card above
+#    writes what came of attempting it, with the memory marks the run reached.
+python3 - \$OUT "\$(nvidia-smi --query-gpu=memory.total --format=csv,noheader)" \$PLAIN_CUDA_RC $PLAIN_CUDA_MIN_MIB \$R/plain-cuda.err <<'PY'
 import json, pathlib, sys
-out = pathlib.Path(sys.argv[1])
+out, total, rc, floor, err = pathlib.Path(sys.argv[1]), sys.argv[2], sys.argv[3], int(sys.argv[4]), pathlib.Path(sys.argv[5])
 cells = json.loads((out / "plain-simd.json").read_text())["result"]["point"]["cells"]
 committed = sum(cells[k] for k in ("shape", "model", "base", "interaction"))
-(out / "plain-cuda-refused.json").write_text(json.dumps({
-    "shape": "the reference segment without the five GKR reductions, C = 16,384, S = 512",
+shape = "the reference segment without the five GKR reductions, C = 16,384, S = 512"
+if rc == "skipped":
+    (out / "plain-cuda-refused.json").write_text(json.dumps({
+        "shape": shape,
+        "backend": "cuda",
+        "attempted": False,
+        "committed_cells": committed,
+        "card_memory_total": total,
+        "why": "this shape's CUDA proof was attempted once at this prover commit and "
+               "stopped in the quotient stage for want of card memory, with 82.2 GB of "
+               "the 85.0 GB the driver reports in use at the composition commitment; "
+               "the short segment carries the same evidence at 30 per cent of the "
+               "committed cells and is proved on both backends instead",
+    }, indent=1) + "\n")
+    print(f"plain: {committed:,} committed cells; the CUDA side is not attempted")
+    raise SystemExit
+# the marks the run reached: on a proof they are in the document too, and on a
+# stop they are the only place the memory it got to is written down
+marks = []
+for line in err.read_text(errors="replace").splitlines():
+    if line.startswith("[MEM] "):
+        try:
+            marks.append(json.loads(line[6:]))
+        except ValueError:
+            pass
+peak = max((m.get("driver_used") or 0 for m in marks), default=None)
+rec = {
+    "shape": shape,
     "backend": "cuda",
-    "attempted": False,
+    "attempted": True,
+    "outcome": rc,
     "committed_cells": committed,
-    "card_memory_total": sys.argv[2],
-    "why": "this shape's CUDA proof was attempted once at this prover commit and "
-           "stopped in the quotient stage for want of card memory, with 82.2 GB of "
-           "the 85.0 GB the driver reports in use at the composition commitment; "
-           "the short segment carries the same evidence at 30 per cent of the "
-           "committed cells and is proved on both backends instead",
-}, indent=1) + "\n")
-print(f"plain: {committed:,} committed cells; the CUDA side is not attempted")
+    "card_memory_total": total,
+    "card_memory_floor_mib": floor,
+    "marks": marks,
+    "peak_driver_used": peak,
+    "last_mark": marks[-1]["mark"] if marks else None,
+    "stderr_tail": err.read_text(errors="replace").splitlines()[-12:] if rc == "stopped" else None,
+}
+if rc == "proved":
+    rec["proof_sha256"] = json.loads((out / "plain-cuda.json").read_text())["result"]["point"]["proof_sha256"]
+(out / "plain-cuda-attempted.json").write_text(json.dumps(rec, indent=1) + "\n")
+gb = f"{peak / 1e9:.1f} GB" if peak else "no mark"
+print(f"plain: {committed:,} committed cells; the CUDA side {rc}, peak {gb} "
+      f"over {len(marks)} marks, last mark {rec['last_mark']}")
 PY
 
-# 8. the gate: the short segment's two backends agree and its sampling axis is
-#    wider than the cap, the paper's shape is still the recorded digest on both
-#    backends, no skip is in effect and every edge each shape has is bound
+# 8. the gate: every shape that was proved on both backends agrees on one
+#    digest and the short segment's sampling axis is wider than the cap, no
+#    skip is in effect and every edge each shape has is bound.  Whether the
+#    reference segment without the reductions was proved on the card at all is
+#    the card's answer and is reported, not gated.
 python3 - \$OUT $FULL_DIGEST $GRID_CAP <<'PY'
 import json, pathlib, sys
 out, recorded, cap = pathlib.Path(sys.argv[1]), sys.argv[2], int(sys.argv[3])
 bad = {}
 digest = {}
 names = ["full-simd", "full-cuda", "short-simd", "short-cuda", "plain-simd"]
+# the reference segment without the reductions is proved on the card only where
+# the card reports the memory for it; step 7 records what came of the attempt
+if (out / "plain-cuda.json").exists():
+    names.append("plain-cuda")
 for name in names:
     doc = json.loads((out / f"{name}.json").read_text())
     p, point = doc["provenance"], doc["result"]["point"]
@@ -255,8 +351,11 @@ for name in names:
         bad[name] = f"unsound skips in effect: {p['unsound_skips']}"
     if not p["binding"]["all_bound"]:
         bad[name] = f"unbound edges {p['binding']['unbound']}"
-for shape in ("full", "short"):
-    if digest[f"{shape}-simd"] != digest[f"{shape}-cuda"]:
+for shape in ("full", "short", "plain"):
+    if f"{shape}-cuda" not in digest:
+        print(f"{shape}: the reference backend only, {digest[f'{shape}-simd'][:16]}; "
+              f"this card did not prove it")
+    elif digest[f"{shape}-simd"] != digest[f"{shape}-cuda"]:
         bad[shape] = "the two backends disagree on the digest"
     else:
         print(f"{shape}: both backends agree on {digest[f'{shape}-simd'][:16]}")
@@ -286,7 +385,7 @@ for name in ("short-simd", "short-cuda"):
         bad[name] = (f"the key tiles are {tiles} polynomials, which is not more than "
                      f"the {cap} a grid dimension holds: this run is not evidence "
                      f"for the sliced launch")
-for name in ("full-cuda", "short-cuda"):
+for name in [n for n in ("full-cuda", "short-cuda", "plain-cuda") if n in digest]:
     n = int((out / f"{name}.fallbacks").read_text().strip())
     print(f"{name}: kernel fallback lines: {n}")
     if n:
@@ -298,6 +397,8 @@ if bad:
     sys.exit("; ".join(f"{k}: {v}" for k, v in sorted(bad.items())))
 print("the short segment proves on both backends past the grid cap, the reference "
       "segment proves on both, no skip, every edge bound")
+if "plain-cuda" in digest:
+    print("and the reference segment without the reductions proves on the card")
 PY
 st "done"
 JOBEOF
