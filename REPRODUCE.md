@@ -6,6 +6,22 @@ digests, the binding table from the manifest, and the constants keys it backs.
 
 Written, not yet run:
 
+- `tools/drivers/prefill-sweep-8b.sh`: the key tiles' cost in the block length
+  at the 8B model's own attention width -- 32 heads of 128, the matmul widths
+  equal to their product -- under the arithmetic the paper reports. Written and
+  run; neither of its two points proved. A 128-token block has to be given
+  `--table-bits 24`, which the layer names in the refusal it raises at 23, and
+  with that width the honest proof is rejected rather than refused: the SwiGLU
+  component of the residual stream disagrees with its own reference on 57 values
+  and 64 of its exponents are out of range, and 126,926 dequantization values
+  fall off the `deq_eo` table. A 64-token block fails the same way at half the
+  size, so the disagreement is per token. The exponential table is not the
+  cause: it is the width the flag asked for and nothing is off it, which is what
+  zk-prover #85 and #98 changed. Filed as zk-prover #136. Until it is fixed the
+  attention grid's coefficients cannot be measured at the width the paper needs
+  them at, and `prefill-sweep` measures the shape of that cost at four heads of
+  32 instead.
+
 - `tools/drivers/predict-14b.sh`: Qwen2.5-14B's 48 layer segments at context
   4,096 on the reference backend, one proof per layer, measured against a
   registered prediction. Written and started; the extraction ran and the first
