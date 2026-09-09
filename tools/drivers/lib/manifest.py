@@ -4,11 +4,17 @@
     manifest.py --driver tools/drivers/<name>.sh --fetched DIR --runs runs/ \
                 --prover-commit HASH --harness-commit HASH [--date YYYY-MM-DD]
 
-Every field but `imported`, `driver`, `harness_commit` and `date` is copied
-from the `provenance` block written into each output; nothing is typed in.  The
-run id is `<date>-<driver>-<gpu>` with the GPU as the machine reported it.  A
-fetched directory whose outputs carry no provenance block is refused: such a run
-is not admissible.
+Every field but `imported`, `driver`, `harness_commit`, `date` and `derived` is
+copied from the `provenance` block written into each output; nothing is typed
+in.  The run id is `<date>-<driver>-<gpu>` with the GPU as the machine reported
+it.  A fetched directory whose outputs carry no provenance block is refused:
+such a run is not admissible.
+
+`derived` is the one field no prover wrote and no host saw: the record a driver
+gives with `--derived FILE` for an output of the run that was derived from runs
+this repository already holds rather than measured.  It names what was derived,
+and out of which run, which output and which segment, so the derivation can be
+made again and checked.  A run that derives nothing has it null.
 
 Three kinds of run, and the manifest says which in `kind`.  A **prover** run
 makes proofs, and its outputs carry a binding table saying what each proof
@@ -110,6 +116,9 @@ def main():
                     help="the kind of run, where the outputs cannot say it themselves: "
                          "`verifier` for a run that makes no proof and checks proofs another "
                          "run made")
+    ap.add_argument("--derived", metavar="FILE", default=None,
+                    help="a JSON record of the outputs this run derived from runs already in "
+                         "this repository, written into the manifest as `derived`")
     a = ap.parse_args()
 
     files = list(outputs_of(a.fetched))
@@ -182,6 +191,7 @@ def main():
                      "every output but config.json says where it came from")
     manifest = {
         "run_id": run_id,
+        "derived": load_json(a.derived) if a.derived else None,
         "driver": a.driver,
         "kind": kind,
         "date": a.date,

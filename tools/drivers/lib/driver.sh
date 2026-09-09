@@ -30,7 +30,7 @@ drv_status() {
     ssh -o BatchMode=yes "$HOST" "cat ~/runs/$NAME.status 2>/dev/null || true"
 }
 
-# ---- finish: fetch, manifest, check ------------------------------------------
+# ---- finish: fetch, derive, manifest, check ----------------------------------
 # Called with the status line.  Returns only while the run is not finished; on
 # a finished run it exits the driver.
 drv_finish() {
@@ -39,13 +39,27 @@ drv_finish() {
       *"done exit=0"*)
         TMP=$(mktemp -d "$ROOT/runs/.fetch-$NAME.XXXXXX")
         "$ROOT/tools/remote/fetch.sh" "$HOST" "$NAME" "$TMP"
+        # A run may need an output that no host makes, because it is derived
+        # from runs this repository already holds.  A driver with one defines
+        # `drv_derive`, called with the fetched directory and a file to write
+        # its record to; the record goes into the manifest under `derived`, so
+        # what a run took from an earlier run is stated in the run's own
+        # manifest and nowhere else.  A derivation that refuses stops the
+        # finish: the outputs stay in the fetch directory and no run directory
+        # is written.
+        DERIVED=
+        if command -v drv_derive >/dev/null 2>&1; then
+            DERIVED=$(mktemp)
+            drv_derive "$TMP" "$DERIVED"
+        fi
         # DRV_KIND, when the driver sets it, is what the run's outputs cannot say
         # for themselves: `verifier` for a run that makes no proof and checks
         # proofs another run made.  Unset is the prover's own answer.
         python3 "$HERE/lib/manifest.py" --driver "tools/drivers/$NAME.sh" --fetched "$TMP" \
             --runs "$ROOT/runs" --prover-commit "$PROVER" --harness-commit "$HARNESS" \
-            ${DRV_KIND:+--kind "$DRV_KIND"} \
+            ${DRV_KIND:+--kind "$DRV_KIND"} ${DERIVED:+--derived "$DERIVED"} \
             --date "$(printf '%s\n' "$ST" | awk '/^done/ {print substr($3, 1, 10)}')"
+        [ -z "$DERIVED" ] || rm -f "$DERIVED"
         rmdir "$TMP" 2>/dev/null || true
         (cd "$ROOT" && python3 tools/constants/check.py)
         exit 0 ;;

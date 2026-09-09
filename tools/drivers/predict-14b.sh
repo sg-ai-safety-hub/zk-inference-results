@@ -11,14 +11,26 @@
 # and the arithmetic is the fixed configuration.
 #
 # **This driver makes the measurement and not the comparison.** The comparison
-# needs a registered prediction, and the harness cannot produce one: its
-# registration script cannot be imported at all, because a name it builds a
-# path from is used at the top of the file and defined nowhere in it
-# (zk-prover #67). A prediction registered after the measurement would not be a
-# prediction, so the honest order is to measure now, freeze what was measured,
+# needs a registered prediction. The registration script imports again now that
+# zk-prover #67 is fixed, but it also reads the cost model's micro-benchmark
+# inputs, and those are not artifacts of this repository, so the run still
+# cannot produce one. A prediction registered after the measurement would not be
+# a prediction, so the honest order is to measure now, freeze what was measured,
 # and compare when the registration exists. Every field that comparison reads is
 # in the per-layer outputs this run fetches, so it costs no host time to do it
 # later.
+#
+# **The measured 8B reference the registration reads is derived here, from runs
+# this repository already holds.** `harness.eval.predict.predict` states its
+# shape ratios against one measured 8B layer chunk per context, which it reads
+# from `<--artifacts>/seq5/seq_c<C>_L16.json` and takes `result.point` out of; a
+# file that is not there is a hard exit, and no run writes that file. Both
+# chunks were proved all the same, as segments of the two merged headline runs,
+# so this driver reads them out of those runs' slice outputs and writes them
+# into its own run directory under `seq5/` -- no card time, no edit to a merged
+# run, and the manifest's `derived` block names the run, the slice output and
+# the segment each one came from. What the file holds and what makes the
+# derivation refuse are in `lib/seq5-reference.py`.
 #
 # One process per layer, not one loop over all of them. The comparison reads a
 # single-proof document per layer, which is what `compose` writes and what a
@@ -34,11 +46,13 @@
 # are read off each witness, because 48 independent proofs need not agree on a
 # shape the way a chunk loop does.
 #
-# The first call pushes zk-prover at the two commits to the host, starts the job
-# detached and prints the poll command. Every later call with the same arguments
-# prints the status; once the status says done it fetches the outputs into
-# runs/<run-id>/, writes manifest.json from the prover's provenance block, and
-# runs check.py. Nothing measured is typed in here.
+# The first call checks the two reference segments are there and pushes
+# zk-prover at the two commits to the host, starts the job detached and prints
+# the poll command. Every later call with the same arguments prints the status;
+# once the status says done it fetches the outputs into runs/<run-id>/, derives
+# the two reference chunks into `seq5/` beside them, writes manifest.json from
+# the prover's provenance block, and runs check.py. Nothing measured is typed in
+# here.
 set -eu
 HERE=$(cd "$(dirname "$0")" && pwd)
 ROOT=$(cd "$HERE/../.." && pwd)
@@ -64,7 +78,35 @@ GKR="--gkr-key-tiles --gkr-dequant --gkr-residual-stream --gkr-freivalds --gkr-a
 LAYER_FLAGS="--diagonal-block $GKR"   # every binding gadget is on by default; no skip flag anywhere
 XTHREADS=20                # torch threads for the extraction, rayon threads for the proofs
 
+# ---- the 8B reference chunks, derived rather than measured -------------------
+# One segment per context, named by its `ser_tag` and never by the `layer` field
+# beside it: that field is the segment's index in the composed sequence, and in
+# the last slice of both runs a head segment shifts the two apart, so `layer`
+# 16 there is the model's layer 15.
+#
+# Both are the layer 16 segment of their run's last token block, which is the
+# only block whose prefix is the run's whole context: a decode run grows the
+# prefix one 512-token block at a time, so block 8 of `headline-c4096`'s nine
+# (tokens 4,096 to 4,607) is the one segment at C=4,096, and block 32 of
+# `headline-c16384`'s thirty-three (tokens 16,384 to 16,895) the one at
+# C=16,384. Every earlier block is a different C and would be a different
+# reference.
+drv_seq5() {
+    python3 "$HERE/lib/seq5-reference.py" --runs "$ROOT/runs" --layer 16 \
+        --from 2026-09-09-headline-c4096-h100:B8L16:4096 \
+        --from 2026-09-08-headline-c16384-h100:B32L16:16384 "$@"
+}
+# the hook lib/driver.sh calls with the fetched directory and the record file
+drv_derive() { drv_seq5 --out "$1" --record "$2"; }
+
 drv_finish "$(drv_status)"
+
+# ---- the gate on the reference, before the card is booked --------------------
+# The same derivation, checking and writing nothing. A source segment that is
+# not there, that did not accept, that fell off a table, that left an edge
+# unbound or that was proved under an unsound skip refuses the run here, where
+# it costs nothing, rather than after the measurement.
+drv_seq5
 
 # ---- start: push the pinned sources, then the job ----------------------------
 drv_check_commits
