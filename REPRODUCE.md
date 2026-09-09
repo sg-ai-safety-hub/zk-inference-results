@@ -24,14 +24,25 @@ Written, not yet run:
 
 - `tools/drivers/predict-14b.sh`: Qwen2.5-14B's 48 layer segments at context
   4,096 on the reference backend, one proof per layer, measured against a
-  registered prediction. Written and started; the extraction ran and the first
-  layer did not prove. The rotation gadget requires the product of the block
-  length and the attention head count to be a power of two, this model has 40
-  heads, and 40 carries a factor of five that no block length divides out
-  (zk-prover #73). The same is true of the campaign's fallback-large shape,
-  which also has 40 heads. Separately, the prediction cannot be registered:
-  the script that writes it cannot be imported (zk-prover #67), and a prediction
-  written after the measurement is not a prediction.
+  registered prediction. Written and started once; the extraction ran and the
+  first layer did not prove, because the rotation gadget required the product of
+  the block length and the attention head count to be a power of two and this
+  model has 40 heads, which carry a factor of five that no block length divides
+  out (zk-prover #73). The gadget now pads that product (zk-prover #90) and the
+  synthetic layer's exponential table takes its width from `--table-bits`
+  (zk-prover #85); both are merged and the campaign has not been given a host
+  since. The measured 8B reference the registration reads is no longer absent
+  either. It is one layer 16 segment per context, and the driver derives both
+  from the last token block of `2026-09-09-headline-c4096-h100` and of
+  `2026-09-08-headline-c16384-h100` -- the only block in each run whose prefix
+  is the run's whole context -- into its own run directory under `seq5/`, with
+  the source run, output and segment tag of each in the manifest's `derived`
+  block. A source segment that is not there, that was not accepted or that was
+  proved under an unsound skip refuses the run before it books a card. The
+  prediction still cannot be registered from this repository: the registration
+  script imports again (zk-prover #67), but it also reads the cost model's
+  micro-benchmark inputs, which are not artifacts here, and a prediction written
+  after the measurement is not a prediction.
 
 - `tools/drivers/control-flags-off-c4096.sh`: `headline-c4096`'s plan with the
   five GKR reductions off, which is what prices them. Written and run twice.
