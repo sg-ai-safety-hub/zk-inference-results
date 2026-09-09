@@ -1,0 +1,174 @@
+{
+ "argv": [
+  "zk-prover",
+  "compose",
+  "--round",
+  "even",
+  "--numbits",
+  "9",
+  "--z-hi-bits",
+  "7",
+  "--variants",
+  "intexp",
+  "--table-bits",
+  "24",
+  "--hd",
+  "128",
+  "--head-groups",
+  "16,8,8",
+  "--nin",
+  "4096",
+  "--nout",
+  "4096",
+  "--residual-stream-a",
+  "32",
+  "--kmax",
+  "19",
+  "--synth-residual-stream",
+  "--diagonal-block",
+  "--ao-rem-bits",
+  "22",
+  "--gkr-key-tiles",
+  "--gkr-dequant",
+  "--gkr-residual-stream",
+  "--gkr-freivalds",
+  "--gkr-attnout",
+  "--s",
+  "128",
+  "--ctx",
+  "128"
+ ],
+ "backend": "simd",
+ "binding": {
+  "all_bound": true,
+  "edges": [
+   {
+    "edge": "residual stream into the first norm's reduction",
+    "n": 1,
+    "state": "bound",
+    "why": null
+   },
+   {
+    "edge": "first norm's output into the q, k, v matmul inputs",
+    "n": 2,
+    "state": "bound",
+    "why": null
+   },
+   {
+    "edge": "q, k, v outputs into the attention block",
+    "n": 3,
+    "state": "bound",
+    "why": null
+   },
+   {
+    "edge": "attention scores and values into the attention output",
+    "n": 4,
+    "state": "bound",
+    "why": null
+   },
+   {
+    "edge": "attention output into the o matmul input",
+    "n": 5,
+    "state": "bound",
+    "why": null
+   },
+   {
+    "edge": "o output into the first residual add",
+    "n": 6,
+    "state": "bound",
+    "why": null
+   },
+   {
+    "edge": "first residual add into the second norm's reduction",
+    "n": 7,
+    "state": "bound",
+    "why": null
+   },
+   {
+    "edge": "second norm's output into the gate and up matmul inputs",
+    "n": 8,
+    "state": "bound",
+    "why": null
+   },
+   {
+    "edge": "gate and up outputs into the SwiGLU product",
+    "n": 9,
+    "state": "bound",
+    "why": null
+   },
+   {
+    "edge": "SwiGLU output into the down matmul input",
+    "n": 10,
+    "state": "bound",
+    "why": null
+   },
+   {
+    "edge": "down output into the second residual add",
+    "n": 11,
+    "state": "bound",
+    "why": null
+   },
+   {
+    "edge": "each matmul's input times the pinned weights into its accumulator",
+    "n": 12,
+    "state": "bound",
+    "why": null
+   },
+   {
+    "edge": "residual stream out of this segment into the next layer's segment",
+    "n": 13,
+    "state": "bound",
+    "why": null
+   },
+   {
+    "edge": "keys and values out of this token block into the next block",
+    "n": 14,
+    "state": "bound",
+    "why": null
+   },
+   {
+    "edge": "embedding row into the first segment's residual stream",
+    "n": 15,
+    "state": "absent",
+    "why": null
+   },
+   {
+    "edge": "logits into the emitted token",
+    "n": 16,
+    "state": "absent",
+    "why": null
+   }
+  ],
+  "proofs": 3,
+  "unbound": []
+ },
+ "cuda_version": "13.0",
+ "date": "2026-09-09",
+ "derived": null,
+ "digests": {
+  "dd_s128_c128.json": "46a42397972056b153e00b43a370a90b75dd3ed635a1e0006690824f7ba39f60",
+  "dd_s256_c4096.json": "dcf40e5a2e30a9c2d7693e95b5578a53b375fba1435ca1336a24f74e78cbe779",
+  "dd_s64_c64.json": "0b01534132a59626d520081e1a509ff4a59fc2039958489a7bb6ba47f09df810"
+ },
+ "driver": "tools/drivers/prefill-sweep-8b.sh",
+ "driver_version": "580.178.04",
+ "gpu": "NVIDIA H200, 143771 MiB",
+ "harness_commit": "8cd54f9",
+ "harness_dirty": null,
+ "imported": false,
+ "kind": "prover",
+ "outputs": [
+  "config.json",
+  "dd_s128_c128.json",
+  "dd_s256_c4096.json",
+  "dd_s64_c64.json",
+  "sweep.json",
+  "tablebits_s128_c128.txt",
+  "tablebits_s256_c4096.txt",
+  "tablebits_s64_c64.txt"
+ ],
+ "prover_commit": "8cd54f9",
+ "prover_dirty": false,
+ "run_id": "2026-09-09-prefill-sweep-8b-h200",
+ "unsound_skips": []
+}

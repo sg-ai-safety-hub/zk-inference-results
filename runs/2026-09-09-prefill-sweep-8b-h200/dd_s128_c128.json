@@ -1,0 +1,2568 @@
+{
+  "bench": "compose",
+  "env": {
+    "arch": "x86_64",
+    "gpu": "NVIDIA H200, 143771 MiB",
+    "mem_total_bytes": 253346017280,
+    "os": "linux",
+    "simd_n_lanes": 16,
+    "threads": 20
+  },
+  "modes": {
+    "COMMIT_BY_REFERENCE": {
+      "source": "default",
+      "value": 1
+    },
+    "DEVICE_ACCUMULATORS": {
+      "source": "default",
+      "value": 0
+    },
+    "DEVICE_PREPROCESSED": {
+      "source": "default",
+      "value": 0
+    },
+    "DEVICE_RESIDUAL_STREAM_BINDING": {
+      "source": "default",
+      "value": 0
+    },
+    "DEVICE_STAGING_POOL": {
+      "source": "default",
+      "value": 0
+    },
+    "DEVICE_TABLES": {
+      "source": "default",
+      "value": 0
+    },
+    "DEVICE_WITNESS_GEN_ATTENTION_FREIVALDS": {
+      "source": "default",
+      "value": 0
+    },
+    "DEVICE_WITNESS_GEN_DEQUANT": {
+      "source": "default",
+      "value": 0
+    },
+    "DEVICE_WITNESS_GEN_DIAGONAL_BLOCK": {
+      "source": "default",
+      "value": 0
+    },
+    "DEVICE_WITNESS_GEN_KEY_TILE": {
+      "source": "default",
+      "value": 0
+    },
+    "DEVICE_WITNESS_GEN_RESIDUAL_STREAM": {
+      "source": "default",
+      "value": 0
+    },
+    "GENERATED_LOGUP": {
+      "source": "default",
+      "value": 0
+    },
+    "KERNEL_REFERENCE_CHECK": {
+      "source": "default",
+      "value": 1
+    },
+    "LDE_ONLY": {
+      "source": "default",
+      "value": 0
+    },
+    "LOWERING_CACHE": {
+      "source": "default",
+      "value": 0
+    },
+    "PARALLEL_GATHER": {
+      "source": "default",
+      "value": 1
+    },
+    "PARALLEL_SCAN": {
+      "source": "default",
+      "value": 1
+    },
+    "PIPELINE": {
+      "source": "default",
+      "value": 0
+    },
+    "PREPROCESSED_TREE_CACHE": {
+      "source": "default",
+      "value": 0
+    }
+  },
+  "provenance": {
+    "args": [
+      "compose",
+      "--round",
+      "even",
+      "--numbits",
+      "9",
+      "--z-hi-bits",
+      "7",
+      "--variants",
+      "intexp",
+      "--table-bits",
+      "24",
+      "--hd",
+      "128",
+      "--head-groups",
+      "16,8,8",
+      "--nin",
+      "4096",
+      "--nout",
+      "4096",
+      "--residual-stream-a",
+      "32",
+      "--kmax",
+      "19",
+      "--synth-residual-stream",
+      "--diagonal-block",
+      "--ao-rem-bits",
+      "22",
+      "--gkr-key-tiles",
+      "--gkr-dequant",
+      "--gkr-residual-stream",
+      "--gkr-freivalds",
+      "--gkr-attnout",
+      "--s",
+      "128",
+      "--ctx",
+      "128"
+    ],
+    "backend": "simd",
+    "binary": "zk-prover",
+    "binding": {
+      "all_bound": true,
+      "edges": [
+        {
+          "edge": "residual stream into the first norm's reduction",
+          "n": 1,
+          "state": "bound",
+          "why": null
+        },
+        {
+          "edge": "first norm's output into the q, k, v matmul inputs",
+          "n": 2,
+          "state": "bound",
+          "why": null
+        },
+        {
+          "edge": "q, k, v outputs into the attention block",
+          "n": 3,
+          "state": "bound",
+          "why": null
+        },
+        {
+          "edge": "attention scores and values into the attention output",
+          "n": 4,
+          "state": "bound",
+          "why": null
+        },
+        {
+          "edge": "attention output into the o matmul input",
+          "n": 5,
+          "state": "bound",
+          "why": null
+        },
+        {
+          "edge": "o output into the first residual add",
+          "n": 6,
+          "state": "bound",
+          "why": null
+        },
+        {
+          "edge": "first residual add into the second norm's reduction",
+          "n": 7,
+          "state": "bound",
+          "why": null
+        },
+        {
+          "edge": "second norm's output into the gate and up matmul inputs",
+          "n": 8,
+          "state": "bound",
+          "why": null
+        },
+        {
+          "edge": "gate and up outputs into the SwiGLU product",
+          "n": 9,
+          "state": "bound",
+          "why": null
+        },
+        {
+          "edge": "SwiGLU output into the down matmul input",
+          "n": 10,
+          "state": "bound",
+          "why": null
+        },
+        {
+          "edge": "down output into the second residual add",
+          "n": 11,
+          "state": "bound",
+          "why": null
+        },
+        {
+          "edge": "each matmul's input times the pinned weights into its accumulator",
+          "n": 12,
+          "state": "bound",
+          "why": null
+        },
+        {
+          "edge": "residual stream out of this segment into the next layer's segment",
+          "n": 13,
+          "state": "bound",
+          "why": null
+        },
+        {
+          "edge": "keys and values out of this token block into the next block",
+          "n": 14,
+          "state": "bound",
+          "why": null
+        },
+        {
+          "edge": "embedding row into the first segment's residual stream",
+          "n": 15,
+          "state": "absent",
+          "why": null
+        },
+        {
+          "edge": "logits into the emitted token",
+          "n": 16,
+          "state": "absent",
+          "why": null
+        }
+      ],
+      "proofs": 1,
+      "unbound": []
+    },
+    "commit": "2266a32afdf65d0f8820ede4e20fa133004ec683",
+    "cuda_version": "13.0",
+    "dirty": false,
+    "driver_version": "580.178.04",
+    "gpu": "NVIDIA H200, 143771 MiB",
+    "proof_sha256": "46a42397972056b153e00b43a370a90b75dd3ed635a1e0006690824f7ba39f60",
+    "proof_sha256s": null,
+    "unsound_skips": []
+  },
+  "result": {
+    "point": {
+      "accepts": true,
+      "ao_wrap": {
+        "acc_hi_bits": 4,
+        "acc_lo_bits": 16,
+        "bits": 25,
+        "e_hi": 4,
+        "form": "offset",
+        "limit": 31,
+        "margin": 6,
+        "quotient": {
+          "bits": 29,
+          "form": "plain",
+          "limit": 30,
+          "margin": 1,
+          "q_bits": 7,
+          "rem_bits": 22
+        }
+      },
+      "binding": {
+        "absent": [
+          15,
+          16
+        ],
+        "all_bound": true,
+        "edges": [
+          {
+            "edge": "residual stream into the first norm's reduction",
+            "n": 1,
+            "state": "bound"
+          },
+          {
+            "edge": "first norm's output into the q, k, v matmul inputs",
+            "n": 2,
+            "state": "bound"
+          },
+          {
+            "edge": "q, k, v outputs into the attention block",
+            "n": 3,
+            "state": "bound"
+          },
+          {
+            "edge": "attention scores and values into the attention output",
+            "n": 4,
+            "state": "bound"
+          },
+          {
+            "edge": "attention output into the o matmul input",
+            "n": 5,
+            "state": "bound"
+          },
+          {
+            "edge": "o output into the first residual add",
+            "n": 6,
+            "state": "bound"
+          },
+          {
+            "edge": "first residual add into the second norm's reduction",
+            "n": 7,
+            "state": "bound"
+          },
+          {
+            "edge": "second norm's output into the gate and up matmul inputs",
+            "n": 8,
+            "state": "bound"
+          },
+          {
+            "edge": "gate and up outputs into the SwiGLU product",
+            "n": 9,
+            "state": "bound"
+          },
+          {
+            "edge": "SwiGLU output into the down matmul input",
+            "n": 10,
+            "state": "bound"
+          },
+          {
+            "edge": "down output into the second residual add",
+            "n": 11,
+            "state": "bound"
+          },
+          {
+            "edge": "each matmul's input times the pinned weights into its accumulator",
+            "n": 12,
+            "state": "bound"
+          },
+          {
+            "edge": "residual stream out of this segment into the next layer's segment",
+            "n": 13,
+            "state": "bound"
+          },
+          {
+            "edge": "keys and values out of this token block into the next block",
+            "n": 14,
+            "state": "bound"
+          },
+          {
+            "edge": "embedding row into the first segment's residual stream",
+            "n": 15,
+            "state": "absent",
+            "why": "the segment declares no layer coordinate"
+          },
+          {
+            "edge": "logits into the emitted token",
+            "n": 16,
+            "state": "absent",
+            "why": "no lm_head matmul"
+          }
+        ],
+        "unbound": []
+      },
+      "blob": {
+        "cache_hits": 0,
+        "lower_secs": 0.0,
+        "lowerings": 0
+      },
+      "boundary_roots": [
+        "3392142afd3ad95fc069e25db30e3a3d5892796b7b41234cb989e67ed8af4069",
+        "7dd38b2f58155f21f85bcd4c279e99426faf282c14dc4b365987a25b26a8491e",
+        "c1f60843ebab7d54695e6e5e1755fa4238613f3d57a9b05d085ac048c69e9006",
+        "3381ff0b3d7a6711d68cd5362da1c248ce0fb51a78b811742efb590a7f29f521",
+        "9254c31f4a93d70026128f698e9a940388d8c54fa7280d4e81a51a1a2aaffa5a",
+        "6850150c6041ff4a10740b6783e5392204d2f86dc43596357477e46ec885e73e",
+        "f4220a56eab56f1d2ced5f12d26e8f1673d02662aa420670eb373345a40a0b78",
+        "25574464a66dd418f33959065482195d8ed037714607b93da75127688dedd16c"
+      ],
+      "boundary_sides": [
+        {
+          "axis": "layer",
+          "group": null,
+          "role": "in",
+          "root": "3392142afd3ad95fc069e25db30e3a3d5892796b7b41234cb989e67ed8af4069",
+          "tree": 4
+        },
+        {
+          "axis": "layer",
+          "group": null,
+          "role": "out",
+          "root": "7dd38b2f58155f21f85bcd4c279e99426faf282c14dc4b365987a25b26a8491e",
+          "tree": 5
+        },
+        {
+          "axis": "token",
+          "group": 0,
+          "role": "out",
+          "root": "c1f60843ebab7d54695e6e5e1755fa4238613f3d57a9b05d085ac048c69e9006",
+          "tree": 6
+        },
+        {
+          "axis": "token",
+          "group": 0,
+          "role": "in",
+          "root": "3381ff0b3d7a6711d68cd5362da1c248ce0fb51a78b811742efb590a7f29f521",
+          "tree": 7
+        },
+        {
+          "axis": "token",
+          "group": 1,
+          "role": "out",
+          "root": "9254c31f4a93d70026128f698e9a940388d8c54fa7280d4e81a51a1a2aaffa5a",
+          "tree": 8
+        },
+        {
+          "axis": "token",
+          "group": 1,
+          "role": "in",
+          "root": "6850150c6041ff4a10740b6783e5392204d2f86dc43596357477e46ec885e73e",
+          "tree": 9
+        },
+        {
+          "axis": "token",
+          "group": 2,
+          "role": "out",
+          "root": "f4220a56eab56f1d2ced5f12d26e8f1673d02662aa420670eb373345a40a0b78",
+          "tree": 10
+        },
+        {
+          "axis": "token",
+          "group": 2,
+          "role": "in",
+          "root": "25574464a66dd418f33959065482195d8ed037714607b93da75127688dedd16c",
+          "tree": 11
+        }
+      ],
+      "cells": {
+        "base": 183480352,
+        "fresh": 331973792,
+        "interaction": 144299136,
+        "model": 135135232,
+        "preprocessed": 188816192,
+        "shape": 53680960
+      },
+      "claims": {
+        "published": 29,
+        "readers": {
+          "gn1.In(0)": [
+            "equality nt1.In(0)",
+            "boundary/in"
+          ],
+          "gn1.In(1)": [
+            "deq_out/o"
+          ],
+          "gn1.Out(0)": [
+            "equality gn1b.In(0)"
+          ],
+          "gn1.Out(1)": [
+            "equality gn2.In(0)"
+          ],
+          "gn1b.In(0)": [
+            "equality gn1.Out(0)"
+          ],
+          "gn1b.Out(0)": [
+            "equality nt1.In(1)"
+          ],
+          "gn2.In(0)": [
+            "equality gn1.Out(1)",
+            "equality nt2.In(0)"
+          ],
+          "gn2.In(1)": [
+            "deq_out/down"
+          ],
+          "gn2.Out(0)": [
+            "equality gn2b.In(0)"
+          ],
+          "gn2.Out(1)": [
+            "boundary/out"
+          ],
+          "gn2b.In(0)": [
+            "equality gn2.Out(0)"
+          ],
+          "gn2b.Out(0)": [
+            "equality nt2.In(1)"
+          ],
+          "gsw.In(0)": [
+            "deq_out/gate"
+          ],
+          "gsw.In(1)": [
+            "deq_out/up"
+          ],
+          "gsw.Out(0)": [
+            "requant/down"
+          ],
+          "nt1.In(0)": [
+            "equality gn1.In(0)"
+          ],
+          "nt1.In(1)": [
+            "equality gn1b.Out(0)"
+          ],
+          "nt1.Out(0)": [
+            "requant/qkv"
+          ],
+          "nt2.In(0)": [
+            "equality gn2.In(0)"
+          ],
+          "nt2.In(1)": [
+            "equality gn2b.Out(0)"
+          ],
+          "nt2.Out(0)": [
+            "requant/gateup"
+          ],
+          "rpka.In(0)": [
+            "equality rpkm.Out(0)"
+          ],
+          "rpka.Out(0)": [
+            "quant/k"
+          ],
+          "rpkm.In(0)": [
+            "deq_out/k"
+          ],
+          "rpkm.Out(0)": [
+            "equality rpka.In(0)"
+          ],
+          "rpqa.In(0)": [
+            "equality rpqm.Out(0)"
+          ],
+          "rpqa.Out(0)": [
+            "quant/q"
+          ],
+          "rpqm.In(0)": [
+            "deq_out/q"
+          ],
+          "rpqm.Out(0)": [
+            "equality rpqa.In(0)"
+          ]
+        },
+        "unread": []
+      },
+      "columns": {
+        "base": 25816,
+        "interaction": 1880,
+        "preprocessed": 3214,
+        "total": 30910
+      },
+      "family_cells": {
+        "affinity": [],
+        "attnout": 4784128,
+        "attnout_stats": {
+          "clamp_edge_count": 0,
+          "lead_rows": 0,
+          "log_rows": 15,
+          "n": 524288,
+          "per_row": 16,
+          "q_bits": 7,
+          "rem_bits": 22
+        },
+        "dequant": 44892160,
+        "embed": null,
+        "freivalds": 2621440,
+        "freivalds_weights": [
+          {
+            "group": "qkv",
+            "lead": 8192,
+            "log_rows": 17,
+            "pk": 137,
+            "pq": 5,
+            "pre_cells": 54394880,
+            "weights": 50331648
+          },
+          {
+            "group": "o",
+            "lead": 8192,
+            "log_rows": 17,
+            "pk": 137,
+            "pq": 5,
+            "pre_cells": 18481152,
+            "weights": 16777216
+          },
+          {
+            "group": "gateup",
+            "lead": 8192,
+            "log_rows": 17,
+            "pk": 137,
+            "pq": 5,
+            "pre_cells": 36438016,
+            "weights": 33554432
+          },
+          {
+            "group": "down",
+            "lead": 8192,
+            "log_rows": 17,
+            "pk": 137,
+            "pq": 5,
+            "pre_cells": 18481152,
+            "weights": 16777216
+          }
+        ],
+        "gkr": {
+          "assembly_secs": 0.000506436,
+          "backend": "host simd",
+          "fed_instances": 0,
+          "feed_secs": 0.0,
+          "fractions": 58751744,
+          "instances": 90,
+          "layers_secs": 0.04962371499999999,
+          "prewarm_secs": 0.0,
+          "proof_bytes": 371903,
+          "prove_secs": 7.223110157,
+          "refeeds": 0,
+          "reshape_secs": 0.0,
+          "total_secs": 7.223648577,
+          "unpaired": 58751744,
+          "upload_secs": 0.0
+        },
+        "head_key_vs_b1": null,
+        "interaction": 144299136,
+        "interaction_by_family": {
+          "attnout": {
+            "cells": 655360,
+            "columns": 20
+          },
+          "dequant": {
+            "cells": 3538944,
+            "columns": 108
+          },
+          "freivalds": {
+            "cells": 11534336,
+            "columns": 88
+          },
+          "gkrlink": {
+            "cells": 2739200,
+            "columns": 112
+          },
+          "key_tiles": {
+            "cells": 575488,
+            "columns": 288
+          },
+          "quant": {
+            "cells": 16515072,
+            "columns": 504
+          },
+          "requant": {
+            "cells": 18122752,
+            "columns": 564
+          },
+          "residual_stream": {
+            "cells": 411648,
+            "columns": 116
+          },
+          "table": {
+            "cells": 90206336,
+            "columns": 80
+          }
+        },
+        "interaction_split": [
+          {
+            "cells": 132096,
+            "columns": 48,
+            "component": "key_tile0"
+          },
+          {
+            "cells": 66048,
+            "columns": 48,
+            "component": "key_tile1"
+          },
+          {
+            "cells": 66048,
+            "columns": 48,
+            "component": "key_tile2"
+          },
+          {
+            "cells": 155648,
+            "columns": 48,
+            "component": "key_tile3 (diagonal block)"
+          },
+          {
+            "cells": 77824,
+            "columns": 48,
+            "component": "key_tile4 (diagonal block)"
+          },
+          {
+            "cells": 77824,
+            "columns": 48,
+            "component": "key_tile5 (diagonal block)"
+          },
+          {
+            "cells": 2739200,
+            "columns": 112,
+            "component": "gkrlink"
+          },
+          {
+            "cells": 655360,
+            "columns": 20,
+            "component": "attnout"
+          },
+          {
+            "cells": 524288,
+            "columns": 16,
+            "component": "dequant/q"
+          },
+          {
+            "cells": 524288,
+            "columns": 16,
+            "component": "dequant/k"
+          },
+          {
+            "cells": 524288,
+            "columns": 16,
+            "component": "dequant/v"
+          },
+          {
+            "cells": 393216,
+            "columns": 12,
+            "component": "dequant/o"
+          },
+          {
+            "cells": 524288,
+            "columns": 16,
+            "component": "dequant/gate"
+          },
+          {
+            "cells": 524288,
+            "columns": 16,
+            "component": "dequant/up"
+          },
+          {
+            "cells": 524288,
+            "columns": 16,
+            "component": "dequant/down"
+          },
+          {
+            "cells": 4194304,
+            "columns": 32,
+            "component": "freivalds/qkv"
+          },
+          {
+            "cells": 2097152,
+            "columns": 16,
+            "component": "freivalds/o"
+          },
+          {
+            "cells": 3145728,
+            "columns": 24,
+            "component": "freivalds/gateup"
+          },
+          {
+            "cells": 2097152,
+            "columns": 16,
+            "component": "freivalds/down"
+          },
+          {
+            "cells": 65536,
+            "columns": 16,
+            "component": "residual_stream/gn1"
+          },
+          {
+            "cells": 1024,
+            "columns": 8,
+            "component": "residual_stream/gn1b"
+          },
+          {
+            "cells": 65536,
+            "columns": 16,
+            "component": "residual_stream/gn2"
+          },
+          {
+            "cells": 1024,
+            "columns": 8,
+            "component": "residual_stream/gn2b"
+          },
+          {
+            "cells": 49152,
+            "columns": 12,
+            "component": "residual_stream/nt1"
+          },
+          {
+            "cells": 49152,
+            "columns": 12,
+            "component": "residual_stream/nt2"
+          },
+          {
+            "cells": 49152,
+            "columns": 12,
+            "component": "residual_stream/gsw"
+          },
+          {
+            "cells": 32768,
+            "columns": 8,
+            "component": "residual_stream/rpqm"
+          },
+          {
+            "cells": 32768,
+            "columns": 8,
+            "component": "residual_stream/rpqa"
+          },
+          {
+            "cells": 32768,
+            "columns": 8,
+            "component": "residual_stream/rpkm"
+          },
+          {
+            "cells": 32768,
+            "columns": 8,
+            "component": "residual_stream/rpka"
+          },
+          {
+            "cells": 67108864,
+            "columns": 4,
+            "component": "table/exp"
+          },
+          {
+            "cells": 65536,
+            "columns": 4,
+            "component": "table/norm"
+          },
+          {
+            "cells": 4194304,
+            "columns": 4,
+            "component": "table/frac"
+          },
+          {
+            "cells": 65536,
+            "columns": 4,
+            "component": "table/mul"
+          },
+          {
+            "cells": 512,
+            "columns": 4,
+            "component": "table/qnz"
+          },
+          {
+            "cells": 64,
+            "columns": 4,
+            "component": "table/range4"
+          },
+          {
+            "cells": 512,
+            "columns": 4,
+            "component": "table/range7"
+          },
+          {
+            "cells": 1024,
+            "columns": 4,
+            "component": "table/range8"
+          },
+          {
+            "cells": 8192,
+            "columns": 4,
+            "component": "table/range11"
+          },
+          {
+            "cells": 16384,
+            "columns": 4,
+            "component": "table/range12"
+          },
+          {
+            "cells": 131072,
+            "columns": 4,
+            "component": "table/range15"
+          },
+          {
+            "cells": 262144,
+            "columns": 4,
+            "component": "table/range16"
+          },
+          {
+            "cells": 16777216,
+            "columns": 4,
+            "component": "table/range22"
+          },
+          {
+            "cells": 64,
+            "columns": 4,
+            "component": "table/epow"
+          },
+          {
+            "cells": 2048,
+            "columns": 4,
+            "component": "table/residual_stream0"
+          },
+          {
+            "cells": 524288,
+            "columns": 4,
+            "component": "table/residual_stream1"
+          },
+          {
+            "cells": 262144,
+            "columns": 4,
+            "component": "table/residual_stream2"
+          },
+          {
+            "cells": 262144,
+            "columns": 4,
+            "component": "table/residual_stream3"
+          },
+          {
+            "cells": 262144,
+            "columns": 4,
+            "component": "table/residual_stream4"
+          },
+          {
+            "cells": 262144,
+            "columns": 4,
+            "component": "table/residual_stream5"
+          },
+          {
+            "cells": 5767168,
+            "columns": 176,
+            "component": "requant/qkv"
+          },
+          {
+            "cells": 5767168,
+            "columns": 176,
+            "component": "requant/gateup"
+          },
+          {
+            "cells": 5767168,
+            "columns": 176,
+            "component": "requant/down"
+          },
+          {
+            "cells": 5505024,
+            "columns": 168,
+            "component": "quant/q"
+          },
+          {
+            "cells": 5505024,
+            "columns": 168,
+            "component": "quant/k"
+          },
+          {
+            "cells": 5505024,
+            "columns": 168,
+            "component": "quant/v"
+          },
+          {
+            "cells": 821248,
+            "columns": 36,
+            "component": "requant/tables"
+          }
+        ],
+        "key_tile_leads": [
+          {
+            "chan": 0,
+            "key": 0,
+            "out": 0
+          },
+          {
+            "chan": 0,
+            "key": 0,
+            "out": 0
+          },
+          {
+            "chan": 0,
+            "key": 0,
+            "out": 0
+          },
+          {
+            "chan": 0,
+            "key": 0,
+            "out": 0
+          },
+          {
+            "chan": 0,
+            "key": 0,
+            "out": 0
+          },
+          {
+            "chan": 0,
+            "key": 0,
+            "out": 0
+          }
+        ],
+        "key_tiles": 5259264,
+        "link_heights": [
+          6,
+          7,
+          10,
+          11,
+          12,
+          15,
+          17
+        ],
+        "mats": [
+          {
+            "cells": 5275648,
+            "kmax_blind": 17,
+            "kmax_needed": 10,
+            "lead": 0,
+            "log_rows": 15,
+            "n": 524288,
+            "name": "q",
+            "per_row": 16,
+            "variant": "pow2"
+          },
+          {
+            "cells": 5275648,
+            "kmax_blind": 17,
+            "kmax_needed": 9,
+            "lead": 0,
+            "log_rows": 15,
+            "n": 524288,
+            "name": "k",
+            "per_row": 16,
+            "variant": "pow2"
+          },
+          {
+            "cells": 5275648,
+            "kmax_blind": 17,
+            "kmax_needed": 9,
+            "lead": 0,
+            "log_rows": 15,
+            "n": 524288,
+            "name": "v",
+            "per_row": 16,
+            "variant": "pow2"
+          },
+          {
+            "cells": 5275648,
+            "kmax_blind": 17,
+            "kmax_needed": 10,
+            "lead": 0,
+            "log_rows": 15,
+            "n": 524288,
+            "name": "o",
+            "per_row": 16,
+            "variant": "pow2"
+          },
+          {
+            "cells": 7929856,
+            "kmax_blind": 17,
+            "kmax_needed": 10,
+            "lead": 0,
+            "log_rows": 15,
+            "n": 524288,
+            "name": "gate",
+            "per_row": 16,
+            "variant": "chain"
+          },
+          {
+            "cells": 7929856,
+            "kmax_blind": 17,
+            "kmax_needed": 10,
+            "lead": 0,
+            "log_rows": 15,
+            "n": 524288,
+            "name": "up",
+            "per_row": 16,
+            "variant": "chain"
+          },
+          {
+            "cells": 7929856,
+            "kmax_blind": 17,
+            "kmax_needed": 8,
+            "lead": 0,
+            "log_rows": 15,
+            "n": 524288,
+            "name": "down",
+            "per_row": 16,
+            "variant": "chain"
+          }
+        ],
+        "preprocessed": 188816192,
+        "quant": [
+          {
+            "bits": 12,
+            "cells": {
+              "base": 3670016,
+              "preprocessed": 622592
+            },
+            "cells_per_value": 7.0,
+            "checked": 524288,
+            "clamped": 0,
+            "columns": {
+              "base": 112,
+              "preprocessed": 19
+            },
+            "component": "q",
+            "div_rows": 1536,
+            "heads": 32,
+            "layout": {
+              "chunks": 256,
+              "lead": 0,
+              "log_rows": 15,
+              "per_row": 16
+            },
+            "matches_key_tile": 524288,
+            "mismatch": 0,
+            "n": 4096,
+            "off_table": 0,
+            "qmax": 2047,
+            "rep": 1,
+            "tokens": 128
+          },
+          {
+            "bits": 11,
+            "cells": {
+              "base": 3670016,
+              "preprocessed": 622592
+            },
+            "cells_per_value": 7.0,
+            "checked": 524288,
+            "clamped": 0,
+            "columns": {
+              "base": 112,
+              "preprocessed": 19
+            },
+            "component": "k",
+            "div_rows": 1408,
+            "heads": 32,
+            "layout": {
+              "chunks": 256,
+              "lead": 0,
+              "log_rows": 15,
+              "per_row": 16
+            },
+            "matches_key_tile": 524288,
+            "mismatch": 0,
+            "n": 4096,
+            "off_table": 0,
+            "qmax": 1023,
+            "rep": 1,
+            "tokens": 128
+          },
+          {
+            "bits": 8,
+            "cells": {
+              "base": 3670016,
+              "preprocessed": 622592
+            },
+            "cells_per_value": 7.0,
+            "checked": 524288,
+            "clamped": 0,
+            "columns": {
+              "base": 112,
+              "preprocessed": 19
+            },
+            "component": "v",
+            "div_rows": 1023,
+            "heads": 32,
+            "layout": {
+              "chunks": 256,
+              "lead": 0,
+              "log_rows": 15,
+              "per_row": 16
+            },
+            "matches_key_tile": 524288,
+            "mismatch": 0,
+            "n": 4096,
+            "off_table": 0,
+            "qmax": 127,
+            "rep": 1,
+            "tokens": 128
+          }
+        ],
+        "requant": [
+          {
+            "cells": {
+              "base": 3768320,
+              "preprocessed": 163840
+            },
+            "cells_per_value": 7.1875,
+            "checked": 524288,
+            "columns": {
+              "base": 115,
+              "preprocessed": 5
+            },
+            "layout": {
+              "chunks": 256,
+              "lead": 0,
+              "log_rows": 15,
+              "per_row": 16
+            },
+            "matches_freivalds_qx": 524288,
+            "mismatch": 0,
+            "n": 4096,
+            "off_table": 0,
+            "producer": {
+              "binding": 2,
+              "component": "nt1"
+            },
+            "seam": "qkv",
+            "tokens": 128,
+            "variant": "pow2"
+          },
+          {
+            "cells": {
+              "base": 3801088,
+              "preprocessed": 163840
+            },
+            "cells_per_value": 7.25,
+            "checked": 524288,
+            "columns": {
+              "base": 116,
+              "preprocessed": 5
+            },
+            "layout": {
+              "chunks": 256,
+              "lead": 0,
+              "log_rows": 15,
+              "per_row": 16
+            },
+            "matches_freivalds_qx": 524288,
+            "mismatch": 0,
+            "n": 4096,
+            "off_table": 0,
+            "producer": {
+              "binding": 2,
+              "component": "nt2"
+            },
+            "seam": "gateup",
+            "tokens": 128,
+            "variant": "bf16"
+          },
+          {
+            "cells": {
+              "base": 3801088,
+              "preprocessed": 163840
+            },
+            "cells_per_value": 7.25,
+            "checked": 524288,
+            "columns": {
+              "base": 116,
+              "preprocessed": 5
+            },
+            "layout": {
+              "chunks": 256,
+              "lead": 0,
+              "log_rows": 15,
+              "per_row": 16
+            },
+            "matches_freivalds_qx": 524288,
+            "mismatch": 0,
+            "n": 4096,
+            "off_table": 0,
+            "producer": {
+              "binding": 2,
+              "component": "gsw"
+            },
+            "seam": "down",
+            "tokens": 128,
+            "variant": "bf16"
+          }
+        ],
+        "requant_tables": {
+          "multiplicity": 205312,
+          "preprocessed": 712192
+        },
+        "residual_stream": 80785920,
+        "residual_stream_components": [
+          {
+            "cells": 17768448,
+            "columns": 4338,
+            "exponent_out_of_range": 0,
+            "leaves": 1048576,
+            "log_rows": 12,
+            "ops": 1044480,
+            "reference_mismatch": 0,
+            "rows": 4096,
+            "tag": "gn1"
+          },
+          {
+            "cells": 63744,
+            "columns": 498,
+            "exponent_out_of_range": 0,
+            "leaves": 4096,
+            "log_rows": 7,
+            "ops": 3968,
+            "reference_mismatch": 0,
+            "rows": 128,
+            "tag": "gn1b"
+          },
+          {
+            "cells": 17768448,
+            "columns": 4338,
+            "exponent_out_of_range": 0,
+            "leaves": 1048576,
+            "log_rows": 12,
+            "ops": 1044480,
+            "reference_mismatch": 0,
+            "rows": 4096,
+            "tag": "gn2"
+          },
+          {
+            "cells": 63744,
+            "columns": 498,
+            "exponent_out_of_range": 0,
+            "leaves": 4096,
+            "log_rows": 7,
+            "ops": 3968,
+            "reference_mismatch": 0,
+            "rows": 128,
+            "tag": "gn2b"
+          },
+          {
+            "cells": 5259264,
+            "columns": 1284,
+            "exponent_out_of_range": 0,
+            "leaves": 528384,
+            "log_rows": 12,
+            "ops": 1048576,
+            "reference_mismatch": 0,
+            "rows": 4096,
+            "tag": "nt1"
+          },
+          {
+            "cells": 5259264,
+            "columns": 1284,
+            "exponent_out_of_range": 0,
+            "leaves": 528384,
+            "log_rows": 12,
+            "ops": 1048576,
+            "reference_mismatch": 0,
+            "rows": 4096,
+            "tag": "nt2"
+          },
+          {
+            "cells": 5242880,
+            "columns": 1280,
+            "exponent_out_of_range": 0,
+            "leaves": 1048576,
+            "log_rows": 12,
+            "ops": 524288,
+            "reference_mismatch": 0,
+            "rows": 4096,
+            "tag": "gsw"
+          },
+          {
+            "cells": 5242880,
+            "columns": 1280,
+            "exponent_out_of_range": 0,
+            "leaves": 524288,
+            "log_rows": 12,
+            "ops": 1048576,
+            "reference_mismatch": 0,
+            "rows": 4096,
+            "tag": "rpqm"
+          },
+          {
+            "cells": 9437184,
+            "columns": 2304,
+            "exponent_out_of_range": 0,
+            "leaves": 1048576,
+            "log_rows": 12,
+            "ops": 524288,
+            "reference_mismatch": 0,
+            "rows": 4096,
+            "tag": "rpqa"
+          },
+          {
+            "cells": 5242880,
+            "columns": 1280,
+            "exponent_out_of_range": 0,
+            "leaves": 524288,
+            "log_rows": 12,
+            "ops": 1048576,
+            "reference_mismatch": 0,
+            "rows": 4096,
+            "tag": "rpkm"
+          },
+          {
+            "cells": 9437184,
+            "columns": 2304,
+            "exponent_out_of_range": 0,
+            "leaves": 1048576,
+            "log_rows": 12,
+            "ops": 524288,
+            "reference_mismatch": 0,
+            "rows": 4096,
+            "tag": "rpka"
+          }
+        ],
+        "residual_stream_vs_b1": {
+          "against_b1": [
+            {
+              "column": "xmid",
+              "mismatch": null,
+              "note": "the dump does not carry this column",
+              "values": 0
+            },
+            {
+              "column": "xout",
+              "mismatch": null,
+              "note": "the dump does not carry this column",
+              "values": 0
+            },
+            {
+              "column": "x_q",
+              "mismatch": null,
+              "note": "the dump does not carry this column",
+              "values": 0
+            },
+            {
+              "column": "n1_out",
+              "mismatch": null,
+              "note": "the dump does not carry this column",
+              "values": 0
+            },
+            {
+              "column": "x_gate",
+              "mismatch": null,
+              "note": "the dump does not carry this column",
+              "values": 0
+            },
+            {
+              "column": "n2_out",
+              "mismatch": null,
+              "note": "the dump does not carry this column",
+              "values": 0
+            }
+          ],
+          "exponent_out_of_range": 0,
+          "reference_mismatch": 0
+        },
+        "rope_inv_vs_b1": {
+          "cell_mismatch": 0,
+          "cells": 32768,
+          "mismatch": 0,
+          "rope_type": "default",
+          "values": 64
+        },
+        "sv_binding": {
+          "mismatch": 0,
+          "ok": true,
+          "rope_jv_mismatch": 0,
+          "sites": 4096
+        },
+        "tables": [
+          {
+            "component": "table/exp",
+            "key_cols": 2,
+            "log_rows": 24,
+            "looks": 1
+          },
+          {
+            "component": "table/norm",
+            "key_cols": 6,
+            "log_rows": 14,
+            "looks": 1
+          },
+          {
+            "component": "table/frac",
+            "key_cols": 3,
+            "log_rows": 20,
+            "looks": 1
+          },
+          {
+            "component": "table/mul",
+            "key_cols": 4,
+            "log_rows": 14,
+            "looks": 1
+          },
+          {
+            "component": "table/qnz",
+            "key_cols": 2,
+            "log_rows": 7,
+            "looks": 1
+          },
+          {
+            "component": "table/range4",
+            "key_cols": 1,
+            "log_rows": 4,
+            "looks": 1
+          },
+          {
+            "component": "table/range7",
+            "key_cols": 1,
+            "log_rows": 7,
+            "looks": 1
+          },
+          {
+            "component": "table/range8",
+            "key_cols": 1,
+            "log_rows": 8,
+            "looks": 1
+          },
+          {
+            "component": "table/range11",
+            "key_cols": 1,
+            "log_rows": 11,
+            "looks": 1
+          },
+          {
+            "component": "table/range12",
+            "key_cols": 1,
+            "log_rows": 12,
+            "looks": 1
+          },
+          {
+            "component": "table/range15",
+            "key_cols": 1,
+            "log_rows": 15,
+            "looks": 1
+          },
+          {
+            "component": "table/range16",
+            "key_cols": 1,
+            "log_rows": 16,
+            "looks": 1
+          },
+          {
+            "component": "table/range22",
+            "key_cols": 1,
+            "log_rows": 22,
+            "looks": 1
+          },
+          {
+            "component": "table/epow",
+            "key_cols": 3,
+            "log_rows": 4,
+            "looks": 1
+          },
+          {
+            "component": "table/residual_stream0",
+            "key_cols": 2,
+            "log_rows": 9,
+            "looks": 1
+          },
+          {
+            "component": "table/residual_stream1",
+            "key_cols": 5,
+            "log_rows": 17,
+            "looks": 1
+          },
+          {
+            "component": "table/residual_stream2",
+            "key_cols": 2,
+            "log_rows": 16,
+            "looks": 1
+          },
+          {
+            "component": "table/residual_stream3",
+            "key_cols": 4,
+            "log_rows": 16,
+            "looks": 1
+          },
+          {
+            "component": "table/residual_stream4",
+            "key_cols": 4,
+            "log_rows": 16,
+            "looks": 1
+          },
+          {
+            "component": "table/residual_stream5",
+            "key_cols": 4,
+            "log_rows": 16,
+            "looks": 1
+          }
+        ]
+      },
+      "host_bytes": {},
+      "host_phases": {
+        "evalof/bitrev": {
+          "calls": 28925,
+          "secs": 0.4169979799999883
+        },
+        "evalof/fused": {
+          "calls": 1123,
+          "secs": 0.2722415390000004
+        },
+        "evalof/pack": {
+          "calls": 28925,
+          "secs": 0.0874359400000003
+        },
+        "gen/argmax": {
+          "calls": 1,
+          "secs": 4.7e-8
+        },
+        "gen/attnout": {
+          "calls": 1,
+          "secs": 0.05287449
+        },
+        "gen/dequant": {
+          "calls": 1,
+          "secs": 0.290613907
+        },
+        "gen/embed": {
+          "calls": 1,
+          "secs": 5.1e-8
+        },
+        "gen/freivalds": {
+          "calls": 1,
+          "secs": 1.618481918
+        },
+        "gen/key_tiles": {
+          "calls": 1,
+          "secs": 0.098650288
+        },
+        "gen/pre_key_tiles": {
+          "calls": 1,
+          "secs": 7.73e-7
+        },
+        "gen/quant": {
+          "calls": 1,
+          "secs": 0.160548947
+        },
+        "gen/refs": {
+          "calls": 1,
+          "secs": 0.004872721
+        },
+        "gen/requant": {
+          "calls": 1,
+          "secs": 0.15992449
+        },
+        "gen/residual_stream": {
+          "calls": 1,
+          "secs": 1.037636367
+        },
+        "gen/residual_stream_b1": {
+          "calls": 3,
+          "secs": 7.391e-6
+        },
+        "gen/residual_stream_component": {
+          "calls": 7,
+          "secs": 0.6091221349999999
+        },
+        "gen/residual_stream_deqref": {
+          "calls": 1,
+          "secs": 0.001513806
+        },
+        "gen/residual_stream_wblk": {
+          "calls": 2,
+          "secs": 0.0008460080000000001
+        },
+        "gen/rope_deqref": {
+          "calls": 2,
+          "secs": 0.001093089
+        },
+        "gen/rope_invref": {
+          "calls": 1,
+          "secs": 0.000325486
+        },
+        "gen/tables": {
+          "calls": 1,
+          "secs": 0.176132165
+        },
+        "gen/tables_up": {
+          "calls": 1,
+          "secs": 1.207e-6
+        },
+        "int/air": {
+          "calls": 1,
+          "secs": 0.020230567
+        },
+        "int/ao_gkr": {
+          "calls": 1,
+          "secs": 0.008595797
+        },
+        "int/argmax": {
+          "calls": 1,
+          "secs": 2.74e-7
+        },
+        "int/attnout": {
+          "calls": 1,
+          "secs": 0.015427695
+        },
+        "int/deq_carry": {
+          "calls": 7,
+          "secs": 0.003071232
+        },
+        "int/deq_cols": {
+          "calls": 7,
+          "secs": 0.003242665
+        },
+        "int/deq_gkr": {
+          "calls": 1,
+          "secs": 0.064763778
+        },
+        "int/deq_inner": {
+          "calls": 7,
+          "secs": 0.005511059999999999
+        },
+        "int/dequant": {
+          "calls": 1,
+          "secs": 0.253207508
+        },
+        "int/embed": {
+          "calls": 1,
+          "secs": 9.6e-8
+        },
+        "int/freivalds": {
+          "calls": 1,
+          "secs": 0.213808908
+        },
+        "int/freivalds_build": {
+          "calls": 4,
+          "secs": 0.213764186
+        },
+        "int/freivalds_gkr": {
+          "calls": 1,
+          "secs": 0.055863135
+        },
+        "int/gkr": {
+          "calls": 1,
+          "secs": 7.223646991
+        },
+        "int/key_tiles": {
+          "calls": 1,
+          "secs": 0.029306355
+        },
+        "int/key_tiles_build": {
+          "calls": 6,
+          "secs": 0.029038666999999997
+        },
+        "int/link": {
+          "calls": 1,
+          "secs": 0.301700887
+        },
+        "int/link_cols": {
+          "calls": 7,
+          "secs": 0.0069438880000000005
+        },
+        "int/link_eq": {
+          "calls": 7,
+          "secs": 0.001401179
+        },
+        "int/link_fold": {
+          "calls": 7,
+          "secs": 0.285705821
+        },
+        "int/link_prefix": {
+          "calls": 7,
+          "secs": 0.0008782659999999999
+        },
+        "int/link_q": {
+          "calls": 7,
+          "secs": 0.001627434
+        },
+        "int/link_split": {
+          "calls": 7,
+          "secs": 0.000884893
+        },
+        "int/link_terms": {
+          "calls": 7,
+          "secs": 0.002138473
+        },
+        "int/requant": {
+          "calls": 1,
+          "secs": 0.320492621
+        },
+        "int/residual_stream": {
+          "calls": 1,
+          "secs": 0.575916736
+        },
+        "int/residual_stream_build": {
+          "calls": 11,
+          "secs": 0.574582441
+        },
+        "int/residual_stream_gkr": {
+          "calls": 1,
+          "secs": 0.888016426
+        },
+        "int/tables": {
+          "calls": 1,
+          "secs": 0.306688535
+        },
+        "wall/build_components": {
+          "calls": 1,
+          "secs": 0.029390776
+        },
+        "wall/commit_base": {
+          "calls": 1,
+          "secs": 2.248041261
+        },
+        "wall/commit_boundary": {
+          "calls": 1,
+          "secs": 0.030770122
+        },
+        "wall/commit_inter": {
+          "calls": 1,
+          "secs": 1.733099535
+        },
+        "wall/commit_pre": {
+          "calls": 1,
+          "secs": 2.295290726
+        },
+        "wall/commit_shape": {
+          "calls": 1,
+          "secs": 1.745718429
+        },
+        "wall/cuda_init": {
+          "calls": 2,
+          "secs": 1.1e-7
+        },
+        "wall/prove_raw": {
+          "calls": 1,
+          "secs": 11.325064946
+        },
+        "wall/ser_proof": {
+          "calls": 1,
+          "secs": 0.058189274
+        },
+        "wall/ser_statement": {
+          "calls": 1,
+          "secs": 0.00147068
+        },
+        "wall/session_new": {
+          "calls": 1,
+          "secs": 3.007e-6
+        },
+        "wall/twiddles": {
+          "calls": 1,
+          "secs": 0.210518444
+        }
+      },
+      "interaction_secs": 10.820440657,
+      "kv_boundary": {
+        "cells": 3145728,
+        "columns": 1728,
+        "sides": [
+          {
+            "cells": 1048576,
+            "columns": 384,
+            "group": 0,
+            "key_tiles": [
+              0,
+              3
+            ],
+            "side": "out",
+            "tree": 6
+          },
+          {
+            "cells": 524288,
+            "columns": 192,
+            "group": 0,
+            "key_tiles": [
+              0
+            ],
+            "side": "in",
+            "tree": 7
+          },
+          {
+            "cells": 524288,
+            "columns": 384,
+            "group": 1,
+            "key_tiles": [
+              1,
+              4
+            ],
+            "side": "out",
+            "tree": 8
+          },
+          {
+            "cells": 262144,
+            "columns": 192,
+            "group": 1,
+            "key_tiles": [
+              1
+            ],
+            "side": "in",
+            "tree": 9
+          },
+          {
+            "cells": 524288,
+            "columns": 384,
+            "group": 2,
+            "key_tiles": [
+              2,
+              5
+            ],
+            "side": "out",
+            "tree": 10
+          },
+          {
+            "cells": 262144,
+            "columns": 192,
+            "group": 2,
+            "key_tiles": [
+              2
+            ],
+            "side": "in",
+            "tree": 11
+          }
+        ]
+      },
+      "layer_boundary": {
+        "cells": 1048576,
+        "columns": 256,
+        "sides": [
+          {
+            "cells": 524288,
+            "columns": 128,
+            "log_rows": 12,
+            "tree": 4
+          },
+          {
+            "cells": 524288,
+            "columns": 128,
+            "log_rows": 12,
+            "tree": 5
+          }
+        ]
+      },
+      "layer_boundary_roots": {
+        "in": "3392142afd3ad95fc069e25db30e3a3d5892796b7b41234cb989e67ed8af4069",
+        "out": "7dd38b2f58155f21f85bcd4c279e99426faf282c14dc4b365987a25b26a8491e"
+      },
+      "model_root": "67c24c17d0db670f2c7ab231fadb336bae1a110c7a17425a2852101b445ae148",
+      "off_table": 0,
+      "params": {
+        "ao_acc_hi_bits": 4,
+        "ao_acc_lo_bits": 16,
+        "ao_jo_max": -9,
+        "ao_jo_min": -10,
+        "ao_jv_max": -6,
+        "ao_jv_min": -12,
+        "ao_q_bits": 7,
+        "ao_rem_bits": 22,
+        "ao_target": 16,
+        "c": 128,
+        "chan_target": 128,
+        "deq_target": 16,
+        "diagonal_block": true,
+        "freivalds_p": 136,
+        "gkr_attnout": true,
+        "gkr_dequant": true,
+        "gkr_freivalds": true,
+        "gkr_key_tiles": true,
+        "gkr_residual_stream": true,
+        "grid_target": 64,
+        "hd": 128,
+        "head_groups": [
+          16,
+          8,
+          8
+        ],
+        "k_bits": 11,
+        "kmax": 19,
+        "kv_boundary": true,
+        "layer_boundary": true,
+        "log_table": 24,
+        "mats": [
+          {
+            "n_in": 4096,
+            "n_out": 4096,
+            "name": "q",
+            "tokens": 128,
+            "variant": "pow2"
+          },
+          {
+            "n_in": 4096,
+            "n_out": 4096,
+            "name": "k",
+            "tokens": 128,
+            "variant": "pow2"
+          },
+          {
+            "n_in": 4096,
+            "n_out": 4096,
+            "name": "v",
+            "tokens": 128,
+            "variant": "pow2"
+          },
+          {
+            "n_in": 4096,
+            "n_out": 4096,
+            "name": "o",
+            "tokens": 128,
+            "variant": "pow2"
+          },
+          {
+            "n_in": 4096,
+            "n_out": 4096,
+            "name": "gate",
+            "tokens": 128,
+            "variant": "chain"
+          },
+          {
+            "n_in": 4096,
+            "n_out": 4096,
+            "name": "up",
+            "tokens": 128,
+            "variant": "chain"
+          },
+          {
+            "n_in": 4096,
+            "n_out": 4096,
+            "name": "down",
+            "tokens": 128,
+            "variant": "chain"
+          }
+        ],
+        "nh": 32,
+        "nmax": 511,
+        "q_bits": 12,
+        "residual_stream": {
+          "a": 32,
+          "d": 4096,
+          "dff": 4096,
+          "eps": 14120,
+          "inv_d": 14720
+        },
+        "rope": {
+          "nkv": 32,
+          "pos0": 0,
+          "rope_type": "default",
+          "theta": 4666723172467343360
+        },
+        "round": "even",
+        "rw": 16,
+        "s": 128,
+        "variant": "intexp",
+        "z_hi_bits": 7,
+        "z_lo_bits": 16,
+        "z_min": 511
+      },
+      "peak_rss_bytes": 34150977536,
+      "phases": {
+        "commit_plus_fri_frac": 0.4995061308498105,
+        "commit_secs": 7.215853985000002,
+        "detail": {
+          "constraint_eval_cpu_autofallback": {
+            "calls": 0,
+            "secs": 0.0
+          },
+          "constraint_eval_cpu_fallback": {
+            "calls": 0,
+            "secs": 0.0
+          },
+          "constraint_eval_denom_inv": {
+            "calls": 0,
+            "secs": 0.0
+          },
+          "constraint_eval_gpu": {
+            "calls": 0,
+            "secs": 0.0
+          },
+          "constraint_eval_polys": {
+            "calls": 0,
+            "secs": 0.0
+          }
+        },
+        "fri_secs": 7.024233946,
+        "phases": {
+          "constraint_eval": {
+            "calls": 80,
+            "secs": 0.6552153990000005
+          },
+          "constraint_extension": {
+            "calls": 0,
+            "secs": 0.0
+          },
+          "fri_commit": {
+            "calls": 1,
+            "secs": 3.512948591
+          },
+          "fri_quotients": {
+            "calls": 1,
+            "secs": 3.5112421019999998
+          },
+          "grind": {
+            "calls": 1,
+            "secs": 0.000043253
+          },
+          "interpolate": {
+            "calls": 12,
+            "secs": 0.24875079399999997
+          },
+          "lde_extend": {
+            "calls": 13,
+            "secs": 0.6581096899999999
+          },
+          "merkle": {
+            "calls": 13,
+            "secs": 6.308993501000002
+          },
+          "oods_eval": {
+            "calls": 1,
+            "secs": 0.759714271
+          },
+          "other": {
+            "calls": 0,
+            "secs": 12.853317034999998
+          }
+        },
+        "prove_call_secs": 11.324872693,
+        "wall_secs": 28.508334636
+      },
+      "pre_root": "3db91d532f0c802a673b4a416017fa4d6fcd2e33d9a39802ecc5597709dd4d6d",
+      "preprocessed_is_widest": true,
+      "proof_bytes": 20577468,
+      "proof_ser_bytes": 52207148,
+      "proof_sha256": "46a42397972056b153e00b43a370a90b75dd3ed635a1e0006690824f7ba39f60",
+      "prove_error": null,
+      "prove_secs": 28.508334636,
+      "ref_mismatch": 0,
+      "shape": {
+        "cache": {
+          "checked": 0,
+          "dir": null,
+          "hits": 0,
+          "misses": 0,
+          "verify": false,
+          "writes": 0
+        },
+        "calibration": [
+          {
+            "delta": [
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1
+            ],
+            "frac": 21.0,
+            "frac_bits": 4626604192193052672,
+            "frac_per_inst": [
+              21.0,
+              21.0,
+              21.0,
+              21.0,
+              21.0,
+              21.0,
+              21.0,
+              21.0,
+              21.0,
+              21.0,
+              21.0,
+              21.0,
+              21.0,
+              21.0,
+              21.0,
+              21.0
+            ],
+            "frac_per_inst_bits": [
+              4626604192193052672,
+              4626604192193052672,
+              4626604192193052672,
+              4626604192193052672,
+              4626604192193052672,
+              4626604192193052672,
+              4626604192193052672,
+              4626604192193052672,
+              4626604192193052672,
+              4626604192193052672,
+              4626604192193052672,
+              4626604192193052672,
+              4626604192193052672,
+              4626604192193052672,
+              4626604192193052672,
+              4626604192193052672
+            ]
+          },
+          {
+            "delta": [
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1
+            ],
+            "frac": 21.0,
+            "frac_bits": 4626604192193052672,
+            "frac_per_inst": [
+              21.0,
+              21.0,
+              21.0,
+              21.0,
+              21.0,
+              21.0,
+              21.0,
+              21.0
+            ],
+            "frac_per_inst_bits": [
+              4626604192193052672,
+              4626604192193052672,
+              4626604192193052672,
+              4626604192193052672,
+              4626604192193052672,
+              4626604192193052672,
+              4626604192193052672,
+              4626604192193052672
+            ]
+          },
+          {
+            "delta": [
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1
+            ],
+            "frac": 21.0,
+            "frac_bits": 4626604192193052672,
+            "frac_per_inst": [
+              21.0,
+              21.0,
+              21.0,
+              21.0,
+              21.0,
+              21.0,
+              21.0,
+              21.0
+            ],
+            "frac_per_inst_bits": [
+              4626604192193052672,
+              4626604192193052672,
+              4626604192193052672,
+              4626604192193052672,
+              4626604192193052672,
+              4626604192193052672,
+              4626604192193052672,
+              4626604192193052672
+            ]
+          },
+          {
+            "delta": [
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1
+            ],
+            "frac": 21.0,
+            "frac_bits": 4626604192193052672,
+            "frac_per_inst": [
+              21.0,
+              21.0,
+              21.0,
+              21.0,
+              21.0,
+              21.0,
+              21.0,
+              21.0,
+              21.0,
+              21.0,
+              21.0,
+              21.0,
+              21.0,
+              21.0,
+              21.0,
+              21.0
+            ],
+            "frac_per_inst_bits": [
+              4626604192193052672,
+              4626604192193052672,
+              4626604192193052672,
+              4626604192193052672,
+              4626604192193052672,
+              4626604192193052672,
+              4626604192193052672,
+              4626604192193052672,
+              4626604192193052672,
+              4626604192193052672,
+              4626604192193052672,
+              4626604192193052672,
+              4626604192193052672,
+              4626604192193052672,
+              4626604192193052672,
+              4626604192193052672
+            ]
+          },
+          {
+            "delta": [
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1
+            ],
+            "frac": 21.0,
+            "frac_bits": 4626604192193052672,
+            "frac_per_inst": [
+              21.0,
+              21.0,
+              21.0,
+              21.0,
+              21.0,
+              21.0,
+              21.0,
+              21.0
+            ],
+            "frac_per_inst_bits": [
+              4626604192193052672,
+              4626604192193052672,
+              4626604192193052672,
+              4626604192193052672,
+              4626604192193052672,
+              4626604192193052672,
+              4626604192193052672,
+              4626604192193052672
+            ]
+          },
+          {
+            "delta": [
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1
+            ],
+            "frac": 21.0,
+            "frac_bits": 4626604192193052672,
+            "frac_per_inst": [
+              21.0,
+              21.0,
+              21.0,
+              21.0,
+              21.0,
+              21.0,
+              21.0,
+              21.0
+            ],
+            "frac_per_inst_bits": [
+              4626604192193052672,
+              4626604192193052672,
+              4626604192193052672,
+              4626604192193052672,
+              4626604192193052672,
+              4626604192193052672,
+              4626604192193052672,
+              4626604192193052672
+            ]
+          }
+        ],
+        "key": "5df6a11c4b99f6c9e4b277f52f6011306ac56a8e6e64b916c7d0b6776996f3c2"
+      },
+      "statement_bytes": {
+        "claims": 1135617,
+        "fixed": 98910
+      },
+      "stream_bindings_ok": true,
+      "trace_secs": 3.637511479,
+      "upload": {
+        "bytes": 0,
+        "columns": 0,
+        "devcopy_bytes": 0,
+        "devcopy_columns": 0,
+        "devcopy_secs": 0.0,
+        "gb_per_s": 0.0,
+        "mirror_batches": 0,
+        "mirror_bytes": 0,
+        "mirror_secs": 0.0,
+        "pool_enabled": false,
+        "pool_peak_bytes": 0,
+        "secs": 0.0,
+        "witness_bytes": 0,
+        "witness_secs": 0.0,
+        "witness_uploads": 0
+      },
+      "verdict": {
+        "ao_q_ok": true,
+        "ao_q_open": false,
+        "av_ok": true,
+        "boundary_roots": [
+          "3392142afd3ad95fc069e25db30e3a3d5892796b7b41234cb989e67ed8af4069",
+          "7dd38b2f58155f21f85bcd4c279e99426faf282c14dc4b365987a25b26a8491e",
+          "c1f60843ebab7d54695e6e5e1755fa4238613f3d57a9b05d085ac048c69e9006",
+          "3381ff0b3d7a6711d68cd5362da1c248ce0fb51a78b811742efb590a7f29f521",
+          "9254c31f4a93d70026128f698e9a940388d8c54fa7280d4e81a51a1a2aaffa5a",
+          "6850150c6041ff4a10740b6783e5392204d2f86dc43596357477e46ec885e73e",
+          "f4220a56eab56f1d2ced5f12d26e8f1673d02662aa420670eb373345a40a0b78",
+          "25574464a66dd418f33959065482195d8ed037714607b93da75127688dedd16c"
+        ],
+        "boundary_sides": [
+          {
+            "axis": "layer",
+            "group": null,
+            "role": "in",
+            "root": "3392142afd3ad95fc069e25db30e3a3d5892796b7b41234cb989e67ed8af4069",
+            "tree": 4
+          },
+          {
+            "axis": "layer",
+            "group": null,
+            "role": "out",
+            "root": "7dd38b2f58155f21f85bcd4c279e99426faf282c14dc4b365987a25b26a8491e",
+            "tree": 5
+          },
+          {
+            "axis": "token",
+            "group": 0,
+            "role": "out",
+            "root": "c1f60843ebab7d54695e6e5e1755fa4238613f3d57a9b05d085ac048c69e9006",
+            "tree": 6
+          },
+          {
+            "axis": "token",
+            "group": 0,
+            "role": "in",
+            "root": "3381ff0b3d7a6711d68cd5362da1c248ce0fb51a78b811742efb590a7f29f521",
+            "tree": 7
+          },
+          {
+            "axis": "token",
+            "group": 1,
+            "role": "out",
+            "root": "9254c31f4a93d70026128f698e9a940388d8c54fa7280d4e81a51a1a2aaffa5a",
+            "tree": 8
+          },
+          {
+            "axis": "token",
+            "group": 1,
+            "role": "in",
+            "root": "6850150c6041ff4a10740b6783e5392204d2f86dc43596357477e46ec885e73e",
+            "tree": 9
+          },
+          {
+            "axis": "token",
+            "group": 2,
+            "role": "out",
+            "root": "f4220a56eab56f1d2ced5f12d26e8f1673d02662aa420670eb373345a40a0b78",
+            "tree": 10
+          },
+          {
+            "axis": "token",
+            "group": 2,
+            "role": "in",
+            "root": "25574464a66dd418f33959065482195d8ed037714607b93da75127688dedd16c",
+            "tree": 11
+          }
+        ],
+        "den_link_ok": true,
+        "den_ok": [
+          true,
+          true,
+          true
+        ],
+        "deq_out_ok": [
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "deq_out_open": [],
+        "embed_ok": true,
+        "embed_tok_ok": true,
+        "error": null,
+        "freivalds_ok": [
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "head_binding_ok": true,
+        "head_tok_ok": true,
+        "model_root_ok": true,
+        "nn_in_ok": [
+          true,
+          true,
+          true
+        ],
+        "nn_open": false,
+        "nn_out_ok": [
+          true,
+          true,
+          true
+        ],
+        "nn_pos_ok": true,
+        "nn_q_ok": [
+          true,
+          true,
+          true
+        ],
+        "qk_ok": [
+          true,
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "residual_stream_ok": [
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "root_ok": true,
+        "rq_in_ok": [
+          true,
+          true,
+          true
+        ],
+        "rq_out_ok": [
+          true,
+          true,
+          true
+        ],
+        "rq_scale_ok": [
+          true,
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "rq_scale_open": [],
+        "shape_root": null,
+        "shape_root_ok": null,
+        "shape_secs": 0.0,
+        "sizes_ok": true,
+        "stark_ok": true,
+        "stream_in": [
+          1651405628,
+          280307946,
+          1709879602,
+          2024295706
+        ],
+        "stream_out": [
+          869502986,
+          157311796,
+          519738903,
+          1433848429
+        ],
+        "sums_cancel": true,
+        "verify_secs": 0.267174155
+      },
+      "verify_secs": 0.267174155
+    },
+    "source": "synthetic layer (seed=7)"
+  },
+  "security": {
+    "blowup_factor": 2,
+    "fold_step": 1,
+    "hash": "Blake2s (Blake2sM31MerkleChannel)",
+    "log_blowup_factor": 1,
+    "log_last_layer_degree_bound": 0,
+    "m3": {
+      "device_merkle_reduce": true,
+      "fri_gather": true,
+      "launch_sync": false,
+      "lde_only": false,
+      "merkle_mode": "1",
+      "prewarm": true,
+      "store_coeffs": true
+    },
+    "n_queries": 100,
+    "pow_bits": 0,
+    "security_bits_conjectured": 100
+  }
+}

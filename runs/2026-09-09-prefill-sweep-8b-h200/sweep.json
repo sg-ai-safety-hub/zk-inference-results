@@ -1,0 +1,501 @@
+{
+ "points": [
+  {
+   "s": 64,
+   "c": 64,
+   "table_bits": 24,
+   "accepts": true,
+   "off_table": 0,
+   "fresh": 229399968,
+   "base": 102856480,
+   "interaction": 124446336,
+   "preprocessed": 180016128,
+   "key_tiles": 2105344,
+   "key_tiles_interaction": 254976,
+   "key_tiles_fresh": 2360320,
+   "key_tile_split": [
+    {
+     "component": "key_tile0",
+     "cells": 57856,
+     "columns": 48
+    },
+    {
+     "component": "key_tile1",
+     "cells": 28928,
+     "columns": 48
+    },
+    {
+     "component": "key_tile2",
+     "cells": 28928,
+     "columns": 48
+    },
+    {
+     "component": "key_tile3 (diagonal block)",
+     "cells": 69632,
+     "columns": 48
+    },
+    {
+     "component": "key_tile4 (diagonal block)",
+     "cells": 34816,
+     "columns": 48
+    },
+    {
+     "component": "key_tile5 (diagonal block)",
+     "cells": 34816,
+     "columns": 48
+    }
+   ],
+   "grid_target": 64,
+   "chan_target": 128,
+   "columns_total": 30518,
+   "ao_rem_bits": 22,
+   "ref_mismatch": 0,
+   "prove_secs": 24.295438864,
+   "trace_secs": 2.7055830590000003,
+   "commit_secs": 7.609682274000001,
+   "fri_secs": 7.021605515,
+   "peak_rss_bytes": 32859906048,
+   "proof_sha256": "0b01534132a59626d520081e1a509ff4a59fc2039958489a7bb6ba47f09df810",
+   "unsound_skips": [],
+   "all_bound": true,
+   "unbound": []
+  },
+  {
+   "s": 128,
+   "c": 128,
+   "table_bits": 24,
+   "accepts": true,
+   "off_table": 0,
+   "fresh": 331973792,
+   "base": 183480352,
+   "interaction": 144299136,
+   "preprocessed": 188816192,
+   "key_tiles": 5259264,
+   "key_tiles_interaction": 575488,
+   "key_tiles_fresh": 5834752,
+   "key_tile_split": [
+    {
+     "component": "key_tile0",
+     "cells": 132096,
+     "columns": 48
+    },
+    {
+     "component": "key_tile1",
+     "cells": 66048,
+     "columns": 48
+    },
+    {
+     "component": "key_tile2",
+     "cells": 66048,
+     "columns": 48
+    },
+    {
+     "component": "key_tile3 (diagonal block)",
+     "cells": 155648,
+     "columns": 48
+    },
+    {
+     "component": "key_tile4 (diagonal block)",
+     "cells": 77824,
+     "columns": 48
+    },
+    {
+     "component": "key_tile5 (diagonal block)",
+     "cells": 77824,
+     "columns": 48
+    }
+   ],
+   "grid_target": 64,
+   "chan_target": 128,
+   "columns_total": 30910,
+   "ao_rem_bits": 22,
+   "ref_mismatch": 0,
+   "prove_secs": 28.508334636,
+   "trace_secs": 3.637511479,
+   "commit_secs": 7.215853985000002,
+   "fri_secs": 7.024233946,
+   "peak_rss_bytes": 34150977536,
+   "proof_sha256": "46a42397972056b153e00b43a370a90b75dd3ed635a1e0006690824f7ba39f60",
+   "unsound_skips": [],
+   "all_bound": true,
+   "unbound": []
+  },
+  {
+   "s": 256,
+   "c": 4096,
+   "table_bits": 24,
+   "accepts": true,
+   "off_table": 0,
+   "fresh": 717607824,
+   "base": 455877200,
+   "interaction": 190427456,
+   "preprocessed": 209934832,
+   "key_tiles": 124813312,
+   "key_tiles_interaction": 15765504,
+   "key_tiles_fresh": 140578816,
+   "key_tile_split": [
+    {
+     "component": "key_tile0",
+     "cells": 460800,
+     "columns": 48
+    },
+    {
+     "component": "key_tile1",
+     "cells": 458752,
+     "columns": 40
+    },
+    {
+     "component": "key_tile2",
+     "cells": 458752,
+     "columns": 40
+    },
+    {
+     "component": "key_tile3",
+     "cells": 458752,
+     "columns": 40
+    },
+    {
+     "component": "key_tile4",
+     "cells": 458752,
+     "columns": 40
+    },
+    {
+     "component": "key_tile5",
+     "cells": 458752,
+     "columns": 40
+    },
+    {
+     "component": "key_tile6",
+     "cells": 458752,
+     "columns": 40
+    },
+    {
+     "component": "key_tile7",
+     "cells": 458752,
+     "columns": 40
+    },
+    {
+     "component": "key_tile8",
+     "cells": 458752,
+     "columns": 40
+    },
+    {
+     "component": "key_tile9",
+     "cells": 458752,
+     "columns": 40
+    },
+    {
+     "component": "key_tile10",
+     "cells": 458752,
+     "columns": 40
+    },
+    {
+     "component": "key_tile11",
+     "cells": 458752,
+     "columns": 40
+    },
+    {
+     "component": "key_tile12",
+     "cells": 458752,
+     "columns": 40
+    },
+    {
+     "component": "key_tile13",
+     "cells": 458752,
+     "columns": 40
+    },
+    {
+     "component": "key_tile14",
+     "cells": 458752,
+     "columns": 40
+    },
+    {
+     "component": "key_tile15",
+     "cells": 458752,
+     "columns": 40
+    },
+    {
+     "component": "key_tile16",
+     "cells": 230400,
+     "columns": 48
+    },
+    {
+     "component": "key_tile17",
+     "cells": 229376,
+     "columns": 40
+    },
+    {
+     "component": "key_tile18",
+     "cells": 229376,
+     "columns": 40
+    },
+    {
+     "component": "key_tile19",
+     "cells": 229376,
+     "columns": 40
+    },
+    {
+     "component": "key_tile20",
+     "cells": 229376,
+     "columns": 40
+    },
+    {
+     "component": "key_tile21",
+     "cells": 229376,
+     "columns": 40
+    },
+    {
+     "component": "key_tile22",
+     "cells": 229376,
+     "columns": 40
+    },
+    {
+     "component": "key_tile23",
+     "cells": 229376,
+     "columns": 40
+    },
+    {
+     "component": "key_tile24",
+     "cells": 229376,
+     "columns": 40
+    },
+    {
+     "component": "key_tile25",
+     "cells": 229376,
+     "columns": 40
+    },
+    {
+     "component": "key_tile26",
+     "cells": 229376,
+     "columns": 40
+    },
+    {
+     "component": "key_tile27",
+     "cells": 229376,
+     "columns": 40
+    },
+    {
+     "component": "key_tile28",
+     "cells": 229376,
+     "columns": 40
+    },
+    {
+     "component": "key_tile29",
+     "cells": 229376,
+     "columns": 40
+    },
+    {
+     "component": "key_tile30",
+     "cells": 229376,
+     "columns": 40
+    },
+    {
+     "component": "key_tile31",
+     "cells": 229376,
+     "columns": 40
+    },
+    {
+     "component": "key_tile32",
+     "cells": 230400,
+     "columns": 48
+    },
+    {
+     "component": "key_tile33",
+     "cells": 229376,
+     "columns": 40
+    },
+    {
+     "component": "key_tile34",
+     "cells": 229376,
+     "columns": 40
+    },
+    {
+     "component": "key_tile35",
+     "cells": 229376,
+     "columns": 40
+    },
+    {
+     "component": "key_tile36",
+     "cells": 229376,
+     "columns": 40
+    },
+    {
+     "component": "key_tile37",
+     "cells": 229376,
+     "columns": 40
+    },
+    {
+     "component": "key_tile38",
+     "cells": 229376,
+     "columns": 40
+    },
+    {
+     "component": "key_tile39",
+     "cells": 229376,
+     "columns": 40
+    },
+    {
+     "component": "key_tile40",
+     "cells": 229376,
+     "columns": 40
+    },
+    {
+     "component": "key_tile41",
+     "cells": 229376,
+     "columns": 40
+    },
+    {
+     "component": "key_tile42",
+     "cells": 229376,
+     "columns": 40
+    },
+    {
+     "component": "key_tile43",
+     "cells": 229376,
+     "columns": 40
+    },
+    {
+     "component": "key_tile44",
+     "cells": 229376,
+     "columns": 40
+    },
+    {
+     "component": "key_tile45",
+     "cells": 229376,
+     "columns": 40
+    },
+    {
+     "component": "key_tile46",
+     "cells": 229376,
+     "columns": 40
+    },
+    {
+     "component": "key_tile47",
+     "cells": 229376,
+     "columns": 40
+    },
+    {
+     "component": "key_tile48 (diagonal block)",
+     "cells": 540672,
+     "columns": 48
+    },
+    {
+     "component": "key_tile49 (diagonal block)",
+     "cells": 270336,
+     "columns": 48
+    },
+    {
+     "component": "key_tile50 (diagonal block)",
+     "cells": 270336,
+     "columns": 48
+    }
+   ],
+   "grid_target": 64,
+   "chan_target": 128,
+   "columns_total": 51857,
+   "ao_rem_bits": 21,
+   "ref_mismatch": 0,
+   "prove_secs": 51.403457246,
+   "trace_secs": 6.806373249,
+   "commit_secs": 7.702097392,
+   "fri_secs": 7.854816876,
+   "peak_rss_bytes": 47397703680,
+   "proof_sha256": "dcf40e5a2e30a9c2d7693e95b5578a53b375fba1435ca1336a24f74e78cbe779",
+   "unsound_skips": [],
+   "all_bound": true,
+   "unbound": []
+  }
+ ],
+ "fit": {
+  "key_tiles": {
+   "s_times_c": 64.0,
+   "c": 12288.0,
+   "s": 12416.0,
+   "points": 3,
+   "family_coeffs": [
+    64.0,
+    12288.0,
+    12416.0
+   ],
+   "prefix_tile_coeffs": [
+    64.0,
+    12288.0,
+    128.0
+   ],
+   "per_token_component": 128.0,
+   "exact": [
+    "64",
+    "12288",
+    "12416"
+   ],
+   "residual_cells": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "max_abs_residual_cells": 0.0
+  },
+  "key_tiles_interaction": {
+   "s_times_c": 4.0,
+   "c": 2713.6,
+   "s": 758.4,
+   "points": 3,
+   "family_coeffs": [
+    4.0,
+    2713.6,
+    758.4
+   ],
+   "prefix_tile_coeffs": [
+    4.0,
+    2713.6,
+    -1955.2
+   ],
+   "per_token_component": -1955.2,
+   "exact": [
+    "4",
+    "13568/5",
+    "3792/5"
+   ],
+   "residual_cells": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "max_abs_residual_cells": 0.0
+  },
+  "key_tiles_fresh": {
+   "s_times_c": 68.0,
+   "c": 15001.6,
+   "s": 13174.4,
+   "points": 3,
+   "family_coeffs": [
+    68.0,
+    15001.6,
+    13174.4
+   ],
+   "prefix_tile_coeffs": [
+    68.0,
+    15001.6,
+    -1827.2
+   ],
+   "per_token_component": -1827.2,
+   "exact": [
+    "68",
+    "75008/5",
+    "65872/5"
+   ],
+   "residual_cells": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "max_abs_residual_cells": 0.0
+  },
+  "model": "cells(S, C) = a (S*C + S^2) + b C + g S over the key tile family: the prefix, tiled in C/S blocks of S keys, and the square diagonal block. The prefix key tile's own (S*C, C, S) triple, which is what the cost model reads, is (a, b, g - b).",
+  "points": 3,
+  "off_diagonal_points": 1,
+  "exactly_determined": true,
+  "note": "three coefficients over three points is an exact solve, so the residual is zero by construction and is not a check of the form; a fourth point is what would make it one. What the form assumes is that the prefix's C/S sub-key-tiles and the diagonal block are the same S by S tile, which the per-key-tile interaction split below is the evidence for."
+ },
+ "missing": []
+}

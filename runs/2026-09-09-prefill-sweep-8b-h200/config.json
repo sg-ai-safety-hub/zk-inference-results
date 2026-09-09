@@ -1,0 +1,9 @@
+{"driver": "prefill-sweep-8b", "label": "design",
+ "points": "64:24 128:24", "extra_points": "256:4096:24+25+26", "context_equals_s": false,
+ "hd": 128, "head_groups": "16,8,8", "nin": 4096, "nout": 4096,
+ "residual_stream_a": 32, "kmax": 19,
+ "ao_rem_bits": "22 at C = S, the witness's own at the extra points",
+ "threads": 20,
+ "shared_arithmetic": "--round even --numbits 9 --z-hi-bits 7", "variant": "intexp",
+ "gkr_flags": "--gkr-key-tiles --gkr-dequant --gkr-residual-stream --gkr-freivalds --gkr-attnout", "shape_flags": "--hd 128 --head-groups 16,8,8 --nin 4096 --nout 4096 --residual-stream-a 32 --kmax 19 --synth-residual-stream --diagonal-block",
+ "backend": "simd", "witness": "synthetic, the prover's own fixed-seed generator"}
