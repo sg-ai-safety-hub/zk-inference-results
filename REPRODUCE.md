@@ -999,15 +999,17 @@ nothing measurable: no lookup took the host route on any of the 20 processes.
 
     tools/drivers/reference-digest-plain.sh <host> <prover-commit> <harness-commit>
 
-runs: 2026-09-08-reference-digest-plain-h100
-prover commit: a603db1ddf1e2372d1f9761d684df8f2294199a9 (zk-prover pull request 107)
-harness commit: a603db1ddf1e2372d1f9761d684df8f2294199a9
-digests: first 16 hex:
+runs: 2026-09-08-reference-digest-plain-h100, 2026-09-09-reference-digest-plain-h200
+prover commit: a603db1ddf1e2372d1f9761d684df8f2294199a9 (zk-prover pull request
+  107) on the H100, 2c8fa991c0f5425be48bf7f8b95334cbd4f716ed on the H200
+harness commit: the same commit as the prover, in each run
+digests: first 16 hex, and the same in both runs:
   `full-simd.json`, `full-cuda.json`: `05580c4a4b766666`
   `short-simd.json`, `short-cuda.json`: `65d588904d613bff`
-  `plain-simd.json`: `d2f2afd860a491d9` (the reference backend only; see below)
-binding (from the manifest, folded over the five proofs): 1 to 14 bound;
-  15 and 16 absent; unbound none
+  `plain-simd.json`: `d2f2afd860a491d9`, and `plain-cuda.json` on the H200 the
+  same; on the H100 that shape has no CUDA side (see below)
+binding (from the manifests, folded over the first run's five proofs and the
+  second's six): 1 to 14 bound; 15 and 16 absent; unbound none
 unsound skips: none
 constants backed: none; this run freezes digests, not numbers
 
@@ -1018,7 +1020,9 @@ block and the residual-stream columns and no skip flag: the reference segment,
 on, which is the paper's configuration; and the short segment, 128 output
 positions against a 4,096-key prefix with none of them on. Each is proved on
 the SIMD backend and then on the CUDA backend of the same commit, and equal
-digests are the gate.
+digests are the gate. The reference segment without the reductions is proved
+beside them, on the reference backend always and on a card that reports the
+memory for it.
 
 What the short segment is for. Without the reductions the segment's key tiles
 each publish their own interaction columns, and the vendored library's
@@ -1030,13 +1034,53 @@ axis is wider than the cap and whose digest is the reference backend's. The
 short segment's interaction tree is 102,608 columns wide, 80,424 of them key
 tiles, against the reference segment's 93,184 and 70,920.
 
+The reference segment without the reductions proves on a 143 GB card. On the
+H200 it proves to `d2f2afd860a491d9`, the digest the reference backend gives
+it, with no skip in effect, every edge bound and no kernel fallback line. That
+is the shape zk-prover #29 opened on: at C = 16,384 with the five reductions
+off the sampling axis is wider than a grid dimension holds, and before pull
+request 107 the proof stopped in `eval_at_point.cu` with an invalid
+configuration argument on a card of this size. It no longer does. Nothing about
+the shape got smaller -- it still commits 4,131,033,024 cells -- so what #29
+asked can now be answered from a measurement rather than from the cap: the
+sliced launch is what the shape needed, and the memory below is what it costs.
+
+What it costs, from the proof's own marks. The two cards agree mark for mark up
+to the point where the smaller one stopped, and the next mark is where it would
+have had to go:
+
+| mark | card memory in use |
+|---|---|
+| after the base tree, 66,215 columns | 40.5 GB |
+| after the interaction tree, 93,184 columns | 70.9 GB |
+| after the boundary tree | 74.2 GB |
+| after the composition commitment | 82.2 GB |
+| after the opened values | 92.9 GB |
+
+The first four are the same on both cards to the tenth of a gigabyte. The
+H100 run reached the fourth with 82.2 GB of the 85.0 GB the driver reports it,
+and the quotient stage's next allocation was refused; the H200 run reaches the
+fifth, 92.9 GB of the 150.1 GB it reports. So the shape needs about 93 GB and
+the 80 GB card was about 11 GB short, which is more than any configuration of
+this segment saves.
+
+What the driver does with that. The job reads the memory the device reports and
+attempts the shape on a card at or above 120 GiB, which is half again the card
+the shape ran out of memory on; it emits that shape's kernels only on such a
+card, since without them every lookup would take the host route. A card below
+the threshold does what the first run did: proves the shape on the reference
+backend, writes what it did not attempt and why into
+`out/plain-cuda-refused.json`, and carries the same evidence for the sliced
+launch through the short segment. A card above it writes the outcome, the
+committed cells and the memory marks into `out/plain-cuda-attempted.json`. A
+card that attempts the shape and stops is a result and not a broken run; a
+proof that comes out is held to the same gate as the others.
+
 The reference segment's digest is not the one `prover/README.md` records.
 The page records `25741d12f315aae7`, taken on 2026-09-07 at another prover
-commit and from a dump another harness commit wrote; at the commit this run
-pins, the same command on the same statement proves 05580c4a4b766666 on both backends.
-Thirty-seven prover commits and a changed extractor lie between the two, so
-which of them moved it is not this run's to say; the comparison is recorded in
-`full-digest.json` and the digest that stands at this commit is the one above.
+commit and from a dump another harness commit wrote; both runs here prove
+`05580c4a4b766666` on both backends, 28 prover commits apart. The comparison is
+recorded in `full-digest.json` and filed as zk-prover #130.
 
 Why the block length moves rather than the context. The key tile count follows
 the key blocks -- the prefix and the segment's own block, in blocks of S keys
@@ -1048,22 +1092,15 @@ positions a shorter prefix has fewer key blocks and the axis falls back under
 the cap, which is what zk-prover #29 saw from the other side when it put the
 threshold at a 15,872-key prefix.
 
-The reference segment without the reductions is proved here on the reference
-backend only: it does not fit this card. Its CUDA proof was attempted once, at
-this prover commit on 2026-09-08, and stopped in the quotient stage
-(`quotients.cu:370`, out of memory) with 82.2 GB of the 85.0 GB the driver
-reports in use at the composition commitment and a 256 MB allocation refused;
-the card was otherwise empty. The driver does not attempt it again, and
-`out/plain-cuda-refused.json` records that, the shape's committed cells and the
-memory the card reports.
-
-How the run is made. The extractions read the card; the reference segment's
-dump is the one `reference-digest.sh` leaves under the remote home and is
-reused, and the short segment's is extracted in seconds. The CUDA backend
-proves through device kernels generated per segment shape, so the job emits the
-kernels for both shapes that run on the card, installs them into the vendored
+How the run is made. The extractions read the card; each dump is kept under the
+remote home and reused, so a second run at another prover commit rebuilds,
+re-emits and re-proves and does not extract again. The CUDA backend proves
+through device kernels generated per segment shape, so the job emits the
+kernels for every shape that runs on the card, installs them into the vendored
 library and rebuilds; the built tree then differs from the pushed commit, which
-is why the manifest records the build as dirty.
+is why the manifest records the build as dirty. The two installer scripts were
+renamed between the two runs, and the job takes whichever name the pinned
+commit has.
 
 ## unproved-baseline
 
