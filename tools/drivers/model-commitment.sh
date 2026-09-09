@@ -197,14 +197,29 @@ print(f"verifier form: {len({r['layer'] for r in ver})} layers, "
 CMTPY
 
 # 4. every segment's model root and shape root against the manifest, over the
-#    serialized statements and proofs of the sequence run and nothing else
-if [ ! -s \$OUT/grid.json ]; then
+#    serialized statements and proofs of the sequence run and nothing else.
+#
+#    `--prompt` is the sequence run's own published ids, and it is not optional
+#    here.  A grid told nothing about the prompt has no way to know which
+#    positions were given and which the model wrote, so it reads every position
+#    after a head block's first as generated and asks that each equal the argmax
+#    proved for the one before it -- which is false for a prompt position, and
+#    is what a grid run without it reports.  The sequence run wrote the file
+#    beside its outputs and this reads it from there rather than making it
+#    again.
+PROMPT=\$SEQR/prompt_ids.json
+[ -f \$PROMPT ] || { st "no published prompt ids at \$PROMPT: run $SEQ on this host first"; exit 5; }
+GRIDARGS="--expect-layer-links \$LL --expect-token-links \$TL --expect-model-roots --expect-pre-roots --verify --prompt"
+GRIDSUM=\$(printf '%s' "\$GRIDARGS" | sha256sum | cut -c1-16)
+if [ "\$(cat \$R/grid.done 2>/dev/null)" != "\$GRIDSUM" ]; then
   T0=\$(date +%s)
   \$SIMD boundary-grid --dir \$SER --plan \$PLAN \
       --expect-layer-links \$LL --expect-token-links \$TL \
       --expect-model-roots \$OUT/model-roots.json --expect-pre-roots \$OUT/model-roots.json \
+      --verify --prompt \$PROMPT \
       > \$OUT/grid.json 2> \$R/grid.err
   echo \$((\$(date +%s) - T0)) > \$R/grid.secs
+  printf '%s\n' "\$GRIDSUM" > \$R/grid.done
 fi
 st "grid checked in \$(cat \$R/grid.secs 2>/dev/null || echo '?')s"
 
@@ -252,6 +267,16 @@ print(f"grid: {len(model)} segments' model roots compared, {n_bad_model} not the
       f"{len(pre)} shape roots compared, {n_bad_pre} not the manifest's")
 print(f"grid: {g['links_passed']}/{g['links_run']} of {g['links_expected']} implied links "
       f"passed; models named {g['models']['distinct']}; all_chain {g['all_chain']}")
+v, tk = g.get("verified", {}), g.get("tokens", {})
+print(f"grid: {v.get('accepted', 0)}/{v.get('run', 0)} segment proofs verified; ids "
+      f"{tk.get('prompt_positions', 0)} prompt + {tk.get('generated_positions', 0)} generated, "
+      f"{len(tk.get('mismatches') or [])} wrong, "
+      f"{len(tk.get('unbacked') or [])} with no argmax behind them")
+if not v.get("all", True):
+    bad.append(f"{v.get('run', 0) - v.get('accepted', 0)} segment proof(s) did not verify")
+if not tk.get("all", True):
+    bad.append(f"the published ids do not chain: {tk.get('mismatches')}, "
+               f"unbacked {tk.get('unbacked')}")
 if not model:
     bad.append("the grid compared no model root: it was given no manifest")
 if n_bad_model or n_bad_pre:
