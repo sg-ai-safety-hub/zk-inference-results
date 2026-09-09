@@ -31,12 +31,19 @@ Written, not yet run:
   `gkr-ablation-c4096` prices the same five on 32 segments of block 8, which is
   the block with the longest prefix and where they weigh most.
 - `tools/drivers/negative-controls.sh`: the control suite on one real segment of
-  `headline-c4096`'s plan and on the three synthetic shapes. Written and run;
-  the suite stops on its own assertion at its 22nd control, which is accepted
-  where it has to be refused (zk-prover #60), and it writes its record only when
-  it finishes, so the run produced no output to keep. The 21 controls before it
-  were refused as designed, on the real segment and on each of the three
-  synthetic shapes alike.
+  `headline-c4096`'s plan and on the three synthetic shapes. Written and run
+  twice. The three synthetic shapes now pass: 171 controls refused for the
+  reasons they were written for, no crash, and each of the three covered by the
+  control that says the norm weight is the model's, identified by that refusal
+  and by the model root that moved rather than by its name. Two controls are
+  skipped on two of the shapes and the run records why. The real segment does
+  not finish: 41 controls are refused as designed and the 42nd aborts the
+  process, because it moves three values past the master table `--tight-table`
+  had narrowed to the honest witness's own width and the prover panics where the
+  control expects a refusal (zk-prover #134). The suite writes its record only
+  when it finishes, so both real targets produced no output to keep and the gate
+  fails the run on the two crashes. The same panic ends the o-seam control on
+  that segment.
 
 ## synthetic-digests
 
