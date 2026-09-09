@@ -742,6 +742,125 @@ def prefill_sweep(a, keys):
 # Added when a driver's first run lands; each function re-derives the constants
 # whose `run` was made by that driver.
 
+# -- prefill-sweep-8b ----------------------------------------------------------
+def _key_tile_solve(pts, field):
+    """The key tile family's three coefficients over the sweep's points.
+
+    The sound defaults tile the prefix in blocks of S -- C/S sub-key-tiles over
+    the same heads, the per-token component on the first of them -- and add one
+    square diagonal block.  So the family is C/S + 1 copies of one S by S tile
+    plus that per-token component, and with T(S) = a S^2 + b S,
+
+        cells(S, C) = (C/S + 1) T(S) + r S = a (S*C + S^2) + b C + g S,  g = b + r
+
+    The prefix key tile's own (S*C, C, S) triple, which is what the cost model
+    reads, is (a, b, g - b).  At C = S the second and third columns are both S,
+    so a point with C != S is what separates b from g.  Exact rationals: the
+    normal equations carry entries near 2^80 and a float solve loses the low
+    digits of what is supposed to be an integer count of cells.
+    """
+    F = fractions.Fraction
+    xs = [(F(s * c + s * s), F(c), F(s)) for s, c, _ in pts]
+    ys = [F(v[field]) for _, _, v in pts]
+    n = 3
+    m = [[sum(x[i] * x[j] for x in xs) for j in range(n)]
+         + [sum(x[i] * y for x, y in zip(xs, ys))] for i in range(n)]
+    for i in range(n):
+        pr = next((r for r in range(i, n) if m[r][i]), None)
+        if pr is None:
+            return None
+        m[i], m[pr] = m[pr], m[i]
+        pv = m[i][i]
+        m[i] = [v / pv for v in m[i]]
+        for r in range(n):
+            if r != i and m[r][i]:
+                f = m[r][i]
+                m[r] = [v - f * w for v, w in zip(m[r], m[i])]
+    a, b, g = (m[i][n] for i in range(n))
+    resid = max(abs(y - (a * x[0] + b * x[1] + g * x[2])) for x, y in zip(xs, ys))
+    return a, b, g, resid
+
+
+def prefill_sweep_8b(a, keys):
+    """The key tiles' cost in the block length and the prefix, at the 8B width.
+
+    Each point's cells come from that point's own proof, which the audit opens
+    and checks accepted with no skip and every edge bound.  The three
+    coefficients are re-solved here from those points rather than read out of
+    the run's summary.  With three points and three coefficients the solve is
+    exact, so the residual it reports is zero by construction and is not a check
+    of the form; the audit still fails a non-zero one, because a non-zero
+    residual on an exact solve would mean the arithmetic here is wrong.
+
+    Only the committed side is claimed.  The interaction side does not take this
+    form under the five GKR reductions the paper reports, and the run's
+    per-key-tile split is the evidence: at a 256-token block over a 4,096-key
+    prefix the 48 prefix sub-key-tiles do not all cost the same and none of them
+    costs what the diagonal block does.
+    """
+    if not keys:
+        return
+    run = sorted({e["run"] for e in keys.values()})[0]
+    cfg = artifact(run, "config.json")
+    grid = [(int(x.split(":")[0]), int(x.split(":")[0])) for x in cfg["points"].split()]
+    grid += [(int(x.split(":")[0]), int(x.split(":")[1]))
+             for x in cfg["extra_points"].split()]
+    pts = []
+    for s, c in grid:
+        doc = artifact(run, f"dd_s{s}_c{c}.json")
+        p, prov = doc["result"]["point"], doc["provenance"]
+        if not p["accepts"] or p.get("off_table"):
+            a.fails.append(f"audit: S={s} C={c} did not accept, or has "
+                           f"{p.get('off_table')} off the table")
+        if prov["unsound_skips"]:
+            a.fails.append(f"audit: S={s} C={c} ran with skips {prov['unsound_skips']}")
+        if not prov["binding"]["all_bound"]:
+            a.fails.append(f"audit: S={s} C={c} left edges {prov['binding']['unbound']} unbound")
+        pr = p["params"]
+        width = pr["hd"] * pr["nh"]
+        if (pr["hd"], pr["nh"]) != (128, 32) or any(m["n_in"] != width or m["n_out"] != width
+                                                    for m in pr["mats"]):
+            a.fails.append(f"audit: S={s} C={c} is not the 8B width -- 32 heads of 128 "
+                           "with every matmul equal to their product")
+        if not pr["diagonal_block"] or (s, c) != (pr["s"], pr["c"]):
+            a.fails.append(f"audit: S={s} C={c} is not the point its file is named for, "
+                           "or was proved without the diagonal block")
+        fam = p["family_cells"]
+        base = fam["key_tiles"]
+        inter = fam["interaction_by_family"].get("key_tiles", {}).get("cells", 0)
+        v = {"key_tiles": base, "key_tiles_interaction": inter,
+             "key_tiles_fresh": base + inter, "fresh": p["cells"]["fresh"]}
+        pts.append((s, c, v))
+        for suffix in ("key_tiles", "key_tiles_fresh", "fresh"):
+            key = f"cells.b9_prefill_8b.s{s}c{c}.{suffix}"
+            if key in keys:
+                a.exact(key, v[suffix])
+    print(f"  runs/{run}: {len(pts)} points, {cfg['variant']}, "
+          f"key tiles {pts[0][2]['key_tiles']:,} to {pts[-1][2]['key_tiles']:,}")
+    off_diagonal = [1 for s, c, _ in pts if s != c]
+    if not off_diagonal:
+        a.fails.append("audit: the sweep has no point with C != S, so the C and S "
+                       "coefficients are one variable")
+        return
+    # The committed side only.  With the five GKR reductions on, the key tiles'
+    # interaction is not of this form -- the prefix's sub-key-tiles and the
+    # diagonal block do not cost the same there, and solving it returns a
+    # negative per-token component -- so `attention_grid.fresh_cell_coeffs` is
+    # not claimed from this run and the run's own per-key-tile split says why.
+    key = "attention_grid.base_cell_coeffs"
+    if key in keys:
+        got = _key_tile_solve(pts, "key_tiles")
+        if got is None:
+            a.fails.append(f"audit: {key}: the three coefficients are not separable "
+                           "over this run's points")
+            return
+        coeff_a, coeff_b, coeff_g, resid = got
+        if resid:
+            a.fails.append(f"audit: {key}: the three-coefficient form leaves a residual "
+                           f"of {float(resid):,.0f} cells")
+        a.exact(key, [float(coeff_a), float(coeff_b), float(coeff_g - coeff_b)])
+
+
 # -- predict-14b ---------------------------------------------------------------
 def predict_14b(a, keys):
     """The 14B model's layer proofs: what the shape cost, added up over its layers.
@@ -1168,6 +1287,7 @@ SECTIONS = [
     ("quality-gemma270m", _quality("quality.gemma270m")),
     ("quality-suite", quality_suite),
     ("prefill-sweep", prefill_sweep),
+    ("prefill-sweep-8b", prefill_sweep_8b),
     ("predict-14b", predict_14b),
     ("unproved-baseline", unproved_baseline),
     ("model-commitment", model_commitment),

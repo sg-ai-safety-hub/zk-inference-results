@@ -11,17 +11,21 @@
 # sizes that table by the flag, so the paper's own arithmetic can now be proved
 # at the 8B's width, and this is the sweep that measures it there.
 #
-# The table width is not constant in the block length here, and it is not
-# guessed: the layer names the width it needs in the refusal it raises, and each
-# point carries the width that refusal named.  A point whose width is wrong does
-# not prove, so a wrong one is visible rather than silent.
+# Two block lengths at C = S, and one point whose prefix is longer than its
+# block.  At C = S the key-tile closed form's S*C and C terms multiply the same
+# quantity, so two coefficients are observable and three are not; one point at
+# C != S separates them, and `EXTRA_POINTS` is where such a point is written.
+# Three points and three coefficients is an exact solve, so the residual it
+# reports is zero by construction and says nothing about the form; a fourth
+# point is what would make it a fit again.
 #
-# Two points, and that is the whole of what this can separate.  At C = S the
-# key-tile closed form's S*C and C terms are one variable, so two coefficients
-# are observable and three are not; with two points those two are solved exactly
-# and there is no residual to report, which is a weaker fit than the four-point
-# sweep at the smaller width and the pull request says so.  A third point needs
-# a third block length that proves at this width.
+# The table width is not constant in the shape here, and it is not guessed: the
+# layer names the width it needs, and a point whose width is too small does not
+# prove.  At C = S the width is written per point, from the refusal the layer
+# raised the first time it was asked.  A point whose prefix is longer than its
+# block has no earlier run to read it off, so its width is written as the widths
+# to try in order and the first that proves is the point; every width that did
+# not keeps its stderr under `out/`, so what was tried is in the record.
 #
 # The SIMD backend, not the CUDA one: this is a cell count and a shape, and the
 # two backends prove the same statement to the same digest.
@@ -49,6 +53,10 @@ LABEL=design               # a design measurement: neither a headline nor a cont
 # campaign's brief expected there -- is refused.  The widths are written per
 # point because there is no reason they should be constant in the block length.
 POINTS="64:24 128:24"
+# The points whose context is not the block length, as <block>:<context>:<table
+# bits ladder>.  One of them is what separates the closed form's S*C term from
+# its C term; with none the sweep is the two-coefficient measurement above.
+EXTRA_POINTS="256:4096:24+25+26"
 # The 8B model's attention shape: 32 heads of 128, as three key tile groups, and
 # the matmul widths equal to their product so that every edge binds.
 HD=128
@@ -56,17 +64,23 @@ HEAD_GROUPS=16,8,8
 NIN=4096; NOUT=4096
 RSA=32                     # --residual-stream-a
 KMAX=19
-AO_REM_BITS=22             # the attention output's remainder at this width
+# The attention output's remainder, at the two points whose context is their
+# block length.  A point with a longer prefix is given no pin: the flag may only
+# widen what the witness needs and what a 4,096-key prefix needs is not this, so
+# the extra points take the witness's own and the run records it per point.
+AO_REM_BITS=22
 VARIANT=intexp             # the arithmetic the paper reports
 SHARED_ARITH="--round even --numbits 9 --z-hi-bits 7"
 GKR="--gkr-key-tiles --gkr-dequant --gkr-residual-stream --gkr-freivalds --gkr-attnout"
 # --diagonal-block and --synth-residual-stream are what the sound defaults ask of
 # a synthetic segment: without the first the keys and values cannot be bound to
 # the next block and without the second the residual stream cannot be bound to
-# the next layer, and either one missing would mean a skip flag.  At C = S the
-# diagonal block is one more tile per prefix tile, so the key-tile count here is
-# twice that of the attention score block on its own.
-SHAPE="--hd $HD --head-groups $HEAD_GROUPS --nin $NIN --nout $NOUT --residual-stream-a $RSA --kmax $KMAX --ao-rem-bits $AO_REM_BITS --synth-residual-stream --diagonal-block"
+# the next layer, and either one missing would mean a skip flag.  They also fix
+# what the key tiles of one segment are: the prefix in C/S blocks of S keys --
+# `--kv-boundary` is on unless a skip flag turns it off -- and one square
+# diagonal block, so at C = S the count is twice one attention score block and
+# at C = 4,096 with a 256-token block it is seventeen times it.
+SHAPE="--hd $HD --head-groups $HEAD_GROUPS --nin $NIN --nout $NOUT --residual-stream-a $RSA --kmax $KMAX --synth-residual-stream --diagonal-block"
 XTHREADS=20                # RAYON_NUM_THREADS for the SIMD backend
 
 drv_finish "$(drv_status)"
@@ -92,9 +106,10 @@ export RAYON_NUM_THREADS=\${RAYON_NUM_THREADS:-$XTHREADS}
 
 cat > \$OUT/config.json <<CFG
 {"driver": "$NAME", "label": "$LABEL",
- "points": "$POINTS", "context_equals_s": true,
+ "points": "$POINTS", "extra_points": "$EXTRA_POINTS", "context_equals_s": false,
  "hd": $HD, "head_groups": "$HEAD_GROUPS", "nin": $NIN, "nout": $NOUT,
- "residual_stream_a": $RSA, "kmax": $KMAX, "ao_rem_bits": $AO_REM_BITS,
+ "residual_stream_a": $RSA, "kmax": $KMAX,
+ "ao_rem_bits": "$AO_REM_BITS at C = S, the witness's own at the extra points",
  "threads": $XTHREADS,
  "shared_arithmetic": "$SHARED_ARITH", "variant": "$VARIANT",
  "gkr_flags": "$GKR", "shape_flags": "$SHAPE",
@@ -110,51 +125,75 @@ st "build"
 ( cd \$SRC && CARGO_TARGET_DIR=\$B/t-simd cargo build --release --locked )
 SIMD=\$B/t-simd/release/zk-prover
 
-# 2. the sweep.  A point already proved is not proved again, so an interrupted
-#    sweep is restarted for the price of what it did not finish.  A point that
-#    refuses keeps its stderr, because the refusal names the table width it
-#    wanted and that is the record of why the point is not here.
-for P in $POINTS; do
-  S=\${P%%:*}; TB=\${P##*:}
-  f=\$OUT/dd_s\$S.json
-  if [ -s \$f ]; then st "S=\$S already proved"; continue; fi
-  st "measure: S = C = \$S, --table-bits \$TB"
-  T0=\$(date +%s)
-  if \$SIMD compose $SHARED_ARITH --variants $VARIANT --table-bits \$TB $SHAPE $GKR \
-      --s \$S --ctx \$S > \$f 2> \$R/dd_s\$S.err; then
-    T1=\$(date +%s); st "S=\$S proved in \$((T1 - T0))s"
-  else
+# 2. the sweep, as <block>:<context>:<table bits ladder>.  A point already
+#    proved is not proved again, so an interrupted sweep is restarted for the
+#    price of what it did not finish.  A width that refuses keeps its stderr,
+#    because the refusal names what the layer wanted and that is the record of
+#    what the ladder climbed past.
+ALL=""
+for P in $POINTS; do ALL="\$ALL \${P%%:*}:\${P%%:*}:\${P##*:}:$AO_REM_BITS"; done
+for P in $EXTRA_POINTS; do ALL="\$ALL \$P:auto"; done
+for P in \$ALL; do
+  S=\$(echo \$P | cut -d: -f1); C=\$(echo \$P | cut -d: -f2); LADDER=\$(echo \$P | cut -d: -f3)
+  case \$(echo \$P | cut -d: -f4) in
+    auto) AOF="" ;;
+    *)    AOF="--ao-rem-bits \$(echo \$P | cut -d: -f4)" ;;
+  esac
+  f=\$OUT/dd_s\${S}_c\${C}.json
+  if [ -s \$f ]; then st "S=\$S C=\$C already proved"; continue; fi
+  for TB in \$(echo \$LADDER | tr '+' ' '); do
+    st "measure: S = \$S, C = \$C, --table-bits \$TB \$AOF"
+    T0=\$(date +%s)
+    if \$SIMD compose $SHARED_ARITH --variants $VARIANT --table-bits \$TB $SHAPE \$AOF $GKR \
+        --s \$S --ctx \$C > \$f 2> \$R/dd_s\${S}_c\${C}_t\${TB}.err; then
+      T1=\$(date +%s); st "S=\$S C=\$C proved at --table-bits \$TB in \$((T1 - T0))s"
+      echo \$TB > \$OUT/tablebits_s\${S}_c\${C}.txt
+      break
+    fi
     rm -f \$f
-    tail -20 \$R/dd_s\$S.err > \$OUT/refused_s\$S.txt
-    st "S=\$S did not prove; the last of its stderr is in out/refused_s\$S.txt"
-  fi
+    tail -20 \$R/dd_s\${S}_c\${C}_t\${TB}.err > \$OUT/refused_s\${S}_c\${C}_t\${TB}.txt
+    st "S=\$S C=\$C did not prove at --table-bits \$TB; the last of its stderr is in \
+out/refused_s\${S}_c\${C}_t\${TB}.txt"
+  done
 done
 
 # 3. the sweep, read back off the outputs, and the gate
-python3 - \$OUT "$POINTS" <<'PY'
+python3 - \$OUT "\$ALL" <<'PY'
 import json, pathlib, sys
-out, spec = pathlib.Path(sys.argv[1]), sys.argv[2].split()
-points = [(int(p.split(":")[0]), int(p.split(":")[1])) for p in spec]
+from fractions import Fraction
+out = pathlib.Path(sys.argv[1])
+points = [tuple(int(x) for x in p.split(":")[:2]) for p in sys.argv[2].split()]
 rows, bad, missing = [], [], []
-for s, tb in points:
-    f = out / f"dd_s{s}.json"
+for s, c in points:
+    f = out / f"dd_s{s}_c{c}.json"
     if not f.exists():
-        missing.append(s)
-        print(f"S={s}: no proof; --table-bits {tb} was asked for")
+        missing.append((s, c))
+        print(f"S={s} C={c}: no proof at any width of its ladder")
         continue
     doc = json.loads(f.read_text())
     p, prov = doc["result"]["point"], doc["provenance"]
     fam = p["family_cells"]
-    row = {"s": s, "c": s, "table_bits_asked": tb, "accepts": p["accepts"],
-           "off_table": p["off_table"],
+    # the key tile family's two halves.  the key tile entry of family_cells is the
+    # committed side; the interaction side is the same family's entry in the
+    # rollup, and the two together are what the cost model calls fresh.
+    kt_base = fam["key_tiles"]
+    kt_inter = fam["interaction_by_family"].get("key_tiles", {}).get("cells", 0)
+    row = {"s": s, "c": c, "table_bits": p["params"]["log_table"],
+           "accepts": p["accepts"], "off_table": p["off_table"],
            "fresh": p["cells"]["fresh"], "base": p["cells"]["base"],
            "interaction": p["cells"]["interaction"],
            "preprocessed": p["cells"]["preprocessed"],
-           "key_tiles": fam["key_tiles"],
+           "key_tiles": kt_base, "key_tiles_interaction": kt_inter,
+           "key_tiles_fresh": kt_base + kt_inter,
+           "key_tile_split": [{"component": e["component"], "cells": e["cells"],
+                               "columns": e["columns"]}
+                              for e in fam["interaction_split"]
+                              if e["component"].startswith("key_tile")],
+           "grid_target": p["params"]["grid_target"],
+           "chan_target": p["params"]["chan_target"],
            "columns_total": p["columns"]["total"],
-           "log_table": p["params"]["log_table"],
            "ao_rem_bits": p["params"]["ao_rem_bits"],
-           "reference_mismatch": p.get("reference_mismatch"),
+           "ref_mismatch": p.get("ref_mismatch"),
            "prove_secs": p["prove_secs"], "trace_secs": p["trace_secs"],
            "commit_secs": p["phases"]["commit_secs"],
            "fri_secs": p["phases"]["fri_secs"],
@@ -163,48 +202,116 @@ for s, tb in points:
            "unsound_skips": prov["unsound_skips"],
            "all_bound": prov["binding"]["all_bound"],
            "unbound": prov["binding"]["unbound"]}
-    print(f"S=C={s}: fresh {row['fresh']:,} cells, key tiles {row['key_tiles']:,}, "
-          f"log_table {row['log_table']}, {row['prove_secs']:.1f} s, "
-          f"accepts {row['accepts']}, skips {row['unsound_skips'] or 'none'}, "
-          f"unbound {row['unbound']}, reference mismatch {row['reference_mismatch']}")
+    print(f"S={s} C={c}: key tiles {kt_base:,} committed + {kt_inter:,} interaction, "
+          f"fresh {row['fresh']:,} cells, table 2^{row['table_bits']}, "
+          f"{row['prove_secs']:.1f} s, accepts {row['accepts']}, "
+          f"skips {row['unsound_skips'] or 'none'}, unbound {row['unbound']}, "
+          f"reference mismatch {row['ref_mismatch']}")
     if not p["accepts"]:
-        bad.append(f"S={s}: the proof was rejected")
+        bad.append(f"S={s} C={c}: the proof was rejected")
     if p["off_table"]:
-        bad.append(f"S={s}: {p['off_table']} values off the table")
+        bad.append(f"S={s} C={c}: {p['off_table']} values off the table")
     if prov["unsound_skips"]:
-        bad.append(f"S={s}: unsound skips in effect")
+        bad.append(f"S={s} C={c}: unsound skips in effect")
     if not prov["binding"]["all_bound"]:
-        bad.append(f"S={s}: unbound edges {prov['binding']['unbound']}")
-    if row["reference_mismatch"]:
-        bad.append(f"S={s}: {row['reference_mismatch']} cells disagree with the "
+        bad.append(f"S={s} C={c}: unbound edges {prov['binding']['unbound']}")
+    if row["ref_mismatch"]:
+        bad.append(f"S={s} C={c}: {row['ref_mismatch']} cells disagree with the "
                    "reference arithmetic")
+    # the evidence for the form the fit assumes: the prefix is C/S sub-key-tiles
+    # of the same S by S shape as the diagonal block, so their interaction cells
+    # should take one value each
+    kt = row["key_tile_split"]
+    pre = sorted({e["cells"] for e in kt if "diagonal" not in e["component"]})
+    dia = sorted({e["cells"] for e in kt if "diagonal" in e["component"]})
+    print(f"    {len(kt)} key tile components: prefix interaction cells {pre}, "
+          f"diagonal block {dia}")
     rows.append(row)
-# Two coefficients at C = S, and with two points they are solved and not fitted.
+
+
+def solve(rows, field):
+    """The key tile family's three coefficients, least squares with no intercept.
+
+    The sound defaults tile the prefix in blocks of S -- C/S sub-key-tiles over
+    the same heads, the per-token component on the first of them -- and add one
+    square diagonal block.  So the family is C/S + 1 copies of one S by S tile
+    plus that per-token component, and with T(S) = a S^2 + b S,
+
+        cells(S, C) = (C/S + 1) T(S) + r S = a (S*C + S^2) + b C + g S
+
+    where g = b + r.  a and b are the S*C and C coefficients the cost model
+    reads, and the prefix key tile's own triple is (a, b, g - b).
+
+    At C = S the first column is 2 S^2 and the other two are both S: every C = S
+    point lies in the plane b and g cannot be told apart in, which is why one
+    point at C != S is what separates them.
+    """
+    xs = [(r["s"] * r["c"] + r["s"] ** 2, r["c"], r["s"]) for r in rows]
+    ys = [r[field] for r in rows]
+    n = 3
+    # exact rationals: the normal equations at these sizes carry entries near
+    # 2^80 and a float solve loses the low digits of a coefficient that is
+    # supposed to be an integer count of cells
+    m = [[Fraction(sum(x[i] * x[j] for x in xs)) for j in range(n)]
+         + [Fraction(sum(x[i] * y for x, y in zip(xs, ys)))] for i in range(n)]
+    for i in range(n):                       # Gauss-Jordan
+        pr = next((r_ for r_ in range(i, n) if m[r_][i]), None)
+        if pr is None:
+            return None
+        m[i], m[pr] = m[pr], m[i]
+        pv = m[i][i]
+        m[i] = [v / pv for v in m[i]]
+        for r_ in range(n):
+            if r_ != i and m[r_][i]:
+                fac = m[r_][i]
+                m[r_] = [v - fac * w for v, w in zip(m[r_], m[i])]
+    a, b, g = (m[i][n] for i in range(n))
+    resid = [y - (a * x[0] + b * x[1] + g * x[2]) for x, y in zip(xs, ys)]
+    return {"s_times_c": float(a), "c": float(b), "s": float(g), "points": len(rows),
+            "family_coeffs": [float(a), float(b), float(g)],
+            "prefix_tile_coeffs": [float(a), float(b), float(g - b)],
+            "per_token_component": float(g - b),
+            "exact": [str(a), str(b), str(g)],
+            "residual_cells": [float(v) for v in resid],
+            "max_abs_residual_cells": float(max(abs(v) for v in resid))}
+
+
 fit = None
-if len(rows) >= 2:
-    sx = [r["s"] for r in rows]
-    y = [r["key_tiles"] for r in rows]
-    a11 = sum(s ** 4 for s in sx); a12 = sum(s ** 3 for s in sx); a22 = sum(s ** 2 for s in sx)
-    b1 = sum(s ** 2 * v for s, v in zip(sx, y)); b2 = sum(s * v for s, v in zip(sx, y))
-    det = a11 * a22 - a12 * a12
-    g = (b1 * a22 - b2 * a12) / det
-    d = (a11 * b2 - a12 * b1) / det
-    resid = [v - (g * s * s + d * s) for s, v in zip(sx, y)]
-    fit = {"model": "key_tiles = gamma * S^2 + delta * S at C = S",
-           "gamma": g, "delta": d, "points": len(rows),
-           "max_abs_residual_cells": max(abs(r) for r in resid),
-           "exactly_determined": len(rows) == 2,
-           "note": "at C = S the S*C and C terms of the three-coefficient grid "
-                   "are not separable; separating them needs points with C != S. "
-                   "With two points the two observable coefficients are solved "
-                   "rather than fitted, so a zero residual says nothing about "
-                   "the form."}
-    print(f"fit: key_tiles = {g:.6f} S^2 + {d:.3f} S over {len(rows)} point(s), "
-          f"largest residual {max(abs(r) for r in resid):,.0f} cells")
+off_diagonal = [r for r in rows if r["c"] != r["s"]]
+if len(rows) >= 3 and off_diagonal:
+    fit = {f: solve(rows, f) for f in ("key_tiles", "key_tiles_interaction",
+                                       "key_tiles_fresh")}
+    fit["model"] = ("cells(S, C) = a (S*C + S^2) + b C + g S over the key tile "
+                    "family: the prefix, tiled in C/S blocks of S keys, and the "
+                    "square diagonal block. The prefix key tile's own (S*C, C, S) "
+                    "triple, which is what the cost model reads, is (a, b, g - b).")
+    fit["points"] = len(rows)
+    fit["off_diagonal_points"] = len(off_diagonal)
+    fit["exactly_determined"] = len(rows) == 3
+    fit["note"] = ("three coefficients over three points is an exact solve, so the "
+                   "residual is zero by construction and is not a check of the form; "
+                   "a fourth point is what would make it one. What the form assumes "
+                   "is that the prefix's C/S sub-key-tiles and the diagonal block are "
+                   "the same S by S tile, which the per-key-tile interaction split "
+                   "below is the evidence for.")
+    for f in ("key_tiles", "key_tiles_interaction", "key_tiles_fresh"):
+        v = fit[f]
+        if v["max_abs_residual_cells"]:
+            bad.append(f"{f}: the three-coefficient form leaves a residual of "
+                       f"{v['max_abs_residual_cells']:,.0f} cells")
+        print(f"fit {f}: a {v['s_times_c']:.6f} S*C, b {v['c']:.3f} C, g {v['s']:.3f} S "
+              f"over {v['points']} points, largest residual "
+              f"{v['max_abs_residual_cells']:,.0f} cells; prefix key tile "
+              f"{v['prefix_tile_coeffs']}")
+elif len(rows) >= 2:
+    print("fit: no point with C != S, so the S*C and C terms are one variable")
 json.dump({"points": rows, "fit": fit, "missing": missing},
           open(out / "sweep.json", "w"), indent=1)
 if missing:
     bad.append(f"the sweep is missing {len(missing)} of its {len(points)} points: {missing}")
+if fit is None:
+    bad.append("the three coefficients are not separable: the sweep has fewer than "
+               "three points, or no point with C != S")
 if bad:
     sys.exit("; ".join(bad))
 print(f"{len(rows)} points, every proof accepted, no skip in effect")
