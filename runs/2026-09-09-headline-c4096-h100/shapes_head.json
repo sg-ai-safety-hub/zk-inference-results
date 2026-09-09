@@ -1,0 +1,56 @@
+{
+ "rows": [
+  {
+   "layer": 16,
+   "c": 3584,
+   "s": 512,
+   "block": 7,
+   "table_bits": 25,
+   "spread": 2.0,
+   "d_bits": 23,
+   "z_max": 6483,
+   "ao_rem_bits": 14,
+   "attn_out_bits": 12,
+   "kmax_needed": 12,
+   "kmax_blind": 19,
+   "fold_q_max": 2042,
+   "fold_rem_bits": 13,
+   "fold_gt_min": 10,
+   "fold_gc_min": 11,
+   "slim": true
+  },
+  {
+   "layer": 16,
+   "c": 4096,
+   "s": 512,
+   "block": 8,
+   "table_bits": 25,
+   "spread": 2.0,
+   "d_bits": 23,
+   "z_max": 13010,
+   "ao_rem_bits": 15,
+   "attn_out_bits": 12,
+   "kmax_needed": 13,
+   "kmax_blind": 19,
+   "fold_q_max": 2047,
+   "fold_rem_bits": 13,
+   "fold_gt_min": 11,
+   "fold_gc_min": 11,
+   "slim": true
+  }
+ ],
+ "worst": {
+  "ao_rem_bits": 15,
+  "kmax": 19,
+  "fold_q_max": 2047,
+  "table_bits": {
+   "25": 2
+  },
+  "fold_rem_bits": 13,
+  "fold_alpha": 3
+ },
+ "dumps": [
+  "/root/witness/a603db1ddf1e/head-y-delay-vw12-c4096/witness_B7",
+  "/root/witness/a603db1ddf1e/head-y-delay-vw12-c4096/witness_B8"
+ ]
+}
