@@ -1,0 +1,213 @@
+{
+  "bench": "argmax",
+  "env": {
+    "arch": "x86_64",
+    "gpu": "NVIDIA H100 80GB HBM3, 81559 MiB",
+    "mem_total_bytes": 253347459072,
+    "os": "linux",
+    "simd_n_lanes": 16,
+    "threads": 20
+  },
+  "modes": {
+    "COMMIT_BY_REFERENCE": {
+      "source": "default",
+      "value": 1
+    },
+    "DEVICE_ACCUMULATORS": {
+      "source": "default",
+      "value": 0
+    },
+    "DEVICE_PREPROCESSED": {
+      "source": "default",
+      "value": 0
+    },
+    "DEVICE_RESIDUAL_STREAM_BINDING": {
+      "source": "default",
+      "value": 0
+    },
+    "DEVICE_STAGING_POOL": {
+      "source": "default",
+      "value": 0
+    },
+    "DEVICE_TABLES": {
+      "source": "default",
+      "value": 0
+    },
+    "DEVICE_WITNESS_GEN_ATTENTION_FREIVALDS": {
+      "source": "default",
+      "value": 0
+    },
+    "DEVICE_WITNESS_GEN_DEQUANT": {
+      "source": "default",
+      "value": 0
+    },
+    "DEVICE_WITNESS_GEN_DIAGONAL_BLOCK": {
+      "source": "default",
+      "value": 0
+    },
+    "DEVICE_WITNESS_GEN_KEY_TILE": {
+      "source": "default",
+      "value": 0
+    },
+    "DEVICE_WITNESS_GEN_RESIDUAL_STREAM": {
+      "source": "default",
+      "value": 0
+    },
+    "GENERATED_LOGUP": {
+      "source": "default",
+      "value": 0
+    },
+    "KERNEL_REFERENCE_CHECK": {
+      "source": "default",
+      "value": 1
+    },
+    "LDE_ONLY": {
+      "source": "default",
+      "value": 0
+    },
+    "LOWERING_CACHE": {
+      "source": "default",
+      "value": 0
+    },
+    "PARALLEL_GATHER": {
+      "source": "default",
+      "value": 1
+    },
+    "PARALLEL_SCAN": {
+      "source": "default",
+      "value": 1
+    },
+    "PIPELINE": {
+      "source": "default",
+      "value": 0
+    },
+    "PREPROCESSED_TREE_CACHE": {
+      "source": "default",
+      "value": 0
+    }
+  },
+  "provenance": {
+    "args": [
+      "argmax",
+      "--tokens",
+      "8",
+      "--vocab",
+      "8192",
+      "--per-row",
+      "64"
+    ],
+    "backend": "simd",
+    "binary": "zk-prover",
+    "binding": null,
+    "commit": "2c8fa991c0f5425be48bf7f8b95334cbd4f716ed",
+    "cuda_version": "13.0",
+    "dirty": false,
+    "driver_version": "580.178.04",
+    "gpu": "NVIDIA H100 80GB HBM3, 81559 MiB",
+    "proof_sha256": null,
+    "proof_sha256s": null,
+    "unsound_skips": []
+  },
+  "result": {
+    "co_max_rows_in_witness": 2,
+    "points": [
+      {
+        "accepts": true,
+        "base_per_comparison": 3.046875,
+        "cells": {
+          "base": 199680,
+          "fresh": 592896,
+          "interaction": 393216,
+          "preprocessed": 68608
+        },
+        "cells_per_comparison": 9.046875,
+        "checks": {
+          "off_table": 0,
+          "stark": true,
+          "sums_cancel": true
+        },
+        "co_max_rows_in_witness": 2,
+        "columns": {
+          "base": 132,
+          "interaction": 132,
+          "preprocessed": 4
+        },
+        "lax": false,
+        "layout": {
+          "chunks": 128,
+          "lead_frac": 0.0,
+          "lead_rows": 0,
+          "log_rows": 10,
+          "per_row": 64
+        },
+        "off_table": 0,
+        "proof_bytes": 442800,
+        "prove_error": null,
+        "prove_secs": 0.090880343,
+        "source": "synthetic(seed=7, co_max=0.25)",
+        "tokens": 8,
+        "verify_secs": 0.004800293,
+        "vocab": 8192
+      },
+      {
+        "accepts": true,
+        "base_per_comparison": 3.046875,
+        "cells": {
+          "base": 199680,
+          "fresh": 592896,
+          "interaction": 393216,
+          "preprocessed": 68608
+        },
+        "cells_per_comparison": 9.046875,
+        "checks": {
+          "off_table": 0,
+          "stark": true,
+          "sums_cancel": true
+        },
+        "co_max_rows_in_witness": 2,
+        "columns": {
+          "base": 132,
+          "interaction": 132,
+          "preprocessed": 4
+        },
+        "lax": true,
+        "layout": {
+          "chunks": 128,
+          "lead_frac": 0.0,
+          "lead_rows": 0,
+          "log_rows": 10,
+          "per_row": 64
+        },
+        "off_table": 0,
+        "proof_bytes": 451480,
+        "prove_error": null,
+        "prove_secs": 0.076720995,
+        "source": "synthetic(seed=7, co_max=0.25)",
+        "tokens": 8,
+        "verify_secs": 0.004853716,
+        "vocab": 8192
+      }
+    ],
+    "tokens": 8,
+    "vocab": 8192
+  },
+  "security": {
+    "blowup_factor": 2,
+    "fold_step": 1,
+    "hash": "Blake2s (Blake2sM31MerkleChannel)",
+    "log_blowup_factor": 1,
+    "log_last_layer_degree_bound": 0,
+    "m3": {
+      "device_merkle_reduce": true,
+      "fri_gather": true,
+      "launch_sync": false,
+      "lde_only": false,
+      "merkle_mode": "1",
+      "prewarm": true,
+      "store_coeffs": true
+    },
+    "n_queries": 100,
+    "pow_bits": 0,
+    "security_bits_conjectured": 100
+  }
+}

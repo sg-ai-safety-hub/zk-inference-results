@@ -1,0 +1,1112 @@
+{
+  "bench": "dequant_width",
+  "env": {
+    "arch": "x86_64",
+    "gpu": "NVIDIA H100 80GB HBM3, 81559 MiB",
+    "mem_total_bytes": 253347459072,
+    "os": "linux",
+    "simd_n_lanes": 16,
+    "threads": 20
+  },
+  "modes": {
+    "COMMIT_BY_REFERENCE": {
+      "source": "default",
+      "value": 1
+    },
+    "DEVICE_ACCUMULATORS": {
+      "source": "default",
+      "value": 0
+    },
+    "DEVICE_PREPROCESSED": {
+      "source": "default",
+      "value": 0
+    },
+    "DEVICE_RESIDUAL_STREAM_BINDING": {
+      "source": "default",
+      "value": 0
+    },
+    "DEVICE_STAGING_POOL": {
+      "source": "default",
+      "value": 0
+    },
+    "DEVICE_TABLES": {
+      "source": "default",
+      "value": 0
+    },
+    "DEVICE_WITNESS_GEN_ATTENTION_FREIVALDS": {
+      "source": "default",
+      "value": 0
+    },
+    "DEVICE_WITNESS_GEN_DEQUANT": {
+      "source": "default",
+      "value": 0
+    },
+    "DEVICE_WITNESS_GEN_DIAGONAL_BLOCK": {
+      "source": "default",
+      "value": 0
+    },
+    "DEVICE_WITNESS_GEN_KEY_TILE": {
+      "source": "default",
+      "value": 0
+    },
+    "DEVICE_WITNESS_GEN_RESIDUAL_STREAM": {
+      "source": "default",
+      "value": 0
+    },
+    "GENERATED_LOGUP": {
+      "source": "default",
+      "value": 0
+    },
+    "KERNEL_REFERENCE_CHECK": {
+      "source": "default",
+      "value": 1
+    },
+    "LDE_ONLY": {
+      "source": "default",
+      "value": 0
+    },
+    "LOWERING_CACHE": {
+      "source": "default",
+      "value": 0
+    },
+    "PARALLEL_GATHER": {
+      "source": "default",
+      "value": 1
+    },
+    "PARALLEL_SCAN": {
+      "source": "default",
+      "value": 1
+    },
+    "PIPELINE": {
+      "source": "default",
+      "value": 0
+    },
+    "PREPROCESSED_TREE_CACHE": {
+      "source": "default",
+      "value": 0
+    }
+  },
+  "provenance": {
+    "args": [
+      "width",
+      "--n",
+      "1048576",
+      "--widths",
+      "4,8,16,32,64,128"
+    ],
+    "backend": "simd",
+    "binary": "zk-prover",
+    "binding": null,
+    "commit": "2c8fa991c0f5425be48bf7f8b95334cbd4f716ed",
+    "cuda_version": "13.0",
+    "dirty": false,
+    "driver_version": "580.178.04",
+    "gpu": "NVIDIA H100 80GB HBM3, 81559 MiB",
+    "proof_sha256": null,
+    "proof_sha256s": null,
+    "unsound_skips": []
+  },
+  "result": {
+    "n": 1048576,
+    "points": [
+      {
+        "accepts": true,
+        "accs_per_sec": 273039.82151940226,
+        "cells_per_acc_marginal": 15.25,
+        "cells_per_acc_with_tables": 47.42333984375,
+        "columns": {
+          "base": 44,
+          "interaction": 36,
+          "preprocessed": 14,
+          "total": 94
+        },
+        "first_mismatch": null,
+        "interaction_secs": 0.083229798,
+        "log_rows": 18,
+        "n": 1048576,
+        "off_table": 0,
+        "point": {
+          "cells": {
+            "base": 14958848,
+            "fresh": 38094080,
+            "interaction": 23135232,
+            "model": 0,
+            "preprocessed": 13730048,
+            "shape": 13730048,
+            "total": 51824128
+          },
+          "columns": {
+            "base": 44,
+            "interaction": 36,
+            "model": 0,
+            "preprocessed": 14,
+            "shape": 14,
+            "total": 94
+          },
+          "peak_rss_bytes": 5246545920,
+          "phases": {
+            "commit_plus_fri_frac": 0.8285005718996306,
+            "commit_secs": 1.7993946939999999,
+            "detail": {
+              "constraint_eval_cpu_autofallback": {
+                "calls": 0,
+                "secs": 0.0
+              },
+              "constraint_eval_cpu_fallback": {
+                "calls": 0,
+                "secs": 0.0
+              },
+              "constraint_eval_denom_inv": {
+                "calls": 0,
+                "secs": 0.0
+              },
+              "constraint_eval_gpu": {
+                "calls": 0,
+                "secs": 0.0
+              },
+              "constraint_eval_polys": {
+                "calls": 0,
+                "secs": 0.0
+              }
+            },
+            "fri_secs": 1.3823603000000002,
+            "phases": {
+              "constraint_eval": {
+                "calls": 4,
+                "secs": 0.10696246899999999
+              },
+              "constraint_extension": {
+                "calls": 0,
+                "secs": 0.0
+              },
+              "fri_commit": {
+                "calls": 1,
+                "secs": 1.036697937
+              },
+              "fri_quotients": {
+                "calls": 1,
+                "secs": 0.345613225
+              },
+              "grind": {
+                "calls": 1,
+                "secs": 0.000049138
+              },
+              "interpolate": {
+                "calls": 4,
+                "secs": 0.039255540000000005
+              },
+              "lde_extend": {
+                "calls": 5,
+                "secs": 0.113197406
+              },
+              "merkle": {
+                "calls": 5,
+                "secs": 1.646941748
+              },
+              "oods_eval": {
+                "calls": 1,
+                "secs": 0.022016438
+              },
+              "other": {
+                "calls": 0,
+                "secs": 0.5296436460000002
+              }
+            },
+            "prove_call_secs": 2.346637408,
+            "wall_secs": 3.840377547
+          },
+          "preprocessed_is_widest": true,
+          "proof_bytes": 666292,
+          "prove_error": null,
+          "prove_secs": 3.840377547,
+          "stark_ok": true,
+          "verify_secs": 0.006607941
+        },
+        "prove_secs_max": 3.840377547,
+        "prove_secs_min": 3.840377547,
+        "reference_checked": 1048576,
+        "reference_mismatch": 0,
+        "reference_ok": 1048576,
+        "reps": 1,
+        "source": "synthetic(seed=7, K=896)",
+        "spec": {
+          "den_bound_bits": 18,
+          "kmax": 21,
+          "limb_bits": [
+            16,
+            14
+          ],
+          "max_abs_acc": 1073741824,
+          "max_k": 66572,
+          "per_row": 4,
+          "q_bits": 7,
+          "rem_bits": 19,
+          "round": "even",
+          "sound": true,
+          "sticky": true,
+          "variant": "pow2"
+        },
+        "sums": {
+          "cancels": true,
+          "table_sum": "(743242155 + 652049182i) + (997140728 + 515111499i)u",
+          "use_sum": "(1404241492 + 1495434465i) + (1150342919 + 1632372148i)u"
+        },
+        "table_cells_fresh": 21054720,
+        "table_cells_preprocessed": 12681472,
+        "tables": [
+          {
+            "log_rows": 14,
+            "rows": 16384,
+            "table": "norm"
+          },
+          {
+            "log_rows": 22,
+            "rows": 4194304,
+            "table": "frac"
+          },
+          {
+            "log_rows": 8,
+            "rows": 256,
+            "table": "range8"
+          }
+        ],
+        "trace_secs": 1.304753379
+      },
+      {
+        "accepts": true,
+        "accs_per_sec": 289069.3327158007,
+        "cells_per_acc_marginal": 15.125,
+        "cells_per_acc_with_tables": 47.29833984375,
+        "columns": {
+          "base": 84,
+          "interaction": 60,
+          "preprocessed": 18,
+          "total": 162
+        },
+        "first_mismatch": null,
+        "interaction_secs": 0.082182445,
+        "log_rows": 17,
+        "n": 1048576,
+        "off_table": 0,
+        "point": {
+          "cells": {
+            "base": 14827776,
+            "fresh": 37963008,
+            "interaction": 23135232,
+            "model": 0,
+            "preprocessed": 13730048,
+            "shape": 13730048,
+            "total": 51693056
+          },
+          "columns": {
+            "base": 84,
+            "interaction": 60,
+            "model": 0,
+            "preprocessed": 18,
+            "shape": 18,
+            "total": 162
+          },
+          "peak_rss_bytes": 5321183232,
+          "phases": {
+            "commit_plus_fri_frac": 0.8391268795468508,
+            "commit_secs": 1.631176182,
+            "detail": {
+              "constraint_eval_cpu_autofallback": {
+                "calls": 0,
+                "secs": 0.0
+              },
+              "constraint_eval_cpu_fallback": {
+                "calls": 0,
+                "secs": 0.0
+              },
+              "constraint_eval_denom_inv": {
+                "calls": 0,
+                "secs": 0.0
+              },
+              "constraint_eval_gpu": {
+                "calls": 0,
+                "secs": 0.0
+              },
+              "constraint_eval_polys": {
+                "calls": 0,
+                "secs": 0.0
+              }
+            },
+            "fri_secs": 1.4126897950000001,
+            "phases": {
+              "constraint_eval": {
+                "calls": 4,
+                "secs": 0.105008276
+              },
+              "constraint_extension": {
+                "calls": 0,
+                "secs": 0.0
+              },
+              "fri_commit": {
+                "calls": 1,
+                "secs": 1.035135293
+              },
+              "fri_quotients": {
+                "calls": 1,
+                "secs": 0.377502334
+              },
+              "grind": {
+                "calls": 1,
+                "secs": 0.000052168
+              },
+              "interpolate": {
+                "calls": 4,
+                "secs": 0.036545668999999996
+              },
+              "lde_extend": {
+                "calls": 5,
+                "secs": 0.105129315
+              },
+              "merkle": {
+                "calls": 5,
+                "secs": 1.489501198
+              },
+              "oods_eval": {
+                "calls": 1,
+                "secs": 0.026719879
+              },
+              "other": {
+                "calls": 0,
+                "secs": 0.45182628700000027
+              }
+            },
+            "prove_call_secs": 2.350822974,
+            "wall_secs": 3.627420419
+          },
+          "preprocessed_is_widest": true,
+          "proof_bytes": 700252,
+          "prove_error": null,
+          "prove_secs": 3.627420419,
+          "stark_ok": true,
+          "verify_secs": 0.006885312
+        },
+        "prove_secs_max": 3.627420419,
+        "prove_secs_min": 3.627420419,
+        "reference_checked": 1048576,
+        "reference_mismatch": 0,
+        "reference_ok": 1048576,
+        "reps": 1,
+        "source": "synthetic(seed=7, K=896)",
+        "spec": {
+          "den_bound_bits": 18,
+          "kmax": 21,
+          "limb_bits": [
+            16,
+            14
+          ],
+          "max_abs_acc": 1073741824,
+          "max_k": 66572,
+          "per_row": 8,
+          "q_bits": 7,
+          "rem_bits": 19,
+          "round": "even",
+          "sound": true,
+          "sticky": true,
+          "variant": "pow2"
+        },
+        "sums": {
+          "cancels": true,
+          "table_sum": "(1428165298 + 202226425i) + (1825422338 + 1056840396i)u",
+          "use_sum": "(719318349 + 1945257222i) + (322061309 + 1090643251i)u"
+        },
+        "table_cells_fresh": 21054720,
+        "table_cells_preprocessed": 12681472,
+        "tables": [
+          {
+            "log_rows": 14,
+            "rows": 16384,
+            "table": "norm"
+          },
+          {
+            "log_rows": 22,
+            "rows": 4194304,
+            "table": "frac"
+          },
+          {
+            "log_rows": 8,
+            "rows": 256,
+            "table": "range8"
+          }
+        ],
+        "trace_secs": 1.269348071
+      },
+      {
+        "accepts": true,
+        "accs_per_sec": 304752.40188716596,
+        "cells_per_acc_marginal": 15.0625,
+        "cells_per_acc_with_tables": 47.23583984375,
+        "columns": {
+          "base": 164,
+          "interaction": 108,
+          "preprocessed": 26,
+          "total": 298
+        },
+        "first_mismatch": null,
+        "interaction_secs": 0.065492129,
+        "log_rows": 16,
+        "n": 1048576,
+        "off_table": 0,
+        "point": {
+          "cells": {
+            "base": 14762240,
+            "fresh": 37897472,
+            "interaction": 23135232,
+            "model": 0,
+            "preprocessed": 13730048,
+            "shape": 13730048,
+            "total": 51627520
+          },
+          "columns": {
+            "base": 164,
+            "interaction": 108,
+            "model": 0,
+            "preprocessed": 26,
+            "shape": 26,
+            "total": 298
+          },
+          "peak_rss_bytes": 5339570176,
+          "phases": {
+            "commit_plus_fri_frac": 0.8405012407992056,
+            "commit_secs": 1.494270557,
+            "detail": {
+              "constraint_eval_cpu_autofallback": {
+                "calls": 0,
+                "secs": 0.0
+              },
+              "constraint_eval_cpu_fallback": {
+                "calls": 0,
+                "secs": 0.0
+              },
+              "constraint_eval_denom_inv": {
+                "calls": 0,
+                "secs": 0.0
+              },
+              "constraint_eval_gpu": {
+                "calls": 0,
+                "secs": 0.0
+              },
+              "constraint_eval_polys": {
+                "calls": 0,
+                "secs": 0.0
+              }
+            },
+            "fri_secs": 1.397681807,
+            "phases": {
+              "constraint_eval": {
+                "calls": 4,
+                "secs": 0.10382689299999999
+              },
+              "constraint_extension": {
+                "calls": 0,
+                "secs": 0.0
+              },
+              "fri_commit": {
+                "calls": 1,
+                "secs": 1.029954027
+              },
+              "fri_quotients": {
+                "calls": 1,
+                "secs": 0.367685293
+              },
+              "grind": {
+                "calls": 1,
+                "secs": 0.000042487
+              },
+              "interpolate": {
+                "calls": 4,
+                "secs": 0.035499589
+              },
+              "lde_extend": {
+                "calls": 5,
+                "secs": 0.10382707599999999
+              },
+              "merkle": {
+                "calls": 5,
+                "secs": 1.354943892
+              },
+              "oods_eval": {
+                "calls": 1,
+                "secs": 0.03957887
+              },
+              "other": {
+                "calls": 0,
+                "secs": 0.4053891599999999
+              }
+            },
+            "prove_call_secs": 2.316768326,
+            "wall_secs": 3.4407472869999998
+          },
+          "preprocessed_is_widest": true,
+          "proof_bytes": 780332,
+          "prove_error": null,
+          "prove_secs": 3.4407472869999998,
+          "stark_ok": true,
+          "verify_secs": 0.007683813
+        },
+        "prove_secs_max": 3.4407472869999998,
+        "prove_secs_min": 3.4407472869999998,
+        "reference_checked": 1048576,
+        "reference_mismatch": 0,
+        "reference_ok": 1048576,
+        "reps": 1,
+        "source": "synthetic(seed=7, K=896)",
+        "spec": {
+          "den_bound_bits": 18,
+          "kmax": 21,
+          "limb_bits": [
+            16,
+            14
+          ],
+          "max_abs_acc": 1073741824,
+          "max_k": 66572,
+          "per_row": 16,
+          "q_bits": 7,
+          "rem_bits": 19,
+          "round": "even",
+          "sound": true,
+          "sticky": true,
+          "variant": "pow2"
+        },
+        "sums": {
+          "cancels": true,
+          "table_sum": "(1223222945 + 1905162923i) + (1552235382 + 1535230470i)u",
+          "use_sum": "(924260702 + 242320724i) + (595248265 + 612253177i)u"
+        },
+        "table_cells_fresh": 21054720,
+        "table_cells_preprocessed": 12681472,
+        "tables": [
+          {
+            "log_rows": 14,
+            "rows": 16384,
+            "table": "norm"
+          },
+          {
+            "log_rows": 22,
+            "rows": 4194304,
+            "table": "frac"
+          },
+          {
+            "log_rows": 8,
+            "rows": 256,
+            "table": "range8"
+          }
+        ],
+        "trace_secs": 1.269701129
+      },
+      {
+        "accepts": true,
+        "accs_per_sec": 300564.0351945564,
+        "cells_per_acc_marginal": 15.03125,
+        "cells_per_acc_with_tables": 47.20458984375,
+        "columns": {
+          "base": 324,
+          "interaction": 204,
+          "preprocessed": 42,
+          "total": 570
+        },
+        "first_mismatch": null,
+        "interaction_secs": 0.069024383,
+        "log_rows": 15,
+        "n": 1048576,
+        "off_table": 0,
+        "point": {
+          "cells": {
+            "base": 14729472,
+            "fresh": 37864704,
+            "interaction": 23135232,
+            "model": 0,
+            "preprocessed": 13730048,
+            "shape": 13730048,
+            "total": 51594752
+          },
+          "columns": {
+            "base": 324,
+            "interaction": 204,
+            "model": 0,
+            "preprocessed": 42,
+            "shape": 42,
+            "total": 570
+          },
+          "peak_rss_bytes": 5360459776,
+          "phases": {
+            "commit_plus_fri_frac": 0.8368672070983497,
+            "commit_secs": 1.50118534,
+            "detail": {
+              "constraint_eval_cpu_autofallback": {
+                "calls": 0,
+                "secs": 0.0
+              },
+              "constraint_eval_cpu_fallback": {
+                "calls": 0,
+                "secs": 0.0
+              },
+              "constraint_eval_denom_inv": {
+                "calls": 0,
+                "secs": 0.0
+              },
+              "constraint_eval_gpu": {
+                "calls": 0,
+                "secs": 0.0
+              },
+              "constraint_eval_polys": {
+                "calls": 0,
+                "secs": 0.0
+              }
+            },
+            "fri_secs": 1.418388414,
+            "phases": {
+              "constraint_eval": {
+                "calls": 4,
+                "secs": 0.09862570200000001
+              },
+              "constraint_extension": {
+                "calls": 0,
+                "secs": 0.0
+              },
+              "fri_commit": {
+                "calls": 1,
+                "secs": 1.03518797
+              },
+              "fri_quotients": {
+                "calls": 1,
+                "secs": 0.383156998
+              },
+              "grind": {
+                "calls": 1,
+                "secs": 0.000043446
+              },
+              "interpolate": {
+                "calls": 4,
+                "secs": 0.039710300000000004
+              },
+              "lde_extend": {
+                "calls": 5,
+                "secs": 0.107041124
+              },
+              "merkle": {
+                "calls": 5,
+                "secs": 1.3544339159999998
+              },
+              "oods_eval": {
+                "calls": 1,
+                "secs": 0.055272244
+              },
+              "other": {
+                "calls": 0,
+                "secs": 0.4152224790000001
+              }
+            },
+            "prove_call_secs": 2.342958447,
+            "wall_secs": 3.488694179
+          },
+          "preprocessed_is_widest": true,
+          "proof_bytes": 967144,
+          "prove_error": null,
+          "prove_secs": 3.488694179,
+          "stark_ok": true,
+          "verify_secs": 0.016564652
+        },
+        "prove_secs_max": 3.488694179,
+        "prove_secs_min": 3.488694179,
+        "reference_checked": 1048576,
+        "reference_mismatch": 0,
+        "reference_ok": 1048576,
+        "reps": 1,
+        "source": "synthetic(seed=7, K=896)",
+        "spec": {
+          "den_bound_bits": 18,
+          "kmax": 21,
+          "limb_bits": [
+            16,
+            14
+          ],
+          "max_abs_acc": 1073741824,
+          "max_k": 66572,
+          "per_row": 32,
+          "q_bits": 7,
+          "rem_bits": 19,
+          "round": "even",
+          "sound": true,
+          "sticky": true,
+          "variant": "pow2"
+        },
+        "sums": {
+          "cancels": true,
+          "table_sum": "(501007298 + 879336961i) + (1808545836 + 1586337463i)u",
+          "use_sum": "(1646476349 + 1268146686i) + (338937811 + 561146184i)u"
+        },
+        "table_cells_fresh": 21054720,
+        "table_cells_preprocessed": 12681472,
+        "tables": [
+          {
+            "log_rows": 14,
+            "rows": 16384,
+            "table": "norm"
+          },
+          {
+            "log_rows": 22,
+            "rows": 4194304,
+            "table": "frac"
+          },
+          {
+            "log_rows": 8,
+            "rows": 256,
+            "table": "range8"
+          }
+        ],
+        "trace_secs": 1.268183734
+      },
+      {
+        "accepts": true,
+        "accs_per_sec": 310665.0739855364,
+        "cells_per_acc_marginal": 15.015625,
+        "cells_per_acc_with_tables": 47.18896484375,
+        "columns": {
+          "base": 644,
+          "interaction": 396,
+          "preprocessed": 74,
+          "total": 1114
+        },
+        "first_mismatch": null,
+        "interaction_secs": 0.075980332,
+        "log_rows": 14,
+        "n": 1048576,
+        "off_table": 0,
+        "point": {
+          "cells": {
+            "base": 14713088,
+            "fresh": 37848320,
+            "interaction": 23135232,
+            "model": 0,
+            "preprocessed": 13730048,
+            "shape": 13730048,
+            "total": 51578368
+          },
+          "columns": {
+            "base": 644,
+            "interaction": 396,
+            "model": 0,
+            "preprocessed": 74,
+            "shape": 74,
+            "total": 1114
+          },
+          "peak_rss_bytes": 5360459776,
+          "phases": {
+            "commit_plus_fri_frac": 0.8261551525171865,
+            "commit_secs": 1.427874576,
+            "detail": {
+              "constraint_eval_cpu_autofallback": {
+                "calls": 0,
+                "secs": 0.0
+              },
+              "constraint_eval_cpu_fallback": {
+                "calls": 0,
+                "secs": 0.0
+              },
+              "constraint_eval_denom_inv": {
+                "calls": 0,
+                "secs": 0.0
+              },
+              "constraint_eval_gpu": {
+                "calls": 0,
+                "secs": 0.0
+              },
+              "constraint_eval_polys": {
+                "calls": 0,
+                "secs": 0.0
+              }
+            },
+            "fri_secs": 1.3606154659999998,
+            "phases": {
+              "constraint_eval": {
+                "calls": 4,
+                "secs": 0.106708201
+              },
+              "constraint_extension": {
+                "calls": 0,
+                "secs": 0.0
+              },
+              "fri_commit": {
+                "calls": 1,
+                "secs": 1.038233851
+              },
+              "fri_quotients": {
+                "calls": 1,
+                "secs": 0.322338224
+              },
+              "grind": {
+                "calls": 1,
+                "secs": 0.000043391
+              },
+              "interpolate": {
+                "calls": 4,
+                "secs": 0.034930386
+              },
+              "lde_extend": {
+                "calls": 5,
+                "secs": 0.101378662
+              },
+              "merkle": {
+                "calls": 5,
+                "secs": 1.291565528
+              },
+              "oods_eval": {
+                "calls": 1,
+                "secs": 0.074526253
+              },
+              "other": {
+                "calls": 0,
+                "secs": 0.4055374429999996
+              }
+            },
+            "prove_call_secs": 2.3082218,
+            "wall_secs": 3.375261939
+          },
+          "preprocessed_is_widest": true,
+          "proof_bytes": 1283440,
+          "prove_error": null,
+          "prove_secs": 3.375261939,
+          "stark_ok": true,
+          "verify_secs": 0.011172542
+        },
+        "prove_secs_max": 3.375261939,
+        "prove_secs_min": 3.375261939,
+        "reference_checked": 1048576,
+        "reference_mismatch": 0,
+        "reference_ok": 1048576,
+        "reps": 1,
+        "source": "synthetic(seed=7, K=896)",
+        "spec": {
+          "den_bound_bits": 18,
+          "kmax": 21,
+          "limb_bits": [
+            16,
+            14
+          ],
+          "max_abs_acc": 1073741824,
+          "max_k": 66572,
+          "per_row": 64,
+          "q_bits": 7,
+          "rem_bits": 19,
+          "round": "even",
+          "sound": true,
+          "sticky": true,
+          "variant": "pow2"
+        },
+        "sums": {
+          "cancels": true,
+          "table_sum": "(110793161 + 1283653014i) + (1148087054 + 902376091i)u",
+          "use_sum": "(2036690486 + 863830633i) + (999396593 + 1245107556i)u"
+        },
+        "table_cells_fresh": 21054720,
+        "table_cells_preprocessed": 12681472,
+        "tables": [
+          {
+            "log_rows": 14,
+            "rows": 16384,
+            "table": "norm"
+          },
+          {
+            "log_rows": 22,
+            "rows": 4194304,
+            "table": "frac"
+          },
+          {
+            "log_rows": 8,
+            "rows": 256,
+            "table": "range8"
+          }
+        ],
+        "trace_secs": 1.27980164
+      },
+      {
+        "accepts": true,
+        "accs_per_sec": 332474.5896674234,
+        "cells_per_acc_marginal": 15.0078125,
+        "cells_per_acc_with_tables": 47.18115234375,
+        "columns": {
+          "base": 1284,
+          "interaction": 780,
+          "preprocessed": 138,
+          "total": 2202
+        },
+        "first_mismatch": null,
+        "interaction_secs": 0.070267474,
+        "log_rows": 13,
+        "n": 1048576,
+        "off_table": 0,
+        "point": {
+          "cells": {
+            "base": 14704896,
+            "fresh": 37840128,
+            "interaction": 23135232,
+            "model": 0,
+            "preprocessed": 13730048,
+            "shape": 13730048,
+            "total": 51570176
+          },
+          "columns": {
+            "base": 1284,
+            "interaction": 780,
+            "model": 0,
+            "preprocessed": 138,
+            "shape": 138,
+            "total": 2202
+          },
+          "peak_rss_bytes": 5360758784,
+          "phases": {
+            "commit_plus_fri_frac": 0.8494852820114935,
+            "commit_secs": 1.363270491,
+            "detail": {
+              "constraint_eval_cpu_autofallback": {
+                "calls": 0,
+                "secs": 0.0
+              },
+              "constraint_eval_cpu_fallback": {
+                "calls": 0,
+                "secs": 0.0
+              },
+              "constraint_eval_denom_inv": {
+                "calls": 0,
+                "secs": 0.0
+              },
+              "constraint_eval_gpu": {
+                "calls": 0,
+                "secs": 0.0
+              },
+              "constraint_eval_polys": {
+                "calls": 0,
+                "secs": 0.0
+              }
+            },
+            "fri_secs": 1.31588126,
+            "phases": {
+              "constraint_eval": {
+                "calls": 4,
+                "secs": 0.08310675099999999
+              },
+              "constraint_extension": {
+                "calls": 0,
+                "secs": 0.0
+              },
+              "fri_commit": {
+                "calls": 1,
+                "secs": 1.0128933980000001
+              },
+              "fri_quotients": {
+                "calls": 1,
+                "secs": 0.302952176
+              },
+              "grind": {
+                "calls": 1,
+                "secs": 0.000035686
+              },
+              "interpolate": {
+                "calls": 4,
+                "secs": 0.035355956
+              },
+              "lde_extend": {
+                "calls": 5,
+                "secs": 0.103036859
+              },
+              "merkle": {
+                "calls": 5,
+                "secs": 1.224877676
+              },
+              "oods_eval": {
+                "calls": 1,
+                "secs": 0.079339411
+              },
+              "other": {
+                "calls": 0,
+                "secs": 0.3122551409999996
+              }
+            },
+            "prove_call_secs": 2.13713764,
+            "wall_secs": 3.153853054
+          },
+          "preprocessed_is_widest": true,
+          "proof_bytes": 1911420,
+          "prove_error": null,
+          "prove_secs": 3.153853054,
+          "stark_ok": true,
+          "verify_secs": 0.01604918
+        },
+        "prove_secs_max": 3.153853054,
+        "prove_secs_min": 3.153853054,
+        "reference_checked": 1048576,
+        "reference_mismatch": 0,
+        "reference_ok": 1048576,
+        "reps": 1,
+        "source": "synthetic(seed=7, K=896)",
+        "spec": {
+          "den_bound_bits": 18,
+          "kmax": 21,
+          "limb_bits": [
+            16,
+            14
+          ],
+          "max_abs_acc": 1073741824,
+          "max_k": 66572,
+          "per_row": 128,
+          "q_bits": 7,
+          "rem_bits": 19,
+          "round": "even",
+          "sound": true,
+          "sticky": true,
+          "variant": "pow2"
+        },
+        "sums": {
+          "cancels": true,
+          "table_sum": "(1785238393 + 1704560752i) + (562240562 + 1186053402i)u",
+          "use_sum": "(362245254 + 442922895i) + (1585243085 + 961430245i)u"
+        },
+        "table_cells_fresh": 21054720,
+        "table_cells_preprocessed": 12681472,
+        "tables": [
+          {
+            "log_rows": 14,
+            "rows": 16384,
+            "table": "norm"
+          },
+          {
+            "log_rows": 22,
+            "rows": 4194304,
+            "table": "frac"
+          },
+          {
+            "log_rows": 8,
+            "rows": 256,
+            "table": "range8"
+          }
+        ],
+        "trace_secs": 1.276770173
+      }
+    ],
+    "variant": "pow2"
+  },
+  "security": {
+    "blowup_factor": 2,
+    "fold_step": 1,
+    "hash": "Blake2s (Blake2sM31MerkleChannel)",
+    "log_blowup_factor": 1,
+    "log_last_layer_degree_bound": 0,
+    "m3": {
+      "device_merkle_reduce": true,
+      "fri_gather": true,
+      "launch_sync": false,
+      "lde_only": false,
+      "merkle_mode": "1",
+      "prewarm": true,
+      "store_coeffs": true
+    },
+    "n_queries": 100,
+    "pow_bits": 0,
+    "security_bits_conjectured": 100
+  }
+}

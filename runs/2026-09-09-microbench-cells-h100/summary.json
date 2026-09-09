@@ -1,0 +1,41 @@
+{
+ "compose": {
+  "compose-simd": {
+   "backend": "simd",
+   "accepts": true,
+   "fresh_cells": 28387616,
+   "commit_secs": 1.8000488540000001,
+   "fri_secs": 2.004880295,
+   "prove_call_secs": 3.07798818,
+   "wall_secs": 4.870274739,
+   "unsound_skips": [],
+   "all_bound": true,
+   "unbound": []
+  }
+ },
+ "digests": {
+  "compose-simd": "917645a0e83a04aaeb60674db8f198604222f95b0b5c951391b5e4930e0b2694"
+ },
+ "outputs": [
+  "b10-argmax.json",
+  "b3-width.json",
+  "b4-kmax.json",
+  "b6-dequant.json",
+  "b6-pack.json",
+  "b65-requant.json",
+  "b65-residual-stream.json",
+  "compose-simd.json",
+  "config.json"
+ ],
+ "cell_costs_asked": [
+  "b6-dequant",
+  "b6-pack",
+  "b65-requant",
+  "b65-residual-stream",
+  "b10-argmax",
+  "b3-width",
+  "b4-kmax"
+ ],
+ "cell_costs_missing": [],
+ "refused": []
+}
