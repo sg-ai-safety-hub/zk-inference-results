@@ -14,6 +14,11 @@
 # reductions are on, which is the paper's configuration (docs/decisions), and no
 # skip flag appears anywhere.
 #
+# `MODEL_ROOTS` below is the one optional part of the configuration and it is
+# empty: given a path to a recorded model commitment the grid also compares
+# every segment's model root against it, and the run fails on a segment whose
+# root is not the commitment's.  Nothing is derived for it.
+#
 # The same statement as `headline-c16384.sh` at a quarter of the context, and
 # the first of the four campaigns at this context: it extracts the witnesses
 # the control, the negative controls and the ablation re-prove, and it leaves
@@ -86,6 +91,18 @@ SLICE=64                   # segments per process: 289 -> 5 processes
 XTHREADS=20                # torch threads for the extraction
 IDS=${ZK_IDS:-}            # token ids (.npy) already on the host; empty = generate them
 KERNEL_FAMILIES=zk_chan_eval,zk_key_eval,zk_row_eval,zk_attn_out_eval,zk_dequant_eval,zk_freivalds_eval,zk_exp_table_eval,zk_table_eval,zk_residual_stream_eval,zk_residual_stream_table_eval
+# The published model commitment, empty by default.  Set it to a `model-roots`
+# manifest this repository recorded and the final grid compares every segment's
+# model root against that file and fails the run on a segment whose root is not
+# in it; the commitment derived over this very plan is
+# `runs/2026-09-09-model-commitment-h100/model-roots.json`, and a path is read
+# from the repository root.  Nothing is derived here: that campaign derived the
+# table once, at the price its REPRODUCE entry records, and this reuses it.
+# Empty is what every run so far made -- the model each segment proves against
+# stays an unchecked end the grid names, and `model-commitment.sh` makes the
+# comparison afterwards over the proofs this run keeps.  `lib/driver.sh` says
+# why the shape roots are not compared this way.
+MODEL_ROOTS=${ZK_MODEL_ROOTS:-}
 # The links the grid implies, which the grid is told before it counts them.
 # Inside a block, consecutive layers: 31 per block, and one more on the last
 # block when the head is in the plan, because the head sits at the layer
@@ -103,6 +120,7 @@ drv_check_commits
 BUILD=$(drv_build_root)
 drv_push "$BUILD/src" "$PROVER"
 drv_push "$BUILD/harness-src" "$HARNESS"
+drv_model_roots            # a no-op unless MODEL_ROOTS names one
 
 JOB=$(mktemp)
 drv_sequence_job > "$JOB"

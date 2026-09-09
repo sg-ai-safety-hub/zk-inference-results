@@ -91,6 +91,72 @@ drv_push() {
     esac
 }
 
+# ---- the published model commitment, when the driver was given one ------------
+# `MODEL_ROOTS` is a path to a `model-roots` manifest this repository recorded --
+# `runs/<run-id>/model-roots.json`, written by `tools/drivers/model-commitment.sh`
+# -- and it is empty in every driver.  Set it and the run's own grid compares
+# every segment's model root against that manifest and fails the run on a
+# segment whose root is not in it; leave it and the run makes the comparisons it
+# always made, with the model each segment proves against an unchecked end the
+# grid names.  Nothing is derived either way: deriving the table costs what
+# `model-commitment` records for it, and it is the same table for every run of
+# one model.
+#
+# The file travels to the host beside the job rather than being named on the
+# host, because the commitment worth checking against is the published one, the
+# file in this repository whose digest the run's `config.json` then records.  A
+# relative path is taken from the repository root, so a driver reads the path a
+# REPRODUCE entry writes.
+#
+# Only the model root is compared this way.  `boundary-grid --expect-pre-roots`
+# reads the same file, but its rows are keyed by `(layer, prefix width)` and a
+# shape root is a function of the chunk's own shape and arguments, so a table
+# derived over one plan covers another plan's cells only where the two plans
+# have the same cells.  A model root is keyed by the layer alone and is a
+# function of the model, which is what a commitment reused across plans can
+# check.  `model-commitment.sh` makes both comparisons, over the one plan its
+# table was derived from.
+#
+# Sets MODEL_ROOTS_SRC and MODEL_ROOTS_SUM, which the job body writes into the
+# run's config.json; both are empty when the driver was given no commitment.
+drv_model_roots() {
+    MODEL_ROOTS_SRC=""; MODEL_ROOTS_SUM=""
+    [ -n "${MODEL_ROOTS:-}" ] || return 0
+    case "$MODEL_ROOTS" in
+      /*) file=$MODEL_ROOTS ;;
+      *)  file=$ROOT/$MODEL_ROOTS ;;
+    esac
+    [ -f "$file" ] || { echo "MODEL_ROOTS: no model commitment at $file" >&2; exit 2; }
+    # What the file has to be is checked here and not two hours into the run:
+    # `boundary-grid` reads a list of rows, or an object with a `roots` field,
+    # and every row it looks up carries a layer and that layer's model root.
+    layers=$(python3 - "$file" <<'MRPY'
+import json, sys
+d = json.load(open(sys.argv[1]))
+rows = d.get("roots", d) if isinstance(d, dict) else d
+if not isinstance(rows, list) or not rows:
+    sys.exit(f"{sys.argv[1]}: not a model-roots manifest; want a list of rows or a `roots` field")
+bad = [i for i, r in enumerate(rows)
+       if not isinstance(r, dict) or not r.get("model_root") or "layer" not in r]
+if bad:
+    sys.exit(f"{sys.argv[1]}: {len(bad)} row(s) carry no layer and model root")
+# `model-commitment.sh` derives two forms and records both. The verifier's is a
+# cross-check over one token block, so it has no row for the layer coordinate a
+# head segment sits at and a grid given it fails on the head. The published one
+# is the commitment.
+if any(r.get("weights_only") for r in rows):
+    sys.exit(f"{sys.argv[1]}: this is the verifier's cross-check form of the derivation; "
+             "a grid is given the published commitment, model-roots.json")
+print(len({r["layer"] for r in rows}))
+MRPY
+) || exit 2
+    MODEL_ROOTS_SRC=$MODEL_ROOTS
+    MODEL_ROOTS_SUM=$(sha256sum "$file" | cut -d' ' -f1)
+    ssh -o BatchMode=yes "$HOST" "mkdir -p ~/runs/$NAME && cat > ~/runs/$NAME/model-roots.json" < "$file"
+    echo "drv_model_roots: $MODEL_ROOTS_SRC -> $HOST:~/runs/$NAME/model-roots.json"
+    echo "                 $layers layer coordinates, sha256 $MODEL_ROOTS_SUM"
+}
+
 # ---- the job's shell preamble ------------------------------------------------
 # Written into every generated job script: the CUDA toolkit the vendored
 # library's build script needs, the harness's CUDA torch group, and `st`, the

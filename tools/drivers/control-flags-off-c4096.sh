@@ -22,6 +22,14 @@
 # names the control it came from and no number here is a throughput the paper
 # cites.
 #
+# `MODEL_ROOTS` below is the one optional part of the configuration and it is
+# empty, exactly as it is in `headline-c4096.sh`: given a path to a recorded
+# model commitment the grid also compares every segment's model root against it.
+# The reductions are a backend choice for an interaction argument and the model
+# tree is the weights' own columns, so this plan's model roots are the headline
+# plan's; a root that is not the commitment's fails the run and names the
+# segment, which is the answer the comparison exists to give.
+#
 # The job body is `lib/sequence-job.sh`, so this file differs from the headline
 # driver in its flags and its label alone.  The witnesses, the prover build and
 # the kernel store are the ones the headline campaign left on the host; the
@@ -78,6 +86,18 @@ SLICE=64
 XTHREADS=20
 IDS=${ZK_IDS:-}
 KERNEL_FAMILIES=zk_chan_eval,zk_key_eval,zk_row_eval,zk_attn_out_eval,zk_dequant_eval,zk_freivalds_eval,zk_exp_table_eval,zk_table_eval,zk_residual_stream_eval,zk_residual_stream_table_eval
+# The published model commitment, empty by default.  Set it to a `model-roots`
+# manifest this repository recorded and the final grid compares every segment's
+# model root against that file and fails the run on a segment whose root is not
+# in it; the commitment derived over this very plan is
+# `runs/2026-09-09-model-commitment-h100/model-roots.json`, and a path is read
+# from the repository root.  Nothing is derived here: that campaign derived the
+# table once, at the price its REPRODUCE entry records, and this reuses it.
+# Empty is what every run so far made -- the model each segment proves against
+# stays an unchecked end the grid names, and `model-commitment.sh` makes the
+# comparison afterwards over the proofs this run keeps.  `lib/driver.sh` says
+# why the shape roots are not compared this way.
+MODEL_ROOTS=${ZK_MODEL_ROOTS:-}
 LAYER_LINKS=$(( NBLOCK * (NLAY - 1) + NHEAD ))
 TOKEN_LINKS=$(( (NBLOCK - 1) * NLAY ))
 
@@ -88,6 +108,7 @@ drv_check_commits
 BUILD=$(drv_build_root)
 drv_push "$BUILD/src" "$PROVER"
 drv_push "$BUILD/harness-src" "$HARNESS"
+drv_model_roots            # a no-op unless MODEL_ROOTS names one
 
 JOB=$(mktemp)
 drv_sequence_job > "$JOB"

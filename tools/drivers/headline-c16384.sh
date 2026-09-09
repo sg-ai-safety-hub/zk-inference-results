@@ -85,6 +85,19 @@
 # sweep's emit step is for, and why the job now refuses any emitter refusal but
 # the one zk-prover #57 makes on block 0's layer 0.
 #
+# `MODEL_ROOTS` below is the one optional part of the configuration and it is
+# empty: given a path to a model commitment this repository recorded, the final
+# grid also compares every segment's model root against it and the run fails on
+# a segment whose root is not the commitment's.  Nothing is derived for it.  The
+# commitment recorded so far was derived over the context 4,096 plan, and it
+# serves this one because a commitment's rows are keyed by the layer and the
+# model tree is the weights' own columns: it is the same model at the same
+# quantization variant, and the head sits at layer coordinate 32 in both plans.
+# The shape roots are not compared this way and `lib/driver.sh` says why -- at
+# this context the plan's cells are not the cells that table was derived over.
+# The comparison reads the statements, which this run keeps whole, so the
+# proof-shrinking this host needs does not touch it.
+#
 # The first call pushes zk-prover at the two commits to the host, starts the
 # job detached and prints the poll command.  Every later call with the same
 # arguments prints the status; once the status says done it fetches the
@@ -181,6 +194,15 @@ SAMPLE_MS=200              # the card's memory is sampled this often for the who
 # and they are in the run directory.  A host that can hold the proofs to the end
 # sets this to 1 and the final grid does both at once.
 GRID_VERIFY=0
+# The published model commitment, empty by default.  Set it to a `model-roots`
+# manifest this repository recorded -- `runs/2026-09-09-model-commitment-h100/model-roots.json`
+# is the one there is, and a path is read from the repository root -- and the
+# final grid compares every segment's model root against that file and fails the
+# run on a segment whose root is not in it.  Nothing is derived here: that
+# campaign derived the table once, at the price its REPRODUCE entry records, and
+# this reuses it.  Empty is what this run made: the model each segment proves
+# against stays one of the two unchecked ends the grid names.
+MODEL_ROOTS=${ZK_MODEL_ROOTS:-}
 # The links the grid implies, which the grid is told before it counts them.
 # Inside a block, consecutive layers: 31 per block, and one more for each block
 # that carries a head segment, because a head sits at the layer coordinate after
@@ -202,6 +224,16 @@ drv_check_commits
 BUILD=$(drv_build_root)
 drv_push "$BUILD/src" "$PROVER"
 drv_push "$BUILD/harness-src" "$HARNESS"
+drv_model_roots            # a no-op unless MODEL_ROOTS names one
+
+# What the commitment adds to the job, and nothing when there is none: a leading
+# space in each, so a job written without one is the job that was written before
+# there was one to give.
+ROOTS_ARGS=""; ROOTS_CFG=""
+if [ -n "${MODEL_ROOTS_SUM:-}" ]; then
+    ROOTS_ARGS=' --expect-model-roots $R/model-roots.json'
+    ROOTS_CFG=" \"model_roots\": \"$MODEL_ROOTS_SRC\", \"model_roots_sha256\": \"$MODEL_ROOTS_SUM\","
+fi
 
 JOB=$(mktemp)
 cat > "$JOB" <<JOBEOF
@@ -229,7 +261,7 @@ cat > \$OUT/config.json <<CFG
  "slice": $SLICE, "pipeline": $PIPELINE,
  "grouped": true, "group_max": $GROUP_MAX, "group_order": "descending",
  "block_est_mib": $BLOCK_EST_MIB, "shared_est_mib": $SHARED_EST_MIB, "reserve_mib": $RESERVE_MIB,
- "sample_ms": $SAMPLE_MS,
+ "sample_ms": $SAMPLE_MS,$ROOTS_CFG
  "shared_flags": "$SHARED", "layer_flags": "$LAYER_FLAGS", "layer0_flags": "$L0_FLAGS",
  "head_flags": "$HEAD_FLAGS_BASE plus an --ao-rem-bits read off the head dumps; see head.json",
  "expect_layer_links": $LAYER_LINKS, "expect_token_links": $TOKEN_LINKS,
@@ -839,7 +871,7 @@ GRIDV=""
 [ "$GRID_VERIFY" != 1 ] || GRIDV="--verify"
 st "links: over $SEGMENTS segments, with the prompt\${GRIDV:+ and the verifier}"
 \$SIMD boundary-grid --dir \$SER --plan \$OUT/plan.txt --prompt \$OUT/prompt.json \$GRIDV \
-    --expect-layer-links $LAYER_LINKS --expect-token-links $TOKEN_LINKS \
+    --expect-layer-links $LAYER_LINKS --expect-token-links $TOKEN_LINKS$ROOTS_ARGS \
     > \$OUT/grid.json 2> \$R/grid.err
 GRID_SECS=\$((\$(date +%s) - GRIDT0))
 st "links checked in \${GRID_SECS}s"
@@ -884,8 +916,9 @@ print(f"disk: {du.free / 2**30:.1f} GiB free of {du.total / 2**30:.1f} GiB at th
 PY
 
 # 12. the gate: every segment of the plan proved, no skip in effect, every edge
-#     bound, every link run and passed, and no lookup evaluated on the host
-#     instead of by its generated kernel
+#     bound, every link run and passed, no lookup evaluated on the host instead
+#     of by its generated kernel, and -- where the run was given a model
+#     commitment -- every segment's model root the commitment's
 python3 - \$OUT \$N <<'PY'
 import json, pathlib, sys
 out, expect = pathlib.Path(sys.argv[1]), int(sys.argv[2])
@@ -915,6 +948,20 @@ for g in json.loads((out / "groups.json").read_text()):
 g = json.loads((out / "grid.json").read_text())["result"]
 print(f"grid: {g['links_passed']}/{g['links_run']} of {g['links_expected']} implied links passed; "
       f"all_chain {g['all_chain']}")
+# The published model commitment, where the driver was given one: config.json
+# names the file the grid was told to compare against, so a run that was given
+# one and a grid that compared nothing is a failure and not a silent pass.
+cfg = json.loads((out / "config.json").read_text())
+if cfg.get("model_roots"):
+    mr = (g.get("model_roots") or {}).get("chunks") or []
+    off = sum(1 for x in mr if not x["ok"] or not x["model_ok"])
+    print(f"commitment {cfg['model_roots']}: {len(mr)} segments' model roots compared, "
+          f"{off} not the commitment's")
+    if not mr:
+        bad.append(f"the run was given the commitment {cfg['model_roots']} and the grid "
+                   "compared no model root")
+    if off:
+        bad.append(f"{off} segment(s) do not name the commitment's model root")
 t = g.get("tokens") or {}
 print(f"ids: {t.get('prompt_positions')} prompt and {t.get('generated_positions')} generated "
       f"positions checked, {len(t.get('mismatches') or [])} bad, "
