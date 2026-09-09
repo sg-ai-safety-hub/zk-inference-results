@@ -5,5 +5,7 @@ __pycache__/
 runs/**/*.log
 runs/**/*.bin
 runs/**/proof*
+# the per-group records of what each proof was: sha256 and size, no proof bytes
+!runs/**/proofs-g*.json
 # the paper's export is regenerated from constants.json at each tag
 export/
