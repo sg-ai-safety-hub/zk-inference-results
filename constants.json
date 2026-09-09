@@ -326,6 +326,39 @@
    "grade": "derived",
    "note": "secs.headline.c4096.loop / positions.headline.c4096, at cost.h100_reference_usd_per_hour. The rate is a published list price and names its source; the card was rented at another price and that price is not a number about this measurement."
   },
+  "commitment.c4096.sha256": {
+   "value": "3594bd160cb1104e82c1629af6b4b3ad8260cf95db3e4d6d2fc4fd9b8a528693",
+   "unit": "sha256",
+   "card": "none",
+   "context": 4096,
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-09-model-commitment-h100",
+   "artifact": "commitment.json",
+   "note": "The published model commitment: the digest of one line per layer coordinate carrying the layer number, that layer's model root and the model hash the root was derived under, and nothing else. It moves when the commitment moves and not when the file is reformatted."
+  },
+  "commitment.c4096.layers": {
+   "value": 33,
+   "unit": "layer coordinates",
+   "card": "none",
+   "context": 4096,
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-09-model-commitment-h100",
+   "artifact": "commitment.json",
+   "note": "32 layers and the output head's coordinate after them. One model root each, and the derivation refuses to write a table whose rows disagree about a layer's root."
+  },
+  "commitment.c4096.cells": {
+   "value": 290,
+   "unit": "cells",
+   "card": "none",
+   "context": 4096,
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-09-model-commitment-h100",
+   "artifact": "commitment.json",
+   "note": "The (layer, prefix width) cells the table was derived over, one per segment of headline-c4096's plan. Every one of them was compared against the published commitment."
+  },
   "cells.headline.c16384.fresh": {
    "value": 1775391426272,
    "unit": "cells",

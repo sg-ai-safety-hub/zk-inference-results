@@ -935,6 +935,67 @@ Nothing did here: no other job wrote a line between this run's first stamp and
 its last, and the card read 0 MiB at both ends. It takes 18 minutes, ten of them
 the first backend.
 
+## model-commitment
+
+    tools/drivers/model-commitment.sh <host> <prover-commit> <harness-commit>
+
+runs: 2026-09-09-model-commitment-h100
+prover commit: 32e8fae   harness commit: 32e8fae
+digests: none; this run makes no proof
+binding: none; a run that proves nothing binds nothing. The manifest records
+  the run's kind as `verifier`, which the driver states on the command line
+  because no output of such a run can state it, and `lib/manifest.py` then
+  checks that the run carries no proof digest and no binding table
+unsound skips: none
+constants backed: `commitment.c4096.cells`, `commitment.c4096.layers`,
+  `commitment.c4096.sha256`
+
+What the run checks. A segment's statement names a model root, and the
+verifier's own replay only says that the proof's second commitment is the one
+the statement names; which model that root is, is the statement's own assertion
+until a published commitment is compared with it. This run derives that
+commitment from the model over the plan `headline-c4096` proved, and
+`boundary-grid --expect-model-roots --expect-pre-roots` compares every one of
+that run's 290 segments against it. All 290 model roots and all 290 shape roots
+are the commitment's. Both comparisons also check the model hash the row was
+derived under against the one the statement names, so a commitment published for
+another model is a named failure and not an accident.
+
+The grid is given the sequence run's published prompt as well, and verifies
+every proof, exactly as that run's own grid did: 537 of 537 implied links passed,
+290 of 290 proofs accepted, and the 4,096 prompt ids and 512 generated ids all
+chained. With the manifest in hand the grid names no unchecked end at all, where
+the sequence run's grid named three.
+
+Two derivations, and why both. The published table is the prover's: every row
+from the whole dump, which is what a manifest built before any segment has been
+proved has to do. The second is the verifier's, from the model half of the dump
+and from the statement the sequence run serialized, over the first token block,
+which is one chunk at each of the 32 layers. The two must agree on every layer's
+model root, or the commitment is not a function of the model alone. They agree
+on all 32. The verifier's form is derived without `--tight-table`: that flag
+sizes the exponential table off the witness's own shifts and the model-only load
+has no witness to read them from. The exponential table is a shape column and no
+part of the model tree, which the derivation says itself where a layer's blocks
+carry two widths, so dropping it moves no model root.
+
+What it does not check. The commitment is a function of the weights as this
+harness loads and quantizes them. Nothing here compares those weights against a
+published checkpoint; the model hash in each row is the harness's own hash of
+what it loaded.
+
+How the run is made. It reads the serialized statements and proofs the sequence
+run kept on the host -- 870 files -- and makes no proof of its own, so none of
+the four proving timing scopes applies to it. The three steps took 6,425 s to
+derive the commitment, 503 s for the verifier's form and 171 s for the grid; the
+run records them as wall-clock seconds in `timing.json` and backs no constant
+with them, because a wall-clock step time of a run that proves nothing is not
+one of this repository's timing scopes.
+
+Host time. Just under two hours, almost all of it the first derivation: it runs
+the prover's `expect-root` once per plan line, in a process of its own, 290
+times.
+
 ## Entry template
 
 ```

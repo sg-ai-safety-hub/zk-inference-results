@@ -7,6 +7,7 @@ opens `runs/<run>/<artifact>`, recomputes each value, and calls `claim`.  A
 `measured` constant no section claims is a failure: the audit never accepts a
 constant without an artifact it has read.  Run through `check.py`.
 """
+import hashlib
 import json
 import pathlib
 import statistics
@@ -196,6 +197,43 @@ def memory_probe_c16384(a, keys):
     if "cells.probe.c16384.fresh" in keys:
         a.claim("cells.probe.c16384.fresh",
                 artifact(run, "serial.json")["result"]["summary"]["fresh_sum"])
+
+
+# -- model-commitment ----------------------------------------------------------
+def model_commitment(a, keys):
+    """The published model commitment, and the digest a paper would cite.
+
+    The digest is recomputed here from the table itself rather than read off
+    the field beside it: a digest a run states about itself is a claim, not a
+    check.  The two derivations agreeing, and every segment's model root and
+    shape root being the manifest's, are gate conditions of the run and are
+    checked again here so that a run directory edited afterwards cannot pass.
+    """
+    if not keys:
+        return
+    run = sorted({e["run"] for e in keys.values()})[0]
+    c = artifact(run, "commitment.json")
+    g = artifact(run, "grid.json")["result"]
+    canon = "\n".join(f"{r['layer']} {r['model_root']} {r['model']}"
+                       for r in c["table"]) + "\n"
+    digest = hashlib.sha256(canon.encode()).hexdigest()
+    bad_model = sum(1 for x in g["model_roots"]["chunks"]
+                    if not x["ok"] or not x["model_ok"])
+    bad_pre = sum(1 for x in g["pre_roots"]["chunks"]
+                  if not x["ok"] or not x["model_ok"])
+    print(f"  runs/{run}: {c['layers']} layer coordinates over {c['cells']} cells; "
+          f"{len(g['model_roots']['chunks'])} model roots and "
+          f"{len(g['pre_roots']['chunks'])} shape roots compared, "
+          f"{bad_model + bad_pre} not the commitment's")
+    if c["verifier_form_disagreements"]:
+        a.fails.append("audit: the two derivations of the commitment disagree: "
+                       f"{c['verifier_form_disagreements']}")
+    if bad_model or bad_pre:
+        a.fails.append(f"audit: {bad_model} model root(s) and {bad_pre} shape root(s) "
+                       "are not the published commitment's")
+    a.exact("commitment.c4096.layers", c["layers"])
+    a.exact("commitment.c4096.cells", c["cells"])
+    a.exact("commitment.c4096.sha256", digest)
 
 
 # -- sections: (driver name, function(audit, keys)) ----------------------------
@@ -599,6 +637,7 @@ SECTIONS = [
     ("prefill-sweep", prefill_sweep),
     ("predict-14b", predict_14b),
     ("unproved-baseline", unproved_baseline),
+    ("model-commitment", model_commitment),
 ]
 
 
