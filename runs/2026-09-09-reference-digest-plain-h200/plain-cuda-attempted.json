@@ -1,0 +1,188 @@
+{
+ "shape": "the reference segment without the five GKR reductions, C = 16,384, S = 512",
+ "backend": "cuda",
+ "attempted": true,
+ "outcome": "proved",
+ "committed_cells": 4131033024,
+ "card_memory_total": "143771 MiB",
+ "card_memory_floor_mib": 122880,
+ "marks": [
+  {
+   "driver_total": 150109880320,
+   "driver_used": 586022912,
+   "mark": "init",
+   "pool_reserved": 33554432,
+   "pool_reserved_high": 33554432,
+   "pool_used": 0,
+   "pool_used_high": 4,
+   "seq": 0,
+   "t_secs": 4.655e-05
+  },
+  {
+   "driver_total": 150109880320,
+   "driver_used": 6084755456,
+   "mark": "after_witness_gen",
+   "pool_reserved": 5435817984,
+   "pool_reserved_high": 5435817984,
+   "pool_used": 5427645604,
+   "pool_used_high": 5427645608,
+   "seq": 1,
+   "t_secs": 18.411194056
+  },
+  {
+   "driver_total": 150109880320,
+   "driver_used": 6621626368,
+   "mark": "after_twiddles",
+   "pool_reserved": 5972688896,
+   "pool_reserved_high": 5972688896,
+   "pool_used": 5964516516,
+   "pool_used_high": 5964516516,
+   "seq": 2,
+   "t_secs": 18.428358884
+  },
+  {
+   "driver_total": 150109880320,
+   "driver_used": 12764184576,
+   "mark": "commit_pre",
+   "pool_reserved": 12113149952,
+   "pool_reserved_high": 12113149952,
+   "pool_used": 12082447940,
+   "pool_used_high": 12082447940,
+   "seq": 3,
+   "t_secs": 18.543366761,
+   "tree": {
+    "cells": 151913680,
+    "cols": 2708,
+    "idx": 0,
+    "max_log": 25
+   }
+  },
+  {
+   "driver_total": 150109880320,
+   "driver_used": 16958488576,
+   "mark": "commit_model",
+   "pool_reserved": 16307453952,
+   "pool_reserved_high": 16307453952,
+   "pool_used": 16276751908,
+   "pool_used_high": 16276751908,
+   "seq": 4,
+   "t_secs": 18.626277721,
+   "tree": {
+    "cells": 343932928,
+    "cols": 1749,
+    "idx": 1,
+    "max_log": 19
+   }
+  },
+  {
+   "driver_total": 150109880320,
+   "driver_used": 40480145408,
+   "mark": "commit_base",
+   "pool_reserved": 39829110784,
+   "pool_reserved_high": 39829110784,
+   "pool_used": 39811391556,
+   "pool_used_high": 39811391556,
+   "seq": 5,
+   "t_secs": 20.278787076,
+   "tree": {
+    "cells": 1603306032,
+    "cols": 66215,
+    "idx": 2,
+    "max_log": 25
+   }
+  },
+  {
+   "driver_total": 150109880320,
+   "driver_used": 70884655104,
+   "mark": "commit_inter",
+   "pool_reserved": 68518150144,
+   "pool_reserved_high": 68518150144,
+   "pool_used": 68488923428,
+   "pool_used_high": 68488964900,
+   "seq": 6,
+   "t_secs": 34.992339969,
+   "tree": {
+    "cells": 2031880384,
+    "cols": 93184,
+    "idx": 3,
+    "max_log": 25
+   }
+  },
+  {
+   "driver_total": 150109880320,
+   "driver_used": 74240098304,
+   "mark": "commit_boundary",
+   "pool_reserved": 71873593344,
+   "pool_reserved_high": 71873593344,
+   "pool_used": 71848560676,
+   "pool_used_high": 71848560676,
+   "seq": 7,
+   "t_secs": 35.570267714,
+   "tree": {
+    "cells": 276824064,
+    "cols": 28336,
+    "idx": 4,
+    "max_log": 16
+   }
+  },
+  {
+   "driver_total": 150109880320,
+   "driver_used": 76049940480,
+   "mark": "composition",
+   "pool_reserved": 73282879488,
+   "pool_reserved_high": 73282879488,
+   "pool_used": 72922302500,
+   "pool_used_high": 73190737964,
+   "seq": 8,
+   "t_secs": 36.214529595
+  },
+  {
+   "driver_total": 150109880320,
+   "driver_used": 82156847104,
+   "mark": "composition_commit",
+   "pool_reserved": 79389786112,
+   "pool_reserved_high": 79389786112,
+   "pool_used": 79364753412,
+   "pool_used_high": 79364753412,
+   "seq": 9,
+   "t_secs": 36.283070337
+  },
+  {
+   "driver_total": 150109880320,
+   "driver_used": 92894265344,
+   "mark": "prove_values",
+   "pool_reserved": 90127204352,
+   "pool_reserved_high": 90127204352,
+   "pool_used": 5964516516,
+   "pool_used_high": 90102177732,
+   "seq": 10,
+   "t_secs": 37.32385673
+  },
+  {
+   "driver_total": 150109880320,
+   "driver_used": 92894265344,
+   "mark": "after_prove",
+   "pool_reserved": 90127204352,
+   "pool_reserved_high": 90127204352,
+   "pool_used": 5964516516,
+   "pool_used_high": 5964516516,
+   "seq": 11,
+   "t_secs": 37.338314421
+  },
+  {
+   "driver_total": 150109880320,
+   "driver_used": 92894265344,
+   "mark": "after_drop",
+   "pool_reserved": 90127204352,
+   "pool_reserved_high": 90127204352,
+   "pool_used": 2736164,
+   "pool_used_high": 5964516516,
+   "seq": 12,
+   "t_secs": 39.723801726
+  }
+ ],
+ "peak_driver_used": 92894265344,
+ "last_mark": "after_drop",
+ "stderr_tail": null,
+ "proof_sha256": "d2f2afd860a491d9f6e7da87ee66b193b75bb4766b3209d7da64638c1f29446b"
+}
