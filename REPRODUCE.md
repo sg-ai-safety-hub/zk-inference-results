@@ -860,8 +860,8 @@ is why the manifest records the build as dirty.
 
     tools/drivers/unproved-baseline.sh <host> <prover-commit> <harness-commit>
 
-runs: 2026-09-08-unproved-baseline-h100
-prover commit: none; this run proves nothing   harness commit: 3c876f55fb5ece2565355aa1e4dc59b36fbd855d
+runs: 2026-09-09-unproved-baseline-h100
+prover commit: none; this run proves nothing   harness commit: 2c8fa991c0f5425be48bf7f8b95334cbd4f716ed
 digests: none; a harness run carries no proof
 binding: none; a harness run binds nothing
 unsound skips: none
@@ -891,11 +891,11 @@ one who wants a whole request takes the end-to-end rate.
 
 The two backends answer different questions. `hf` is what a reader gets by
 loading the model and calling it, and `vllm` is what a reader gets by deploying
-it. Both ran here. The serving engine decodes 2.5 times as fast at a single
+it. Both ran here. The serving engine decodes 2.7 times as fast at a single
 request and 2.2 times as fast at 16, and it holds a batch of 16 at the longer
 context where the other backend cannot: at a 4,096-token prompt it decodes
-153.3 positions per second per request against 62.3, and at 16,384 it decodes
-140.3 against 62.6. A reader who takes one of these as "what the model runs at"
+153.0 positions per second per request against 56.9, and at 16,384 it decodes
+140.1 against 57.1. A reader who takes one of these as "what the model runs at"
 picks a number that differs by more than a factor of two depending on which
 backend they had in mind, which is the reason both are here.
 
@@ -915,8 +915,8 @@ the same 512 tokens, which is what tells a reader this record apart from one
 made before it: the warmup used to generate 8 tokens, so the first timed
 repetition of every point was the first long decode its process had run, and the
 recorded spread was tens of times the run's own variation (zk-prover #106). The
-spread recorded here is 3 per cent at its widest, and under 1 per cent at
-most points.
+spread recorded here is 3.3 per cent at its widest -- the serving engine's
+prefill at one request -- and under 1 per cent at 55 of the 57 rows.
 
 What the run does not check. Nothing here is proved, so there is no binding
 table, no digest and no statement: the manifest says `kind` `harness` and names
@@ -932,8 +932,18 @@ timing that shares a card is not a timing, so the run is started only with the
 card empty and with the machine's other work held off it, and afterwards the
 machine's own logs are read to see whether anything else ran while it did.
 Nothing did here: no other job wrote a line between this run's first stamp and
-its last, and the card read 0 MiB at both ends. It takes 18 minutes, ten of them
+its last, and the card read 0 MiB at both ends. It takes 19 minutes, eleven of them
 the first backend.
+
+The run of 2026-09-08 is superseded and no constant points at it any more. Its
+harness commit is the head of a pull request that was rebase-merged, so that
+commit is on no branch of the prover repository and a reader cannot check out
+what the record names; its content is on the default branch under another
+commit. Nothing else about it was wrong, and its directory stays under `runs/`.
+The rates moved with the re-run: the serving engine's are within a per cent of
+the earlier ones, and the model library's decode is about 8 per cent slower at
+every point, which is more than either run's own spread and is not explained by
+anything this repository records.
 
 ## model-commitment
 

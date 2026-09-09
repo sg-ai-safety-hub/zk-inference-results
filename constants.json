@@ -1942,631 +1942,631 @@
    "note": "The coefficient of the block length itself, from the same exact fit. At the context equal to the block length the cost model's separate terms in the context and in the block length multiply the same quantity, so what is separable here is these two coefficients and not the three the model carries. The variant is not the one the paper reports: a synthetic layer under the paper's `intexp` cannot be proved at any of these block lengths, because its exponential table is sized from its own data and clamped to 2^22 rows while the data needs 23 (zk-prover #72). The two variants could not be compared, so this number is the key-tile cost of the shape and variant named and not of the paper's."
   },
   "pos_s.unproved.hf.c4096.b1.prefill": {
-   "value": 33877.329431560756,
+   "value": 33180.61528703889,
    "unit": "positions/s",
    "card": "H100",
    "context": 4096,
    "timing_scope": "unproved prefill",
    "grade": "measured",
-   "run": "2026-09-08-unproved-baseline-h100",
+   "run": "2026-09-09-unproved-baseline-h100",
    "artifact": "llama-31-8b-instruct_hf_c4096_b1_n512.json",
-   "note": "the backend that ships with the model library decoding 512 tokens after a 4096-token prompt, one request at a time, nothing proved: the prompt's positions over the prefill's wall-clock time, per request. The median over 3 repetitions of each repetition's own rate; the spread over them is 1.0 per cent."
+   "note": "the backend that ships with the model library decoding 512 tokens after a 4096-token prompt, one request at a time, nothing proved: the prompt's positions over the prefill's wall-clock time, per request. The median over 3 repetitions of each repetition's own rate; the spread over them is 0.4 per cent."
   },
   "pos_s.unproved.hf.c4096.b1.decode": {
-   "value": 62.25753656507089,
+   "value": 56.93599510817953,
    "unit": "positions/s",
    "card": "H100",
    "context": 4096,
    "timing_scope": "unproved decode",
    "grade": "measured",
-   "run": "2026-09-08-unproved-baseline-h100",
+   "run": "2026-09-09-unproved-baseline-h100",
    "artifact": "llama-31-8b-instruct_hf_c4096_b1_n512.json",
-   "note": "the backend that ships with the model library decoding 512 tokens after a 4096-token prompt, one request at a time, nothing proved: the generated positions over the decode's wall-clock time, per request. The median over 3 repetitions of each repetition's own rate; the spread over them is 1.4 per cent, which the cold first repetition dominates (zk-prover #106)."
+   "note": "the backend that ships with the model library decoding 512 tokens after a 4096-token prompt, one request at a time, nothing proved: the generated positions over the decode's wall-clock time, per request. The median over 3 repetitions of each repetition's own rate; the spread over them is 0.1 per cent, which the cold first repetition dominates (zk-prover #106)."
   },
   "pos_s.unproved.hf.c4096.b1.end_to_end": {
-   "value": 553.2218201412068,
+   "value": 506.4549920415163,
    "unit": "positions/s",
    "card": "H100",
    "context": 4096,
    "timing_scope": "unproved end to end",
    "grade": "measured",
-   "run": "2026-09-08-unproved-baseline-h100",
+   "run": "2026-09-09-unproved-baseline-h100",
    "artifact": "llama-31-8b-instruct_hf_c4096_b1_n512.json",
-   "note": "the backend that ships with the model library decoding 512 tokens after a 4096-token prompt, one request at a time, nothing proved: every position over the whole pass's wall-clock time, per request. The median over 3 repetitions of each repetition's own rate; the spread over them is 1.4 per cent, which the cold first repetition dominates (zk-prover #106)."
+   "note": "the backend that ships with the model library decoding 512 tokens after a 4096-token prompt, one request at a time, nothing proved: every position over the whole pass's wall-clock time, per request. The median over 3 repetitions of each repetition's own rate; the spread over them is 0.1 per cent, which the cold first repetition dominates (zk-prover #106)."
   },
   "pos_s.unproved.hf.c4096.b2.prefill": {
-   "value": 17191.205440925365,
+   "value": 16935.329028008193,
    "unit": "positions/s",
    "card": "H100",
    "context": 4096,
    "timing_scope": "unproved prefill",
    "grade": "measured",
-   "run": "2026-09-08-unproved-baseline-h100",
+   "run": "2026-09-09-unproved-baseline-h100",
    "artifact": "llama-31-8b-instruct_hf_c4096_b2_n512.json",
-   "note": "the backend that ships with the model library decoding 512 tokens after a 4096-token prompt, 2 requests at a time, nothing proved: the prompt's positions over the prefill's wall-clock time, per request. The host's own figure is 2 times this. The median over 3 repetitions of each repetition's own rate; the spread over them is 1.0 per cent."
+   "note": "the backend that ships with the model library decoding 512 tokens after a 4096-token prompt, 2 requests at a time, nothing proved: the prompt's positions over the prefill's wall-clock time, per request. The host's own figure is 2 times this. The median over 3 repetitions of each repetition's own rate; the spread over them is 0.6 per cent."
   },
   "pos_s.unproved.hf.c4096.b2.decode": {
-   "value": 61.66177180165688,
+   "value": 57.00722953278115,
    "unit": "positions/s",
    "card": "H100",
    "context": 4096,
    "timing_scope": "unproved decode",
    "grade": "measured",
-   "run": "2026-09-08-unproved-baseline-h100",
+   "run": "2026-09-09-unproved-baseline-h100",
    "artifact": "llama-31-8b-instruct_hf_c4096_b2_n512.json",
-   "note": "the backend that ships with the model library decoding 512 tokens after a 4096-token prompt, 2 requests at a time, nothing proved: the generated positions over the decode's wall-clock time, per request. The host's own figure is 2 times this. The median over 3 repetitions of each repetition's own rate; the spread over them is 2.3 per cent, which the cold first repetition dominates (zk-prover #106)."
+   "note": "the backend that ships with the model library decoding 512 tokens after a 4096-token prompt, 2 requests at a time, nothing proved: the generated positions over the decode's wall-clock time, per request. The host's own figure is 2 times this. The median over 3 repetitions of each repetition's own rate; the spread over them is 0.8 per cent, which the cold first repetition dominates (zk-prover #106)."
   },
   "pos_s.unproved.hf.c4096.b2.end_to_end": {
-   "value": 540.5021402692711,
+   "value": 500.5773888038319,
    "unit": "positions/s",
    "card": "H100",
    "context": 4096,
    "timing_scope": "unproved end to end",
    "grade": "measured",
-   "run": "2026-09-08-unproved-baseline-h100",
+   "run": "2026-09-09-unproved-baseline-h100",
    "artifact": "llama-31-8b-instruct_hf_c4096_b2_n512.json",
-   "note": "the backend that ships with the model library decoding 512 tokens after a 4096-token prompt, 2 requests at a time, nothing proved: every position over the whole pass's wall-clock time, per request. The host's own figure is 2 times this. The median over 3 repetitions of each repetition's own rate; the spread over them is 2.2 per cent, which the cold first repetition dominates (zk-prover #106)."
+   "note": "the backend that ships with the model library decoding 512 tokens after a 4096-token prompt, 2 requests at a time, nothing proved: every position over the whole pass's wall-clock time, per request. The host's own figure is 2 times this. The median over 3 repetitions of each repetition's own rate; the spread over them is 0.8 per cent, which the cold first repetition dominates (zk-prover #106)."
   },
   "pos_s.unproved.hf.c4096.b4.prefill": {
-   "value": 8581.377483724471,
+   "value": 8446.581747160606,
    "unit": "positions/s",
    "card": "H100",
    "context": 4096,
    "timing_scope": "unproved prefill",
    "grade": "measured",
-   "run": "2026-09-08-unproved-baseline-h100",
+   "run": "2026-09-09-unproved-baseline-h100",
    "artifact": "llama-31-8b-instruct_hf_c4096_b4_n512.json",
-   "note": "the backend that ships with the model library decoding 512 tokens after a 4096-token prompt, 4 requests at a time, nothing proved: the prompt's positions over the prefill's wall-clock time, per request. The host's own figure is 4 times this. The median over 3 repetitions of each repetition's own rate; the spread over them is 0.2 per cent."
+   "note": "the backend that ships with the model library decoding 512 tokens after a 4096-token prompt, 4 requests at a time, nothing proved: the prompt's positions over the prefill's wall-clock time, per request. The host's own figure is 4 times this. The median over 3 repetitions of each repetition's own rate; the spread over them is 0.4 per cent."
   },
   "pos_s.unproved.hf.c4096.b4.decode": {
-   "value": 62.119654842111466,
+   "value": 56.52495715754197,
    "unit": "positions/s",
    "card": "H100",
    "context": 4096,
    "timing_scope": "unproved decode",
    "grade": "measured",
-   "run": "2026-09-08-unproved-baseline-h100",
+   "run": "2026-09-09-unproved-baseline-h100",
    "artifact": "llama-31-8b-instruct_hf_c4096_b4_n512.json",
-   "note": "the backend that ships with the model library decoding 512 tokens after a 4096-token prompt, 4 requests at a time, nothing proved: the generated positions over the decode's wall-clock time, per request. The host's own figure is 4 times this. The median over 3 repetitions of each repetition's own rate; the spread over them is 1.7 per cent, which the cold first repetition dominates (zk-prover #106)."
+   "note": "the backend that ships with the model library decoding 512 tokens after a 4096-token prompt, 4 requests at a time, nothing proved: the generated positions over the decode's wall-clock time, per request. The host's own figure is 4 times this. The median over 3 repetitions of each repetition's own rate; the spread over them is 0.8 per cent, which the cold first repetition dominates (zk-prover #106)."
   },
   "pos_s.unproved.hf.c4096.b4.end_to_end": {
-   "value": 529.4499333097781,
+   "value": 483.71589812293377,
    "unit": "positions/s",
    "card": "H100",
    "context": 4096,
    "timing_scope": "unproved end to end",
    "grade": "measured",
-   "run": "2026-09-08-unproved-baseline-h100",
+   "run": "2026-09-09-unproved-baseline-h100",
    "artifact": "llama-31-8b-instruct_hf_c4096_b4_n512.json",
-   "note": "the backend that ships with the model library decoding 512 tokens after a 4096-token prompt, 4 requests at a time, nothing proved: every position over the whole pass's wall-clock time, per request. The host's own figure is 4 times this. The median over 3 repetitions of each repetition's own rate; the spread over them is 1.6 per cent, which the cold first repetition dominates (zk-prover #106)."
+   "note": "the backend that ships with the model library decoding 512 tokens after a 4096-token prompt, 4 requests at a time, nothing proved: every position over the whole pass's wall-clock time, per request. The host's own figure is 4 times this. The median over 3 repetitions of each repetition's own rate; the spread over them is 0.8 per cent, which the cold first repetition dominates (zk-prover #106)."
   },
   "pos_s.unproved.hf.c4096.b8.prefill": {
-   "value": 4194.986158927852,
+   "value": 4149.678207909662,
    "unit": "positions/s",
    "card": "H100",
    "context": 4096,
    "timing_scope": "unproved prefill",
    "grade": "measured",
-   "run": "2026-09-08-unproved-baseline-h100",
+   "run": "2026-09-09-unproved-baseline-h100",
    "artifact": "llama-31-8b-instruct_hf_c4096_b8_n512.json",
-   "note": "the backend that ships with the model library decoding 512 tokens after a 4096-token prompt, 8 requests at a time, nothing proved: the prompt's positions over the prefill's wall-clock time, per request. The host's own figure is 8 times this. The median over 3 repetitions of each repetition's own rate; the spread over them is 0.5 per cent."
+   "note": "the backend that ships with the model library decoding 512 tokens after a 4096-token prompt, 8 requests at a time, nothing proved: the prompt's positions over the prefill's wall-clock time, per request. The host's own figure is 8 times this. The median over 3 repetitions of each repetition's own rate; the spread over them is 0.8 per cent."
   },
   "pos_s.unproved.hf.c4096.b8.decode": {
-   "value": 61.54617248526764,
+   "value": 56.931657386602616,
    "unit": "positions/s",
    "card": "H100",
    "context": 4096,
    "timing_scope": "unproved decode",
    "grade": "measured",
-   "run": "2026-09-08-unproved-baseline-h100",
+   "run": "2026-09-09-unproved-baseline-h100",
    "artifact": "llama-31-8b-instruct_hf_c4096_b8_n512.json",
-   "note": "the backend that ships with the model library decoding 512 tokens after a 4096-token prompt, 8 requests at a time, nothing proved: the generated positions over the decode's wall-clock time, per request. The host's own figure is 8 times this. The median over 3 repetitions of each repetition's own rate; the spread over them is 2.9 per cent, which the cold first repetition dominates (zk-prover #106)."
+   "note": "the backend that ships with the model library decoding 512 tokens after a 4096-token prompt, 8 requests at a time, nothing proved: the generated positions over the decode's wall-clock time, per request. The host's own figure is 8 times this. The median over 3 repetitions of each repetition's own rate; the spread over them is 0.2 per cent, which the cold first repetition dominates (zk-prover #106)."
   },
   "pos_s.unproved.hf.c4096.b8.end_to_end": {
-   "value": 496.48344397652704,
+   "value": 462.52732619872705,
    "unit": "positions/s",
    "card": "H100",
    "context": 4096,
    "timing_scope": "unproved end to end",
    "grade": "measured",
-   "run": "2026-09-08-unproved-baseline-h100",
+   "run": "2026-09-09-unproved-baseline-h100",
    "artifact": "llama-31-8b-instruct_hf_c4096_b8_n512.json",
-   "note": "the backend that ships with the model library decoding 512 tokens after a 4096-token prompt, 8 requests at a time, nothing proved: every position over the whole pass's wall-clock time, per request. The host's own figure is 8 times this. The median over 3 repetitions of each repetition's own rate; the spread over them is 2.6 per cent, which the cold first repetition dominates (zk-prover #106)."
+   "note": "the backend that ships with the model library decoding 512 tokens after a 4096-token prompt, 8 requests at a time, nothing proved: every position over the whole pass's wall-clock time, per request. The host's own figure is 8 times this. The median over 3 repetitions of each repetition's own rate; the spread over them is 0.2 per cent, which the cold first repetition dominates (zk-prover #106)."
   },
   "pos_s.unproved.hf.c4096.b16.prefill": {
-   "value": 2096.4697859998328,
+   "value": 2068.8711695378393,
    "unit": "positions/s",
    "card": "H100",
    "context": 4096,
    "timing_scope": "unproved prefill",
    "grade": "measured",
-   "run": "2026-09-08-unproved-baseline-h100",
+   "run": "2026-09-09-unproved-baseline-h100",
    "artifact": "llama-31-8b-instruct_hf_c4096_b16_n512.json",
-   "note": "the backend that ships with the model library decoding 512 tokens after a 4096-token prompt, 16 requests at a time, nothing proved: the prompt's positions over the prefill's wall-clock time, per request. The host's own figure is 16 times this. The median over 3 repetitions of each repetition's own rate; the spread over them is 0.3 per cent."
+   "note": "the backend that ships with the model library decoding 512 tokens after a 4096-token prompt, 16 requests at a time, nothing proved: the prompt's positions over the prefill's wall-clock time, per request. The host's own figure is 16 times this. The median over 3 repetitions of each repetition's own rate; the spread over them is 0.1 per cent."
   },
   "pos_s.unproved.hf.c4096.b16.decode": {
-   "value": 48.273216745850405,
+   "value": 48.033077329668345,
    "unit": "positions/s",
    "card": "H100",
    "context": 4096,
    "timing_scope": "unproved decode",
    "grade": "measured",
-   "run": "2026-09-08-unproved-baseline-h100",
+   "run": "2026-09-09-unproved-baseline-h100",
    "artifact": "llama-31-8b-instruct_hf_c4096_b16_n512.json",
-   "note": "the backend that ships with the model library decoding 512 tokens after a 4096-token prompt, 16 requests at a time, nothing proved: the generated positions over the decode's wall-clock time, per request. The host's own figure is 16 times this. The median over 3 repetitions of each repetition's own rate; the spread over them is 0.3 per cent, which the cold first repetition dominates (zk-prover #106)."
+   "note": "the backend that ships with the model library decoding 512 tokens after a 4096-token prompt, 16 requests at a time, nothing proved: the generated positions over the decode's wall-clock time, per request. The host's own figure is 16 times this. The median over 3 repetitions of each repetition's own rate; the spread over them is 0.1 per cent, which the cold first repetition dominates (zk-prover #106)."
   },
   "pos_s.unproved.hf.c4096.b16.end_to_end": {
-   "value": 367.6562268831556,
+   "value": 365.2480583358133,
    "unit": "positions/s",
    "card": "H100",
    "context": 4096,
    "timing_scope": "unproved end to end",
    "grade": "measured",
-   "run": "2026-09-08-unproved-baseline-h100",
+   "run": "2026-09-09-unproved-baseline-h100",
    "artifact": "llama-31-8b-instruct_hf_c4096_b16_n512.json",
-   "note": "the backend that ships with the model library decoding 512 tokens after a 4096-token prompt, 16 requests at a time, nothing proved: every position over the whole pass's wall-clock time, per request. The host's own figure is 16 times this. The median over 3 repetitions of each repetition's own rate; the spread over them is 0.2 per cent, which the cold first repetition dominates (zk-prover #106)."
+   "note": "the backend that ships with the model library decoding 512 tokens after a 4096-token prompt, 16 requests at a time, nothing proved: every position over the whole pass's wall-clock time, per request. The host's own figure is 16 times this. The median over 3 repetitions of each repetition's own rate; the spread over them is 0.1 per cent, which the cold first repetition dominates (zk-prover #106)."
   },
   "pos_s.unproved.hf.c16384.b1.prefill": {
-   "value": 29279.15431874443,
+   "value": 28777.667906107745,
    "unit": "positions/s",
    "card": "H100",
    "context": 16384,
    "timing_scope": "unproved prefill",
    "grade": "measured",
-   "run": "2026-09-08-unproved-baseline-h100",
+   "run": "2026-09-09-unproved-baseline-h100",
    "artifact": "llama-31-8b-instruct_hf_c16384_b1_n512.json",
    "note": "the backend that ships with the model library decoding 512 tokens after a 16384-token prompt, one request at a time, nothing proved: the prompt's positions over the prefill's wall-clock time, per request. The median over 3 repetitions of each repetition's own rate; the spread over them is 0.3 per cent."
   },
   "pos_s.unproved.hf.c16384.b1.decode": {
-   "value": 62.597834966699025,
+   "value": 57.09132803959127,
    "unit": "positions/s",
    "card": "H100",
    "context": 16384,
    "timing_scope": "unproved decode",
    "grade": "measured",
-   "run": "2026-09-08-unproved-baseline-h100",
+   "run": "2026-09-09-unproved-baseline-h100",
    "artifact": "llama-31-8b-instruct_hf_c16384_b1_n512.json",
-   "note": "the backend that ships with the model library decoding 512 tokens after a 16384-token prompt, one request at a time, nothing proved: the generated positions over the decode's wall-clock time, per request. The median over 3 repetitions of each repetition's own rate; the spread over them is 2.0 per cent, which the cold first repetition dominates (zk-prover #106)."
+   "note": "the backend that ships with the model library decoding 512 tokens after a 16384-token prompt, one request at a time, nothing proved: the generated positions over the decode's wall-clock time, per request. The median over 3 repetitions of each repetition's own rate; the spread over them is 0.9 per cent, which the cold first repetition dominates (zk-prover #106)."
   },
   "pos_s.unproved.hf.c16384.b1.end_to_end": {
-   "value": 1937.0137255494262,
+   "value": 1774.7258338306904,
    "unit": "positions/s",
    "card": "H100",
    "context": 16384,
    "timing_scope": "unproved end to end",
    "grade": "measured",
-   "run": "2026-09-08-unproved-baseline-h100",
+   "run": "2026-09-09-unproved-baseline-h100",
    "artifact": "llama-31-8b-instruct_hf_c16384_b1_n512.json",
-   "note": "the backend that ships with the model library decoding 512 tokens after a 16384-token prompt, one request at a time, nothing proved: every position over the whole pass's wall-clock time, per request. The median over 3 repetitions of each repetition's own rate; the spread over them is 1.9 per cent, which the cold first repetition dominates (zk-prover #106)."
+   "note": "the backend that ships with the model library decoding 512 tokens after a 16384-token prompt, one request at a time, nothing proved: every position over the whole pass's wall-clock time, per request. The median over 3 repetitions of each repetition's own rate; the spread over them is 0.8 per cent, which the cold first repetition dominates (zk-prover #106)."
   },
   "pos_s.unproved.hf.c16384.b2.prefill": {
-   "value": 14302.506930118963,
+   "value": 14063.059167449355,
    "unit": "positions/s",
    "card": "H100",
    "context": 16384,
    "timing_scope": "unproved prefill",
    "grade": "measured",
-   "run": "2026-09-08-unproved-baseline-h100",
+   "run": "2026-09-09-unproved-baseline-h100",
    "artifact": "llama-31-8b-instruct_hf_c16384_b2_n512.json",
-   "note": "the backend that ships with the model library decoding 512 tokens after a 16384-token prompt, 2 requests at a time, nothing proved: the prompt's positions over the prefill's wall-clock time, per request. The host's own figure is 2 times this. The median over 3 repetitions of each repetition's own rate; the spread over them is 1.1 per cent."
+   "note": "the backend that ships with the model library decoding 512 tokens after a 16384-token prompt, 2 requests at a time, nothing proved: the prompt's positions over the prefill's wall-clock time, per request. The host's own figure is 2 times this. The median over 3 repetitions of each repetition's own rate; the spread over them is 0.6 per cent."
   },
   "pos_s.unproved.hf.c16384.b2.decode": {
-   "value": 62.657854254241066,
+   "value": 56.73784927940578,
    "unit": "positions/s",
    "card": "H100",
    "context": 16384,
    "timing_scope": "unproved decode",
    "grade": "measured",
-   "run": "2026-09-08-unproved-baseline-h100",
+   "run": "2026-09-09-unproved-baseline-h100",
    "artifact": "llama-31-8b-instruct_hf_c16384_b2_n512.json",
-   "note": "the backend that ships with the model library decoding 512 tokens after a 16384-token prompt, 2 requests at a time, nothing proved: the generated positions over the decode's wall-clock time, per request. The host's own figure is 2 times this. The median over 3 repetitions of each repetition's own rate; the spread over them is 1.0 per cent, which the cold first repetition dominates (zk-prover #106)."
+   "note": "the backend that ships with the model library decoding 512 tokens after a 16384-token prompt, 2 requests at a time, nothing proved: the generated positions over the decode's wall-clock time, per request. The host's own figure is 2 times this. The median over 3 repetitions of each repetition's own rate; the spread over them is 0.5 per cent, which the cold first repetition dominates (zk-prover #106)."
   },
   "pos_s.unproved.hf.c16384.b2.end_to_end": {
-   "value": 1815.3809381095657,
+   "value": 1661.1328755502464,
    "unit": "positions/s",
    "card": "H100",
    "context": 16384,
    "timing_scope": "unproved end to end",
    "grade": "measured",
-   "run": "2026-09-08-unproved-baseline-h100",
+   "run": "2026-09-09-unproved-baseline-h100",
    "artifact": "llama-31-8b-instruct_hf_c16384_b2_n512.json",
-   "note": "the backend that ships with the model library decoding 512 tokens after a 16384-token prompt, 2 requests at a time, nothing proved: every position over the whole pass's wall-clock time, per request. The host's own figure is 2 times this. The median over 3 repetitions of each repetition's own rate; the spread over them is 0.8 per cent, which the cold first repetition dominates (zk-prover #106)."
+   "note": "the backend that ships with the model library decoding 512 tokens after a 16384-token prompt, 2 requests at a time, nothing proved: every position over the whole pass's wall-clock time, per request. The host's own figure is 2 times this. The median over 3 repetitions of each repetition's own rate; the spread over them is 0.4 per cent, which the cold first repetition dominates (zk-prover #106)."
   },
   "pos_s.unproved.hf.c16384.b4.prefill": {
-   "value": 7153.870905766514,
+   "value": 7049.642566655178,
    "unit": "positions/s",
    "card": "H100",
    "context": 16384,
    "timing_scope": "unproved prefill",
    "grade": "measured",
-   "run": "2026-09-08-unproved-baseline-h100",
+   "run": "2026-09-09-unproved-baseline-h100",
    "artifact": "llama-31-8b-instruct_hf_c16384_b4_n512.json",
-   "note": "the backend that ships with the model library decoding 512 tokens after a 16384-token prompt, 4 requests at a time, nothing proved: the prompt's positions over the prefill's wall-clock time, per request. The host's own figure is 4 times this. The median over 3 repetitions of each repetition's own rate; the spread over them is 0.2 per cent."
+   "note": "the backend that ships with the model library decoding 512 tokens after a 16384-token prompt, 4 requests at a time, nothing proved: the prompt's positions over the prefill's wall-clock time, per request. The host's own figure is 4 times this. The median over 3 repetitions of each repetition's own rate; the spread over them is 0.7 per cent."
   },
   "pos_s.unproved.hf.c16384.b4.decode": {
-   "value": 50.37535724833026,
+   "value": 50.018661228236304,
    "unit": "positions/s",
    "card": "H100",
    "context": 16384,
    "timing_scope": "unproved decode",
    "grade": "measured",
-   "run": "2026-09-08-unproved-baseline-h100",
+   "run": "2026-09-09-unproved-baseline-h100",
    "artifact": "llama-31-8b-instruct_hf_c16384_b4_n512.json",
-   "note": "the backend that ships with the model library decoding 512 tokens after a 16384-token prompt, 4 requests at a time, nothing proved: the generated positions over the decode's wall-clock time, per request. The host's own figure is 4 times this. The median over 3 repetitions of each repetition's own rate; the spread over them is 0.4 per cent, which the cold first repetition dominates (zk-prover #106)."
+   "note": "the backend that ships with the model library decoding 512 tokens after a 16384-token prompt, 4 requests at a time, nothing proved: the generated positions over the decode's wall-clock time, per request. The host's own figure is 4 times this. The median over 3 repetitions of each repetition's own rate; the spread over them is 0.3 per cent, which the cold first repetition dominates (zk-prover #106)."
   },
   "pos_s.unproved.hf.c16384.b4.end_to_end": {
-   "value": 1359.0865191021,
+   "value": 1347.3387097602933,
    "unit": "positions/s",
    "card": "H100",
    "context": 16384,
    "timing_scope": "unproved end to end",
    "grade": "measured",
-   "run": "2026-09-08-unproved-baseline-h100",
+   "run": "2026-09-09-unproved-baseline-h100",
    "artifact": "llama-31-8b-instruct_hf_c16384_b4_n512.json",
-   "note": "the backend that ships with the model library decoding 512 tokens after a 16384-token prompt, 4 requests at a time, nothing proved: every position over the whole pass's wall-clock time, per request. The host's own figure is 4 times this. The median over 3 repetitions of each repetition's own rate; the spread over them is 0.3 per cent, which the cold first repetition dominates (zk-prover #106)."
+   "note": "the backend that ships with the model library decoding 512 tokens after a 16384-token prompt, 4 requests at a time, nothing proved: every position over the whole pass's wall-clock time, per request. The host's own figure is 4 times this. The median over 3 repetitions of each repetition's own rate; the spread over them is 0.1 per cent, which the cold first repetition dominates (zk-prover #106)."
   },
   "pos_s.unproved.hf.c16384.b8.prefill": {
-   "value": 3586.694185685572,
+   "value": 3533.853535204377,
    "unit": "positions/s",
    "card": "H100",
    "context": 16384,
    "timing_scope": "unproved prefill",
    "grade": "measured",
-   "run": "2026-09-08-unproved-baseline-h100",
+   "run": "2026-09-09-unproved-baseline-h100",
    "artifact": "llama-31-8b-instruct_hf_c16384_b8_n512.json",
-   "note": "the backend that ships with the model library decoding 512 tokens after a 16384-token prompt, 8 requests at a time, nothing proved: the prompt's positions over the prefill's wall-clock time, per request. The host's own figure is 8 times this. The median over 3 repetitions of each repetition's own rate; the spread over them is 0.2 per cent."
+   "note": "the backend that ships with the model library decoding 512 tokens after a 16384-token prompt, 8 requests at a time, nothing proved: the prompt's positions over the prefill's wall-clock time, per request. The host's own figure is 8 times this. The median over 3 repetitions of each repetition's own rate; the spread over them is 0.3 per cent."
   },
   "pos_s.unproved.hf.c16384.b8.decode": {
-   "value": 34.73330530190367,
+   "value": 34.4987527164152,
    "unit": "positions/s",
    "card": "H100",
    "context": 16384,
    "timing_scope": "unproved decode",
    "grade": "measured",
-   "run": "2026-09-08-unproved-baseline-h100",
+   "run": "2026-09-09-unproved-baseline-h100",
    "artifact": "llama-31-8b-instruct_hf_c16384_b8_n512.json",
    "note": "the backend that ships with the model library decoding 512 tokens after a 16384-token prompt, 8 requests at a time, nothing proved: the generated positions over the decode's wall-clock time, per request. The host's own figure is 8 times this. The median over 3 repetitions of each repetition's own rate; the spread over them is 0.1 per cent, which the cold first repetition dominates (zk-prover #106)."
   },
   "pos_s.unproved.hf.c16384.b8.end_to_end": {
-   "value": 876.4609203106075,
+   "value": 868.8840823263461,
    "unit": "positions/s",
    "card": "H100",
    "context": 16384,
    "timing_scope": "unproved end to end",
    "grade": "measured",
-   "run": "2026-09-08-unproved-baseline-h100",
+   "run": "2026-09-09-unproved-baseline-h100",
    "artifact": "llama-31-8b-instruct_hf_c16384_b8_n512.json",
-   "note": "the backend that ships with the model library decoding 512 tokens after a 16384-token prompt, 8 requests at a time, nothing proved: every position over the whole pass's wall-clock time, per request. The host's own figure is 8 times this. The median over 3 repetitions of each repetition's own rate; the spread over them is 0.1 per cent, which the cold first repetition dominates (zk-prover #106)."
+   "note": "the backend that ships with the model library decoding 512 tokens after a 16384-token prompt, 8 requests at a time, nothing proved: every position over the whole pass's wall-clock time, per request. The host's own figure is 8 times this. The median over 3 repetitions of each repetition's own rate; the spread over them is 0.0 per cent, which the cold first repetition dominates (zk-prover #106)."
   },
   "pos_s.unproved.vllm.c4096.b1.prefill": {
-   "value": 43330.8473148617,
+   "value": 42230.745958163425,
    "unit": "positions/s",
    "card": "H100",
    "context": 4096,
    "timing_scope": "unproved prefill",
    "grade": "measured",
-   "run": "2026-09-08-unproved-baseline-h100",
+   "run": "2026-09-09-unproved-baseline-h100",
    "artifact": "llama-31-8b-instruct_vllm_c4096_b1_n512.json",
-   "note": "the serving engine decoding 512 tokens after a 4096-token prompt, one request at a time, nothing proved: the prompt's positions over the prefill's wall-clock time, per request. The median over 3 repetitions of each repetition's own rate; the spread over them is 5.8 per cent."
+   "note": "the serving engine decoding 512 tokens after a 4096-token prompt, one request at a time, nothing proved: the prompt's positions over the prefill's wall-clock time, per request. The median over 3 repetitions of each repetition's own rate; the spread over them is 3.3 per cent."
   },
   "pos_s.unproved.vllm.c4096.b1.decode": {
-   "value": 153.25612503856905,
+   "value": 152.98673873863217,
    "unit": "positions/s",
    "card": "H100",
    "context": 4096,
    "timing_scope": "unproved decode",
    "grade": "measured",
-   "run": "2026-09-08-unproved-baseline-h100",
+   "run": "2026-09-09-unproved-baseline-h100",
    "artifact": "llama-31-8b-instruct_vllm_c4096_b1_n512.json",
    "note": "the serving engine decoding 512 tokens after a 4096-token prompt, one request at a time, nothing proved: the generated positions over the decode's wall-clock time, per request. The median over 3 repetitions of each repetition's own rate; the spread over them is 0.1 per cent, which the cold first repetition dominates (zk-prover #106)."
   },
   "pos_s.unproved.vllm.c4096.b1.end_to_end": {
-   "value": 1344.76303343513,
+   "value": 1341.5898999323858,
    "unit": "positions/s",
    "card": "H100",
    "context": 4096,
    "timing_scope": "unproved end to end",
    "grade": "measured",
-   "run": "2026-09-08-unproved-baseline-h100",
+   "run": "2026-09-09-unproved-baseline-h100",
    "artifact": "llama-31-8b-instruct_vllm_c4096_b1_n512.json",
-   "note": "the serving engine decoding 512 tokens after a 4096-token prompt, one request at a time, nothing proved: every position over the whole pass's wall-clock time, per request. The median over 3 repetitions of each repetition's own rate; the spread over them is 0.2 per cent, which the cold first repetition dominates (zk-prover #106)."
+   "note": "the serving engine decoding 512 tokens after a 4096-token prompt, one request at a time, nothing proved: every position over the whole pass's wall-clock time, per request. The median over 3 repetitions of each repetition's own rate; the spread over them is 0.1 per cent, which the cold first repetition dominates (zk-prover #106)."
   },
   "pos_s.unproved.vllm.c4096.b2.prefill": {
-   "value": 20862.847662558477,
+   "value": 20766.560155910076,
    "unit": "positions/s",
    "card": "H100",
    "context": 4096,
    "timing_scope": "unproved prefill",
    "grade": "measured",
-   "run": "2026-09-08-unproved-baseline-h100",
+   "run": "2026-09-09-unproved-baseline-h100",
    "artifact": "llama-31-8b-instruct_vllm_c4096_b2_n512.json",
-   "note": "the serving engine decoding 512 tokens after a 4096-token prompt, 2 requests at a time, nothing proved: the prompt's positions over the prefill's wall-clock time, per request. The host's own figure is 2 times this. The median over 3 repetitions of each repetition's own rate; the spread over them is 1.9 per cent."
+   "note": "the serving engine decoding 512 tokens after a 4096-token prompt, 2 requests at a time, nothing proved: the prompt's positions over the prefill's wall-clock time, per request. The host's own figure is 2 times this. The median over 3 repetitions of each repetition's own rate; the spread over them is 1.4 per cent."
   },
   "pos_s.unproved.vllm.c4096.b2.decode": {
-   "value": 149.13363623434296,
+   "value": 147.67129169819518,
    "unit": "positions/s",
    "card": "H100",
    "context": 4096,
    "timing_scope": "unproved decode",
    "grade": "measured",
-   "run": "2026-09-08-unproved-baseline-h100",
+   "run": "2026-09-09-unproved-baseline-h100",
    "artifact": "llama-31-8b-instruct_vllm_c4096_b2_n512.json",
-   "note": "the serving engine decoding 512 tokens after a 4096-token prompt, 2 requests at a time, nothing proved: the generated positions over the decode's wall-clock time, per request. The host's own figure is 2 times this. The median over 3 repetitions of each repetition's own rate; the spread over them is 0.1 per cent, which the cold first repetition dominates (zk-prover #106)."
+   "note": "the serving engine decoding 512 tokens after a 4096-token prompt, 2 requests at a time, nothing proved: the generated positions over the decode's wall-clock time, per request. The host's own figure is 2 times this. The median over 3 repetitions of each repetition's own rate; the spread over them is 0.0 per cent, which the cold first repetition dominates (zk-prover #106)."
   },
   "pos_s.unproved.vllm.c4096.b2.end_to_end": {
-   "value": 1272.6137529278396,
+   "value": 1259.514359994955,
    "unit": "positions/s",
    "card": "H100",
    "context": 4096,
    "timing_scope": "unproved end to end",
    "grade": "measured",
-   "run": "2026-09-08-unproved-baseline-h100",
+   "run": "2026-09-09-unproved-baseline-h100",
    "artifact": "llama-31-8b-instruct_vllm_c4096_b2_n512.json",
    "note": "the serving engine decoding 512 tokens after a 4096-token prompt, 2 requests at a time, nothing proved: every position over the whole pass's wall-clock time, per request. The host's own figure is 2 times this. The median over 3 repetitions of each repetition's own rate; the spread over them is 0.1 per cent, which the cold first repetition dominates (zk-prover #106)."
   },
   "pos_s.unproved.vllm.c4096.b4.prefill": {
-   "value": 10711.472209074815,
+   "value": 10540.301734207696,
    "unit": "positions/s",
    "card": "H100",
    "context": 4096,
    "timing_scope": "unproved prefill",
    "grade": "measured",
-   "run": "2026-09-08-unproved-baseline-h100",
+   "run": "2026-09-09-unproved-baseline-h100",
    "artifact": "llama-31-8b-instruct_vllm_c4096_b4_n512.json",
-   "note": "the serving engine decoding 512 tokens after a 4096-token prompt, 4 requests at a time, nothing proved: the prompt's positions over the prefill's wall-clock time, per request. The host's own figure is 4 times this. The median over 3 repetitions of each repetition's own rate; the spread over them is 0.5 per cent."
+   "note": "the serving engine decoding 512 tokens after a 4096-token prompt, 4 requests at a time, nothing proved: the prompt's positions over the prefill's wall-clock time, per request. The host's own figure is 4 times this. The median over 3 repetitions of each repetition's own rate; the spread over them is 1.0 per cent."
   },
   "pos_s.unproved.vllm.c4096.b4.decode": {
-   "value": 141.0682070432598,
+   "value": 139.86721592714898,
    "unit": "positions/s",
    "card": "H100",
    "context": 4096,
    "timing_scope": "unproved decode",
    "grade": "measured",
-   "run": "2026-09-08-unproved-baseline-h100",
+   "run": "2026-09-09-unproved-baseline-h100",
    "artifact": "llama-31-8b-instruct_vllm_c4096_b4_n512.json",
-   "note": "the serving engine decoding 512 tokens after a 4096-token prompt, 4 requests at a time, nothing proved: the generated positions over the decode's wall-clock time, per request. The host's own figure is 4 times this. The median over 3 repetitions of each repetition's own rate; the spread over them is 0.4 per cent, which the cold first repetition dominates (zk-prover #106)."
+   "note": "the serving engine decoding 512 tokens after a 4096-token prompt, 4 requests at a time, nothing proved: the generated positions over the decode's wall-clock time, per request. The host's own figure is 4 times this. The median over 3 repetitions of each repetition's own rate; the spread over them is 0.1 per cent, which the cold first repetition dominates (zk-prover #106)."
   },
   "pos_s.unproved.vllm.c4096.b4.end_to_end": {
-   "value": 1150.633840297525,
+   "value": 1140.343811522042,
    "unit": "positions/s",
    "card": "H100",
    "context": 4096,
    "timing_scope": "unproved end to end",
    "grade": "measured",
-   "run": "2026-09-08-unproved-baseline-h100",
+   "run": "2026-09-09-unproved-baseline-h100",
    "artifact": "llama-31-8b-instruct_vllm_c4096_b4_n512.json",
-   "note": "the serving engine decoding 512 tokens after a 4096-token prompt, 4 requests at a time, nothing proved: every position over the whole pass's wall-clock time, per request. The host's own figure is 4 times this. The median over 3 repetitions of each repetition's own rate; the spread over them is 0.3 per cent, which the cold first repetition dominates (zk-prover #106)."
+   "note": "the serving engine decoding 512 tokens after a 4096-token prompt, 4 requests at a time, nothing proved: every position over the whole pass's wall-clock time, per request. The host's own figure is 4 times this. The median over 3 repetitions of each repetition's own rate; the spread over them is 0.1 per cent, which the cold first repetition dominates (zk-prover #106)."
   },
   "pos_s.unproved.vllm.c4096.b8.prefill": {
-   "value": 5360.772349952276,
+   "value": 5268.731346258565,
    "unit": "positions/s",
    "card": "H100",
    "context": 4096,
    "timing_scope": "unproved prefill",
    "grade": "measured",
-   "run": "2026-09-08-unproved-baseline-h100",
+   "run": "2026-09-09-unproved-baseline-h100",
    "artifact": "llama-31-8b-instruct_vllm_c4096_b8_n512.json",
-   "note": "the serving engine decoding 512 tokens after a 4096-token prompt, 8 requests at a time, nothing proved: the prompt's positions over the prefill's wall-clock time, per request. The host's own figure is 8 times this. The median over 3 repetitions of each repetition's own rate; the spread over them is 0.4 per cent."
+   "note": "the serving engine decoding 512 tokens after a 4096-token prompt, 8 requests at a time, nothing proved: the prompt's positions over the prefill's wall-clock time, per request. The host's own figure is 8 times this. The median over 3 repetitions of each repetition's own rate; the spread over them is 0.2 per cent."
   },
   "pos_s.unproved.vllm.c4096.b8.decode": {
-   "value": 126.2480824687243,
+   "value": 125.19244191395563,
    "unit": "positions/s",
    "card": "H100",
    "context": 4096,
    "timing_scope": "unproved decode",
    "grade": "measured",
-   "run": "2026-09-08-unproved-baseline-h100",
+   "run": "2026-09-09-unproved-baseline-h100",
    "artifact": "llama-31-8b-instruct_vllm_c4096_b8_n512.json",
    "note": "the serving engine decoding 512 tokens after a 4096-token prompt, 8 requests at a time, nothing proved: the generated positions over the decode's wall-clock time, per request. The host's own figure is 8 times this. The median over 3 repetitions of each repetition's own rate; the spread over them is 0.2 per cent, which the cold first repetition dominates (zk-prover #106)."
   },
   "pos_s.unproved.vllm.c4096.b8.end_to_end": {
-   "value": 957.6745995674589,
+   "value": 948.2909955047344,
    "unit": "positions/s",
    "card": "H100",
    "context": 4096,
    "timing_scope": "unproved end to end",
    "grade": "measured",
-   "run": "2026-09-08-unproved-baseline-h100",
+   "run": "2026-09-09-unproved-baseline-h100",
    "artifact": "llama-31-8b-instruct_vllm_c4096_b8_n512.json",
    "note": "the serving engine decoding 512 tokens after a 4096-token prompt, 8 requests at a time, nothing proved: every position over the whole pass's wall-clock time, per request. The host's own figure is 8 times this. The median over 3 repetitions of each repetition's own rate; the spread over them is 0.1 per cent, which the cold first repetition dominates (zk-prover #106)."
   },
   "pos_s.unproved.vllm.c4096.b16.prefill": {
-   "value": 2631.528854026993,
+   "value": 2588.9288462556283,
    "unit": "positions/s",
    "card": "H100",
    "context": 4096,
    "timing_scope": "unproved prefill",
    "grade": "measured",
-   "run": "2026-09-08-unproved-baseline-h100",
+   "run": "2026-09-09-unproved-baseline-h100",
    "artifact": "llama-31-8b-instruct_vllm_c4096_b16_n512.json",
-   "note": "the serving engine decoding 512 tokens after a 4096-token prompt, 16 requests at a time, nothing proved: the prompt's positions over the prefill's wall-clock time, per request. The host's own figure is 16 times this. The median over 3 repetitions of each repetition's own rate; the spread over them is 0.5 per cent."
+   "note": "the serving engine decoding 512 tokens after a 4096-token prompt, 16 requests at a time, nothing proved: the prompt's positions over the prefill's wall-clock time, per request. The host's own figure is 16 times this. The median over 3 repetitions of each repetition's own rate; the spread over them is 0.4 per cent."
   },
   "pos_s.unproved.vllm.c4096.b16.decode": {
-   "value": 105.59025614055652,
+   "value": 105.2286502459684,
    "unit": "positions/s",
    "card": "H100",
    "context": 4096,
    "timing_scope": "unproved decode",
    "grade": "measured",
-   "run": "2026-09-08-unproved-baseline-h100",
+   "run": "2026-09-09-unproved-baseline-h100",
    "artifact": "llama-31-8b-instruct_vllm_c4096_b16_n512.json",
-   "note": "the serving engine decoding 512 tokens after a 4096-token prompt, 16 requests at a time, nothing proved: the generated positions over the decode's wall-clock time, per request. The host's own figure is 16 times this. The median over 3 repetitions of each repetition's own rate; the spread over them is 0.4 per cent, which the cold first repetition dominates (zk-prover #106)."
+   "note": "the serving engine decoding 512 tokens after a 4096-token prompt, 16 requests at a time, nothing proved: the generated positions over the decode's wall-clock time, per request. The host's own figure is 16 times this. The median over 3 repetitions of each repetition's own rate; the spread over them is 0.1 per cent, which the cold first repetition dominates (zk-prover #106)."
   },
   "pos_s.unproved.vllm.c4096.b16.end_to_end": {
-   "value": 720.5347185901296,
+   "value": 715.6414447076938,
    "unit": "positions/s",
    "card": "H100",
    "context": 4096,
    "timing_scope": "unproved end to end",
    "grade": "measured",
-   "run": "2026-09-08-unproved-baseline-h100",
+   "run": "2026-09-09-unproved-baseline-h100",
    "artifact": "llama-31-8b-instruct_vllm_c4096_b16_n512.json",
-   "note": "the serving engine decoding 512 tokens after a 4096-token prompt, 16 requests at a time, nothing proved: every position over the whole pass's wall-clock time, per request. The host's own figure is 16 times this. The median over 3 repetitions of each repetition's own rate; the spread over them is 0.2 per cent, which the cold first repetition dominates (zk-prover #106)."
+   "note": "the serving engine decoding 512 tokens after a 4096-token prompt, 16 requests at a time, nothing proved: every position over the whole pass's wall-clock time, per request. The host's own figure is 16 times this. The median over 3 repetitions of each repetition's own rate; the spread over them is 0.1 per cent, which the cold first repetition dominates (zk-prover #106)."
   },
   "pos_s.unproved.vllm.c16384.b1.prefill": {
-   "value": 35101.2814586042,
+   "value": 34616.03782769991,
    "unit": "positions/s",
    "card": "H100",
    "context": 16384,
    "timing_scope": "unproved prefill",
    "grade": "measured",
-   "run": "2026-09-08-unproved-baseline-h100",
+   "run": "2026-09-09-unproved-baseline-h100",
    "artifact": "llama-31-8b-instruct_vllm_c16384_b1_n512.json",
-   "note": "the serving engine decoding 512 tokens after a 16384-token prompt, one request at a time, nothing proved: the prompt's positions over the prefill's wall-clock time, per request. The median over 3 repetitions of each repetition's own rate; the spread over them is 1.0 per cent."
+   "note": "the serving engine decoding 512 tokens after a 16384-token prompt, one request at a time, nothing proved: the prompt's positions over the prefill's wall-clock time, per request. The median over 3 repetitions of each repetition's own rate; the spread over them is 0.6 per cent."
   },
   "pos_s.unproved.vllm.c16384.b1.decode": {
-   "value": 140.2795638695888,
+   "value": 140.0829204530739,
    "unit": "positions/s",
    "card": "H100",
    "context": 16384,
    "timing_scope": "unproved decode",
    "grade": "measured",
-   "run": "2026-09-08-unproved-baseline-h100",
+   "run": "2026-09-09-unproved-baseline-h100",
    "artifact": "llama-31-8b-instruct_vllm_c16384_b1_n512.json",
-   "note": "the serving engine decoding 512 tokens after a 16384-token prompt, one request at a time, nothing proved: the generated positions over the decode's wall-clock time, per request. The median over 3 repetitions of each repetition's own rate; the spread over them is 0.3 per cent, which the cold first repetition dominates (zk-prover #106)."
+   "note": "the serving engine decoding 512 tokens after a 16384-token prompt, one request at a time, nothing proved: the generated positions over the decode's wall-clock time, per request. The median over 3 repetitions of each repetition's own rate; the spread over them is 0.2 per cent, which the cold first repetition dominates (zk-prover #106)."
   },
   "pos_s.unproved.vllm.c16384.b1.end_to_end": {
-   "value": 4109.478105739968,
+   "value": 4099.8304352971645,
    "unit": "positions/s",
    "card": "H100",
    "context": 16384,
    "timing_scope": "unproved end to end",
    "grade": "measured",
-   "run": "2026-09-08-unproved-baseline-h100",
+   "run": "2026-09-09-unproved-baseline-h100",
    "artifact": "llama-31-8b-instruct_vllm_c16384_b1_n512.json",
-   "note": "the serving engine decoding 512 tokens after a 16384-token prompt, one request at a time, nothing proved: every position over the whole pass's wall-clock time, per request. The median over 3 repetitions of each repetition's own rate; the spread over them is 0.2 per cent, which the cold first repetition dominates (zk-prover #106)."
+   "note": "the serving engine decoding 512 tokens after a 16384-token prompt, one request at a time, nothing proved: every position over the whole pass's wall-clock time, per request. The median over 3 repetitions of each repetition's own rate; the spread over them is 0.1 per cent, which the cold first repetition dominates (zk-prover #106)."
   },
   "pos_s.unproved.vllm.c16384.b2.prefill": {
-   "value": 17102.643267241972,
+   "value": 16797.314949544467,
    "unit": "positions/s",
    "card": "H100",
    "context": 16384,
    "timing_scope": "unproved prefill",
    "grade": "measured",
-   "run": "2026-09-08-unproved-baseline-h100",
+   "run": "2026-09-09-unproved-baseline-h100",
    "artifact": "llama-31-8b-instruct_vllm_c16384_b2_n512.json",
    "note": "the serving engine decoding 512 tokens after a 16384-token prompt, 2 requests at a time, nothing proved: the prompt's positions over the prefill's wall-clock time, per request. The host's own figure is 2 times this. The median over 3 repetitions of each repetition's own rate; the spread over them is 0.4 per cent."
   },
   "pos_s.unproved.vllm.c16384.b2.decode": {
-   "value": 128.4289350015029,
+   "value": 127.60696678721087,
    "unit": "positions/s",
    "card": "H100",
    "context": 16384,
    "timing_scope": "unproved decode",
    "grade": "measured",
-   "run": "2026-09-08-unproved-baseline-h100",
+   "run": "2026-09-09-unproved-baseline-h100",
    "artifact": "llama-31-8b-instruct_vllm_c16384_b2_n512.json",
-   "note": "the serving engine decoding 512 tokens after a 16384-token prompt, 2 requests at a time, nothing proved: the generated positions over the decode's wall-clock time, per request. The host's own figure is 2 times this. The median over 3 repetitions of each repetition's own rate; the spread over them is 0.2 per cent, which the cold first repetition dominates (zk-prover #106)."
+   "note": "the serving engine decoding 512 tokens after a 16384-token prompt, 2 requests at a time, nothing proved: the generated positions over the decode's wall-clock time, per request. The host's own figure is 2 times this. The median over 3 repetitions of each repetition's own rate; the spread over them is 0.1 per cent, which the cold first repetition dominates (zk-prover #106)."
   },
   "pos_s.unproved.vllm.c16384.b2.end_to_end": {
-   "value": 3420.8841870718793,
+   "value": 3393.1651418954007,
    "unit": "positions/s",
    "card": "H100",
    "context": 16384,
    "timing_scope": "unproved end to end",
    "grade": "measured",
-   "run": "2026-09-08-unproved-baseline-h100",
+   "run": "2026-09-09-unproved-baseline-h100",
    "artifact": "llama-31-8b-instruct_vllm_c16384_b2_n512.json",
-   "note": "the serving engine decoding 512 tokens after a 16384-token prompt, 2 requests at a time, nothing proved: every position over the whole pass's wall-clock time, per request. The host's own figure is 2 times this. The median over 3 repetitions of each repetition's own rate; the spread over them is 0.1 per cent, which the cold first repetition dominates (zk-prover #106)."
+   "note": "the serving engine decoding 512 tokens after a 16384-token prompt, 2 requests at a time, nothing proved: every position over the whole pass's wall-clock time, per request. The host's own figure is 2 times this. The median over 3 repetitions of each repetition's own rate; the spread over them is 0.0 per cent, which the cold first repetition dominates (zk-prover #106)."
   },
   "pos_s.unproved.vllm.c16384.b4.prefill": {
-   "value": 8525.686252628284,
+   "value": 8419.3064432978,
    "unit": "positions/s",
    "card": "H100",
    "context": 16384,
    "timing_scope": "unproved prefill",
    "grade": "measured",
-   "run": "2026-09-08-unproved-baseline-h100",
+   "run": "2026-09-09-unproved-baseline-h100",
    "artifact": "llama-31-8b-instruct_vllm_c16384_b4_n512.json",
    "note": "the serving engine decoding 512 tokens after a 16384-token prompt, 4 requests at a time, nothing proved: the prompt's positions over the prefill's wall-clock time, per request. The host's own figure is 4 times this. The median over 3 repetitions of each repetition's own rate; the spread over them is 0.3 per cent."
   },
   "pos_s.unproved.vllm.c16384.b4.decode": {
-   "value": 108.95094858654494,
+   "value": 108.12511056551928,
    "unit": "positions/s",
    "card": "H100",
    "context": 16384,
    "timing_scope": "unproved decode",
    "grade": "measured",
-   "run": "2026-09-08-unproved-baseline-h100",
+   "run": "2026-09-09-unproved-baseline-h100",
    "artifact": "llama-31-8b-instruct_vllm_c16384_b4_n512.json",
    "note": "the serving engine decoding 512 tokens after a 16384-token prompt, 4 requests at a time, nothing proved: the generated positions over the decode's wall-clock time, per request. The host's own figure is 4 times this. The median over 3 repetitions of each repetition's own rate; the spread over them is 0.1 per cent, which the cold first repetition dominates (zk-prover #106)."
   },
   "pos_s.unproved.vllm.c16384.b4.end_to_end": {
-   "value": 2554.731339936199,
+   "value": 2533.670748126462,
    "unit": "positions/s",
    "card": "H100",
    "context": 16384,
    "timing_scope": "unproved end to end",
    "grade": "measured",
-   "run": "2026-09-08-unproved-baseline-h100",
+   "run": "2026-09-09-unproved-baseline-h100",
    "artifact": "llama-31-8b-instruct_vllm_c16384_b4_n512.json",
-   "note": "the serving engine decoding 512 tokens after a 16384-token prompt, 4 requests at a time, nothing proved: every position over the whole pass's wall-clock time, per request. The host's own figure is 4 times this. The median over 3 repetitions of each repetition's own rate; the spread over them is 0.0 per cent, which the cold first repetition dominates (zk-prover #106)."
+   "note": "the serving engine decoding 512 tokens after a 16384-token prompt, 4 requests at a time, nothing proved: every position over the whole pass's wall-clock time, per request. The host's own figure is 4 times this. The median over 3 repetitions of each repetition's own rate; the spread over them is 0.1 per cent, which the cold first repetition dominates (zk-prover #106)."
   },
   "pos_s.unproved.vllm.c16384.b8.prefill": {
-   "value": 4255.609536398868,
+   "value": 4216.41700859893,
    "unit": "positions/s",
    "card": "H100",
    "context": 16384,
    "timing_scope": "unproved prefill",
    "grade": "measured",
-   "run": "2026-09-08-unproved-baseline-h100",
+   "run": "2026-09-09-unproved-baseline-h100",
    "artifact": "llama-31-8b-instruct_vllm_c16384_b8_n512.json",
-   "note": "the serving engine decoding 512 tokens after a 16384-token prompt, 8 requests at a time, nothing proved: the prompt's positions over the prefill's wall-clock time, per request. The host's own figure is 8 times this. The median over 3 repetitions of each repetition's own rate; the spread over them is 0.3 per cent."
+   "note": "the serving engine decoding 512 tokens after a 16384-token prompt, 8 requests at a time, nothing proved: the prompt's positions over the prefill's wall-clock time, per request. The host's own figure is 8 times this. The median over 3 repetitions of each repetition's own rate; the spread over them is 0.1 per cent."
   },
   "pos_s.unproved.vllm.c16384.b8.decode": {
-   "value": 83.29556988218428,
+   "value": 82.71849308791856,
    "unit": "positions/s",
    "card": "H100",
    "context": 16384,
    "timing_scope": "unproved decode",
    "grade": "measured",
-   "run": "2026-09-08-unproved-baseline-h100",
+   "run": "2026-09-09-unproved-baseline-h100",
    "artifact": "llama-31-8b-instruct_vllm_c16384_b8_n512.json",
-   "note": "the serving engine decoding 512 tokens after a 16384-token prompt, 8 requests at a time, nothing proved: the generated positions over the decode's wall-clock time, per request. The host's own figure is 8 times this. The median over 3 repetitions of each repetition's own rate; the spread over them is 0.2 per cent, which the cold first repetition dominates (zk-prover #106)."
+   "note": "the serving engine decoding 512 tokens after a 16384-token prompt, 8 requests at a time, nothing proved: the generated positions over the decode's wall-clock time, per request. The host's own figure is 8 times this. The median over 3 repetitions of each repetition's own rate; the spread over them is 0.1 per cent, which the cold first repetition dominates (zk-prover #106)."
   },
   "pos_s.unproved.vllm.c16384.b8.end_to_end": {
-   "value": 1692.788887612377,
+   "value": 1679.4329871201453,
    "unit": "positions/s",
    "card": "H100",
    "context": 16384,
    "timing_scope": "unproved end to end",
    "grade": "measured",
-   "run": "2026-09-08-unproved-baseline-h100",
+   "run": "2026-09-09-unproved-baseline-h100",
    "artifact": "llama-31-8b-instruct_vllm_c16384_b8_n512.json",
-   "note": "the serving engine decoding 512 tokens after a 16384-token prompt, 8 requests at a time, nothing proved: every position over the whole pass's wall-clock time, per request. The host's own figure is 8 times this. The median over 3 repetitions of each repetition's own rate; the spread over them is 0.1 per cent, which the cold first repetition dominates (zk-prover #106)."
+   "note": "the serving engine decoding 512 tokens after a 16384-token prompt, 8 requests at a time, nothing proved: every position over the whole pass's wall-clock time, per request. The host's own figure is 8 times this. The median over 3 repetitions of each repetition's own rate; the spread over them is 0.0 per cent, which the cold first repetition dominates (zk-prover #106)."
   },
   "pos_s.unproved.vllm.c16384.b16.prefill": {
-   "value": 2127.8972762153967,
+   "value": 2101.255420332536,
    "unit": "positions/s",
    "card": "H100",
    "context": 16384,
    "timing_scope": "unproved prefill",
    "grade": "measured",
-   "run": "2026-09-08-unproved-baseline-h100",
+   "run": "2026-09-09-unproved-baseline-h100",
    "artifact": "llama-31-8b-instruct_vllm_c16384_b16_n512.json",
    "note": "the serving engine decoding 512 tokens after a 16384-token prompt, 16 requests at a time, nothing proved: the prompt's positions over the prefill's wall-clock time, per request. The host's own figure is 16 times this. The median over 3 repetitions of each repetition's own rate; the spread over them is 0.2 per cent."
   },
   "pos_s.unproved.vllm.c16384.b16.decode": {
-   "value": 56.697122458301564,
+   "value": 56.54259862096914,
    "unit": "positions/s",
    "card": "H100",
    "context": 16384,
    "timing_scope": "unproved decode",
    "grade": "measured",
-   "run": "2026-09-08-unproved-baseline-h100",
+   "run": "2026-09-09-unproved-baseline-h100",
    "artifact": "llama-31-8b-instruct_vllm_c16384_b16_n512.json",
-   "note": "the serving engine decoding 512 tokens after a 16384-token prompt, 16 requests at a time, nothing proved: the generated positions over the decode's wall-clock time, per request. The host's own figure is 16 times this. The median over 3 repetitions of each repetition's own rate; the spread over them is 0.5 per cent, which the cold first repetition dominates (zk-prover #106)."
+   "note": "the serving engine decoding 512 tokens after a 16384-token prompt, 16 requests at a time, nothing proved: the generated positions over the decode's wall-clock time, per request. The host's own figure is 16 times this. The median over 3 repetitions of each repetition's own rate; the spread over them is 0.2 per cent, which the cold first repetition dominates (zk-prover #106)."
   },
   "pos_s.unproved.vllm.c16384.b16.end_to_end": {
-   "value": 1010.984470655674,
+   "value": 1004.1542880968929,
    "unit": "positions/s",
    "card": "H100",
    "context": 16384,
    "timing_scope": "unproved end to end",
    "grade": "measured",
-   "run": "2026-09-08-unproved-baseline-h100",
+   "run": "2026-09-09-unproved-baseline-h100",
    "artifact": "llama-31-8b-instruct_vllm_c16384_b16_n512.json",
-   "note": "the serving engine decoding 512 tokens after a 16384-token prompt, 16 requests at a time, nothing proved: every position over the whole pass's wall-clock time, per request. The host's own figure is 16 times this. The median over 3 repetitions of each repetition's own rate; the spread over them is 0.2 per cent, which the cold first repetition dominates (zk-prover #106)."
+   "note": "the serving engine decoding 512 tokens after a 16384-token prompt, 16 requests at a time, nothing proved: every position over the whole pass's wall-clock time, per request. The host's own figure is 16 times this. The median over 3 repetitions of each repetition's own rate; the spread over them is 0.1 per cent, which the cold first repetition dominates (zk-prover #106)."
   }
  },
  "discrepancies": []
