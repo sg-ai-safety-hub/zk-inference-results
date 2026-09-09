@@ -1126,6 +1126,94 @@
    "artifact": "b6-dequant.json",
    "note": "Dequantization by the bf16 chain, on the same sweep and the same terms as the power-of-two row above. It costs 1.73 times as much per accumulator."
   },
+  "model_constants.attnout_int8_cells_per_acc": {
+   "value": 10.0625,
+   "unit": "cells/accumulator",
+   "card": "none",
+   "context": "n/a",
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-09-microbench-cells-h100",
+   "artifact": "b6-dequant.json",
+   "note": "The attention output's own dequantization, folded straight to int8 because its consumer requantizes it anyway: one rounding per output element, on the same sweep and the same terms as the two rows above. The cost model multiplies it by the attention outputs of every layer and head."
+  },
+  "model_constants.dequant_pow2_cells_per_acc_intercept": {
+   "value": 15.0,
+   "unit": "cells/accumulator",
+   "card": "none",
+   "context": "n/a",
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-09-microbench-cells-h100",
+   "artifact": "b3-width.json",
+   "note": "The part of the power-of-two dequantization that one accumulator costs whatever the row width is. The sweep proves the same 1,048,576 accumulators at 4, 8, 16, 32, 64 and 128 per trace row and every point is exactly 15 + 1/width marginal cells, so this is a closed form read off six measurements and not a fit; the row term is the entry below. At the 16-per-row layout the other subcommands use the two give 15.0625, which is the measured power-of-two figure above."
+  },
+  "model_constants.dequant_pow2_cells_per_row": {
+   "value": 1.0,
+   "unit": "cells/row",
+   "card": "none",
+   "context": "n/a",
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-09-microbench-cells-h100",
+   "artifact": "b3-width.json",
+   "note": "What a trace row of the power-of-two dequantization costs on top of its accumulators, from the same six-width sweep: one cell, spread over the accumulators the row carries. It is a property of the variant and not of the gadget in general -- on the same sweep's terms the bf16 chain carries two cells a row and the integer reading and the rounding carry none."
+  },
+  "model_constants.requant_cells_per_value": {
+   "value": 11.5,
+   "unit": "cells/value",
+   "card": "none",
+   "context": "n/a",
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-09-microbench-cells-h100",
+   "artifact": "b65-requant.json",
+   "note": "One requantized value with its scale argument, the marginal cells with the shared tables left out and the two committed input cells left out because the producer commits them. The subcommand proves four points: 8.0625 and 11.4375 for power-of-two scales without and with the argument, 8.125 and 11.5 for bf16. The cost model takes the largest of the two with the argument and charges one less than it per distinct matmul input, because the committed quantized value is already counted."
+  },
+  "model_constants.residual_stream_add_cells_per_op": {
+   "value": 24.322580645161292,
+   "unit": "cells/operation",
+   "card": "none",
+   "context": "n/a",
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-09-microbench-cells-h100",
+   "artifact": "b65-residual-stream.json",
+   "note": "One correctly rounded bf16 add of the residual stream, the marginal cells with the shared tables and the component's leaves left out. The cost model multiplies it by the two residual adds of every layer and by the adds of each normalisation's reduction. Putting a unary operation in front of the add does not move it: the same 24.3226 with a square on every leaf."
+  },
+  "model_constants.residual_stream_mul_cells_per_op": {
+   "value": 8.75,
+   "unit": "cells/operation",
+   "card": "none",
+   "context": "n/a",
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-09-microbench-cells-h100",
+   "artifact": "b65-residual-stream.json",
+   "note": "One bf16 multiply of the residual stream, on the same terms as the add above. The cost model multiplies it by the two multiplies of every normalisation and by the SwiGLU's product. The SiLU in front of the product does not move it, and the normalisation's own scale is 8.4375 because its second operand is a preprocessed weight."
+  },
+  "model_constants.argmax_cells_per_comparison": {
+   "value": 9.046875,
+   "unit": "cells/comparison",
+   "card": "none",
+   "context": "n/a",
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-09-microbench-cells-h100",
+   "artifact": "b10-argmax.json",
+   "note": "Proving the emitted token is the argmax costs one comparison per vocabulary entry per token, and this is what one comparison costs: 8 tokens over a vocabulary of 8,192, 64 comparisons a row, of which 3.046875 cells are the committed trace and the rest the lookups. It is the whole gadget over the comparisons; the cost model subtracts an assumed fixed table half of 40,960 cells to reach a per-comparison marginal of 8.421875, and one vocabulary cannot separate the two -- a second one would."
+  },
+  "model_constants.attention_cells_per_head_key_token": {
+   "value": 4.0,
+   "unit": "cells per (head, key) per token",
+   "card": "none",
+   "context": "n/a",
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-09-microbench-cells-h100",
+   "artifact": "b6-pack.json",
+   "note": "What one entry of the attention score grid costs: the committed shift, the exponential's answer and the probability, over 512 tokens and 1,024 keys at head dimension 64. It is exactly 4 at all five instance counts the run packs, 1 through 16, so it is the grid's own price and not an artefact of one packing. It is the whole of the attention term only in the superseded single-slope form; the key tile coefficients are what the cost model charges, and they carry a per-key and a per-token cost this number does not."
+  },
   "rate.microbench.commit": {
    "value": 15.8797,
    "unit": "Mcell/s",

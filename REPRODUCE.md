@@ -1109,7 +1109,15 @@ binding (from the manifest, over that one proof): 1 to 14 bound; 15 and 16
   output head
 unsound skips: none
 constants backed: `model_constants.dequant_chain_cells_per_acc`,
-  `model_constants.dequant_pow2_cells_per_acc`
+  `model_constants.dequant_pow2_cells_per_acc`,
+  `model_constants.attnout_int8_cells_per_acc`,
+  `model_constants.dequant_pow2_cells_per_acc_intercept`,
+  `model_constants.dequant_pow2_cells_per_row`,
+  `model_constants.requant_cells_per_value`,
+  `model_constants.residual_stream_add_cells_per_op`,
+  `model_constants.residual_stream_mul_cells_per_op`,
+  `model_constants.argmax_cells_per_comparison`,
+  `model_constants.attention_cells_per_head_key_token`
 
 What the run measures. What one operation of each kind costs in committed
 cells: a dequantized accumulator under each of the five quantization variants,
@@ -1134,16 +1142,25 @@ The composed segment is here for one reason: `compose` is the only subcommand
 that makes a proof and therefore the only one that writes a binding table,
 which is what makes the run admissible. Its numbers back no constant here.
 
-What the run measured and what is recorded. Two of the numbers are inputs the
-cost model names, and they are the two constants above: 15.0625 cells per
-accumulator dequantized by a power-of-two scale and 26.125 by the bf16 chain,
-in both cases the marginal figure with the shared tables left out, because the
-tables are a fixed cost of the segment and are not multiplied by a count. The
-other five subcommands' numbers are in the run directory and back nothing yet:
-the cost model's page names three more inputs -- the cells per weight of a
-Freivalds check, the marginal cells of one lookup, and the attention grid's
-coefficients -- and no subcommand here answers the first, while which of these
-figures answers the other two is a naming the owner has not made.
+What the run measured and what is recorded. Six of the seven subcommands back
+a constant, all of them marginal figures with the shared tables left out,
+because the tables are a fixed cost of the segment and are not multiplied by a
+count, and with the cells the producer already commits left out too. The
+dequantization sweep gives three: 15.0625 cells per accumulator by a
+power-of-two scale, 26.125 by the bf16 chain, 10.0625 for the attention
+output's fold to int8. The width sweep gives two: it is exactly 15 cells per
+accumulator plus 1 cell per trace row at all six widths, which is the closed
+form behind the 15.0625 above at the sixteen-per-row layout. The requantize
+gives 11.5 cells per value with its scale argument, the residual stream 24.3226
+per bf16 add and 8.75 per bf16 multiply, the argmax 9.046875 per comparison, and
+the packed attention 4 cells per grid entry at every one of the five instance
+counts. The `kmax` sweep backs nothing and is a gate: the marginal figure is
+15.0625 at all six table sizes while the figure with the tables in goes from
+15.475 to 143.756, so the constant the cost model reads does not depend on the
+table knob. Two of the cost model's inputs are still measured by no subcommand
+at this prover commit -- the cells per weight of a Freivalds check (zk-prover
+#139) and the marginal cells of one lookup (zk-prover #140) -- and
+`docs/cost-model.md` says so rather than naming a key for either.
 
 What the run does not check. Nothing here is a rate: every number is a cell
 count, and the seconds each subcommand reports are on the host's cores with

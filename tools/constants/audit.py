@@ -7,6 +7,7 @@ opens `runs/<run>/<artifact>`, recomputes each value, and calls `claim`.  A
 `measured` constant no section claims is a failure: the audit never accepts a
 constant without an artifact it has read.  Run through `check.py`.
 """
+import fractions
 import hashlib
 import json
 import pathlib
@@ -874,32 +875,159 @@ def unproved_baseline(a, keys):
 
 
 # -- microbench-cells ----------------------------------------------------------
-def microbench_cells(a, keys):
-    """What one dequantized accumulator costs, per variant.
+def _cell_points(a, run, name, key="points"):
+    """One cell-cost subcommand's points, with what every one of them must say.
 
-    The subcommand sweeps the variants in one process and reports, for each,
-    the marginal cells per accumulator -- the slope, with the shared tables
-    left out, which is the number the cost model multiplies by a count. The
-    variant is read off each point's own `spec` rather than off the order the
-    points come in.
+    None of these subcommands makes a proof of the composed segment, so there is
+    no binding table to gate on; what is gated instead is per point, and it is
+    the same three things everywhere: the proof of that point accepted, nothing
+    landed off a table, and the gadget agreed with the subcommand's own model of
+    the arithmetic wherever it checked one.
+    """
+    doc = artifact(run, name)
+    if doc["provenance"]["unsound_skips"]:
+        a.fails.append(f"audit: {name} ran with skips {doc['provenance']['unsound_skips']}")
+    pts = doc["result"][key]
+    for i, pt in enumerate(pts):
+        where = f"{name} point {i}"
+        if not pt.get("accepts", True):
+            a.fails.append(f"audit: {where} was rejected")
+        if pt.get("off_table"):
+            a.fails.append(f"audit: {where} has {pt['off_table']} values off a table")
+        if pt.get("reference_mismatch"):
+            a.fails.append(f"audit: {where} disagrees with its own reference on "
+                           f"{pt['reference_mismatch']} values")
+    return doc["result"], pts
+
+
+def microbench_cells(a, keys):
+    """What one operation of each kind costs in committed cells.
+
+    Seven subcommands, and each of them reports a marginal figure: the cells the
+    gadget adds, with the shared tables left out because a table is a fixed cost
+    of the segment and is not multiplied by a count, and with the cells the
+    producer already commits left out because the cost model charges those
+    elsewhere.  Nothing here is a time, so nothing here takes a median over
+    repetitions: a cell count is the same in every repetition and each point
+    carries the one count its own proof committed.
+
+    Six of the seven back a constant.  `kmax` backs none and is a gate instead:
+    it is the same gadget at six table sizes, and the figure the cost model reads
+    must not move across them.
     """
     if not keys:
         return
     run = sorted({e["run"] for e in keys.values()})[0]
-    dq = artifact(run, "b6-dequant.json")["result"]
+
+    # (1) the dequantization variants, one point each, read off each point's own
+    #     `spec` rather than off the order the points come in.
+    dq, pts = _cell_points(a, run, "b6-dequant.json")
     by_variant = {}
-    for pt in dq["points"]:
+    for pt in pts:
         v = pt["spec"]["variant"]
         assert v not in by_variant, f"two {v} points in one sweep"
-        assert pt["accepts"], f"the {v} point was rejected"
-        assert not pt["reference_mismatch"], f"the {v} point disagrees with the reference"
         by_variant[v] = pt
     print(f"  runs/{run}: {len(by_variant)} dequantization variants over "
           f"{dq['n']:,} accumulators, {dq['per_row']} per row")
     for key, variant in (("model_constants.dequant_chain_cells_per_acc", "chain"),
-                         ("model_constants.dequant_pow2_cells_per_acc", "pow2")):
+                         ("model_constants.dequant_pow2_cells_per_acc", "pow2"),
+                         ("model_constants.attnout_int8_cells_per_acc", "int8")):
         if key in keys:
             a.claim(key, by_variant[variant]["cells_per_acc_marginal"])
+
+    # (2) the width sweep: the same variant at six accumulators-per-row, whose
+    #     closed form is `intercept + row / width`.  Two unknowns and six points,
+    #     so the two are solved from the widest pair and the other four have to
+    #     reproduce exactly -- these are cell counts, and a closed form that is
+    #     off by a cell is not the closed form.
+    wd, pts = _cell_points(a, run, "b3-width.json")
+    w = sorted((pt["spec"]["per_row"], fractions.Fraction(pt["cells_per_acc_marginal"]))
+               for pt in pts)
+    (p0, m0), (p1, m1) = w[-2], w[-1]
+    row = (m0 - m1) / (fractions.Fraction(1, p0) - fractions.Fraction(1, p1))
+    intercept = m1 - row / p1
+    resid = max(abs(m - (intercept + row / p)) for p, m in w)
+    print(f"  runs/{run}: {len(w)} accumulator widths, {w[0][0]} to {w[-1][0]} per row, "
+          f"{float(intercept)} + {float(row)}/width, largest residual {float(resid)} cells")
+    if resid != 0:
+        a.fails.append(f"audit: the width sweep is not {intercept} + {row}/width; "
+                       f"largest residual {float(resid)} cells")
+    for key, computed in (("model_constants.dequant_pow2_cells_per_acc_intercept", intercept),
+                          ("model_constants.dequant_pow2_cells_per_row", row)):
+        if key in keys:
+            a.claim(key, float(computed))
+
+    # (3) `kmax`, the gate: the table grows and the marginal figure does not.
+    km, pts = _cell_points(a, run, "b4-kmax.json")
+    marg = {pt["cells_per_acc_marginal"] for pt in pts}
+    tab = sorted(pt["cells_per_acc_with_tables"] for pt in pts)
+    print(f"  runs/{run}: {len(pts)} table sizes, marginal {sorted(marg)}, "
+          f"with tables {tab[0]} to {tab[-1]}")
+    if len(marg) != 1:
+        a.fails.append(f"audit: the marginal figure moves with the table size: {sorted(marg)}")
+    elif marg != {by_variant["pow2"]["cells_per_acc_marginal"]}:
+        a.fails.append(f"audit: the table-size sweep reports {marg} where the "
+                       f"variant sweep reports {by_variant['pow2']['cells_per_acc_marginal']}")
+
+    # (4) the requantize, with and without the scale argument.  The cost model
+    #     reads the largest of the points that carry the argument.
+    rq, pts = _cell_points(a, run, "b65-requant.json")
+    with_max = [pt for pt in pts if pt["with_max"]]
+    print(f"  runs/{run}: {len(pts)} requantize points, {len(with_max)} with the scale argument")
+    if not with_max:
+        a.fails.append("audit: no requantize point carries the scale argument")
+    elif "model_constants.requant_cells_per_value" in keys:
+        a.claim("model_constants.requant_cells_per_value",
+                max(pt["cells_per_value_marginal"] for pt in with_max))
+
+    # (5) the residual stream's two measured primitives.  The subcommand's own
+    #     `primitives` block is what the cost model reads, and `add` and `mul`
+    #     are the two entries in it that come off a point; `unary` and `value`
+    #     are constants of the subcommand and are claimed by nothing here.
+    rs, pts = _cell_points(a, run, "b65-residual-stream.json")
+    prim = rs["primitives"]
+    for pt in pts:
+        if not pt.get("binding_ok", True):
+            a.fails.append(f"audit: the residual-stream {pt['gadget']} point is not bound")
+    by_gadget = {pt["gadget"]: pt["cells_per_op_marginal"] for pt in pts}
+    print(f"  runs/{run}: {len(pts)} residual-stream points, add {prim['add']}, mul {prim['mul']}")
+    for key, name in (("model_constants.residual_stream_add_cells_per_op", "add"),
+                      ("model_constants.residual_stream_mul_cells_per_op", "mul")):
+        if prim[name] != by_gadget.get(name):
+            a.fails.append(f"audit: primitives.{name} is {prim[name]}, and the {name} "
+                           f"point reports {by_gadget.get(name)}")
+        if key in keys:
+            a.claim(key, prim[name])
+
+    # (6) the argmax, on the strict statement.  The lax one is the same layout
+    #     without the binding and is not what the cost model prices.
+    am, pts = _cell_points(a, run, "b10-argmax.json")
+    strict = [pt for pt in pts if not pt.get("lax")]
+    if len(strict) != 1:
+        a.fails.append(f"audit: {len(strict)} strict argmax points, expected one")
+    else:
+        pt = strict[0]
+        cmps = am["tokens"] * am["vocab"]
+        print(f"  runs/{run}: argmax over {am['vocab']:,} entries and {am['tokens']} tokens, "
+              f"{cmps:,} comparisons")
+        if pt["cells"]["fresh"] != pt["cells"]["base"] + pt["cells"]["interaction"]:
+            a.fails.append("audit: the argmax point's fresh cells are not its base plus "
+                           "its interaction cells")
+        if "model_constants.argmax_cells_per_comparison" in keys:
+            a.claim("model_constants.argmax_cells_per_comparison",
+                    pt["cells"]["fresh"] / cmps)
+
+    # (7) the packed attention, whose grid figure has to be the same at every
+    #     instance count -- that is what makes it the grid's own price rather
+    #     than one packing's.
+    pk, pts = _cell_points(a, run, "b6-pack.json")
+    grid = {pt["alpha_grid"] for pt in pts}
+    print(f"  runs/{run}: {len(pts)} packings, {[pt['insts'] for pt in pts]} instances, "
+          f"grid {sorted(grid)}")
+    if len(grid) != 1:
+        a.fails.append(f"audit: the grid figure moves with the instance count: {sorted(grid)}")
+    if "model_constants.attention_cells_per_head_key_token" in keys:
+        a.claim("model_constants.attention_cells_per_head_key_token", pts[0]["alpha_grid"])
 
 
 # -- sections: (driver name, function(audit, keys)) ----------------------------
