@@ -852,6 +852,28 @@
    "artifact": "compose-simd.json",
    "note": "The commitment path of that proof on the reference backend: interpolation, low-degree extension and Merkle hashing of the committed trees. Its low-degree test took 1.989 s of the same proof and its whole prove call 4.835 s."
   },
+  "model_constants.dequant_pow2_cells_per_acc": {
+   "value": 15.0625,
+   "unit": "cells/accumulator",
+   "card": "none",
+   "context": "n/a",
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-09-microbench-cells-h100",
+   "artifact": "b6-dequant.json",
+   "note": "Dequantization by a power-of-two scale, the marginal cells one accumulator adds with the shared tables left out; 1,048,576 accumulators, 16 per row. The tables are a fixed cost of the segment and are not multiplied by a count, which is why the marginal figure and not the with-tables one is the cost model's input."
+  },
+  "model_constants.dequant_chain_cells_per_acc": {
+   "value": 26.125,
+   "unit": "cells/accumulator",
+   "card": "none",
+   "context": "n/a",
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-09-microbench-cells-h100",
+   "artifact": "b6-dequant.json",
+   "note": "Dequantization by the bf16 chain, on the same sweep and the same terms as the power-of-two row above. It costs 1.73 times as much per accumulator."
+  },
   "rate.microbench.commit": {
    "value": 15.8797,
    "unit": "Mcell/s",

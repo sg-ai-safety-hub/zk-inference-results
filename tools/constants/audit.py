@@ -621,6 +621,35 @@ def unproved_baseline(a, keys):
           f"{len(cfg['backends'].split())} backend(s), three rates each")
 
 
+# -- microbench-cells ----------------------------------------------------------
+def microbench_cells(a, keys):
+    """What one dequantized accumulator costs, per variant.
+
+    The subcommand sweeps the variants in one process and reports, for each,
+    the marginal cells per accumulator -- the slope, with the shared tables
+    left out, which is the number the cost model multiplies by a count. The
+    variant is read off each point's own `spec` rather than off the order the
+    points come in.
+    """
+    if not keys:
+        return
+    run = sorted({e["run"] for e in keys.values()})[0]
+    dq = artifact(run, "b6-dequant.json")["result"]
+    by_variant = {}
+    for pt in dq["points"]:
+        v = pt["spec"]["variant"]
+        assert v not in by_variant, f"two {v} points in one sweep"
+        assert pt["accepts"], f"the {v} point was rejected"
+        assert not pt["reference_mismatch"], f"the {v} point disagrees with the reference"
+        by_variant[v] = pt
+    print(f"  runs/{run}: {len(by_variant)} dequantization variants over "
+          f"{dq['n']:,} accumulators, {dq['per_row']} per row")
+    for key, variant in (("model_constants.dequant_chain_cells_per_acc", "chain"),
+                         ("model_constants.dequant_pow2_cells_per_acc", "pow2")):
+        if key in keys:
+            a.claim(key, by_variant[variant]["cells_per_acc_marginal"])
+
+
 # -- sections: (driver name, function(audit, keys)) ----------------------------
 # Added when a driver's first run lands; each function re-derives the constants
 # whose `run` was made by that driver.
@@ -638,6 +667,7 @@ SECTIONS = [
     ("predict-14b", predict_14b),
     ("unproved-baseline", unproved_baseline),
     ("model-commitment", model_commitment),
+    ("microbench-cells", microbench_cells),
 ]
 
 

@@ -1006,6 +1006,63 @@ Host time. Just under two hours, almost all of it the first derivation: it runs
 the prover's `expect-root` once per plan line, in a process of its own, 290
 times.
 
+## microbench-cells
+
+    tools/drivers/microbench-cells.sh <host> <prover-commit> <harness-commit>
+
+runs: 2026-09-09-microbench-cells-h100
+prover commit: fb92850   harness commit: fb92850
+digests: one, the composed segment's, in the manifest's `digests` map
+binding (from the manifest, over that one proof): 1 to 14 bound; 15 and 16
+  absent, because a synthetic segment has neither an embedding row nor an
+  output head
+unsound skips: none
+constants backed: `model_constants.dequant_chain_cells_per_acc`,
+  `model_constants.dequant_pow2_cells_per_acc`
+
+What the run measures. What one operation of each kind costs in committed
+cells: a dequantized accumulator under each of the five quantization variants,
+a requantized value, a residual-stream operation under each of its five
+gadgets, an argmax comparison, a packed attention instance at five instance
+counts, a dequantized accumulator at six accumulator widths, and the same at
+six values of `kmax`. Seven subcommands, all seven answered, none refused. A
+cell count is the same on both backends, so they are read on the reference
+backend and no card is used.
+
+Why it is its own run. `microbench` measures the rates the cost model reads --
+the vendored library's benchmarks of the primitives, and one composed segment's
+commitment and FRI parts -- and those were measured at another prover commit.
+A run that re-derived them here would either re-point the constants that name
+that run or leave two runs claiming one number. The seven subcommands could not
+run at that commit at all (zk-prover #88); zk-prover #98 then bounded the packed
+attention benchmark's shared exponent table by `--table-bits`, which is why the
+instance counts above 4 can be asked for and why this driver passes
+`--table-bits 23`. The counts at 1, 2 and 4 do not move under the flag.
+
+The composed segment is here for one reason: `compose` is the only subcommand
+that makes a proof and therefore the only one that writes a binding table,
+which is what makes the run admissible. Its numbers back no constant here.
+
+What the run measured and what is recorded. Two of the numbers are inputs the
+cost model names, and they are the two constants above: 15.0625 cells per
+accumulator dequantized by a power-of-two scale and 26.125 by the bf16 chain,
+in both cases the marginal figure with the shared tables left out, because the
+tables are a fixed cost of the segment and are not multiplied by a count. The
+other five subcommands' numbers are in the run directory and back nothing yet:
+the cost model's page names three more inputs -- the cells per weight of a
+Freivalds check, the marginal cells of one lookup, and the attention grid's
+coefficients -- and no subcommand here answers the first, while which of these
+figures answers the other two is a naming the owner has not made.
+
+What the run does not check. Nothing here is a rate: every number is a cell
+count, and the seconds each subcommand reports are on the host's cores with
+twenty threads and are not comparable with a card's. The reference check each
+subcommand makes is against its own model of the arithmetic, and every point
+reported zero mismatches.
+
+Host time. Six and a half minutes: five of them the build, and the seven
+subcommands 91 seconds between them.
+
 ## Entry template
 
 ```
