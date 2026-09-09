@@ -199,6 +199,27 @@ constants backed: `cells.headline.c4096.fresh`, `mem.headline.c4096.peak_mib`,
   `secs_per_segment.headline.c4096.whole_wall`,
   `verify.headline.c4096.secs_per_segment_median`,
   `verify.headline.c4096.secs_total`
+also backed, the extraction, the cold rows and the cell counts per proved
+  position:
+  `cells_per_position.headline.c4096.base`,
+  `cells_per_position.headline.c4096.boundary`,
+  `cells_per_position.headline.c4096.interaction`,
+  `cells_per_position.headline.c4096.interaction_argmax`,
+  `cells_per_position.headline.c4096.interaction_attnout`,
+  `cells_per_position.headline.c4096.interaction_dequant`,
+  `cells_per_position.headline.c4096.interaction_embed`,
+  `cells_per_position.headline.c4096.interaction_freivalds`,
+  `cells_per_position.headline.c4096.interaction_gkrlink`,
+  `cells_per_position.headline.c4096.interaction_key_tiles`,
+  `cells_per_position.headline.c4096.interaction_quant`,
+  `cells_per_position.headline.c4096.interaction_requant`,
+  `cells_per_position.headline.c4096.interaction_residual_stream`,
+  `cells_per_position.headline.c4096.interaction_table`,
+  `cells_per_position.headline.c4096.model`,
+  `cells_per_position.headline.c4096.shape`, `secs.headline.c4096.cold_loop`,
+  `secs.headline.c4096.cold_whole_wall`, `secs.headline.c4096.extract`,
+  `usd_per_1k_positions.headline.c4096.cold_loop`,
+  `usd_per_1k_positions.headline.c4096.cold_whole_wall`
 
 What the run checks. A 4,096-token prompt and the 512 tokens the model goes on
 to write are proved as one statement: nine token blocks of 32 layer segments and
@@ -289,6 +310,41 @@ generated (zk-prover #131). Neither attempt produced a proof that is kept: a
 slice whose output is written is not proved again, so the four slices the second
 attempt proved are this run's, and the third attempt emitted the missing shapes,
 rebuilt and proved the last slice.
+
+Cold and warm. `secs.headline.c4096.extract` is the 771 s above, and
+`secs.headline.c4096.cold_loop` and `secs.headline.c4096.cold_whole_wall` add it
+to the two proving scopes: what this sequence costs on a host that holds no
+witness dump yet, priced as `usd_per_1k_positions.headline.c4096.cold_loop` and
+`usd_per_1k_positions.headline.c4096.cold_whole_wall`. The four proving scopes
+are the prover's own and begin once the dumps are on disk, so a price built from
+them alone is a price for a warm host. Three things the cold rows leave out. The
+head extraction pass, which the job runs and does not time, so no artifact
+carries its seconds. Emitting the device kernels for the plan's 48 distinct
+shapes, installing them and rebuilding, which this job does and does not time
+either: `lib/sequence-job.sh` writes `extract.json` and no other phase file, so
+the extraction is the only phase this run can price. And the link check, 170 s,
+which is a verifier cost and not the prover's.
+
+What a proved position commits. A segment commits six trees, and the run's five
+slice outputs count them. `cells.headline.c4096.fresh` is three of them added
+up -- the base trace, the interaction columns of the LogUp arguments and the
+boundary trees, which carry the residual stream and the keys and values a
+segment hands on -- and `cells_per_position.headline.c4096.base`, `.interaction`
+and `.boundary` are those three over the 4,608 proved positions. The other two
+are preprocessed and a segment does not pay for them again:
+`cells_per_position.headline.c4096.model` is the weights it reads and `.shape`
+the lookup tables and the constants its shape fixes. The chunk output names four
+of the six; the boundary trees it does not name, so they are read as the cells
+`fresh` has above base and interaction. The interaction tree is the one the
+outputs split by component, and the eleven
+`cells_per_position.headline.c4096.interaction_*` rows are that split per
+position: the requantization seams are the largest of the eleven, the lookup
+tables next and the Freivalds checks third. One reader in
+`tools/constants/audit.py` re-derives every one of these rows from the slice
+outputs and refuses unless the eleven components add up to the interaction tree,
+the two preprocessed trees add up to the preprocessed cells the chunks report,
+the chunks add up to the run's own `fresh` row, and the recorded rows close the
+same two sums.
 
 The run of 2026-09-07 is superseded and no constant points at it any more. That
 run proved 288 segments and no output head, so nothing bound the token a position
@@ -726,6 +782,28 @@ constants backed: `cells.headline.c16384.fresh`, `mem.headline.c16384.peak_mib`,
   `verify.headline.c16384.link_check_secs`,
   `verify.headline.c16384.secs_per_segment_median`,
   `verify.headline.c16384.secs_total`
+also backed, the extraction, the cold rows and the cell counts per proved
+  position:
+  `cells_per_position.headline.c16384.base`,
+  `cells_per_position.headline.c16384.boundary`,
+  `cells_per_position.headline.c16384.interaction`,
+  `cells_per_position.headline.c16384.interaction_argmax`,
+  `cells_per_position.headline.c16384.interaction_attnout`,
+  `cells_per_position.headline.c16384.interaction_dequant`,
+  `cells_per_position.headline.c16384.interaction_embed`,
+  `cells_per_position.headline.c16384.interaction_freivalds`,
+  `cells_per_position.headline.c16384.interaction_gkrlink`,
+  `cells_per_position.headline.c16384.interaction_key_tiles`,
+  `cells_per_position.headline.c16384.interaction_quant`,
+  `cells_per_position.headline.c16384.interaction_requant`,
+  `cells_per_position.headline.c16384.interaction_residual_stream`,
+  `cells_per_position.headline.c16384.interaction_table`,
+  `cells_per_position.headline.c16384.model`,
+  `cells_per_position.headline.c16384.shape`,
+  `secs.headline.c16384.cold_loop`, `secs.headline.c16384.cold_whole_wall`,
+  `secs.headline.c16384.extract_prove`, `secs.headline.c16384.extract_survey`,
+  `usd_per_1k_positions.headline.c16384.cold_loop`,
+  `usd_per_1k_positions.headline.c16384.cold_whole_wall`
 
 What the run checks. A 16,384-token prompt and the 512 tokens the model goes on
 to write are proved as one statement: 33 token blocks of 32 layer segments and
@@ -864,6 +942,46 @@ The run directory's `groups.json` is the fix-up pass's and reads zero for the
 six groups it did not touch, because the job writes it from the last row per
 group; `groups.jsonl` beside it carries every row of every pass, which is where
 the seven group times above come from.
+
+Which extraction the record keeps. This run extracted the witness set twice and
+the two are separate rows. `secs.headline.c16384.extract_prove`, 9,735 s, is the
+prove sweep's, added up over its seven groups: the extraction whose dumps the
+1,058 kept proofs read. `secs.headline.c16384.extract_survey`, 9,330 s, is the
+survey sweep's, the pass that wrote each block's shape table and emitted its
+device kernels; an emitter reads a segment's dump to lower its shape, so those
+dumps had to exist, and no proof reads them. Adding the seven prove rows of the
+first pass in `groups.jsonl` gives 9,683 s, which is not this number: group
+28-32 was extracted again by the fix-up pass, in 2,075 s, and that is the
+extraction the kept proofs of that group read. `extract.json` holds one row per
+pass and a re-run pass overwrites its own row, so its `by_sweep` totals are the
+last extraction of each group, which is what `timing.json` reports and what the
+audit adds up again from the rows.
+
+Cold and warm. `secs.headline.c16384.cold_loop` and
+`secs.headline.c16384.cold_whole_wall` add the prove sweep alone to the two
+proving scopes, priced as `usd_per_1k_positions.headline.c16384.cold_loop` and
+`usd_per_1k_positions.headline.c16384.cold_whole_wall`: what this sequence costs
+on a host that holds no witness dump yet. The survey sweep is out of them for
+the same reason the kernels are -- it exists so that the emitters have dumps to
+read, and emitting is a build step -- and `timing.json` keeps the phases apart
+so the choice is visible: `kernel_seconds` 1,204 s for the install and the
+compile, `grid_seconds` 12 s for the link check, and `extract_seconds` split
+into the two sweeps. The head extraction pass is not timed here either. Anyone
+who wants the arrangement's whole price rather than the statement's adds
+`secs.headline.c16384.extract_survey` and the 1,204 s to the cold row.
+
+What a proved position commits. The same six trees as one context down, over
+this run's 20 slice outputs and 16,896 proved positions:
+`cells_per_position.headline.c16384.base`, `.interaction` and `.boundary` add up
+to `cells.headline.c16384.fresh`, and `.model` and `.shape` are the two
+preprocessed trees. The eleven
+`cells_per_position.headline.c16384.interaction_*` rows split the interaction
+tree by component. The requantization seams are the largest of the eleven here
+too, but the key tiles are second where at context 4,096 they are sixth: their
+cells grow with the prefix a block reads and nothing else in the split does,
+which is the cost the attention grid's coefficients model. The same reader in
+`tools/constants/audit.py` re-derives every row and refuses on the same four
+conditions.
 
 Three workarounds are in the driver and each names its issue. The token
 generator is run through a shim, because it imports a module under a name that

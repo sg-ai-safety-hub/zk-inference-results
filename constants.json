@@ -29,7 +29,10 @@
   "verify": "the verifier's side, on the host's own cores and not on the card: one segment's call over its serialized statement, claims and proof, or the grid pass that checks the links between segments. It is not a scope of the prover and is not comparable with the four above.",
   "unproved prefill": "one `max_new_tokens=1` call on the unproved model with the weights already resident: the whole prompt read and the first generated position emitted. Nothing is proved in it.",
   "unproved decode": "the rest of the same full call, by difference: the remaining generated positions, one step each, with the weights already resident. Nothing is proved in it.",
-  "unproved end to end": "the full call on its own: the prompt prefilled and every generated position decoded, as one wall-clock time, with the weights already resident. Nothing is proved in it."
+  "unproved end to end": "the full call on its own: the prompt prefilled and every generated position decoded, as one wall-clock time, with the weights already resident. Nothing is proved in it.",
+  "extraction": "the witness extraction: the forward passes that write the dumps the proofs read, on the card, timed by the driver around each pass. It is outside the prover, so it is in none of the four proving scopes; it does not include emitting the device kernels, installing them or rebuilding.",
+  "cold whole wall": "the extraction the proofs read plus whole wall: what the sequence costs on a host that holds no witness dump yet. Kernel emission, the install and the rebuild are not in it.",
+  "cold loop": "the extraction the proofs read plus loop: what the sequence costs on a host that holds no witness dump yet. Kernel emission, the install and the rebuild are not in it."
  },
  "constants": {
   "cost.h100_reference_usd_per_hour": {
@@ -2929,6 +2932,463 @@
    "run": "2026-09-09-unproved-baseline-h100",
    "artifact": "llama-31-8b-instruct_vllm_c16384_b16_n512.json",
    "note": "the serving engine decoding 512 tokens after a 16384-token prompt, 16 requests at a time, nothing proved: every position over the whole pass's wall-clock time, per request. The host's own figure is 16 times this. The median over 3 repetitions of each repetition's own rate; the spread over them is 0.1 per cent, which the cold first repetition dominates (zk-prover #106)."
+  },
+  "secs.headline.c4096.extract": {
+   "value": 771,
+   "unit": "s",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "extraction",
+   "grade": "measured",
+   "run": "2026-09-09-headline-c4096-h100",
+   "artifact": "extract.json",
+   "note": "The five layer passes over the whole sequence, added up: the job extracts the whole witness set once and then proves it. The head dumps are one further pass and the driver does not time it, so it is not in this number."
+  },
+  "secs.headline.c16384.extract_prove": {
+   "value": 9735,
+   "unit": "s",
+   "card": "H100",
+   "context": 16384,
+   "timing_scope": "extraction",
+   "grade": "measured",
+   "run": "2026-09-08-headline-c16384-h100",
+   "artifact": "timing.json",
+   "note": "The prove sweep's extraction, added up over the seven groups of token blocks: the extraction whose dumps the 1,058 proofs read. The witness set does not fit the host at this context, so the job extracts a group, proves it and deletes it; a group extracted twice counts once, at its last extraction, which is why this is 9,735 s and not the 9,683 s of the first pass's seven rows in groups.jsonl. The head dumps are one further pass and the driver does not time it."
+  },
+  "secs.headline.c16384.extract_survey": {
+   "value": 9330,
+   "unit": "s",
+   "card": "H100",
+   "context": 16384,
+   "timing_scope": "extraction",
+   "grade": "measured",
+   "run": "2026-09-08-headline-c16384-h100",
+   "artifact": "timing.json",
+   "note": "The survey sweep's extraction, added up over the same seven groups. This run extracted twice: an emitter reads a segment's dump to lower its shape, so the kernels have to be emitted while the dumps are there, and the survey sweep is the pass that writes the shape tables and emits the kernels. It is what the grouping arrangement costs and no proof reads its dumps, so the cold rows do not count it."
+  },
+  "secs.headline.c4096.cold_whole_wall": {
+   "value": 6256.054,
+   "unit": "s",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "cold whole wall",
+   "grade": "derived",
+   "note": "secs.headline.c4096.extract + secs.headline.c4096.whole_wall. What the sequence costs on a host that holds no witness dump yet: the extraction the proofs read and the proving scope, one after the other. Emitting the device kernels, installing them and rebuilding are not in it, and no artifact of this run times them."
+  },
+  "usd_per_1k_positions.headline.c4096.cold_whole_wall": {
+   "value": 1.240742,
+   "unit": "USD/1000 positions",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "cold whole wall",
+   "grade": "derived",
+   "note": "secs.headline.c4096.cold_whole_wall / positions.headline.c4096, at cost.h100_reference_usd_per_hour. The rate is a published list price and names its source; the card was rented at another price and that price is not a number about this measurement."
+  },
+  "secs.headline.c4096.cold_loop": {
+   "value": 4454.298,
+   "unit": "s",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "cold loop",
+   "grade": "derived",
+   "note": "secs.headline.c4096.extract + secs.headline.c4096.loop. What the sequence costs on a host that holds no witness dump yet: the extraction the proofs read and the proving scope, one after the other. Emitting the device kernels, installing them and rebuilding are not in it, and no artifact of this run times them."
+  },
+  "usd_per_1k_positions.headline.c4096.cold_loop": {
+   "value": 0.883406,
+   "unit": "USD/1000 positions",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "cold loop",
+   "grade": "derived",
+   "note": "secs.headline.c4096.cold_loop / positions.headline.c4096, at cost.h100_reference_usd_per_hour. The rate is a published list price and names its source; the card was rented at another price and that price is not a number about this measurement."
+  },
+  "secs.headline.c16384.cold_whole_wall": {
+   "value": 39657.658,
+   "unit": "s",
+   "card": "H100",
+   "context": 16384,
+   "timing_scope": "cold whole wall",
+   "grade": "derived",
+   "note": "secs.headline.c16384.extract_prove + secs.headline.c16384.whole_wall. What the sequence costs on a host that holds no witness dump yet: the extraction the proofs read and the proving scope, one after the other. Emitting the device kernels, installing them and rebuilding are not in it; timing.json keeps them in kernel_seconds, 1,204 s, and the survey sweep's extraction in a phase of its own."
+  },
+  "usd_per_1k_positions.headline.c16384.cold_whole_wall": {
+   "value": 2.145046,
+   "unit": "USD/1000 positions",
+   "card": "H100",
+   "context": 16384,
+   "timing_scope": "cold whole wall",
+   "grade": "derived",
+   "note": "secs.headline.c16384.cold_whole_wall / positions.headline.c16384, at cost.h100_reference_usd_per_hour. The rate is a published list price and names its source; the card was rented at another price and that price is not a number about this measurement."
+  },
+  "secs.headline.c16384.cold_loop": {
+   "value": 31320.851,
+   "unit": "s",
+   "card": "H100",
+   "context": 16384,
+   "timing_scope": "cold loop",
+   "grade": "derived",
+   "note": "secs.headline.c16384.extract_prove + secs.headline.c16384.loop. What the sequence costs on a host that holds no witness dump yet: the extraction the proofs read and the proving scope, one after the other. Emitting the device kernels, installing them and rebuilding are not in it; timing.json keeps them in kernel_seconds, 1,204 s, and the survey sweep's extraction in a phase of its own."
+  },
+  "usd_per_1k_positions.headline.c16384.cold_loop": {
+   "value": 1.694116,
+   "unit": "USD/1000 positions",
+   "card": "H100",
+   "context": 16384,
+   "timing_scope": "cold loop",
+   "grade": "derived",
+   "note": "secs.headline.c16384.cold_loop / positions.headline.c16384, at cost.h100_reference_usd_per_hour. The rate is a published list price and names its source; the card was rented at another price and that price is not a number about this measurement."
+  },
+  "cells_per_position.headline.c4096.base": {
+   "value": 58494906.229,
+   "unit": "cells/position",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-09-headline-c4096-h100",
+   "artifact": "slice_0000.json",
+   "note": "The base trace tree: every column a segment commits that is not a lookup numerator and not preprocessed. Added up over the run's slice outputs and divided by positions.headline.c4096; base, interaction and boundary add up to cells.headline.c4096.fresh and shape and model to the preprocessed cells beside it."
+  },
+  "cells_per_position.headline.c4096.interaction": {
+   "value": 17849400.917,
+   "unit": "cells/position",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-09-headline-c4096-h100",
+   "artifact": "slice_0000.json",
+   "note": "The interaction tree: the LogUp numerator and denominator columns of every gadget in the segment. Added up over the run's slice outputs and divided by positions.headline.c4096; base, interaction and boundary add up to cells.headline.c4096.fresh and shape and model to the preprocessed cells beside it."
+  },
+  "cells_per_position.headline.c4096.boundary": {
+   "value": 2622350.222,
+   "unit": "cells/position",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-09-headline-c4096-h100",
+   "artifact": "slice_0000.json",
+   "note": "The boundary trees, which commit the residual stream and the keys and values a segment hands to the segment that reads it. The chunk's cells object does not name them: they are what fresh has above base and interaction, which is how the audit reads them. Added up over the run's slice outputs and divided by positions.headline.c4096; base, interaction and boundary add up to cells.headline.c4096.fresh and shape and model to the preprocessed cells beside it."
+  },
+  "cells_per_position.headline.c4096.model": {
+   "value": 22933788.444,
+   "unit": "cells/position",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-09-headline-c4096-h100",
+   "artifact": "slice_0000.json",
+   "note": "The model tree, one of the two preprocessed trees: the weights the segment reads. It is preprocessed and is therefore not part of fresh. Added up over the run's slice outputs and divided by positions.headline.c4096; base, interaction and boundary add up to cells.headline.c4096.fresh and shape and model to the preprocessed cells beside it."
+  },
+  "cells_per_position.headline.c4096.shape": {
+   "value": 4481140.243,
+   "unit": "cells/position",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-09-headline-c4096-h100",
+   "artifact": "slice_0000.json",
+   "note": "The shape tree, the other preprocessed tree: the lookup tables and the constants the segment's shape fixes. It is preprocessed and is therefore not part of fresh. Added up over the run's slice outputs and divided by positions.headline.c4096; base, interaction and boundary add up to cells.headline.c4096.fresh and shape and model to the preprocessed cells beside it."
+  },
+  "cells_per_position.headline.c4096.interaction_argmax": {
+   "value": 57571.556,
+   "unit": "cells/position",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-09-headline-c4096-h100",
+   "artifact": "slice_0000.json",
+   "note": "The interaction tree's share belonging to the output head's argmax gadget, which proves which token the logits make the largest, added up over the run's slice outputs and divided by positions.headline.c4096. The eleven components add up to cells_per_position.headline.c4096.interaction and the artifact splits no other tree this way."
+  },
+  "cells_per_position.headline.c4096.interaction_attnout": {
+   "value": 164977.778,
+   "unit": "cells/position",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-09-headline-c4096-h100",
+   "artifact": "slice_0000.json",
+   "note": "The interaction tree's share belonging to the attention output's quantization gadget, added up over the run's slice outputs and divided by positions.headline.c4096. The eleven components add up to cells_per_position.headline.c4096.interaction and the artifact splits no other tree this way."
+  },
+  "cells_per_position.headline.c4096.interaction_dequant": {
+   "value": 1467441.778,
+   "unit": "cells/position",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-09-headline-c4096-h100",
+   "artifact": "slice_0000.json",
+   "note": "The interaction tree's share belonging to the dequantization after each matmul, added up over the run's slice outputs and divided by positions.headline.c4096. The eleven components add up to cells_per_position.headline.c4096.interaction and the artifact splits no other tree this way."
+  },
+  "cells_per_position.headline.c4096.interaction_embed": {
+   "value": 24768.0,
+   "unit": "cells/position",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-09-headline-c4096-h100",
+   "artifact": "slice_0000.json",
+   "note": "The interaction tree's share belonging to the embedding lookup that binds a block's first residual stream to the ids the statement publishes, added up over the run's slice outputs and divided by positions.headline.c4096. The eleven components add up to cells_per_position.headline.c4096.interaction and the artifact splits no other tree this way."
+  },
+  "cells_per_position.headline.c4096.interaction_freivalds": {
+   "value": 1744896.0,
+   "unit": "cells/position",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-09-headline-c4096-h100",
+   "artifact": "slice_0000.json",
+   "note": "The interaction tree's share belonging to the weight matmuls, checked by Freivalds' method, added up over the run's slice outputs and divided by positions.headline.c4096. The eleven components add up to cells_per_position.headline.c4096.interaction and the artifact splits no other tree this way."
+  },
+  "cells_per_position.headline.c4096.interaction_gkrlink": {
+   "value": 819496.889,
+   "unit": "cells/position",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-09-headline-c4096-h100",
+   "artifact": "slice_0000.json",
+   "note": "The interaction tree's share belonging to the columns that carry a GKR reduction's claim into the AIR that consumes it, added up over the run's slice outputs and divided by positions.headline.c4096. The eleven components add up to cells_per_position.headline.c4096.interaction and the artifact splits no other tree this way."
+  },
+  "cells_per_position.headline.c4096.interaction_key_tiles": {
+   "value": 1112664.889,
+   "unit": "cells/position",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-09-headline-c4096-h100",
+   "artifact": "slice_0000.json",
+   "note": "The interaction tree's share belonging to the attention scores over the key tiles, the diagonal block among them, added up over the run's slice outputs and divided by positions.headline.c4096. The eleven components add up to cells_per_position.headline.c4096.interaction and the artifact splits no other tree this way."
+  },
+  "cells_per_position.headline.c4096.interaction_quant": {
+   "value": 1720320.0,
+   "unit": "cells/position",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-09-headline-c4096-h100",
+   "artifact": "slice_0000.json",
+   "note": "The interaction tree's share belonging to the quantization of q and k, added up over the run's slice outputs and divided by positions.headline.c4096. The eleven components add up to cells_per_position.headline.c4096.interaction and the artifact splits no other tree this way."
+  },
+  "cells_per_position.headline.c4096.interaction_requant": {
+   "value": 8047206.222,
+   "unit": "cells/position",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-09-headline-c4096-h100",
+   "artifact": "slice_0000.json",
+   "note": "The interaction tree's share belonging to the requantization at the qkv, gateup and down seams, and its tables, added up over the run's slice outputs and divided by positions.headline.c4096. The eleven components add up to cells_per_position.headline.c4096.interaction and the artifact splits no other tree this way."
+  },
+  "cells_per_position.headline.c4096.interaction_residual_stream": {
+   "value": 90768.0,
+   "unit": "cells/position",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-09-headline-c4096-h100",
+   "artifact": "slice_0000.json",
+   "note": "The interaction tree's share belonging to the two normalisations, the residual adds and the rope reconstructions, added up over the run's slice outputs and divided by positions.headline.c4096. The eleven components add up to cells_per_position.headline.c4096.interaction and the artifact splits no other tree this way."
+  },
+  "cells_per_position.headline.c4096.interaction_table": {
+   "value": 2599289.806,
+   "unit": "cells/position",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-09-headline-c4096-h100",
+   "artifact": "slice_0000.json",
+   "note": "The interaction tree's share belonging to the LogUp tables themselves: the exponential, the range checks, the reciprocal and the residual stream's own tables, added up over the run's slice outputs and divided by positions.headline.c4096. The eleven components add up to cells_per_position.headline.c4096.interaction and the artifact splits no other tree this way."
+  },
+  "cells_per_position.headline.c16384.base": {
+   "value": 75497158.324,
+   "unit": "cells/position",
+   "card": "H100",
+   "context": 16384,
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-08-headline-c16384-h100",
+   "artifact": "slice_0000.json",
+   "note": "The base trace tree: every column a segment commits that is not a lookup numerator and not preprocessed. Added up over the run's slice outputs and divided by positions.headline.c16384; base, interaction and boundary add up to cells.headline.c16384.fresh and shape and model to the preprocessed cells beside it."
+  },
+  "cells_per_position.headline.c16384.interaction": {
+   "value": 20667314.992,
+   "unit": "cells/position",
+   "card": "H100",
+   "context": 16384,
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-08-headline-c16384-h100",
+   "artifact": "slice_0000.json",
+   "note": "The interaction tree: the LogUp numerator and denominator columns of every gadget in the segment. Added up over the run's slice outputs and divided by positions.headline.c16384; base, interaction and boundary add up to cells.headline.c16384.fresh and shape and model to the preprocessed cells beside it."
+  },
+  "cells_per_position.headline.c16384.boundary": {
+   "value": 8913144.242,
+   "unit": "cells/position",
+   "card": "H100",
+   "context": 16384,
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-08-headline-c16384-h100",
+   "artifact": "slice_0000.json",
+   "note": "The boundary trees, which commit the residual stream and the keys and values a segment hands to the segment that reads it. The chunk's cells object does not name them: they are what fresh has above base and interaction, which is how the audit reads them. Added up over the run's slice outputs and divided by positions.headline.c16384; base, interaction and boundary add up to cells.headline.c16384.fresh and shape and model to the preprocessed cells beside it."
+  },
+  "cells_per_position.headline.c16384.model": {
+   "value": 22626753.939,
+   "unit": "cells/position",
+   "card": "H100",
+   "context": 16384,
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-08-headline-c16384-h100",
+   "artifact": "slice_0000.json",
+   "note": "The model tree, one of the two preprocessed trees: the weights the segment reads. It is preprocessed and is therefore not part of fresh. Added up over the run's slice outputs and divided by positions.headline.c16384; base, interaction and boundary add up to cells.headline.c16384.fresh and shape and model to the preprocessed cells beside it."
+  },
+  "cells_per_position.headline.c16384.shape": {
+   "value": 5496415.358,
+   "unit": "cells/position",
+   "card": "H100",
+   "context": 16384,
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-08-headline-c16384-h100",
+   "artifact": "slice_0000.json",
+   "note": "The shape tree, the other preprocessed tree: the lookup tables and the constants the segment's shape fixes. It is preprocessed and is therefore not part of fresh. Added up over the run's slice outputs and divided by positions.headline.c16384; base, interaction and boundary add up to cells.headline.c16384.fresh and shape and model to the preprocessed cells beside it."
+  },
+  "cells_per_position.headline.c16384.interaction_argmax": {
+   "value": 15701.333,
+   "unit": "cells/position",
+   "card": "H100",
+   "context": 16384,
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-08-headline-c16384-h100",
+   "artifact": "slice_0000.json",
+   "note": "The interaction tree's share belonging to the output head's argmax gadget, which proves which token the logits make the largest, added up over the run's slice outputs and divided by positions.headline.c16384. The eleven components add up to cells_per_position.headline.c16384.interaction and the artifact splits no other tree this way."
+  },
+  "cells_per_position.headline.c16384.interaction_attnout": {
+   "value": 164150.303,
+   "unit": "cells/position",
+   "card": "H100",
+   "context": 16384,
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-08-headline-c16384-h100",
+   "artifact": "slice_0000.json",
+   "note": "The interaction tree's share belonging to the attention output's quantization gadget, added up over the run's slice outputs and divided by positions.headline.c16384. The eleven components add up to cells_per_position.headline.c16384.interaction and the artifact splits no other tree this way."
+  },
+  "cells_per_position.headline.c16384.interaction_dequant": {
+   "value": 1466660.848,
+   "unit": "cells/position",
+   "card": "H100",
+   "context": 16384,
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-08-headline-c16384-h100",
+   "artifact": "slice_0000.json",
+   "note": "The interaction tree's share belonging to the dequantization after each matmul, added up over the run's slice outputs and divided by positions.headline.c16384. The eleven components add up to cells_per_position.headline.c16384.interaction and the artifact splits no other tree this way."
+  },
+  "cells_per_position.headline.c16384.interaction_embed": {
+   "value": 24768.0,
+   "unit": "cells/position",
+   "card": "H100",
+   "context": 16384,
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-08-headline-c16384-h100",
+   "artifact": "slice_0000.json",
+   "note": "The interaction tree's share belonging to the embedding lookup that binds a block's first residual stream to the ids the statement publishes, added up over the run's slice outputs and divided by positions.headline.c16384. The eleven components add up to cells_per_position.headline.c16384.interaction and the artifact splits no other tree this way."
+  },
+  "cells_per_position.headline.c16384.interaction_freivalds": {
+   "value": 1715106.909,
+   "unit": "cells/position",
+   "card": "H100",
+   "context": 16384,
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-08-headline-c16384-h100",
+   "artifact": "slice_0000.json",
+   "note": "The interaction tree's share belonging to the weight matmuls, checked by Freivalds' method, added up over the run's slice outputs and divided by positions.headline.c16384. The eleven components add up to cells_per_position.headline.c16384.interaction and the artifact splits no other tree this way."
+  },
+  "cells_per_position.headline.c16384.interaction_gkrlink": {
+   "value": 798987.152,
+   "unit": "cells/position",
+   "card": "H100",
+   "context": 16384,
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-08-headline-c16384-h100",
+   "artifact": "slice_0000.json",
+   "note": "The interaction tree's share belonging to the columns that carry a GKR reduction's claim into the AIR that consumes it, added up over the run's slice outputs and divided by positions.headline.c16384. The eleven components add up to cells_per_position.headline.c16384.interaction and the artifact splits no other tree this way."
+  },
+  "cells_per_position.headline.c16384.interaction_key_tiles": {
+   "value": 3671296.97,
+   "unit": "cells/position",
+   "card": "H100",
+   "context": 16384,
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-08-headline-c16384-h100",
+   "artifact": "slice_0000.json",
+   "note": "The interaction tree's share belonging to the attention scores over the key tiles, the diagonal block among them, added up over the run's slice outputs and divided by positions.headline.c16384. The eleven components add up to cells_per_position.headline.c16384.interaction and the artifact splits no other tree this way."
+  },
+  "cells_per_position.headline.c16384.interaction_quant": {
+   "value": 1720320.0,
+   "unit": "cells/position",
+   "card": "H100",
+   "context": 16384,
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-08-headline-c16384-h100",
+   "artifact": "slice_0000.json",
+   "note": "The interaction tree's share belonging to the quantization of q and k, added up over the run's slice outputs and divided by positions.headline.c16384. The eleven components add up to cells_per_position.headline.c16384.interaction and the artifact splits no other tree this way."
+  },
+  "cells_per_position.headline.c16384.interaction_requant": {
+   "value": 8040522.424,
+   "unit": "cells/position",
+   "card": "H100",
+   "context": 16384,
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-08-headline-c16384-h100",
+   "artifact": "slice_0000.json",
+   "note": "The interaction tree's share belonging to the requantization at the qkv, gateup and down seams, and its tables, added up over the run's slice outputs and divided by positions.headline.c16384. The eleven components add up to cells_per_position.headline.c16384.interaction and the artifact splits no other tree this way."
+  },
+  "cells_per_position.headline.c16384.interaction_residual_stream": {
+   "value": 90663.273,
+   "unit": "cells/position",
+   "card": "H100",
+   "context": 16384,
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-08-headline-c16384-h100",
+   "artifact": "slice_0000.json",
+   "note": "The interaction tree's share belonging to the two normalisations, the residual adds and the rope reconstructions, added up over the run's slice outputs and divided by positions.headline.c16384. The eleven components add up to cells_per_position.headline.c16384.interaction and the artifact splits no other tree this way."
+  },
+  "cells_per_position.headline.c16384.interaction_table": {
+   "value": 2959137.78,
+   "unit": "cells/position",
+   "card": "H100",
+   "context": 16384,
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-08-headline-c16384-h100",
+   "artifact": "slice_0000.json",
+   "note": "The interaction tree's share belonging to the LogUp tables themselves: the exponential, the range checks, the reciprocal and the residual stream's own tables, added up over the run's slice outputs and divided by positions.headline.c16384. The eleven components add up to cells_per_position.headline.c16384.interaction and the artifact splits no other tree this way."
   }
  },
  "discrepancies": []

@@ -1030,6 +1030,130 @@ def microbench_cells(a, keys):
         a.claim("model_constants.attention_cells_per_head_key_token", pts[0]["alpha_grid"])
 
 
+# -- the witness extraction, at both contexts ----------------------------------
+# The extraction is not a proving scope: it happens before the prover is called
+# and is in none of the four scopes the slice outputs report.  Each driver times
+# every extraction pass it makes and writes one row per pass, so the audit adds
+# the rows up itself rather than reading a total the job printed.
+def _extraction(key_of):
+    def section(a, keys):
+        mine = {k: e for k, e in keys.items() if k in key_of.values()}
+        if not mine:
+            return
+        run = sorted({e["run"] for e in mine.values()})[0]
+        rows = artifact(run, "extract.json")["passes"]
+        by_sweep, by_group = {}, {}
+        for r in rows:
+            sweep = r.get("sweep", "extract")
+            by_sweep[sweep] = by_sweep.get(sweep, 0) + r["seconds"]
+            by_group.setdefault((sweep, r.get("blocks", "all")), 0)
+            by_group[(sweep, r.get("blocks", "all"))] += r["seconds"]
+        print(f"  runs/{run}: {len(rows)} extraction passes, "
+              + ", ".join(f"{s} {n:,} s over "
+                          f"{len([1 for k in by_group if k[0] == s])} group(s)"
+                          for s, n in sorted(by_sweep.items())))
+        # the driver's own phase file, where it has one, must say the same
+        if (ROOT / "runs" / run / "timing.json").exists():
+            t = artifact(run, "timing.json")["extract_seconds"]
+            if t != by_sweep:
+                a.fails.append(f"audit: {run}: timing.json reports {t} and the passes "
+                               f"add up to {by_sweep}")
+            # a group extracted twice has one row, its last; groups.jsonl keeps
+            # every attempt, so each group's total must be one of its rows
+            seen = {}
+            for line in (ROOT / "runs" / run / "groups.jsonl").read_text().splitlines():
+                g = json.loads(line)
+                seen.setdefault(g["blocks"], []).append(g["extract_seconds"])
+            for (sweep, blocks), secs in sorted(by_group.items()):
+                if sweep == "prove" and secs not in seen.get(blocks, []):
+                    a.fails.append(f"audit: {run}: the prove sweep extracted blocks "
+                                   f"{blocks} in {secs} s and groups.jsonl has "
+                                   f"{seen.get(blocks)}")
+        for sweep, key in key_of.items():
+            if key in mine:
+                a.exact(key, by_sweep[sweep])
+    return section
+
+
+# -- what a proved position commits, per component -----------------------------
+# One reader for both contexts.  A segment's proof commits six trees: the shape
+# and model trees, which are preprocessed, the base and interaction trees, and
+# the boundary trees, which carry the residual stream and the keys and values a
+# segment hands on.  The chunk output names four of the six and not the boundary
+# trees, so `boundary` is read as the cells `fresh` has above base and
+# interaction.  The interaction tree comes with its own split by component and
+# no other tree does.  The relations
+# below are the whole point of the reader: it refuses unless the two
+# preprocessed trees add up to the preprocessed cells beside them, the eleven
+# components add up to the interaction tree, the chunks add up to the run's
+# `fresh` row, and the recorded rows themselves close the same two sums.  A
+# count that does not close is not recorded.
+_TREES = ("base", "interaction", "boundary", "model", "shape")
+
+
+def _cells_per_position(ctx):
+    def section(a, keys):
+        pre = f"cells_per_position.headline.c{ctx}."
+        mine = {k: e for k, e in keys.items() if k.startswith(pre)}
+        if not mine:
+            return
+        run = sorted({e["run"] for e in mine.values()})[0]
+        cells = {k: 0 for k in _TREES}
+        cells["fresh"] = cells["preprocessed"] = 0
+        comp, n = {}, 0
+        for f in sorted((ROOT / "runs" / run).glob("slice_*.json")):
+            for ch in json.loads(f.read_text())["result"]["chunks"]:
+                n += 1
+                c = ch["cells"]
+                for k in ("base", "interaction", "model", "shape", "fresh",
+                          "preprocessed"):
+                    cells[k] += c[k]
+                cells["boundary"] += c["fresh"] - c["base"] - c["interaction"]
+                for k, v in ch["family_cells"]["interaction_by_family"].items():
+                    comp[k] = comp.get(k, 0) + v["cells"]
+        if cells["shape"] + cells["model"] != cells["preprocessed"]:
+            a.fails.append(f"audit: c{ctx}: shape and model add up to "
+                           f"{cells['shape'] + cells['model']} and the chunks report "
+                           f"preprocessed {cells['preprocessed']}")
+        if sum(comp.values()) != cells["interaction"]:
+            a.fails.append(f"audit: c{ctx}: the components add up to {sum(comp.values())} "
+                           f"and the interaction tree is {cells['interaction']}")
+        stored = load()["constants"].get(f"cells.headline.c{ctx}.fresh")
+        if stored and cells["fresh"] != stored["value"]:
+            a.fails.append(f"audit: c{ctx}: the chunks report {cells['fresh']} fresh cells "
+                           f"and cells.headline.c{ctx}.fresh is {stored['value']}")
+        pos = artifact(run, "config.json")["positions"]
+        print(f"  runs/{run}: {n} segments over {pos:,} positions; "
+              f"{cells['fresh']:,} fresh cells in three trees and "
+              f"{cells['interaction']:,} interaction cells in {len(comp)} components")
+        for k in _TREES:
+            if pre + k in mine:
+                a.claim(pre + k, cells[k] / pos)
+        for k in sorted(comp):
+            if pre + "interaction_" + k in mine:
+                a.claim(pre + "interaction_" + k, comp[k] / pos)
+        # the same two sums over the recorded values, so that a row edited by
+        # hand cannot stand while the artifact still closes.  `boundary` is the
+        # cells `fresh` has above base and interaction, so this is the one place
+        # the three are made to add up to the run's own `fresh` row.
+        rec = load()["constants"]
+        fresh3 = [pre + k for k in ("base", "interaction", "boundary")]
+        if stored and all(k in mine for k in fresh3):
+            got, want = sum(rec[k]["value"] for k in fresh3), stored["value"] / pos
+            if abs(got / want - 1) > 1e-6:
+                a.fails.append(f"audit: c{ctx}: the recorded base, interaction and boundary "
+                               f"add up to {got} cells per position and "
+                               f"cells.headline.c{ctx}.fresh is {want} per position")
+        inter = [pre + "interaction_" + k for k in comp]
+        if pre + "interaction" in mine and all(k in mine for k in inter):
+            got, want = sum(rec[k]["value"] for k in inter), rec[pre + "interaction"]["value"]
+            if abs(got / want - 1) > 1e-6:
+                a.fails.append(f"audit: c{ctx}: the recorded components add up to {got} "
+                               f"cells per position and the recorded interaction tree is "
+                               f"{want}")
+    return section
+
+
 # -- sections: (driver name, function(audit, keys)) ----------------------------
 # Added when a driver's first run lands; each function re-derives the constants
 # whose `run` was made by that driver.
@@ -1048,6 +1172,13 @@ SECTIONS = [
     ("unproved-baseline", unproved_baseline),
     ("model-commitment", model_commitment),
     ("microbench-cells", microbench_cells),
+    # the extraction and the per-component cell counts of the two headline
+    # runs: separate readers over separate artifacts of the same runs
+    ("headline-c4096", _extraction({"extract": "secs.headline.c4096.extract"})),
+    ("headline-c16384", _extraction({"prove": "secs.headline.c16384.extract_prove",
+                                     "survey": "secs.headline.c16384.extract_survey"})),
+    ("headline-c4096", _cells_per_position(4096)),
+    ("headline-c16384", _cells_per_position(16384)),
 ]
 
 

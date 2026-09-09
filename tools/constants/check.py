@@ -131,6 +131,24 @@ DERIVED = {
         "microbench commitment rate",
         v("cells.microbench.compose_fresh") / v("secs.microbench.compose_commit") / 1e6,
         "rate.microbench.commit", 0.001),
+    # Cold: the extraction the proofs read plus the proving scope, which is what
+    # the sequence costs on a host that holds no witness dump yet.  At context
+    # 16,384 the run extracted twice and the cold row counts the prove sweep
+    # alone: the survey sweep's dumps are read by the kernel emitters and by no
+    # proof, and emitting kernels is not in the cold figure either.
+    **{f"secs.headline.c{ctx}.cold_{s}": (lambda ctx=ctx, s=s, ex=ex: chk(
+        f"c{ctx} headline cold {s.replace('_', ' ')} seconds",
+        v(ex) + v(f"secs.headline.c{ctx}.{s}"),
+        f"secs.headline.c{ctx}.cold_{s}", 0.001))
+       for ctx, ex in ((4096, "secs.headline.c4096.extract"),
+                       (16384, "secs.headline.c16384.extract_prove"))
+       for s in ("whole_wall", "loop")},
+    **{f"usd_per_1k_positions.headline.c{ctx}.cold_{s}": (lambda ctx=ctx, s=s: chk(
+        f"c{ctx} headline USD per 1,000 proved positions, cold {s.replace('_', ' ')}",
+        v(f"secs.headline.c{ctx}.cold_{s}") / v(f"positions.headline.c{ctx}")
+        * v("cost.h100_reference_usd_per_hour") / 3600 * 1000,
+        f"usd_per_1k_positions.headline.c{ctx}.cold_{s}", 0.001))
+       for ctx in (4096, 16384) for s in ("whole_wall", "loop")},
 }
 
 URL = re.compile(r"https?://\S+")
