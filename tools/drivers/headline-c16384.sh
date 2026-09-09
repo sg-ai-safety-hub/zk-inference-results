@@ -634,9 +634,23 @@ N=\$(grep -cv '^#' \$OUT/plan.txt); st "plan: \$N segments"
 # not, the store is short and the loop would stop on a fingerprint.
 # The head segments, which no group emitted for: their shape comes off their own
 # dump and not off a layer's.  head-plan.txt is every head line of the plan and
-# emit-head.txt the distinct shapes among them, which is what plan.py's own
-# emit list already holds -- two head dumps of one master table width are one
-# shape and are emitted once.
+# emit-head.txt the shapes plan.py's own emit list holds for them.
+#
+# At this prover commit that list is one line for the two heads, and that is
+# zk-prover #131: plan.py keys a head line with `None` where a layer line
+# carries its prefix, so head lines of one master table width and one flag
+# string collapse into one entry whatever their dumps read.  Block 31's head
+# reads 15,872 keys and block 32's 16,384, so they are two dumps, and only
+# block 31's line was emitted for.  It cost this run nothing: a kernel is
+# looked up by fingerprint, and the head chunk performs no attention, so both
+# head chunks asked for the same generated kernels -- every witness-gen, table
+# and preprocessed line of B32head in slice_1024.err is B31head's line for line
+# -- and out/slice_1024.fallbacks is 0.  That is a coincidence of this context
+# and not a property.  zk-prover #131 keys a head line by its dump's own `c`;
+# at a prover commit with the fix the emit list holds both head lines and both
+# are emitted, which is what keeps the store whole where the fingerprints
+# differ.  Nothing here has to change for that: emit-head.txt is read from the
+# emit list, so it grows to two lines on its own.
 grep -v '^#' \$OUT/plan.txt | grep -- '--ser-tag [A-Za-z0-9]*head' > \$R/head-plan.txt || true
 grep -v '^#' \$R/emit.txt | grep -- '--ser-tag [A-Za-z0-9]*head' > \$R/emit-head.txt || true
 NH=\$(grep -c . \$R/head-plan.txt || true)
