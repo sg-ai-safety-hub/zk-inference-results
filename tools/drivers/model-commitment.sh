@@ -62,6 +62,14 @@ SEQ=headline-c4096         # the campaign whose plan and proofs are checked
 SPEC=y-delay-vw12
 CTX=4096; S=512
 SHARED="--round even --numbits 9 --z-hi-bits 7 --variants intexp --head-groups 16,8,8 --tight-table"
+# The same flags without `--tight-table`, for the verifier's form alone. That
+# flag sizes the exp table off the witness's own shifts and the model-only load
+# has no witness to read them from, so the prover refuses the pair and says the
+# width comes from the statement's `log_table` there instead. The exp table is a
+# shape column and no part of the model tree -- `model-roots` says so itself
+# where a layer's blocks carry two widths -- so dropping it moves no model root,
+# which is the only thing the two derivations are compared on.
+SHARED_WEIGHTS=$(printf '%s' "$SHARED" | sed 's/ --tight-table//')
 # The verifier's form is a cross-check over one token block: `model-roots` keeps
 # one row per (layer, prefix width) and the first block is one chunk at each of
 # the 32 layers, so the block covers every layer's model root exactly once.
@@ -140,7 +148,7 @@ st "commitment derived in \$(cat \$R/model_roots.secs 2>/dev/null || echo '?')s"
 #    model half of the dump and the statement this sequence serialized.
 if [ ! -s \$OUT/model-roots-verifier.json ]; then
   T0=\$(date +%s)
-  \$SIMD model-roots --plan \$PLAN --pins "$SHARED \$PINS" --weights-only --params-dir \$SER \
+  \$SIMD model-roots --plan \$PLAN --pins "$SHARED_WEIGHTS \$PINS" --weights-only --params-dir \$SER \
       --limit $VERIFIER_LIMIT --out \$OUT/model-roots-verifier.json \
       > \$OUT/model_roots_verifier.json 2> \$R/model_roots_verifier.err
   echo \$((\$(date +%s) - T0)) > \$R/model_roots_verifier.secs
