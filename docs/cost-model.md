@@ -4,7 +4,8 @@
 cell count. Nothing in it is a measurement; every number it prints is
 `projected` and names the constants it read. This page says which key backs
 each of the model's inputs, and where a key is named here and measured by
-nothing it says that too.
+nothing it says that too. Where a key is measured, this page names it and
+quotes no number of its own.
 
 ## Inputs
 
@@ -19,7 +20,8 @@ nothing it says that too.
 - The measured sequence runs, through `constants.json`: cells committed per
   token and the rate at each timing scope (`cells.headline.c16384.fresh`,
   `rate.headline.c16384.commit`, `rate.headline.c16384.whole_wall`,
-  `rate.headline.c16384.loop`).
+  `rate.headline.c16384.loop`), and what a proved position commits per
+  component, which the section below tabulates.
 - The reference rental rates (`cost.h100_reference_usd_per_hour`,
   `cost.h200_reference_usd_per_hour`).
 
@@ -84,6 +86,66 @@ nothing it says that too.
 Time at a timing scope is cells divided by the measured rate at that scope;
 cost is time times the reference rate. The model is calibrated against the
 measured sequence and reports its residual (`frontier.calibration.residual_pct`).
+
+The witness extraction is in none of those scopes: it happens before the prover
+is called, and the four scopes are the prover's own. A price that assumes the
+dumps are already on the host is therefore a price for a warm host. The record
+carries the other one beside it, extraction and proving added up:
+`secs.headline.c4096.cold_loop`, `secs.headline.c4096.cold_whole_wall` and the
+two keys beside them one context up, priced as
+`usd_per_1k_positions.headline.c4096.cold_loop` and its three counterparts.
+Neither figure includes emitting the device kernels, installing them or
+rebuilding.
+
+## What the sequence measured, per proved position
+
+Every component above has a measured counterpart, so this page quotes no share
+of its own. A segment commits six trees. Two of them are preprocessed -- the
+shape tree, which holds the lookup tables and the constants its shape fixes,
+and the model tree, which holds the weights it reads. The other three are paid
+for again by every segment and are what `cells.headline.c4096.fresh` and
+`cells.headline.c16384.fresh` add up: the base trace, the interaction columns
+of the LogUp arguments, and the boundary trees, which commit the
+residual stream and the keys and values a segment hands on.
+
+| tree | context 4,096 | context 16,384 |
+|---|---|---|
+| base trace | `cells_per_position.headline.c4096.base` | `cells_per_position.headline.c16384.base` |
+| interaction | `cells_per_position.headline.c4096.interaction` | `cells_per_position.headline.c16384.interaction` |
+| boundary | `cells_per_position.headline.c4096.boundary` | `cells_per_position.headline.c16384.boundary` |
+| model, preprocessed | `cells_per_position.headline.c4096.model` | `cells_per_position.headline.c16384.model` |
+| shape, preprocessed | `cells_per_position.headline.c4096.shape` | `cells_per_position.headline.c16384.shape` |
+
+The interaction tree is the one the slice outputs split by component, and the
+split is what the list above prices. Each key is that component's cells over
+the run's proved positions; `interaction_` names the tree they come from.
+
+| component | what it counts | context 4,096 | context 16,384 |
+|---|---|---|---|
+| Freivalds | the weight matmuls | `cells_per_position.headline.c4096.interaction_freivalds` | `cells_per_position.headline.c16384.interaction_freivalds` |
+| requant | the qkv, gateup and down seams | `cells_per_position.headline.c4096.interaction_requant` | `cells_per_position.headline.c16384.interaction_requant` |
+| table | the exponential, the range checks and the residual stream's own tables | `cells_per_position.headline.c4096.interaction_table` | `cells_per_position.headline.c16384.interaction_table` |
+| dequant | dequantization after each matmul | `cells_per_position.headline.c4096.interaction_dequant` | `cells_per_position.headline.c16384.interaction_dequant` |
+| quant | the quantization of q and k | `cells_per_position.headline.c4096.interaction_quant` | `cells_per_position.headline.c16384.interaction_quant` |
+| key tiles | the attention scores, the diagonal block among them | `cells_per_position.headline.c4096.interaction_key_tiles` | `cells_per_position.headline.c16384.interaction_key_tiles` |
+| gkrlink | a GKR reduction's claim carried into the AIR that consumes it | `cells_per_position.headline.c4096.interaction_gkrlink` | `cells_per_position.headline.c16384.interaction_gkrlink` |
+| attnout | the attention output's quantization | `cells_per_position.headline.c4096.interaction_attnout` | `cells_per_position.headline.c16384.interaction_attnout` |
+| residual stream | the two normalisations, the residual adds, the rope reconstructions | `cells_per_position.headline.c4096.interaction_residual_stream` | `cells_per_position.headline.c16384.interaction_residual_stream` |
+| embed | the embedding rows a block's published ids select | `cells_per_position.headline.c4096.interaction_embed` | `cells_per_position.headline.c16384.interaction_embed` |
+| argmax | the output head's own segment | `cells_per_position.headline.c4096.interaction_argmax` | `cells_per_position.headline.c16384.interaction_argmax` |
+
+The two contexts are not the same shape, and the key tiles are why: their share
+of the interaction tree grows with the prefix a block reads, which is the cost
+the attention grid's coefficients model. Two other rows move with the context --
+the lookup tables, a little, and the argmax row, which is two head segments over
+four times as many positions -- and the rest are within a few per cent of each
+other per position.
+
+One reader in `tools/constants/audit.py` re-derives all of it from the slice
+outputs and refuses unless the shape and model trees add up to the preprocessed
+cells the chunk reports, the eleven components add up to the interaction tree,
+the chunks add up to the run's `fresh` row, and the recorded rows close the same
+two sums themselves.
 
 ## What it projects
 
