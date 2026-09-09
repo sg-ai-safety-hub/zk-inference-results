@@ -1,0 +1,84 @@
+{
+  "schema": "e2h/decode-throughput/3",
+  "purpose": "batched",
+  "backend": {
+    "name": "hf",
+    "available": true
+  },
+  "run": {
+    "context_keys": 16384,
+    "batch_size": 16,
+    "new_tokens": 512,
+    "dtype": "bfloat16",
+    "synthetic": false
+  },
+  "measured": null,
+  "failure": {
+    "oom": true,
+    "type": "OutOfMemoryError",
+    "message": "CUDA out of memory. Tried to allocate 7.00 GiB. GPU 0 has a total capacity of 79.18 GiB of which 4.76 GiB is free. Process 910477 has 74.41 GiB memory in use. Of the allocated memory 59.12 GiB is allocated by PyTorch, and 14.18 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://docs.pytorch.org/docs/stable/notes/cuda.html#optimizing-memory-usage-with-pytorch-cuda-alloc-conf)"
+  },
+  "note": "This (context, batch) did not run. The sweep's last successful batch is the one to quote.",
+  "comparison": {
+    "made": false,
+    "why": "no --constants PATH (a zk-results constants.json) and no ZK_CONSTANTS; the measurement stands on its own"
+  },
+  "provenance": {
+    "kind": "harness",
+    "commit": "2c8fa991c0f5425be48bf7f8b95334cbd4f716ed",
+    "dirty": false,
+    "binary": "python -m harness.eval.baseline.decode_bench",
+    "args": [
+      "--backend",
+      "hf",
+      "--model",
+      "unsloth/Llama-3.1-8B-Instruct",
+      "--dtype",
+      "bfloat16",
+      "--device",
+      "cuda",
+      "--context",
+      "4096",
+      "--context",
+      "16384",
+      "--batch",
+      "1",
+      "--batch",
+      "2",
+      "--batch",
+      "4",
+      "--batch",
+      "8",
+      "--batch",
+      "16",
+      "--new-tokens",
+      "512",
+      "--reps",
+      "3",
+      "--warmup",
+      "1"
+    ],
+    "backend": "harness",
+    "gpu": "NVIDIA H100 80GB HBM3, 81559 MiB",
+    "driver_version": "580.178.04",
+    "cuda_version": "13.0",
+    "device": "cuda",
+    "threads": 20,
+    "versions": {
+      "python": "3.12.3",
+      "torch": "2.13.0+cu129",
+      "transformers": "5.15.0",
+      "numpy": "2.5.2"
+    },
+    "model": "unsloth/Llama-3.1-8B-Instruct",
+    "model_revision": "4699cc75b550f9c6f3173fb80f4703b62d946aa5",
+    "proof_sha256": null,
+    "proof_sha256s": null,
+    "unsound_skips": [],
+    "binding": null,
+    "decode_backend": "hf",
+    "dtype": "bfloat16",
+    "attention": null,
+    "model_revision_requested": "main"
+  }
+}

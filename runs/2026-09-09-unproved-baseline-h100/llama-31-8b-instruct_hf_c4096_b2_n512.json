@@ -1,0 +1,226 @@
+{
+  "schema": "e2h/decode-throughput/3",
+  "recorded_utc": "2026-09-09T10:46:32+00:00",
+  "backend": {
+    "name": "hf",
+    "label": "transformers.generate() -- the non-specialist path",
+    "version": "transformers 5.15.0, torch 2.13.0+cu129",
+    "available": true,
+    "reason": null,
+    "synthetic": false
+  },
+  "purpose": "batched",
+  "timing_scope": {
+    "name": "unproved inference, weights resident",
+    "parts": {
+      "prefill": "one `max_new_tokens=1` call: the whole prompt read, and the first generated position emitted",
+      "decode": "the rest of the full call, by difference: the remaining generated positions, one step each",
+      "end_to_end": "the full call on its own: the prompt prefilled and every generated position decoded, as one wall-clock time"
+    },
+    "includes": [
+      "the forward passes that produce the measured positions",
+      "sampling/argmax, KV-cache growth, the engine's own scheduling"
+    ],
+    "excludes": [
+      "process start, weight load and any compile/CUDA-graph capture (the warmup passes run before the timed repetitions and make the same two calls, generating the same token count, so no timed repetition is the first full-length decode of the process)",
+      "tokenization of the prompt (built once, outside the timed region)"
+    ],
+    "comparable_to": "the proved side's timing scopes, with one thing said out loud: none of them contains an inference pass. `whole wall` is trace generation, interaction generation, stwo and serialization; `loop`, which adds the witness read and the layer build, still reads a witness a prior extraction produced. So a proved cost per position is prover-seconds and an unproved one is inference-seconds, and a deployment that must both infer and prove pays the sum of the two."
+  },
+  "run": {
+    "model": {
+      "id": "unsloth/Llama-3.1-8B-Instruct",
+      "revision": "main",
+      "n_layers": 32,
+      "n_heads": 32,
+      "n_kv_heads": 8,
+      "hidden": 4096,
+      "vocab": 128256,
+      "attn_implementation": "sdpa"
+    },
+    "tokenizer": {
+      "from_repo": "unsloth/Llama-3.1-8B-Instruct",
+      "class": "TokenizersBackend",
+      "vocab_size": 128256
+    },
+    "dtype": "bfloat16",
+    "device": {
+      "kind": "cuda",
+      "name": "NVIDIA H100 80GB HBM3",
+      "count": 1,
+      "total_mem_mib": 81079,
+      "capability": "9.0",
+      "torch": "2.13.0+cu129",
+      "cuda": "12.9"
+    },
+    "context_keys": 4096,
+    "prompt_tokens": 4096,
+    "new_tokens": 512,
+    "total_sequence": 4608,
+    "batch_size": 2,
+    "decoding": {
+      "greedy": true,
+      "do_sample": false,
+      "num_beams": 1,
+      "eos_suppressed": true
+    },
+    "reps": 3,
+    "warmup": 1,
+    "prompt_sha256_16": "07e732519c48de4c",
+    "generated_sha256_16": "d16951db74257b15",
+    "synthetic": false
+  },
+  "measured": {
+    "per_rep": [
+      {
+        "prefill_s": 0.24186125898268074,
+        "decode_s": 9.03265803999966,
+        "wall_s": 9.27451929898234,
+        "pos_s_prefill": 16935.329028008193,
+        "pos_s_decode": 56.57249480021489,
+        "pos_s_end_to_end": 496.8451573016425,
+        "generated_sha256_16": "94f284af09b5bb5a"
+      },
+      {
+        "prefill_s": 0.2415944749955088,
+        "decode_s": 8.963775370037183,
+        "wall_s": 9.205369845032692,
+        "pos_s_prefill": 16954.030095581216,
+        "pos_s_decode": 57.00722953278115,
+        "pos_s_end_to_end": 500.5773888038319,
+        "generated_sha256_16": "1ca1f8a67bb24bcf"
+      },
+      {
+        "prefill_s": 0.24293215404031798,
+        "decode_s": 8.9577385559096,
+        "wall_s": 9.200670709949918,
+        "pos_s_prefill": 16860.67460349531,
+        "pos_s_decode": 57.045647940113525,
+        "pos_s_end_to_end": 500.8330528574131,
+        "generated_sha256_16": "d16951db74257b15"
+      }
+    ],
+    "positions": {
+      "prefill": 4096,
+      "decode": 511,
+      "end_to_end": 4608
+    },
+    "prefill_s": {
+      "median": 0.24186125898268074,
+      "min": 0.2415944749955088,
+      "max": 0.24293215404031798,
+      "spread_pct": 0.5530770204520358
+    },
+    "decode_s": {
+      "median": 8.963775370037183,
+      "min": 8.9577385559096,
+      "max": 9.03265803999966,
+      "spread_pct": 0.8358027839529542
+    },
+    "wall_s": {
+      "median": 9.205369845032692,
+      "min": 9.200670709949918,
+      "max": 9.27451929898234,
+      "spread_pct": 0.8022338078276363
+    },
+    "counting": "Each rate is positions per second over the positions it covers: the prompt over the prefill's wall-clock time, the generated positions over the decode's, and both over the whole pass's. The parts fall one position short of the end-to-end count, because the first generated position is produced inside the prefill call and is charged to neither part. None of the three is an overhead denominator: the paper quotes a cost per proved position and the reader applies their own mix of prompt and generated positions. See the decisions of 2026-09-08 in zk-results on the unproved baseline and on cost per proved position.",
+    "pos_s_prefill_per_stream": {
+      "median": 16935.329028008193,
+      "min": 16860.67460349531,
+      "max": 16954.030095581216,
+      "spread_pct": 0.5512469933800027
+    },
+    "pos_s_prefill_aggregate": {
+      "median": 33870.658056016386,
+      "min": 33721.34920699062,
+      "max": 33908.06019116243,
+      "spread_pct": 0.5512469933800027
+    },
+    "pos_s_decode_per_stream": {
+      "median": 57.00722953278115,
+      "min": 56.57249480021489,
+      "max": 57.045647940113525,
+      "spread_pct": 0.8299879572757614
+    },
+    "pos_s_decode_aggregate": {
+      "median": 114.0144590655623,
+      "min": 113.14498960042978,
+      "max": 114.09129588022705,
+      "spread_pct": 0.8299879572757614
+    },
+    "pos_s_end_to_end_per_stream": {
+      "median": 500.5773888038319,
+      "min": 496.8451573016425,
+      "max": 500.8330528574131,
+      "spread_pct": 0.7966591470102218
+    },
+    "pos_s_end_to_end_aggregate": {
+      "median": 1001.1547776076638,
+      "min": 993.690314603285,
+      "max": 1001.6661057148262,
+      "spread_pct": 0.7966591470102218
+    }
+  },
+  "comparison": {
+    "made": false,
+    "why": "no --constants PATH (a zk-results constants.json) and no ZK_CONSTANTS; the measurement stands on its own"
+  },
+  "provenance": {
+    "kind": "harness",
+    "commit": "2c8fa991c0f5425be48bf7f8b95334cbd4f716ed",
+    "dirty": false,
+    "binary": "python -m harness.eval.baseline.decode_bench",
+    "args": [
+      "--backend",
+      "hf",
+      "--model",
+      "unsloth/Llama-3.1-8B-Instruct",
+      "--dtype",
+      "bfloat16",
+      "--device",
+      "cuda",
+      "--context",
+      "4096",
+      "--context",
+      "16384",
+      "--batch",
+      "1",
+      "--batch",
+      "2",
+      "--batch",
+      "4",
+      "--batch",
+      "8",
+      "--batch",
+      "16",
+      "--new-tokens",
+      "512",
+      "--reps",
+      "3",
+      "--warmup",
+      "1"
+    ],
+    "backend": "harness",
+    "gpu": "NVIDIA H100 80GB HBM3, 81559 MiB",
+    "driver_version": "580.178.04",
+    "cuda_version": "13.0",
+    "device": "cuda",
+    "threads": 20,
+    "versions": {
+      "python": "3.12.3",
+      "torch": "2.13.0+cu129",
+      "transformers": "5.15.0",
+      "numpy": "2.5.2"
+    },
+    "model": "unsloth/Llama-3.1-8B-Instruct",
+    "model_revision": "4699cc75b550f9c6f3173fb80f4703b62d946aa5",
+    "proof_sha256": null,
+    "proof_sha256s": null,
+    "unsound_skips": [],
+    "binding": null,
+    "decode_backend": "hf",
+    "dtype": "bfloat16",
+    "attention": null,
+    "model_revision_requested": "main"
+  }
+}
