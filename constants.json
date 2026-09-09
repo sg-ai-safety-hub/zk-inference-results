@@ -501,6 +501,26 @@
    "grade": "derived",
    "note": "positions.headline.c16384 / secs.headline.c16384.loop. Positions and not tokens: the prompt is proved as well as the output (docs/decisions)."
   },
+  "proof.headline.c16384.total_bytes": {
+   "value": 116961203137,
+   "unit": "bytes",
+   "card": "H100",
+   "context": 16384,
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-08-headline-c16384-h100",
+   "artifact": "proofs-g0-2.json",
+   "note": "The serialized proofs of the sequence's 1,058 segments as the prover wrote them, added up: 108.9 GiB, one segment 49.6 to 163.9 MiB. The run shrank each proof to its roots once the verifier had accepted it, so no one artifact holds every true size; the audit assembles the total from the seven proofs-g<blocks>.json group records and verify-fixup.json, which is why the artifact named here is the first of eight. It is the proof the prover produced and not a proof anything compresses or aggregates."
+  },
+  "proof.headline.c16384.bytes_per_position": {
+   "value": 6922419.69,
+   "unit": "bytes/position",
+   "card": "H100",
+   "context": 16384,
+   "timing_scope": "n/a",
+   "grade": "derived",
+   "note": "proof.headline.c16384.total_bytes / positions.headline.c16384, which is 6.60 MiB. Per position and not per token: the prompt is proved as well as the output (docs/decisions)."
+  },
   "segments.ablation.c4096": {
    "value": 32,
    "unit": "segments",

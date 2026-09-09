@@ -679,7 +679,8 @@ ids: 16,384 prompt positions checked against the run's own published prompt and
 kernel fallback lines: 0 on each of the 20 processes
 constants backed: `cells.headline.c16384.fresh`, `mem.headline.c16384.peak_mib`,
   `pos_s.headline.c16384.loop`, `pos_s.headline.c16384.whole_wall`,
-  `positions.headline.c16384`, `rate.headline.c16384.commit`,
+  `positions.headline.c16384`, `proof.headline.c16384.bytes_per_position`,
+  `proof.headline.c16384.total_bytes`, `rate.headline.c16384.commit`,
   `rate.headline.c16384.loop`, `rate.headline.c16384.stwo_total`,
   `rate.headline.c16384.whole_wall`, `secs.headline.c16384.commit`,
   `secs.headline.c16384.loop`, `secs.headline.c16384.stwo_total`,
@@ -772,6 +773,25 @@ prover wrote it. `proof_bytes` in `grid.json` is therefore the shrunk size and
 not the proof's for the 1,024 that were shrunk, 1,447 to 1,931 bytes; the 34 the
 fix-up re-proved were never shrunk and theirs is the true size, 118.0 to 163.9
 MiB.
+
+How the size of the proof is put together. No one artifact of this run holds the
+true size of all 1,058 proofs, because a proof was shrunk as soon as the
+verifier had accepted it and the run would not otherwise have fitted the host's
+volume, so `proof.headline.c16384.total_bytes` is assembled from two.
+`proofs-g<blocks>.json` carries the size of each of the 1,057 proofs the first
+pass wrote, taken before that proof was rewritten as its commitments alone;
+`verify-fixup.json` carries the true `proof_bytes` of the 34 the fix-up
+re-proved, which were never shrunk. 33 of those 34 supersede a first-pass record
+and the 34th is `B31head`, the plan line the fix-up added, so 1,024 segments
+take the first pass's size, 34 take the fix-up's, and each of the 1,058 takes
+exactly one. The audit reads the group records in plan order against this plan
+without `B31head`, which is the plan the first pass ran: that is what identifies
+the first pass's bare `head` tag as the head over the generated block, and a
+record landing anywhere else stops the audit, as does a segment left with no
+size or with two. The total is 116,961,203,137 bytes, 108.9 GiB, which is 6.60
+MiB per proved position. It is the proof the prover wrote and nothing here
+compresses or aggregates it; the number is not read off `grid.json`, whose
+`proof_bytes` is the shrunk size for the 1,024.
 
 Host time. The extraction took 19,065 s on the card over 70 passes, 9,330 s in
 the survey sweep and 9,735 s in the prove sweep. The kernels for the plan's
