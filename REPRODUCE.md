@@ -297,6 +297,19 @@ after the link check -- 870 files, 19.0 GiB, on the host -- because the model
 commitment campaign checks each of them and cannot make them again for less than
 this run's price.
 
+The driver takes one optional input beside its three arguments, `MODEL_ROOTS`,
+and it is empty here. It is a path to a model commitment this repository
+recorded; given one, the driver puts that file beside the job and the run's own
+grid compares every segment's model root against it, so the run fails on a
+segment whose root is not the commitment's and the third unchecked end above is
+closed inside the run. Nothing is derived for it: the table is
+`model-commitment`'s, derived once at the price that entry records, and a run
+that reuses it records the path and the file's sha256 in its `config.json`. This
+run was made before there was a commitment to give, so its `config.json` names
+none and its grid was told nothing. The shape roots are not compared this way:
+those rows are keyed by the layer and the prefix width, so they hold for the one
+plan they were derived over, where a model root is keyed by the layer alone.
+
 Host time. The extraction took 771 s on the card over the five layer passes; the
 head pass and the kernels for the plan's 48 distinct shapes were made in the same
 job. The five proving processes' own loops took 742, 781, 815, 865 and 479
@@ -859,6 +872,20 @@ grow with the prefix a block reads and the pins the emitters are given have to
 be the pins the proving processes are given. The link check runs on the SIMD
 backend of the same commit, which is why the manifest names both backends.
 
+The driver takes one optional input beside its three arguments, `MODEL_ROOTS`,
+and it is empty here. It is a path to a model commitment this repository
+recorded; given one, the driver puts that file beside the job and the final grid
+compares every segment's model root against it, so the run fails on a segment
+whose root is not the commitment's and the second unchecked end above is closed
+inside the run. The commitment recorded so far was derived over the context
+4,096 plan and it serves this one, because a commitment's rows are keyed by the
+layer and it is the same model at the same quantization variant: all 33 layer
+coordinates of this run, the head's at 32 among them, have a row in it, and
+every one of them names the model hash this run's statements name. The
+comparison reads the statements, which are never shrunk, so the proof shrinking
+this host needs does not touch it. Nothing is derived for it, and this run was
+made before there was a commitment to give.
+
 The head. The first pass of this run extracted the output head under
 `b10-final`, a driver default inherited from `headline-c4096.sh` where it never
 mattered because that plan carried no head segment. The two specs give the
@@ -1234,6 +1261,20 @@ sizes the exponential table off the witness's own shifts and the model-only load
 has no witness to read them from. The exponential table is a shape column and no
 part of the model tree, which the derivation says itself where a layer's blocks
 carry two widths, so dropping it moves no model root.
+
+What the table is reused for. `model-roots.json` in this run directory is the
+published commitment and the file a sequence driver's `MODEL_ROOTS` reads:
+`headline-c4096`, `control-flags-off-c4096` and `headline-c16384` each take an
+optional path to it, and a run given one has its own grid compare every
+segment's model root against the table rather than leaving that end for this
+campaign to close afterwards. Only the model roots travel that way. The
+`--expect-pre-roots` rows are keyed by the layer and the prefix width, and a
+shape root is a function of the chunk's own shape and arguments, so they hold
+for the plan they were derived over, which is the plan this campaign checks; a
+model root is keyed by the layer alone and is a function of the model.
+`model-roots-verifier.json` beside it is the cross-check and not the
+publication: it covers one token block, so it has no row for the layer
+coordinate a head segment sits at, and the drivers refuse it.
 
 What it does not check. The commitment is a function of the weights as this
 harness loads and quantizes them. Nothing here compares those weights against a
