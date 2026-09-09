@@ -86,11 +86,59 @@ def _sequence_totals(run):
     return t
 
 
+def _slice_proof_sizes(a, run):
+    """Per segment, the proof before serialization and the JSON the prover wrote.
+
+    A slice output's chunk row carries both: `proof_bytes` is the proof
+    structure's own size and `proof_ser_bytes` the length of the document that
+    was written and that a verifier is given.  The rows are written as each
+    segment is proved and before anything else touches the file, so they are
+    true sizes even where the run later shrank the proof on the volume.  Two
+    rows for one `ser_tag` would mean one segment counted twice; the plan gives
+    each tag once and so must the slices.
+    """
+    sizes = {}
+    for f in sorted((ROOT / "runs" / run).glob("slice_*.json")):
+        for c in json.loads(f.read_text())["result"]["chunks"]:
+            if c["ser_tag"] in sizes:
+                a.fails.append(f"audit: {run}: two slice rows for segment {c['ser_tag']}")
+            sizes[c["ser_tag"]] = (c["proof_bytes"], c["proof_ser_bytes"])
+    return sizes
+
+
+def _layers(a, run, cfg):
+    """The model's layer count, which the per-layer rows divide by."""
+    if cfg.get("layers") != 32:
+        a.fails.append(f"audit: {run}: the run reports {cfg.get('layers')} layers and the "
+                       f"derived per-layer rows divide by 32")
+
+
+def _grid_verified(a, run, doc, want):
+    """One verifier record per segment of a grid that was given `--verify`."""
+    v = doc["verified"]
+    if not v.get("all") or v.get("accepted") != want or v.get("run") != want:
+        a.fails.append(f"audit: {run}: the grid verified {v.get('accepted')} of {v.get('run')} "
+                       f"segment proofs, and the plan has {want}")
+    secs = {}
+    for c in v["chunks"]:
+        if c["tag"] in secs:
+            a.fails.append(f"audit: {run}: two verifier records for segment {c['tag']}")
+        if not c["accepts"]:
+            a.fails.append(f"audit: {run}: segment {c['tag']} was rejected")
+        secs[c["tag"]] = c["verify_secs"]
+    return secs
+
+
 def headline_c4096(a, keys):
-    """The sequence at context 4,096: the counts, the cells and the seconds.
+    """The sequence at context 4,096: the counts, the cells, the seconds, the
+    size of the proof and what verifying it cost.
 
     Every rate is `derived` and recomputed by check.py from the entries here,
-    so nothing in this section divides anything.
+    so nothing in this section divides anything.  This run kept every proof
+    whole to the end, so `grid.json` holds all 290 true serialized sizes and
+    the same one grid pass replayed the verifier over each of them; the slice
+    outputs carry the proof before serialization beside the same serialized
+    size, and the two are required to agree segment for segment.
     """
     if not keys:
         return
@@ -99,6 +147,7 @@ def headline_c4096(a, keys):
     t = _sequence_totals(run)
     print(f"  runs/{run}: {t['slices']} slices, {t['segments']} segments, "
           f"{t['fresh']:,.0f} fresh cells")
+    _layers(a, run, cfg)
     a.exact("segments.headline.c4096", t["segments"])
     a.exact("positions.headline.c4096", cfg["positions"])
     a.claim("cells.headline.c4096.fresh", t["fresh"])
@@ -107,6 +156,37 @@ def headline_c4096(a, keys):
     a.claim("secs.headline.c4096.whole_wall", t["whole"])
     a.claim("secs.headline.c4096.loop", t["loop"])
     a.exact("mem.headline.c4096.peak_mib", t["peak_mib"])
+
+    grid = artifact(run, "grid.json")["result"]
+    ser = {}
+    for c in grid["chunks"]:
+        if c["tag"] in ser:
+            a.fails.append(f"audit: {run}: two grid rows for segment {c['tag']}")
+        ser[c["tag"]] = c["proof_bytes"]
+    if len(ser) != t["segments"]:
+        a.fails.append(f"audit: {run}: the grid sizes {len(ser)} segments and the slices "
+                       f"prove {t['segments']}")
+    sizes = _slice_proof_sizes(a, run)
+    for tag, (_, s) in sorted(sizes.items()):
+        if ser.get(tag) != s:
+            a.fails.append(f"audit: {run}: segment {tag} is {s} bytes in its slice output "
+                           f"and {ser.get(tag)} in the grid")
+    print(f"  runs/{run}: {len(ser)} serialized proofs, {sum(ser.values()):,} bytes, the "
+          f"grid and the slice outputs agreeing segment for segment")
+    if "proof.headline.c4096.total_bytes" in keys:
+        a.exact("proof.headline.c4096.total_bytes", sum(ser.values()))
+        a.exact("proof.headline.c4096.bytes_per_segment_median",
+                statistics.median(ser.values()))
+    if "proof.headline.c4096.total_in_memory_bytes" in keys:
+        mem = [m for m, _ in sizes.values()]
+        a.exact("proof.headline.c4096.total_in_memory_bytes", sum(mem))
+        a.exact("proof.headline.c4096.in_memory_bytes_per_segment_median",
+                statistics.median(mem))
+    if "verify.headline.c4096.secs_total" in keys:
+        secs = _grid_verified(a, run, grid, t["segments"])
+        a.claim("verify.headline.c4096.secs_total", sum(secs.values()))
+        a.claim("verify.headline.c4096.secs_per_segment_median",
+                statistics.median(secs.values()))
 
 
 # -- headline-c16384: the size of the proof ------------------------------------
@@ -199,7 +279,47 @@ def _proof_bytes(a, run):
     print(f"  runs/{run}: {len(plan)} segments sized once each -- {kept} from the "
           f"first pass and {len(fix)} from the fix-up, which superseded "
           f"{len(fix) - 1} first-pass records")
-    return sum(v[0] for v in sizes.values())
+    return {t: v[0] for t, v in sizes.items()}
+
+
+def _verify_secs(a, run):
+    """One verifier record per segment of the plan, out of the same two passes.
+
+    The proofs were replayed where they were still whole: the first pass's
+    group by group as the run went, the fix-up's over the 34 it re-proved.  The
+    partition is the one `_proof_bytes` takes, so a segment the fix-up re-proved
+    takes the fix-up's seconds and every other takes the first pass's, and a
+    segment left with none, or with two, is a failure.  A rejected proof is one
+    as well: seconds for a proof the verifier did not accept are not a number
+    about this sequence.
+    """
+    broke = len(a.fails)
+    plan = _plan_tags(run)
+    fixup = artifact(run, "verify-fixup.json")["result"]
+    fix = _grid_verified(a, run, fixup, len(fixup["chunks"]))
+    group = {}
+    for f in sorted((ROOT / "runs" / run).glob("verify-g*.json")):
+        g = json.loads(f.read_text())["result"]
+        for tag, secs in _grid_verified(a, run, g, len(g["chunks"])).items():
+            tag = FIRST_PASS_HEAD[1] if tag == FIRST_PASS_HEAD[0] else tag
+            if tag in group:
+                a.fails.append(f"audit: {run}: two group verifier records for {tag}")
+            group[tag] = secs
+    out = {}
+    for t in plan:
+        if t in fix:
+            out[t] = fix[t]
+        elif t in group:
+            out[t] = group[t]
+        else:
+            a.fails.append(f"audit: {run}: segment {t} was never replayed by the verifier")
+    for t in sorted((set(fix) | set(group)) - set(plan)):
+        a.fails.append(f"audit: {run}: {t} was verified and is not in the plan")
+    if len(a.fails) != broke:
+        return None
+    print(f"  runs/{run}: {len(out)} segment proofs replayed once each -- "
+          f"{len(out) - len(fix)} by the first pass and {len(fix)} by the fix-up")
+    return out
 
 
 # -- headline-c16384 -----------------------------------------------------------
@@ -221,6 +341,7 @@ def headline_c16384(a, keys):
     t = _sequence_totals(run)
     print(f"  runs/{run}: {t['slices']} slices, {t['segments']} segments, "
           f"{t['fresh']:,.0f} fresh cells")
+    _layers(a, run, cfg)
     a.exact("segments.headline.c16384", t["segments"])
     a.exact("positions.headline.c16384", cfg["positions"])
     a.claim("cells.headline.c16384.fresh", t["fresh"])
@@ -229,10 +350,42 @@ def headline_c16384(a, keys):
     a.claim("secs.headline.c16384.whole_wall", t["whole"])
     a.claim("secs.headline.c16384.loop", t["loop"])
     a.exact("mem.headline.c16384.peak_mib", t["peak_mib"])
+    sizes = _slice_proof_sizes(a, run)
     if "proof.headline.c16384.total_bytes" in keys:
-        total = _proof_bytes(a, run)
-        if total is not None:
-            a.exact("proof.headline.c16384.total_bytes", total)
+        assembled = _proof_bytes(a, run)
+        if assembled is not None:
+            # The slice outputs were written as each segment was proved, before
+            # any proof was shrunk, so their `proof_ser_bytes` is a second
+            # witness of the same 1,058 sizes -- one written by the prover, one
+            # by the shrink step and the fix-up's grid.  They are required to
+            # agree segment for segment, which is what lets the median be read
+            # off the slices.
+            for tag, b in sorted(assembled.items()):
+                s = sizes.get(tag, (None, None))[1]
+                if s != b:
+                    a.fails.append(f"audit: {run}: segment {tag} is {s} bytes in its slice "
+                                   f"output and {b} in the record the total is assembled from")
+            if set(sizes) != set(assembled):
+                a.fails.append(f"audit: {run}: the slices size {len(sizes)} segments and the "
+                               f"assembled record {len(assembled)}")
+            a.exact("proof.headline.c16384.total_bytes", sum(assembled.values()))
+    if "proof.headline.c16384.bytes_per_segment_median" in keys:
+        a.exact("proof.headline.c16384.bytes_per_segment_median",
+                statistics.median(s for _, s in sizes.values()))
+    if "proof.headline.c16384.total_in_memory_bytes" in keys:
+        mem = [m for m, _ in sizes.values()]
+        a.exact("proof.headline.c16384.total_in_memory_bytes", sum(mem))
+        a.exact("proof.headline.c16384.in_memory_bytes_per_segment_median",
+                statistics.median(mem))
+    if "verify.headline.c16384.secs_total" in keys:
+        secs = _verify_secs(a, run)
+        if secs is not None:
+            a.claim("verify.headline.c16384.secs_total", sum(secs.values()))
+            a.claim("verify.headline.c16384.secs_per_segment_median",
+                    statistics.median(secs.values()))
+    if "verify.headline.c16384.link_check_secs" in keys:
+        a.exact("verify.headline.c16384.link_check_secs",
+                artifact(run, "timing.json")["grid_seconds"])
 
 
 # -- gkr-ablation-c4096 --------------------------------------------------------

@@ -66,11 +66,13 @@ DERIVED = {
        for s in ("whole_wall", "loop")},
     # What one proved position costs in proof bytes: the sequence's whole proof
     # over the positions it proves.  Both sides are `measured` rows of the same
-    # run, so this is not a second measurement.
-    "proof.headline.c16384.bytes_per_position": lambda: chk(
-        "c16384 headline proof bytes per proved position",
-        v("proof.headline.c16384.total_bytes") / v("positions.headline.c16384"),
-        "proof.headline.c16384.bytes_per_position", 0.001),
+    # run, so this is not a second measurement.  The serialized total is the one
+    # divided at both contexts, because that is what a verifier is given.
+    **{f"proof.headline.c{c}.bytes_per_position": (lambda c=c: chk(
+        f"c{c} headline proof bytes per proved position",
+        v(f"proof.headline.c{c}.total_bytes") / v(f"positions.headline.c{c}"),
+        f"proof.headline.c{c}.bytes_per_position", 0.001))
+       for c in (4096, 16384)},
     # The ablation: what one reduction removes, as a fraction of the figure
     # without it.  The key tiles' reduction is measured against no reduction at
     # all; the other four extend it, so each is measured against it.
@@ -94,17 +96,35 @@ DERIVED = {
     # the dollars those seconds are worth at the card's reference rate.  Both
     # sides of every division are entries of this file, so nothing here is a
     # second measurement; the rate is `external` and names its source.
-    **{f"secs_per_position.headline.c4096.{s}": (lambda s=s: chk(
-        f"c4096 headline seconds per proved position, {s.replace('_', ' ')}",
-        v(f"secs.headline.c4096.{s}") / v("positions.headline.c4096"),
-        f"secs_per_position.headline.c4096.{s}", 0.001))
-       for s in ("whole_wall", "loop")},
-    **{f"usd_per_1k_positions.headline.c4096.{s}": (lambda s=s: chk(
-        f"c4096 headline USD per 1,000 proved positions, {s.replace('_', ' ')}",
-        v(f"secs.headline.c4096.{s}") / v("positions.headline.c4096")
+    **{f"secs_per_position.headline.c{c}.{s}": (lambda c=c, s=s: chk(
+        f"c{c} headline seconds per proved position, {s.replace('_', ' ')}",
+        v(f"secs.headline.c{c}.{s}") / v(f"positions.headline.c{c}"),
+        f"secs_per_position.headline.c{c}.{s}", 0.001))
+       for c in (4096, 16384) for s in ("whole_wall", "loop")},
+    **{f"usd_per_1k_positions.headline.c{c}.{s}": (lambda c=c, s=s: chk(
+        f"c{c} headline USD per 1,000 proved positions, {s.replace('_', ' ')}",
+        v(f"secs.headline.c{c}.{s}") / v(f"positions.headline.c{c}")
         * v("cost.h100_reference_usd_per_hour") / 3600 * 1000,
-        f"usd_per_1k_positions.headline.c4096.{s}", 0.001))
-       for s in ("whole_wall", "loop")},
+        f"usd_per_1k_positions.headline.c{c}.{s}", 0.001))
+       for c in (4096, 16384) for s in ("whole_wall", "loop")},
+    # The same seconds over the plan instead of over the positions: what one
+    # segment of the sequence cost on average, and what one of the model's 32
+    # layers cost over the whole sequence.  A segment's own cost grows with the
+    # prefix its token block reads, so neither row is any one segment's time.
+    # The layer row divides by the layer count and not by a constant of this
+    # file: 32 is the model's, the audit reads it off each run's own config and
+    # refuses a run that reports another, and the two output head segments are
+    # in the seconds and are not a layer.
+    **{f"secs_per_segment.headline.c{c}.{s}": (lambda c=c, s=s: chk(
+        f"c{c} headline seconds per segment, {s.replace('_', ' ')}",
+        v(f"secs.headline.c{c}.{s}") / v(f"segments.headline.c{c}"),
+        f"secs_per_segment.headline.c{c}.{s}", 0.001))
+       for c in (4096, 16384) for s in ("whole_wall", "loop")},
+    **{f"secs_per_layer.headline.c{c}.loop": (lambda c=c: chk(
+        f"c{c} headline seconds per layer, loop",
+        v(f"secs.headline.c{c}.loop") / 32,
+        f"secs_per_layer.headline.c{c}.loop", 0.001))
+       for c in (4096, 16384)},
     # The cost model's commitment-rate input: committed cells over the seconds
     # the commitment path took, both measured on the same proof.
     "rate.microbench.commit": lambda: chk(
