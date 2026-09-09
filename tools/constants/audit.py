@@ -10,6 +10,7 @@ constant without an artifact it has read.  Run through `check.py`.
 import hashlib
 import json
 import pathlib
+import re
 import statistics
 import sys
 
@@ -108,6 +109,99 @@ def headline_c4096(a, keys):
     a.exact("mem.headline.c4096.peak_mib", t["peak_mib"])
 
 
+# -- headline-c16384: the size of the proof ------------------------------------
+# No artifact of this run holds every proof's true size on its own, because the
+# proofs were shrunk to the roots the link check reads as the run went.  Two
+# together do.  `proofs-g<blocks>.json` is the shrink step's record: the sha256
+# and the size of each of the 1,057 proofs the first pass wrote, taken before
+# that proof was rewritten as its commitments alone.  `verify-fixup.json` is the
+# grid over the 34 segments the fix-up re-proved, whose proofs were never
+# shrunk, so its chunk rows carry their true `proof_bytes`.  33 of those 34
+# supersede a first-pass record and the 34th, the head over the last prompt
+# block, is a plan line the first pass did not have.
+#
+# The fix-up's line and the tag the first pass wrote its one head chunk under
+# are named here rather than guessed, and the alignment below is what checks
+# them: the group records tile the first pass's plan in plan order, and the
+# first pass's plan is the committed one without the line the fix-up added.
+FIXUP_ADDED = "B31head"          # the head over the last prompt block
+FIRST_PASS_HEAD = ("head", "B32head")   # what the first pass called its head chunk
+
+
+def _plan_tags(run):
+    """Every plan line's `--ser-tag`, in plan order."""
+    return [m.group(1) for m in
+            (re.search(r"--ser-tag (\S+)", line)
+             for line in (ROOT / "runs" / run / "plan.txt").read_text().splitlines())
+            if m]
+
+
+def _proof_bytes(a, run):
+    """One true serialized size per segment of the plan, out of the two artifacts.
+
+    The seven group records are read in plan order against the committed plan
+    with `FIXUP_ADDED` removed, tag for tag, and the only tag allowed to differ
+    is the first pass's bare `head` where that plan says `B32head`.  A record
+    that does not land where the plan puts it stops the audit, so the rename is
+    checked and not assumed.  A segment the fix-up re-proved then takes the
+    fix-up's size and its first-pass record is dropped; every other segment
+    takes the first pass's.  A segment left with no size, or with two, is a
+    failure: the total is the sum over the plan and each line counts once.
+    """
+    broke = len(a.fails)
+    plan = _plan_tags(run)
+    fixup = artifact(run, "verify-fixup.json")["result"]
+    fix = {c["tag"]: c["proof_bytes"] for c in fixup["chunks"]}
+    for name in (FIXUP_ADDED, FIRST_PASS_HEAD[1]):
+        if name not in fix:
+            a.fails.append(f"audit: {run}: the fix-up did not re-prove {name}")
+
+    rows, lo = [], 0
+    for f in sorted((ROOT / "runs" / run).glob("proofs-g*.json"),
+                    key=lambda p: json.loads(p.read_text())["plan_lo"]):
+        g = json.loads(f.read_text())
+        if g["plan_lo"] != lo or g["plan_hi"] - g["plan_lo"] != len(g["proofs"]):
+            a.fails.append(f"audit: {run}: {f.name} covers plan lines "
+                           f"{g['plan_lo']}-{g['plan_hi']} with {len(g['proofs'])} "
+                           f"records, and the group before it ended at {lo}")
+        if sum(r["bytes"] for r in g["proofs"]) != g["bytes_before"]:
+            a.fails.append(f"audit: {run}: {f.name}'s records do not add up to its "
+                           f"own bytes_before")
+        rows += g["proofs"]
+        lo = g["plan_hi"]
+
+    first = [t for t in plan if t != FIXUP_ADDED]
+    if len(rows) != len(first):
+        a.fails.append(f"audit: {run}: {len(rows)} first-pass records against "
+                       f"{len(first)} plan lines without {FIXUP_ADDED}")
+        return None
+    for want, row in zip(first, rows):
+        got = FIRST_PASS_HEAD[1] if row["tag"] == FIRST_PASS_HEAD[0] else row["tag"]
+        if got != want:
+            a.fails.append(f"audit: {run}: the first pass wrote {row['tag']} where "
+                           f"the plan has {want}")
+
+    sizes = {}
+    for t, row in zip(first, rows):
+        if t not in fix:
+            sizes.setdefault(t, []).append(row["bytes"])
+    for c in fixup["chunks"]:
+        sizes.setdefault(c["tag"], []).append(c["proof_bytes"])
+    for t in plan:
+        n = len(sizes.get(t, ()))
+        if n != 1:
+            a.fails.append(f"audit: {run}: segment {t} takes {n} sizes, not one")
+    for t in sorted(set(sizes) - set(plan)):
+        a.fails.append(f"audit: {run}: {t} has a size and is not in the plan")
+    if len(a.fails) != broke:
+        return None
+    kept = len(first) - len(fix) + 1        # the fix-up's own added line is not one
+    print(f"  runs/{run}: {len(plan)} segments sized once each -- {kept} from the "
+          f"first pass and {len(fix)} from the fix-up, which superseded "
+          f"{len(fix) - 1} first-pass records")
+    return sum(v[0] for v in sizes.values())
+
+
 # -- headline-c16384 -----------------------------------------------------------
 def headline_c16384(a, keys):
     """The sequence at context 16,384: the same arithmetic as the c4096 row.
@@ -117,7 +211,8 @@ def headline_c16384(a, keys):
     the grouping sits between the processes and is in none of the four timing
     scopes, so the run's own cost is still the sum over the slices and
     `_sequence_totals` reads this run exactly as it reads that one.  Every rate
-    is `derived` and recomputed by check.py from the entries here.
+    is `derived` and recomputed by check.py from the entries here, and so is the
+    proof size per proved position, over the total `_proof_bytes` assembles.
     """
     if not keys:
         return
@@ -134,6 +229,10 @@ def headline_c16384(a, keys):
     a.claim("secs.headline.c16384.whole_wall", t["whole"])
     a.claim("secs.headline.c16384.loop", t["loop"])
     a.exact("mem.headline.c16384.peak_mib", t["peak_mib"])
+    if "proof.headline.c16384.total_bytes" in keys:
+        total = _proof_bytes(a, run)
+        if total is not None:
+            a.exact("proof.headline.c16384.total_bytes", total)
 
 
 # -- gkr-ablation-c4096 --------------------------------------------------------

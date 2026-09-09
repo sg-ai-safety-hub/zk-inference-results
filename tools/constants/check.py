@@ -64,6 +64,13 @@ DERIVED = {
         v("positions.headline.c16384") / v(f"secs.headline.c16384.{s}"),
         f"pos_s.headline.c16384.{s}", 0.001))
        for s in ("whole_wall", "loop")},
+    # What one proved position costs in proof bytes: the sequence's whole proof
+    # over the positions it proves.  Both sides are `measured` rows of the same
+    # run, so this is not a second measurement.
+    "proof.headline.c16384.bytes_per_position": lambda: chk(
+        "c16384 headline proof bytes per proved position",
+        v("proof.headline.c16384.total_bytes") / v("positions.headline.c16384"),
+        "proof.headline.c16384.bytes_per_position", 0.001),
     # The ablation: what one reduction removes, as a fraction of the figure
     # without it.  The key tiles' reduction is measured against no reduction at
     # all; the other four extend it, so each is measured against it.
