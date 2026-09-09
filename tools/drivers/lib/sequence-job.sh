@@ -262,7 +262,21 @@ N=\$(grep -cv '^#' \$OUT/plan.txt); st "plan: \$N segments"
 # 5. the device kernels for every shape in the plan, compiled into the CUDA backend
 K=\$SRC/prover/kernels
 [ -d \$K ] || { st "no prover/kernels in this prover commit; the CUDA backend would evaluate constraints on the CPU"; exit 3; }
-if [ ! -f \$R/kernels.done ]; then
+# Every head line of the plan, on top of the shapes plan.py listed.  plan.py
+# keys an emit shape by (prefix, master table width, head, flags) and gives a
+# head line no prefix, so two head blocks of one table width are one entry and
+# only the first block's is emitted; the prover's feed kernels for a head chunk
+# do depend on its block, and the second head panics on the one that is missing
+# (zk-prover #131).  A kernel is looked up by fingerprint and the store dedups,
+# so a line that is listed twice costs nothing the second time.
+{ grep -v '^#' \$R/emit.txt
+  grep -v '^#' \$OUT/plan.txt | grep -- '--ser-tag [A-Za-z0-9_]*head' || true
+} | sort -u > \$R/emit-all.txt
+# What the installed kernels were emitted for.  A marker carrying the list's own
+# digest re-runs this step when the plan's shapes move and skips it when they
+# have not, which an empty marker file cannot do.
+EMITSUM=\$(sha256sum \$R/emit-all.txt | cut -c1-16)
+if [ "\$(cat \$R/kernels.done 2>/dev/null)" != "\$EMITSUM" ]; then
   while read -r line; do
     case "\$line" in '#'*|'') continue ;; esac
     args=\$(printf '%s\n' "\$line" | sed 's/--ser-tag [A-Za-z0-9_]*//')
@@ -284,7 +298,7 @@ if [ ! -f \$R/kernels.done ]; then
         st "\$emit refused a shape (zk-prover #57); recorded in out/\$emit-refused.txt"
       fi
     done
-  done < \$R/emit.txt
+  done < \$R/emit-all.txt
   python3 \$K/install_constraint_kernels.py --fork \$SRC/nitroo --gen \$GEN
   python3 \$K/install_witness_gen_kernels.py --fork \$SRC/nitroo --gen \$GEN --src \$K
   find \$SRC/nitroo/crates/stwo/src/stwo_cuda/cuda \( -name '*.cu' -o -name '*.cuh' \) -exec touch {} +
@@ -292,7 +306,7 @@ if [ ! -f \$R/kernels.done ]; then
   # an installed tree is no longer the commit that was pushed, and says so
   grep -q ' dirty\$' \$SRC/.source-commit || sed -i 's/\$/ dirty/' \$SRC/.source-commit
   ( cd \$SRC && CARGO_TARGET_DIR=\$B/t-cuda cargo build --release --locked -p zk-prover --features cuda )
-  touch \$R/kernels.done
+  printf '%s\n' "\$EMITSUM" > \$R/kernels.done
 fi
 st "kernels installed"
 
