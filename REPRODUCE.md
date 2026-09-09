@@ -18,13 +18,18 @@ Written, not yet run:
   written after the measurement is not a prediction.
 
 - `tools/drivers/control-flags-off-c4096.sh`: `headline-c4096`'s plan with the
-  five GKR reductions off, which is what prices them. Written and started; the
-  first segment of the first token block does not prove in that configuration,
-  and the prover stops on it (zk-prover #59). The plan begins with that block,
-  so the control cannot be made on the same segments as the headline row until
-  the prover is fixed. Nothing in the driver gets past it: the flags are what
-  the control is. Meanwhile `gkr-ablation-c4096` prices the same five on a
-  sample of segments that does not include that block.
+  five GKR reductions off, which is what prices them. Written and run twice.
+  The segment that used to refuse now proves, and the plan gets as far as token
+  block 3: the 64 layer segments of blocks 0 and 1 proved with every edge bound
+  and no skip, block 2's 32 proved after them, and the card then ran out of
+  memory in a Merkle commit. It had no room to spare from the start -- the
+  first process peaked at 80,497 MiB of the 81,559 MiB the card reports, where
+  the same plan with the reductions on peaked at 73,723 MiB and proved all 290
+  segments. So the five reductions are worth at least 6.8 GB of peak memory at
+  this context, and the whole-sequence control does not fit on this card
+  without them. The run produced no gate output and none is kept.
+  `gkr-ablation-c4096` prices the same five on 32 segments of block 8, which is
+  the block with the longest prefix and where they weigh most.
 - `tools/drivers/negative-controls.sh`: the control suite on one real segment of
   `headline-c4096`'s plan and on the three synthetic shapes. Written and run;
   the suite stops on its own assertion at its 22nd control, which is accepted
