@@ -26,6 +26,7 @@
   "whole wall": "trace generation, interaction generation, stwo total and serialization, summed per segment; it does not include reading the witness or building the layer",
   "loop": "the one-process segment loop's own wall-clock time, which does include the witness read and the layer build; pipelined loops overlap one segment's generation with another's proving",
   "primitive": "one primitive of the proof system on its own (a hash, a field operation, a lookup, a fold), timed by the vendored library's benchmark harness; not a scope of any proof and not comparable with the four above",
+  "verify": "the verifier's side, on the host's own cores and not on the card: one segment's call over its serialized statement, claims and proof, or the grid pass that checks the links between segments. It is not a scope of the prover and is not comparable with the four above.",
   "unproved prefill": "one `max_new_tokens=1` call on the unproved model with the weights already resident: the whole prompt read and the first generated position emitted. Nothing is proved in it.",
   "unproved decode": "the rest of the same full call, by difference: the remaining generated positions, one step each, with the weights already resident. Nothing is proved in it.",
   "unproved end to end": "the full call on its own: the prompt prefilled and every generated position decoded, as one wall-clock time, with the weights already resident. Nothing is proved in it."
@@ -326,6 +327,108 @@
    "grade": "derived",
    "note": "secs.headline.c4096.loop / positions.headline.c4096, at cost.h100_reference_usd_per_hour. The rate is a published list price and names its source; the card was rented at another price and that price is not a number about this measurement."
   },
+  "secs_per_segment.headline.c4096.whole_wall": {
+   "value": 18.913979,
+   "unit": "s/segment",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "whole wall",
+   "grade": "derived",
+   "note": "secs.headline.c4096.whole_wall / segments.headline.c4096. What one of the sequence's 290 segments cost on average. A segment's own cost grows with the prefix its token block reads, so this is the plan's mean and not any one segment's time."
+  },
+  "secs_per_segment.headline.c4096.loop": {
+   "value": 12.701028,
+   "unit": "s/segment",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "loop",
+   "grade": "derived",
+   "note": "secs.headline.c4096.loop / segments.headline.c4096. The same average at the scope that counts reading the witness and building the segment."
+  },
+  "secs_per_layer.headline.c4096.loop": {
+   "value": 115.103063,
+   "unit": "s/layer",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "loop",
+   "grade": "derived",
+   "note": "secs.headline.c4096.loop / 32, the model's layers. What proving every position of the sequence at one layer cost, so a claim that samples k of the 32 layers prices its sampled part at k times this. The two output head segments sit in the loop seconds and are not a layer, which puts about 0.7 per cent of this row on the head and not on a layer."
+  },
+  "proof.headline.c4096.total_bytes": {
+   "value": 19826058033,
+   "unit": "bytes",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-09-headline-c4096-h100",
+   "artifact": "grid.json",
+   "note": "The serialized proofs of the sequence's 290 segments as the prover wrote them, added up: 18.46 GiB, one segment 48.4 to 120.0 MiB. This run kept every proof whole to the end, so grid.json holds all 290 true sizes and the total is read off one artifact, where the run at context 16,384 has to assemble it from two. It is the proof the prover produced: nothing compresses or aggregates it."
+  },
+  "proof.headline.c4096.total_in_memory_bytes": {
+   "value": 7719602044,
+   "unit": "bytes",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-09-headline-c4096-h100",
+   "artifact": "slice_0000.json",
+   "note": "The same 290 proofs as the prover held them before serialization, added up from the run's 5 slice outputs: 7.19 GiB, 38.9 per cent of the serialized total. A slice output reports both, `proof_bytes` for the proof structure's own size and `proof_ser_bytes` for the JSON the prover wrote; the paper's proof size is the serialized one, because that is what a verifier is given."
+  },
+  "proof.headline.c4096.bytes_per_segment_median": {
+   "value": 68126778,
+   "unit": "bytes",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-09-headline-c4096-h100",
+   "artifact": "grid.json",
+   "note": "The median segment's serialized proof, over the sequence's 290: 64.97 MiB, against 48.4 MiB for the smallest and 120.0 MiB for the largest. A median and not a mean, because a segment's proof grows with the prefix its token block reads; the sequence's own size is the total row, which is the sum."
+  },
+  "proof.headline.c4096.in_memory_bytes_per_segment_median": {
+   "value": 26561984,
+   "unit": "bytes",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-09-headline-c4096-h100",
+   "artifact": "slice_0000.json",
+   "note": "The median segment's proof before serialization, over the sequence's 290: 25.33 MiB. The serialized median beside it is 2.56 times larger, which is the JSON encoding and not more proof."
+  },
+  "proof.headline.c4096.bytes_per_position": {
+   "value": 4302529.96,
+   "unit": "bytes/position",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "n/a",
+   "grade": "derived",
+   "note": "proof.headline.c4096.total_bytes / positions.headline.c4096, which is 4.10 MiB. Per position and not per token: the prompt is proved as well as the output (docs/decisions)."
+  },
+  "verify.headline.c4096.secs_total": {
+   "value": 119.079,
+   "unit": "s",
+   "card": "none",
+   "context": 4096,
+   "timing_scope": "verify",
+   "grade": "measured",
+   "run": "2026-09-09-headline-c4096-h100",
+   "artifact": "grid.json",
+   "note": "The verifier's own seconds over the sequence's 290 segment proofs, added up. It ran on the run host's cores and not on the card. The final grid was given `--verify --prompt`, so every proof was replayed from its serialized statement, claims and proof in that one pass, which also checked the 537 links and every published id; the run recorded no wall-clock time of its own for that pass, so there is no link-check row at this context."
+  },
+  "verify.headline.c4096.secs_per_segment_median": {
+   "value": 0.414606,
+   "unit": "s",
+   "card": "none",
+   "context": 4096,
+   "timing_scope": "verify",
+   "grade": "measured",
+   "run": "2026-09-09-headline-c4096-h100",
+   "artifact": "grid.json",
+   "note": "The median segment's verification, over the sequence's 290: 0.31 to 0.84 s. Reading the three documents adds 0.035 s to the median, which the grid records beside it as `wall_secs` and this row does not count."
+  },
   "commitment.c4096.sha256": {
    "value": "3594bd160cb1104e82c1629af6b4b3ad8260cf95db3e4d6d2fc4fd9b8a528693",
    "unit": "sha256",
@@ -520,6 +623,135 @@
    "timing_scope": "n/a",
    "grade": "derived",
    "note": "proof.headline.c16384.total_bytes / positions.headline.c16384, which is 6.60 MiB. Per position and not per token: the prompt is proved as well as the output (docs/decisions)."
+  },
+  "proof.headline.c16384.total_in_memory_bytes": {
+   "value": 45108156688,
+   "unit": "bytes",
+   "card": "H100",
+   "context": 16384,
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-08-headline-c16384-h100",
+   "artifact": "slice_0000.json",
+   "note": "The same 1,058 proofs as the prover held them before serialization, added up from the run's 20 slice outputs: 42.01 GiB, 38.6 per cent of the serialized total. The slice outputs were written as each segment was proved and before any proof was shrunk, so they carry true sizes; the audit checks that their `proof_ser_bytes` reproduce, segment for segment, the serialized total the group records and the fix-up assemble."
+  },
+  "proof.headline.c16384.bytes_per_segment_median": {
+   "value": 110987444,
+   "unit": "bytes",
+   "card": "H100",
+   "context": 16384,
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-08-headline-c16384-h100",
+   "artifact": "slice_0000.json",
+   "note": "The median segment's serialized proof, over the sequence's 1,058: 105.8 MiB, against 49.6 MiB for the smallest and 163.9 MiB for the largest. Read off the slice outputs, whose `proof_ser_bytes` the audit checks against the assembled total; `grid.json` carries the shrunk size for 1,024 of the segments and is not a source for this."
+  },
+  "proof.headline.c16384.in_memory_bytes_per_segment_median": {
+   "value": 42814742,
+   "unit": "bytes",
+   "card": "H100",
+   "context": 16384,
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-08-headline-c16384-h100",
+   "artifact": "slice_0000.json",
+   "note": "The median segment's proof before serialization, over the sequence's 1,058: 40.83 MiB. The serialized median beside it is 2.59 times larger, which is the JSON encoding and not more proof."
+  },
+  "secs_per_position.headline.c16384.whole_wall": {
+   "value": 1.770991,
+   "unit": "s/position",
+   "card": "H100",
+   "context": 16384,
+   "timing_scope": "whole wall",
+   "grade": "derived",
+   "note": "secs.headline.c16384.whole_wall / positions.headline.c16384. What one proved position cost, which is what the paper quotes instead of an overhead multiple (docs/decisions)."
+  },
+  "secs_per_position.headline.c16384.loop": {
+   "value": 1.277572,
+   "unit": "s/position",
+   "card": "H100",
+   "context": 16384,
+   "timing_scope": "loop",
+   "grade": "derived",
+   "note": "secs.headline.c16384.loop / positions.headline.c16384. What one proved position cost, which is what the paper quotes instead of an overhead multiple (docs/decisions)."
+  },
+  "usd_per_1k_positions.headline.c16384.whole_wall": {
+   "value": 1.618489,
+   "unit": "USD/1000 positions",
+   "card": "H100",
+   "context": 16384,
+   "timing_scope": "whole wall",
+   "grade": "derived",
+   "note": "secs.headline.c16384.whole_wall / positions.headline.c16384, at cost.h100_reference_usd_per_hour. The rate is a published list price and names its source; the card was rented at another price and that price is not a number about this measurement."
+  },
+  "usd_per_1k_positions.headline.c16384.loop": {
+   "value": 1.167559,
+   "unit": "USD/1000 positions",
+   "card": "H100",
+   "context": 16384,
+   "timing_scope": "loop",
+   "grade": "derived",
+   "note": "secs.headline.c16384.loop / positions.headline.c16384, at cost.h100_reference_usd_per_hour. The rate is a published list price and names its source; the card was rented at another price and that price is not a number about this measurement."
+  },
+  "secs_per_segment.headline.c16384.whole_wall": {
+   "value": 28.282285,
+   "unit": "s/segment",
+   "card": "H100",
+   "context": 16384,
+   "timing_scope": "whole wall",
+   "grade": "derived",
+   "note": "secs.headline.c16384.whole_wall / segments.headline.c16384. What one of the sequence's 1,058 segments cost on average. A segment's own cost grows with the prefix its token block reads, so this is the plan's mean and not any one segment's time."
+  },
+  "secs_per_segment.headline.c16384.loop": {
+   "value": 20.402506,
+   "unit": "s/segment",
+   "card": "H100",
+   "context": 16384,
+   "timing_scope": "loop",
+   "grade": "derived",
+   "note": "secs.headline.c16384.loop / segments.headline.c16384. The same average at the scope that counts reading the witness and building the segment."
+  },
+  "secs_per_layer.headline.c16384.loop": {
+   "value": 674.557844,
+   "unit": "s/layer",
+   "card": "H100",
+   "context": 16384,
+   "timing_scope": "loop",
+   "grade": "derived",
+   "note": "secs.headline.c16384.loop / 32, the model's layers. What proving every position of the sequence at one layer cost, so a claim that samples k of the 32 layers prices its sampled part at k times this. The two output head segments sit in the loop seconds and are not a layer, which puts about 0.2 per cent of this row on the head and not on a layer."
+  },
+  "verify.headline.c16384.secs_total": {
+   "value": 832.08,
+   "unit": "s",
+   "card": "none",
+   "context": 16384,
+   "timing_scope": "verify",
+   "grade": "measured",
+   "run": "2026-09-08-headline-c16384-h100",
+   "artifact": "verify-g0-2.json",
+   "note": "The verifier's own seconds over the sequence's 1,058 segment proofs, added up. It ran on the run host's cores and not on the card, group by group as the run went and on whole proofs, before each group's proofs were shrunk, so the seconds come from eight artifacts as the size does: 1,024 segments from the seven verify-g<blocks>.json records and 34 from verify-fixup.json, which is why the artifact named here is the first of eight. REPRODUCE.md's 'Which check ran where' paragraph for this driver says why the final grid could not replay them."
+  },
+  "verify.headline.c16384.secs_per_segment_median": {
+   "value": 0.757162,
+   "unit": "s",
+   "card": "none",
+   "context": 16384,
+   "timing_scope": "verify",
+   "grade": "measured",
+   "run": "2026-09-08-headline-c16384-h100",
+   "artifact": "verify-g0-2.json",
+   "note": "The median segment's verification, over the sequence's 1,058: 0.31 to 2.16 s. It is 1.83 times the median at context 4,096, where the median proof is 1.63 times smaller."
+  },
+  "verify.headline.c16384.link_check_secs": {
+   "value": 12,
+   "unit": "s",
+   "card": "none",
+   "context": 16384,
+   "timing_scope": "verify",
+   "grade": "measured",
+   "run": "2026-09-08-headline-c16384-h100",
+   "artifact": "timing.json",
+   "note": "The final grid over all 1,058 segments: every link between segments the plan implies, checked over the serialized statements and proofs, and every published id checked against the prompt or against the argmax a head proved for the position before it. It replayed no proof, because the proofs had been shrunk (REPRODUCE.md, 'Which check ran where'), so this is the link check on its own; the c4096 grid did both in one pass and recorded no time of its own."
   },
   "segments.ablation.c4096": {
    "value": 32,

@@ -188,7 +188,17 @@ constants backed: `cells.headline.c4096.fresh`, `mem.headline.c4096.peak_mib`,
   `secs_per_position.headline.c4096.loop`,
   `secs_per_position.headline.c4096.whole_wall`,
   `usd_per_1k_positions.headline.c4096.loop`,
-  `usd_per_1k_positions.headline.c4096.whole_wall`
+  `usd_per_1k_positions.headline.c4096.whole_wall`,
+  `proof.headline.c4096.bytes_per_position`,
+  `proof.headline.c4096.bytes_per_segment_median`,
+  `proof.headline.c4096.in_memory_bytes_per_segment_median`,
+  `proof.headline.c4096.total_bytes`,
+  `proof.headline.c4096.total_in_memory_bytes`,
+  `secs_per_layer.headline.c4096.loop`,
+  `secs_per_segment.headline.c4096.loop`,
+  `secs_per_segment.headline.c4096.whole_wall`,
+  `verify.headline.c4096.secs_per_segment_median`,
+  `verify.headline.c4096.secs_total`
 
 What the run checks. A 4,096-token prompt and the 512 tokens the model goes on
 to write are proved as one statement: nine token blocks of 32 layer segments and
@@ -217,6 +227,22 @@ and chains every published id: each prompt position against the ids the
 statement publishes, each generated position against the argmax a head segment
 proved for the position before it. All 290 proofs accepted and all 4,608
 positions chained.
+
+The size of the proof, and what verifying it cost. Every proof of this run was
+kept whole to the end, so `grid.json` carries the true serialized size of all
+290 and the total is read off one artifact, where the run at context 16,384 has
+to assemble it from two. The 290 serialized proofs are 19,826,058,033 bytes,
+18.46 GiB, a median segment 64.97 MiB and the largest 120.0 MiB, which is 4.10
+MiB per proved position. Each slice output carries that size beside the size of
+the proof as the prover held it before serialization -- `proof_ser_bytes` and
+`proof_bytes` -- and the audit requires the two artifacts to agree segment for
+segment; before serialization the sequence's proofs are 7.19 GiB, 38.9 per cent
+of what was written, so the difference is the JSON encoding and not more proof.
+Verification is in the same grid pass: the verifier's own time over the 290
+proofs is 119.079 s, a median segment 0.415 s, on the host's own cores and not
+on the card. That pass also checked the 537 links and every published id, and
+the run recorded no time of its own for it, so there is no link-check row at
+this context; the 170 s under host time below is the whole pass.
 
 What it does not check. Three ends are unchecked and the grid output names them:
 each segment's shape root is compared only against its own statement, each
@@ -680,11 +706,26 @@ kernel fallback lines: 0 on each of the 20 processes
 constants backed: `cells.headline.c16384.fresh`, `mem.headline.c16384.peak_mib`,
   `pos_s.headline.c16384.loop`, `pos_s.headline.c16384.whole_wall`,
   `positions.headline.c16384`, `proof.headline.c16384.bytes_per_position`,
-  `proof.headline.c16384.total_bytes`, `rate.headline.c16384.commit`,
+  `proof.headline.c16384.bytes_per_segment_median`,
+  `proof.headline.c16384.in_memory_bytes_per_segment_median`,
+  `proof.headline.c16384.total_bytes`,
+  `proof.headline.c16384.total_in_memory_bytes`,
+  `rate.headline.c16384.commit`,
   `rate.headline.c16384.loop`, `rate.headline.c16384.stwo_total`,
   `rate.headline.c16384.whole_wall`, `secs.headline.c16384.commit`,
   `secs.headline.c16384.loop`, `secs.headline.c16384.stwo_total`,
-  `secs.headline.c16384.whole_wall`, `segments.headline.c16384`
+  `secs.headline.c16384.whole_wall`,
+  `secs_per_layer.headline.c16384.loop`,
+  `secs_per_position.headline.c16384.loop`,
+  `secs_per_position.headline.c16384.whole_wall`,
+  `secs_per_segment.headline.c16384.loop`,
+  `secs_per_segment.headline.c16384.whole_wall`,
+  `segments.headline.c16384`,
+  `usd_per_1k_positions.headline.c16384.loop`,
+  `usd_per_1k_positions.headline.c16384.whole_wall`,
+  `verify.headline.c16384.link_check_secs`,
+  `verify.headline.c16384.secs_per_segment_median`,
+  `verify.headline.c16384.secs_total`
 
 What the run checks. A 16,384-token prompt and the 512 tokens the model goes on
 to write are proved as one statement: 33 token blocks of 32 layer segments and
@@ -792,6 +833,20 @@ size or with two. The total is 116,961,203,137 bytes, 108.9 GiB, which is 6.60
 MiB per proved position. It is the proof the prover wrote and nothing here
 compresses or aggregates it; the number is not read off `grid.json`, whose
 `proof_bytes` is the shrunk size for the 1,024.
+
+What the proof weighs before serialization, and what verifying it cost. A slice
+output's chunk row carries both sizes: `proof_bytes` is the proof structure's
+own and `proof_ser_bytes` is the document the prover wrote. Those rows were
+written as each segment was proved, before any proof was shrunk, so the 1,058 of
+them reproduce the assembled serialized total segment for segment. The audit
+requires that, and it is what lets a median be read off them: 105.8 MiB for the
+median segment against 49.6 and 163.9 MiB at the ends, and 42.01 GiB for the
+whole sequence before serialization against the 108.9 GiB written, 38.6 per
+cent. The verifier's own time over the 1,058 proofs is 832.080 s, a median
+segment 0.757 s, on the host's own cores and not on the card; it is summed over
+the same two passes the sizes come from, 1,024 segments from the group records
+and 34 from the fix-up. The link check over all 1,058 segments replayed no proof
+and is the 12 s `timing.json` records for the final grid.
 
 Host time. The extraction took 19,065 s on the card over 70 passes, 9,330 s in
 the survey sweep and 9,735 s in the prove sweep. The kernels for the plan's
