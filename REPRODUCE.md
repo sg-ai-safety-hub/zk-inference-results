@@ -6,22 +6,6 @@ digests, the binding table from the manifest, and the constants keys it backs.
 
 Written, not yet run:
 
-- `tools/drivers/prefill-sweep-8b.sh`: the key tiles' cost in the block length
-  at the 8B model's own attention width -- 32 heads of 128, the matmul widths
-  equal to their product -- under the arithmetic the paper reports. Written and
-  run; neither of its two points proved. A 128-token block has to be given
-  `--table-bits 24`, which the layer names in the refusal it raises at 23, and
-  with that width the honest proof is rejected rather than refused: the SwiGLU
-  component of the residual stream disagrees with its own reference on 57 values
-  and 64 of its exponents are out of range, and 126,926 dequantization values
-  fall off the `deq_eo` table. A 64-token block fails the same way at half the
-  size, so the disagreement is per token. The exponential table is not the
-  cause: it is the width the flag asked for and nothing is off it, which is what
-  zk-prover #85 and #98 changed. Filed as zk-prover #136. Until it is fixed the
-  attention grid's coefficients cannot be measured at the width the paper needs
-  them at, and `prefill-sweep` measures the shape of that cost at four heads of
-  32 instead.
-
 - `tools/drivers/predict-14b.sh`: Qwen2.5-14B's 48 layer segments at context
   4,096 on the reference backend, one proof per layer, measured against a
   registered prediction. Written and started once; the extraction ran and the
@@ -749,7 +733,8 @@ two key tiles, with the matmul widths equal to their product, which is what lets
 every edge bind: at a head count and head dimension whose product the matmuls do
 not match, the attention output and the o matmul run over different sequences
 and two edges of the statement have no counterparty. It is not the 8B model's 32
-heads of 128, which cannot be proved synthetically for the same table reason.
+heads of 128, which could not be proved synthetically at this commit for the
+same table reason; `prefill-sweep-8b` measures that width.
 
 What the sweep cannot separate. The cost model's key-tile term has three
 coefficients, one on the product of the block length and the context, one on the
@@ -763,6 +748,131 @@ layer, so the points differ in the block length alone. The reference backend
 proves all of them: this is a cell count and a shape, the two backends prove the
 same statement to the same digest, and the largest point is bounded by host
 memory rather than by the card. The whole sweep is 73 seconds of proving.
+
+## prefill-sweep-8b
+
+    tools/drivers/prefill-sweep-8b.sh <host> <prover-commit> <harness-commit>
+
+runs: 2026-09-09-prefill-sweep-8b-h200
+prover commit: 8cd54f9   harness commit: 8cd54f9
+digests: one per point, in `dd_s64_c64.json` and its two siblings; the first 16
+  hex are `0b01534132a59626`, `46a42397972056b1` and `dcf40e5a2e30a9c2`
+binding (from the manifest, folded over the three proofs): 1 to 14 bound; 15 and
+  16 absent; a synthetic segment has neither an embedding row nor an output head
+unsound skips: none
+constants backed: `cells.b9_prefill_8b.s*.key_tiles`, `.key_tiles_fresh` and
+  `.fresh` at three points, and `attention_grid.base_cell_coeffs`
+
+What the run measures. What the attention key tiles of one layer segment cost in
+committed cells at the 8B model's own attention width, as the block length and
+the prefix it reads move. Three points: a 64-token block and a 128-token block
+whose context is the block itself, and a 256-token block with a prefix of 4,096.
+The segment is synthetic: without a witness the prover draws the queries, keys,
+values, weights and the residual-stream columns from a pseudorandom generator
+with a fixed seed, so nothing in it comes from a model and no extraction runs.
+
+What was rejected before this commit. The first run of this driver proved
+neither of its two points. At the exponential table width the layer asks for,
+the honest proof was rejected, because the synthetic gate matmul's dequantized
+output reached far enough below zero that a SwiGLU product had no bf16 exponent
+to land on: 31 of 262,144 products at a 64-token block, and the 127,028
+off-table values and 78,288 reference mismatches the record reported were those
+31 magnified by a second defect in `bf16::from_f64` (zk-prover #143, still
+open). zk-prover #144 sizes the gate weight scale off the data the layer draws
+and shifts it down by the fewest binades that leave every product inside the
+range, and no recorded digest moves with it. At that commit all three points
+here prove, each accepted, with every edge bound, no skip in effect and no cell
+disagreeing with the reference arithmetic.
+
+What the shape is. 32 attention heads of 128 channels in three key tile groups
+of 16, 8 and 8, with every matmul 4,096 by 4,096, which is the heads times the
+head dimension and is what lets every edge bind. The softmax variant is
+`intexp`, the arithmetic the paper reports, and the five GKR reductions are on.
+`prefill-sweep` measures the same kind of cost at four heads of 32 and under
+`intsplit6`, because at that commit the paper's own variant could not be proved
+at any block length.
+
+| block | prefix | table | key tiles, committed | with interaction | whole segment | proved in |
+|---|---|---|---|---|---|---|
+| 64 | 64 | 2^24 | 2,105,344 | 2,360,320 | 229,399,968 | 32 s |
+| 128 | 128 | 2^24 | 5,259,264 | 5,834,752 | 331,973,792 | 38 s |
+| 256 | 4,096 | 2^24 | 124,813,312 | 140,578,816 | 717,607,824 | 75 s |
+
+Why one point whose prefix is longer than its block. The cost model's key tile
+term has three coefficients, one on the product of the block length and the
+context, one on the context and one on the block length. With the context set
+equal to the block length the second and third multiply the same quantity, so
+two coefficients come out and three do not, and that is the limit both this
+driver's first two points and the four-point sweep at the smaller width record.
+One point at a context that is not the block length separates them. This is that
+point, and 256 over 4,096 is the one the campaign named.
+
+What the three points give. The sound defaults tile the prefix in blocks of the
+block length -- 16 key tiles per head group at 256 over 4,096 -- and add one
+square diagonal block, so a segment's key tiles are C/S + 1 tiles of S by S. The
+three points fix
+
+    key tiles, committed = 64 (S*C + S^2) + 12,288 C + 12,416 S
+
+and every coefficient of it is an identity of the layout at 32 heads of 128: 64
+is two per head, 12,288 is three per head and channel, 12,416 is that plus four
+per head. Under the composition the cost model itself uses -- a prefix key tile
+at (S, C) plus the same tile at (S, S) with the per-token component dropped --
+that is the prefix key tile's own triple, `attention_grid.base_cell_coeffs`:
+
+    64 S*C + 12,288 C + 128 S
+
+What the residual is not. Three points and three coefficients is an exact solve.
+The residual is zero by construction and says nothing about the form; a fourth
+point is what would make it a fit. What the form assumes is that the prefix's
+C/S sub-key-tiles and the diagonal block are the same S by S tile, and the run
+records the per-key-tile interaction split so that assumption can be read
+rather than taken.
+
+Where this disagrees with the cost model, and by how much. `key_tile_cells` in
+`harness/costmodel/cost_model.py` reproduces the two points whose context is
+their block length exactly, to the cell. At 256 over 4,096 it gives 109,084,672
+against the measured 124,813,312, which is 12.6 per cent below it, and the shortfall
+is 15,728,640 cells exactly. That is the queries: the model commits them once
+per segment, `nh * hd * S`, and the prover commits them once per key tile, which
+at this point is sixteen times, `nh * hd * C`. The difference is
+`nh * hd * (C - S)`, which is 4,096 times 3,840. So the model's C and S
+coefficients are 8,192 and 4,224 where the measurement gives 12,288 and 128,
+their sum agrees, and the two forms can only be told apart at a context that is
+not the block length. Every frontier projection the cost model makes is at a
+context far above the block length.
+
+Why the interaction side is not recorded. `attention_grid.fresh_cell_coeffs`
+stays unbacked. With the five GKR reductions on, most of the key tiles'
+interaction is in the reduction rather than in their own columns, so the
+quantity is not the model's `fresh` to begin with; and what is left does not
+take the three-coefficient form. Solving it over these three points returns a
+context coefficient of 13,568/5 and a per-token component of -1,955.2, and a
+negative per-token component is not a cost. The run's own per-key-tile split
+says why: at 256 over 4,096 the 48 prefix sub-key-tiles do not all cost the same
+-- 30 of them 229,376 cells over 40 columns, 15 of them 458,752 over 40, and
+three carry 8 more columns each -- and none of them costs what a diagonal block
+of the same shape costs. Measuring that coefficient needs the reductions off,
+which is a different configuration from the one the paper reports.
+
+The card. The proofs are made on the host's cores under the reference backend
+and the card is idle throughout. The machine reports an H200, which is what the
+run id and every constant name, and no timing figure from this run is recorded:
+the card the paper times is the H100 by decision, and what this run records is
+cell counts, which do not depend on the card.
+
+How the run is made. Every pin is named in the driver. The exponential table
+width is not derived from the layer: auto-sizing clamps it at 2^22 and the data
+needs more, so the two points whose context is their block length carry the
+width the layer named in the refusal it raised the first time, and the point
+with the longer prefix carries the widths to try in order, of which the first,
+2^24, proved. The attention output's remainder is pinned at 22 bits at those two
+points and is the witness's own, 21, at the third, which the flag may only
+widen; that is why the three whole-segment counts are not one series while the
+key tile counts are. The reference backend proves all three: this is a cell
+count and a shape, and the two backends prove the same statement to the same
+digest. The whole sweep is 145 seconds of proving after a 4-minute build, and
+the largest point peaks at 44.1 GiB of host memory.
 
 ## headline-c16384
 
