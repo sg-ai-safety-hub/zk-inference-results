@@ -55,6 +55,17 @@
 # the last prompt block as well as the generated one; the position before the
 # first generated one sits in the block before it (docs/decisions).
 #
+# The final grid is timed and its wall-clock seconds go into the run's
+# timing.json as grid_seconds, the name headline-c16384.sh's job and
+# model-commitment.sh already write that number under.  With VERIFY 1 the same
+# pass replays every segment's proof as well as checking the links, so
+# grid_seconds is the two together; grid.json carries each segment's own
+# verify_secs under result.verified.chunks, and the link check on its own is
+# grid_seconds less their sum.  The job records the seconds and makes no such
+# subtraction: nothing is derived here.  The prover's four timing scopes are its
+# own and live in the slice outputs, and the extraction is in extract.json, so no
+# phase of the job is counted into another.
+#
 # `LABEL` is what the run is: `headline` for a configuration the paper cites,
 # `control` for one it does not, and it goes into the run's own config.json so
 # a reader of the run directory cannot mistake one for the other.
@@ -381,10 +392,33 @@ PROMPTPY
 #    the token a head segment proved for the position before it.  With
 #    MODEL_ROOTS it also compares every segment's model root against the
 #    commitment the driver put beside this job.
+GRIDT0=\$(date +%s)
 \$SIMD boundary-grid --dir \$SER --plan \$OUT/plan.txt \
     --expect-layer-links $LAYER_LINKS --expect-token-links $TOKEN_LINKS $VERIFY_ARGS$ROOTS_ARGS \
     > \$OUT/grid.json 2> \$R/grid.err
-st "links checked"
+GRID_SECS=\$((\$(date +%s) - GRIDT0))
+st "links checked in \${GRID_SECS}s"
+
+# 8b. what that pass cost.  The four proving scopes are the prover's own and are
+#     in the slice outputs, and the extraction is in extract.json; this file is
+#     the grid alone, so a verifier-side second can never be read into the loop.
+#     With the verifier on, the pass is the link check and the replay together
+#     and the header of this file says what the difference is read from.
+python3 - \$OUT \$GRID_SECS ${VERIFY:-0} <<'TIMEPY'
+import json, os, sys
+out, grid, verify = sys.argv[1], int(sys.argv[2]), int(sys.argv[3])
+json.dump({"grid_seconds": grid, "grid_verify": bool(verify),
+           "note": "Wall-clock seconds of the final grid pass, which checks every link "
+                   "between the segments over their serialized statements and proofs. "
+                   "With grid_verify true the same pass also replayed every segment's "
+                   "proof and chained the published ids, so these seconds are the link "
+                   "check and the verification together; grid.json carries each segment's "
+                   "own verify_secs under result.verified.chunks. The prover's own loop, "
+                   "commit, stwo total and whole wall scopes are in the slice outputs and "
+                   "the extraction is in extract.json."},
+          open(os.path.join(out, "timing.json"), "w"), indent=1)
+print("grid:", grid, "s, verifier", "on" if verify else "off")
+TIMEPY
 
 # 9. the gate: no skip in effect, every edge bound, every link run and passed,
 #    no lookup evaluated on the host instead of by its generated kernel, and --
