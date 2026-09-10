@@ -10,15 +10,18 @@
 # 32, forty attention heads instead of thirty-two, a wider inner dimension --
 # and the arithmetic is the fixed configuration.
 #
-# **This driver makes the measurement and not the comparison.** The comparison
-# needs a registered prediction. The registration script imports again now that
-# zk-prover #67 is fixed, but it also reads the cost model's micro-benchmark
-# inputs, and those are not artifacts of this repository, so the run still
-# cannot produce one. A prediction registered after the measurement would not be
-# a prediction, so the honest order is to measure now, freeze what was measured,
-# and compare when the registration exists. Every field that comparison reads is
-# in the per-layer outputs this run fetches, so it costs no host time to do it
-# later.
+# **This driver makes the measurement and not the comparison, and it runs
+# second.** The registration can be produced now: zk-prover #153 gave the cost
+# model a constants-first reader and #157 made every input the prediction reads
+# come off this repository's `constants.json` and its own recorded runs, so
+# `tools/drivers/register-14b.sh` writes it here, with no card and without the
+# private archive. A prediction registered after the measurement would not be a
+# prediction, so the order is register, then measure, then compare: record the
+# registration run before this driver books a card, measure here, and compare
+# with the harness's `harness/eval/predict/compare.py`, which reads the
+# registration out of the run that recorded it. Every field that comparison
+# reads is in the per-layer outputs this run fetches, so it costs no host time
+# to do it later.
 #
 # **The measured 8B reference the registration reads is derived here, from runs
 # this repository already holds.** `harness.eval.predict.predict` states its

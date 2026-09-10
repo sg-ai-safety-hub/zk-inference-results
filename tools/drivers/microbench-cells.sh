@@ -8,7 +8,9 @@
 # one composed segment's commitment and FRI parts -- and this measures the cell
 # counts: what one dequantized accumulator, one requantized value, one
 # residual-stream operation, one argmax comparison, one packed attention
-# instance, one lookup at each accumulator width and one at each `kmax` cost.
+# instance, one lookup at each accumulator width and one at each `kmax` cost,
+# what one weight of the Freivalds check costs at a given row width, and what
+# one lookup costs at each of the two LogUp batch sizes the prover uses.
 # A cell count is the same on both backends, so they are read on the reference
 # backend, on the host's cores, with no card involved.
 #
@@ -16,8 +18,9 @@
 # the two answer different questions and the rates were measured at another
 # prover commit: a run that re-derived them here would either re-point the
 # constants that already name that run or leave two runs claiming one number.
-# The seven subcommands could not run at that commit at all (zk-prover #88), so
-# there was nothing to record then.
+# The cell-cost subcommands could not run at that commit at all (zk-prover #88),
+# so there was nothing to record then, and the two newest of them did not exist
+# there at all (zk-prover #139, #140).
 #
 # The composed segment is here for one reason: `compose` is the only subcommand
 # that makes a proof and therefore the only one that writes a binding table,
@@ -28,6 +31,36 @@
 # from the data with a cap, so the instance counts above 4 could not be asked
 # for; zk-prover #98 bounds it by the flag instead, and the counts at 1, 2 and 4
 # do not move under it.
+#
+# `freivalds` is asked twice, because what it measures is a law and not a
+# number: the check's three accumulator columns cost 12 cells a trace row and a
+# row carries `p` weights, so it is `12/p` fresh cells per weight and `p` is a
+# knob.  `b3-freivalds.json` is the prover's own default row width (`params_of`'s
+# `--p 136`; `--nout 544` is the output width that tiles it exactly), and that
+# point is what backs `model_constants.weight_freivalds_cells_per_weight`.
+# `b3-freivalds-widths.json` is the same check at four widths, which is what says
+# the closed form holds instead of assuming it.  Two things the record has to
+# say beside the number: the private archive's 0.0902 is `12/133`, the same law
+# at a shape whose grid padded 32,256 rows up to 2^15, and this subcommand
+# refuses a ragged tiling and so reports the unpadded form; and a group of `n`
+# matmuls shares one accumulator, so it costs `(4 + 8n)/(n p)` per weight and not
+# `12/p` (zk-prover #139).
+#
+# The Freivalds outputs are not called `b3-width`.  The cost model reads its
+# Freivalds sweep from `<inputs>/b3/width.json`, and this driver has written
+# `b3-width.json` since its first run for the `width` subcommand, which sweeps
+# the dequantization at six accumulators per row and is a different measurement
+# backing two constants of its own.  An inputs directory assembled out of this
+# run's outputs takes `b3/width.json` from `b3-freivalds-widths.json` and takes
+# nothing at all from `b3-width.json`.
+#
+# `logup` measures what one lookup costs on its own, which every other
+# subcommand here reports only from inside a gadget that has its own lookups.
+# One output carries both batch sizes this prover uses: 1, which every table
+# side finalizes with, and 2, which every use side does.  The constant it backs,
+# `model_constants.logup_marginal_cells_per_lookup`, is therefore one figure per
+# batch size, and the cost model's reader refuses a scalar under that key, so
+# the record is an object keyed by the batch size written as a string.
 #
 # The first call pushes zk-prover at the two commits to the host, starts the
 # job detached and prints the poll command.  Every later call with the same
@@ -58,7 +91,10 @@ b65-requant|requant --round even
 b65-residual-stream|residual-stream --rows 4096 --leaves 32 --per-row 16 --kmax 18 --round even
 b10-argmax|argmax --tokens 8 --vocab 8192 --per-row 64
 b3-width|width --n 1048576 --widths 4,8,16,32,64,128
-b4-kmax|kmax --n 262144 --per-row 16 --kmax-sweep 10,12,14,16,18,21'
+b4-kmax|kmax --n 262144 --per-row 16 --kmax-sweep 10,12,14,16,18,21
+b3-freivalds|freivalds --s 32 --nin 64 --nout 544 --widths 136
+b3-freivalds-widths|freivalds --s 32 --nin 64 --nout 64 --widths 8,16,32,64
+logup|logup --table-bits 12 --log-rows 10 --lookups-per-row 4'
 XTHREADS=20
 
 drv_finish "$(drv_status)"
@@ -90,7 +126,15 @@ cat > \$OUT/config.json <<CFG
  "witness": "synthetic, the prover's own fixed-seed generator; no model and no extraction"}
 CFG
 
-st "gpu: \$(nvidia-smi --query-gpu=name,memory.total,driver_version --format=csv,noheader)"
+# The card is logged where there is one and the run goes on where there is not:
+# every number here is a cell count, nothing is timed against a card, and the
+# host this lands on need not have one.  What the manifest records as the run's
+# GPU is whatever the prover reported in its own provenance block.
+if command -v nvidia-smi > /dev/null 2>&1; then
+  st "gpu: \$(nvidia-smi --query-gpu=name,memory.total,driver_version --format=csv,noheader)"
+else
+  st "gpu: none reported; this run counts cells and times nothing against a card"
+fi
 st "cores: \$(nproc), threads \$RAYON_NUM_THREADS"
 
 # 1. the reference backend of the pinned prover commit.  The vendored library
