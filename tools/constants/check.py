@@ -252,8 +252,18 @@ def structure():
             fails.append(f"{k}: asserted without a reason")
         elif e["grade"] == "derived" and k not in DERIVED:
             fails.append(f"{k}: derived but check.py does not recompute it")
-        elif e["grade"] == "projected" and not e.get("inputs"):
-            fails.append(f"{k}: projected without `inputs` naming the model's constants")
+        elif e["grade"] == "projected":
+            # A projection is only readable if the entries behind it can be found:
+            # `inputs` names them, and a name that is not a key of this file names
+            # nothing.  The arithmetic itself is the model's and is in the run's
+            # artifact; what is checked here is that its inputs are entries.
+            if not e.get("inputs"):
+                fails.append(f"{k}: projected without `inputs` naming the model's constants")
+            else:
+                absent = [i for i in e["inputs"] if i not in c]
+                if absent:
+                    fails.append(f"{k}: projected, and its `inputs` name {absent}, "
+                                 f"which this file does not hold")
         if "source" in e:
             fails.append(f"{k}: free-text `source` field; use run/artifact or the note")
 
