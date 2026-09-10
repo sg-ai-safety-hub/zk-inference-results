@@ -1203,14 +1203,56 @@ def _extraction(key_of):
 # the boundary trees, which carry the residual stream and the keys and values a
 # segment hands on.  The chunk output names four of the six and not the boundary
 # trees, so `boundary` is read as the cells `fresh` has above base and
-# interaction.  The interaction tree comes with its own split by component and
-# no other tree does.  The relations
+# interaction.  The interaction tree comes with its own split by component; the
+# base tree has no split and is added up here component by component out of the
+# counters beside the chunk's `cells` object.  The relations
 # below are the whole point of the reader: it refuses unless the two
 # preprocessed trees add up to the preprocessed cells beside them, the eleven
-# components add up to the interaction tree, the chunks add up to the run's
-# `fresh` row, and the recorded rows themselves close the same two sums.  A
-# count that does not close is not recorded.
+# components add up to the interaction tree, the base components add up to the
+# base tree with the unattributed cells beside them, the chunks add up to the
+# run's `fresh` row, and the recorded rows themselves close the same three
+# sums.  A count that does not close is not recorded.
 _TREES = ("base", "interaction", "boundary", "model", "shape")
+
+# The base tree's components, in the three shapes the counters are written in:
+# a bare integer for five of them, a dict for `embed`, which a layer-0 segment
+# states and no other, and rows carrying a `cells.base` for `quant` and
+# `requant`.  `table` is the ninth and the only one no counter gives as cells:
+# every LogUp table commits one multiplicity column in the base tree, the
+# chunk's `tables` list gives each table its rows and its key columns and no
+# cell count, and `requant_tables` reports the seams' own tables separately, so
+# the reader charges one column of its rows for each table and the closure
+# below is what fixes the column at one.  Never added on top of these: `mats`,
+# which is `dequant` split per matmul, `residual_stream_components`, which is
+# `residual_stream` split the same way, `freivalds_weights`, whose cells are
+# preprocessed, and `interaction_split`, which is the interaction tree.
+_BASE_COMPONENTS = ("attnout", "dequant", "embed", "freivalds", "key_tiles",
+                    "quant", "requant", "residual_stream", "table")
+
+
+def _base_components(a, run, tag, fc):
+    """One segment's base tree, per component.  None if a counter is missing."""
+    try:
+        p = {k: fc[k] for k in ("attnout", "dequant", "freivalds", "key_tiles",
+                                "residual_stream")}
+        p["embed"] = fc["embed"]["cells"]["base"] if fc["embed"] else 0
+        p["quant"] = sum(r["cells"]["base"] for r in fc["quant"])
+        p["requant"] = (sum(r["cells"]["base"] for r in fc["requant"])
+                        + fc["requant_tables"]["multiplicity"])
+        p["table"] = sum(2 ** t["log_rows"] for t in fc["tables"])
+    except (KeyError, TypeError) as e:
+        a.fails.append(f"audit: {run}: segment {tag} has no base counter for {e}")
+        return None
+    # the two breakdowns, so that a reader that later adds one of them on top is
+    # caught here rather than doubling a component
+    for name, whole in (("mats", "dequant"),
+                        ("residual_stream_components", "residual_stream")):
+        got = sum(r["cells"] for r in fc[name])
+        if got != fc[whole]:
+            a.fails.append(f"audit: {run}: segment {tag}: {name} adds up to {got} and "
+                           f"{whole} is {fc[whole]}; one of the two is a component and "
+                           f"the other is its breakdown")
+    return p
 
 
 def _cells_per_position(ctx):
@@ -1222,17 +1264,38 @@ def _cells_per_position(ctx):
         run = sorted({e["run"] for e in mine.values()})[0]
         cells = {k: 0 for k in _TREES}
         cells["fresh"] = cells["preprocessed"] = 0
-        comp, n = {}, 0
+        comp, base, unattributed, n = {}, {k: 0 for k in _BASE_COMPONENTS}, 0, 0
         for f in sorted((ROOT / "runs" / run).glob("slice_*.json")):
             for ch in json.loads(f.read_text())["result"]["chunks"]:
                 n += 1
-                c = ch["cells"]
+                c, tag, fc = ch["cells"], ch["ser_tag"], ch["family_cells"]
                 for k in ("base", "interaction", "model", "shape", "fresh",
                           "preprocessed"):
                     cells[k] += c[k]
                 cells["boundary"] += c["fresh"] - c["base"] - c["interaction"]
-                for k, v in ch["family_cells"]["interaction_by_family"].items():
+                if c["fresh"] < c["base"] + c["interaction"]:
+                    a.fails.append(f"audit: c{ctx}: segment {tag}: base and interaction add "
+                                   f"up to {c['base'] + c['interaction']} and the segment's "
+                                   f"fresh cells are {c['fresh']}")
+                for k, v in fc["interaction_by_family"].items():
                     comp[k] = comp.get(k, 0) + v["cells"]
+                # the base tree, component by component, and what is left of it
+                p = _base_components(a, run, tag, fc)
+                if p is None:
+                    continue
+                for k, v in p.items():
+                    base[k] += v
+                left = c["base"] - sum(p.values())
+                unattributed += left
+                if left < 0:
+                    a.fails.append(f"audit: c{ctx}: segment {tag}: the base components add "
+                                   f"up to {sum(p.values())} and the segment's base tree is "
+                                   f"{c['base']}; a component is counted twice")
+                elif left and not any(r["component"] == "argmax"
+                                      for r in fc["interaction_split"]):
+                    a.fails.append(f"audit: c{ctx}: segment {tag}: {left} base cells belong "
+                                   f"to no component and the segment states no argmax "
+                                   f"gadget, which is the only one the counters leave out")
         if cells["shape"] + cells["model"] != cells["preprocessed"]:
             a.fails.append(f"audit: c{ctx}: shape and model add up to "
                            f"{cells['shape'] + cells['model']} and the chunks report "
@@ -1246,14 +1309,21 @@ def _cells_per_position(ctx):
                            f"and cells.headline.c{ctx}.fresh is {stored['value']}")
         pos = artifact(run, "config.json")["positions"]
         print(f"  runs/{run}: {n} segments over {pos:,} positions; "
-              f"{cells['fresh']:,} fresh cells in three trees and "
-              f"{cells['interaction']:,} interaction cells in {len(comp)} components")
+              f"{cells['fresh']:,} fresh cells in three trees, "
+              f"{cells['interaction']:,} interaction cells in {len(comp)} components, and "
+              f"{cells['base']:,} base cells in {len(_BASE_COMPONENTS)} components with "
+              f"{unattributed:,} unattributed")
         for k in _TREES:
             if pre + k in mine:
                 a.claim(pre + k, cells[k] / pos)
         for k in sorted(comp):
             if pre + "interaction_" + k in mine:
                 a.claim(pre + "interaction_" + k, comp[k] / pos)
+        for k in _BASE_COMPONENTS:
+            if pre + "base_" + k in mine:
+                a.claim(pre + "base_" + k, base[k] / pos)
+        if pre + "unattributed" in mine:
+            a.claim(pre + "unattributed", unattributed / pos)
         # the same two sums over the recorded values, so that a row edited by
         # hand cannot stand while the artifact still closes.  `boundary` is the
         # cells `fresh` has above base and interaction, so this is the one place
@@ -1273,6 +1343,26 @@ def _cells_per_position(ctx):
                 a.fails.append(f"audit: c{ctx}: the recorded components add up to {got} "
                                f"cells per position and the recorded interaction tree is "
                                f"{want}")
+        # and the base tree's own split: the nine components with the
+        # unattributed cells beside them close to the recorded base tree, and
+        # the three trees then close to the run's `fresh` row, so the split is
+        # checked against what a proved position costs and not only against the
+        # tree it came out of.
+        rows = [pre + "base_" + k for k in _BASE_COMPONENTS] + [pre + "unattributed"]
+        if pre + "base" in mine and all(k in mine for k in rows):
+            got, want = sum(rec[k]["value"] for k in rows), rec[pre + "base"]["value"]
+            if abs(got / want - 1) > 1e-6:
+                a.fails.append(f"audit: c{ctx}: the recorded base components and the "
+                               f"unattributed cells add up to {got} cells per position and "
+                               f"the recorded base tree is {want}")
+            if stored and all(pre + k in mine for k in ("interaction", "boundary")):
+                got += sum(rec[pre + k]["value"] for k in ("interaction", "boundary"))
+                want = stored["value"] / pos
+                if abs(got / want - 1) > 1e-6:
+                    a.fails.append(f"audit: c{ctx}: the recorded base components, the "
+                                   f"unattributed cells, the interaction tree and the "
+                                   f"boundary trees add up to {got} cells per position and "
+                                   f"cells.headline.c{ctx}.fresh is {want} per position")
     return section
 
 

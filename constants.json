@@ -3385,6 +3385,116 @@
    "artifact": "slice_0000.json",
    "note": "The shape tree, the other preprocessed tree: the lookup tables and the constants the segment's shape fixes. It is preprocessed and is therefore not part of fresh. Added up over the run's slice outputs and divided by positions.headline.c4096; base, interaction and boundary add up to cells.headline.c4096.fresh and shape and model to the preprocessed cells beside it."
   },
+  "cells_per_position.headline.c4096.base_attnout": {
+   "value": 1205703.111,
+   "unit": "cells/position",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-09-headline-c4096-h100",
+   "artifact": "slice_0000.json",
+   "note": "The base trace's share belonging to the attention output's dequantization, folded straight to int8 because the requantize seam after it quantizes it again. Added up over the run's slice outputs and divided by positions.headline.c4096. The nine components and cells_per_position.headline.c4096.unattributed add up to cells_per_position.headline.c4096.base, and the interaction tree is split beside it."
+  },
+  "cells_per_position.headline.c4096.base_dequant": {
+   "value": 21062753.778,
+   "unit": "cells/position",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-09-headline-c4096-h100",
+   "artifact": "slice_0000.json",
+   "note": "The base trace's share belonging to the dequantization after each matmul, the bf16 chain and the power-of-two scales together. The chunk's `mats` list is this same count split per matmul and is not a component beside it. Added up over the run's slice outputs and divided by positions.headline.c4096. The nine components and cells_per_position.headline.c4096.unattributed add up to cells_per_position.headline.c4096.base, and the interaction tree is split beside it."
+  },
+  "cells_per_position.headline.c4096.base_embed": {
+   "value": 12304.0,
+   "unit": "cells/position",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-09-headline-c4096-h100",
+   "artifact": "slice_0000.json",
+   "note": "The base trace's share belonging to the embedding lookup that binds a block's first residual stream to the ids the statement publishes. Only a layer-0 segment states it, one per token block, and the chunk reports no embedding object on the others; it is 12,304 cells a position at both contexts because a block embeds its own 512 positions and no prefix. Added up over the run's slice outputs and divided by positions.headline.c4096. The nine components and cells_per_position.headline.c4096.unattributed add up to cells_per_position.headline.c4096.base, and the interaction tree is split beside it."
+  },
+  "cells_per_position.headline.c4096.base_freivalds": {
+   "value": 1057678.222,
+   "unit": "cells/position",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-09-headline-c4096-h100",
+   "artifact": "slice_0000.json",
+   "note": "The base trace's share belonging to the weight matmuls, checked by Freivalds' method: the check's own accumulator columns, not the weights, which are preprocessed and are cells_per_position.headline.c4096.model. Added up over the run's slice outputs and divided by positions.headline.c4096. The nine components and cells_per_position.headline.c4096.unattributed add up to cells_per_position.headline.c4096.base, and the interaction tree is split beside it."
+  },
+  "cells_per_position.headline.c4096.base_key_tiles": {
+   "value": 7296369.778,
+   "unit": "cells/position",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-09-headline-c4096-h100",
+   "artifact": "slice_0000.json",
+   "note": "The base trace's share belonging to the attention scores over the key tiles, the diagonal block among them. It is the one component that grows with the prefix a block reads, which is why the two contexts are not the same shape. Added up over the run's slice outputs and divided by positions.headline.c4096. The nine components and cells_per_position.headline.c4096.unattributed add up to cells_per_position.headline.c4096.base, and the interaction tree is split beside it."
+  },
+  "cells_per_position.headline.c4096.base_quant": {
+   "value": 1146880.0,
+   "unit": "cells/position",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-09-headline-c4096-h100",
+   "artifact": "slice_0000.json",
+   "note": "The base trace's share belonging to the quantization of q and k. It is 1,146,880 cells a position at both contexts: a layer quantizes its own 512 positions and the two output head segments state none. Added up over the run's slice outputs and divided by positions.headline.c4096. The nine components and cells_per_position.headline.c4096.unattributed add up to cells_per_position.headline.c4096.base, and the interaction tree is split beside it."
+  },
+  "cells_per_position.headline.c4096.base_requant": {
+   "value": 5259927.778,
+   "unit": "cells/position",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-09-headline-c4096-h100",
+   "artifact": "slice_0000.json",
+   "note": "The base trace's share belonging to the requantization at the qkv, gateup and down seams, and to the multiplicity columns of the tables those seams look in, which the chunk reports beside the seams as `requant_tables`. Added up over the run's slice outputs and divided by positions.headline.c4096. The nine components and cells_per_position.headline.c4096.unattributed add up to cells_per_position.headline.c4096.base, and the interaction tree is split beside it."
+  },
+  "cells_per_position.headline.c4096.base_residual_stream": {
+   "value": 20746293.778,
+   "unit": "cells/position",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-09-headline-c4096-h100",
+   "artifact": "slice_0000.json",
+   "note": "The base trace's share belonging to the two normalisations, the residual adds and the rope reconstructions. The chunk's `residual_stream_components` list is this same count split per component and is not a component beside it. Added up over the run's slice outputs and divided by positions.headline.c4096. The nine components and cells_per_position.headline.c4096.unattributed add up to cells_per_position.headline.c4096.base, and the interaction tree is split beside it."
+  },
+  "cells_per_position.headline.c4096.base_table": {
+   "value": 649822.451,
+   "unit": "cells/position",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-09-headline-c4096-h100",
+   "artifact": "slice_0000.json",
+   "note": "The base trace's share belonging to the LogUp tables: the multiplicity column each of them commits, over the exponential, the reciprocal, the range checks and the residual stream's own tables. The chunk gives every table its row count and its key columns and no cell count, so the audit charges one column of its rows; what fixes the column at one is that the components then close to the segment's own base tree exactly, on every segment that states no argmax. The interaction side of the same tables is four columns and is cells_per_position.headline.c4096.interaction_table. Added up over the run's slice outputs and divided by positions.headline.c4096. The nine components and cells_per_position.headline.c4096.unattributed add up to cells_per_position.headline.c4096.base, and the interaction tree is split beside it."
+  },
+  "cells_per_position.headline.c4096.unattributed": {
+   "value": 57173.333,
+   "unit": "cells/position",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-09-headline-c4096-h100",
+   "artifact": "slice_0000.json",
+   "note": "The base trace's cells no counter names: 131,727,360 on each of the two output head segments, none on any of the 288 layer segments, and the same integer at both contexts because a head segment reads its block's own positions and no prefix. It is the argmax gadget's base side, which proves the emitted token is the lowest-indexed maximum of the logits: the chunk's `interaction_split` prices the same gadget's interaction side at 1,012 columns over 131,072 rows and this is 1,005 columns over the same rows, one value short of two cells per comparison on either side. `family_cells` emits a bare integer for every other component of the base trace and none for the argmax, so the audit records the cells rather than attributing them. Added up over the run's slice outputs and divided by positions.headline.c4096; it is not the 8,388,608-cell gap between a segment's fresh and its base and interaction trees, which is the boundary trees and is cells_per_position.headline.c4096.boundary."
+  },
   "cells_per_position.headline.c4096.interaction_argmax": {
    "value": 57571.556,
    "unit": "cells/position",
@@ -3571,6 +3681,116 @@
    "run": "2026-09-08-headline-c16384-h100",
    "artifact": "slice_0000.json",
    "note": "The shape tree, the other preprocessed tree: the lookup tables and the constants the segment's shape fixes. It is preprocessed and is therefore not part of fresh. Added up over the run's slice outputs and divided by positions.headline.c16384; base, interaction and boundary add up to cells.headline.c16384.fresh and shape and model to the preprocessed cells beside it."
+  },
+  "cells_per_position.headline.c16384.base_attnout": {
+   "value": 1199538.424,
+   "unit": "cells/position",
+   "card": "H100",
+   "context": 16384,
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-08-headline-c16384-h100",
+   "artifact": "slice_0000.json",
+   "note": "The base trace's share belonging to the attention output's dequantization, folded straight to int8 because the requantize seam after it quantizes it again. Added up over the run's slice outputs and divided by positions.headline.c16384. The nine components and cells_per_position.headline.c16384.unattributed add up to cells_per_position.headline.c16384.base, and the interaction tree is split beside it."
+  },
+  "cells_per_position.headline.c16384.base_dequant": {
+   "value": 20752131.394,
+   "unit": "cells/position",
+   "card": "H100",
+   "context": 16384,
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-08-headline-c16384-h100",
+   "artifact": "slice_0000.json",
+   "note": "The base trace's share belonging to the dequantization after each matmul, the bf16 chain and the power-of-two scales together. The chunk's `mats` list is this same count split per matmul and is not a component beside it. Added up over the run's slice outputs and divided by positions.headline.c16384. The nine components and cells_per_position.headline.c16384.unattributed add up to cells_per_position.headline.c16384.base, and the interaction tree is split beside it."
+  },
+  "cells_per_position.headline.c16384.base_embed": {
+   "value": 12304.0,
+   "unit": "cells/position",
+   "card": "H100",
+   "context": 16384,
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-08-headline-c16384-h100",
+   "artifact": "slice_0000.json",
+   "note": "The base trace's share belonging to the embedding lookup that binds a block's first residual stream to the ids the statement publishes. Only a layer-0 segment states it, one per token block, and the chunk reports no embedding object on the others; it is 12,304 cells a position at both contexts because a block embeds its own 512 positions and no prefix. Added up over the run's slice outputs and divided by positions.headline.c16384. The nine components and cells_per_position.headline.c16384.unattributed add up to cells_per_position.headline.c16384.base, and the interaction tree is split beside it."
+  },
+  "cells_per_position.headline.c16384.base_freivalds": {
+   "value": 1051058.424,
+   "unit": "cells/position",
+   "card": "H100",
+   "context": 16384,
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-08-headline-c16384-h100",
+   "artifact": "slice_0000.json",
+   "note": "The base trace's share belonging to the weight matmuls, checked by Freivalds' method: the check's own accumulator columns, not the weights, which are preprocessed and are cells_per_position.headline.c16384.model. Added up over the run's slice outputs and divided by positions.headline.c16384. The nine components and cells_per_position.headline.c16384.unattributed add up to cells_per_position.headline.c16384.base, and the interaction tree is split beside it."
+  },
+  "cells_per_position.headline.c16384.base_key_tiles": {
+   "value": 24596860.121,
+   "unit": "cells/position",
+   "card": "H100",
+   "context": 16384,
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-08-headline-c16384-h100",
+   "artifact": "slice_0000.json",
+   "note": "The base trace's share belonging to the attention scores over the key tiles, the diagonal block among them. It is the one component that grows with the prefix a block reads, which is why the two contexts are not the same shape. Added up over the run's slice outputs and divided by positions.headline.c16384. The nine components and cells_per_position.headline.c16384.unattributed add up to cells_per_position.headline.c16384.base, and the interaction tree is split beside it."
+  },
+  "cells_per_position.headline.c16384.base_quant": {
+   "value": 1146880.0,
+   "unit": "cells/position",
+   "card": "H100",
+   "context": 16384,
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-08-headline-c16384-h100",
+   "artifact": "slice_0000.json",
+   "note": "The base trace's share belonging to the quantization of q and k. It is 1,146,880 cells a position at both contexts: a layer quantizes its own 512 positions and the two output head segments state none. Added up over the run's slice outputs and divided by positions.headline.c16384. The nine components and cells_per_position.headline.c16384.unattributed add up to cells_per_position.headline.c16384.base, and the interaction tree is split beside it."
+  },
+  "cells_per_position.headline.c16384.base_requant": {
+   "value": 5255279.212,
+   "unit": "cells/position",
+   "card": "H100",
+   "context": 16384,
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-08-headline-c16384-h100",
+   "artifact": "slice_0000.json",
+   "note": "The base trace's share belonging to the requantization at the qkv, gateup and down seams, and to the multiplicity columns of the tables those seams look in, which the chunk reports beside the seams as `requant_tables`. Added up over the run's slice outputs and divided by positions.headline.c16384. The nine components and cells_per_position.headline.c16384.unattributed add up to cells_per_position.headline.c16384.base, and the interaction tree is split beside it."
+  },
+  "cells_per_position.headline.c16384.base_residual_stream": {
+   "value": 20727729.576,
+   "unit": "cells/position",
+   "card": "H100",
+   "context": 16384,
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-08-headline-c16384-h100",
+   "artifact": "slice_0000.json",
+   "note": "The base trace's share belonging to the two normalisations, the residual adds and the rope reconstructions. The chunk's `residual_stream_components` list is this same count split per component and is not a component beside it. Added up over the run's slice outputs and divided by positions.headline.c16384. The nine components and cells_per_position.headline.c16384.unattributed add up to cells_per_position.headline.c16384.base, and the interaction tree is split beside it."
+  },
+  "cells_per_position.headline.c16384.base_table": {
+   "value": 739784.445,
+   "unit": "cells/position",
+   "card": "H100",
+   "context": 16384,
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-08-headline-c16384-h100",
+   "artifact": "slice_0000.json",
+   "note": "The base trace's share belonging to the LogUp tables: the multiplicity column each of them commits, over the exponential, the reciprocal, the range checks and the residual stream's own tables. The chunk gives every table its row count and its key columns and no cell count, so the audit charges one column of its rows; what fixes the column at one is that the components then close to the segment's own base tree exactly, on every segment that states no argmax. The interaction side of the same tables is four columns and is cells_per_position.headline.c16384.interaction_table. Added up over the run's slice outputs and divided by positions.headline.c16384. The nine components and cells_per_position.headline.c16384.unattributed add up to cells_per_position.headline.c16384.base, and the interaction tree is split beside it."
+  },
+  "cells_per_position.headline.c16384.unattributed": {
+   "value": 15592.727,
+   "unit": "cells/position",
+   "card": "H100",
+   "context": 16384,
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-08-headline-c16384-h100",
+   "artifact": "slice_0000.json",
+   "note": "The base trace's cells no counter names: 131,727,360 on each of the two output head segments, none on any of the 1056 layer segments, and the same integer at both contexts because a head segment reads its block's own positions and no prefix. It is the argmax gadget's base side, which proves the emitted token is the lowest-indexed maximum of the logits: the chunk's `interaction_split` prices the same gadget's interaction side at 1,012 columns over 131,072 rows and this is 1,005 columns over the same rows, one value short of two cells per comparison on either side. `family_cells` emits a bare integer for every other component of the base trace and none for the argmax, so the audit records the cells rather than attributing them. Added up over the run's slice outputs and divided by positions.headline.c16384; it is not the 8,388,608-cell gap between a segment's fresh and its base and interaction trees, which is the boundary trees and is cells_per_position.headline.c16384.boundary."
   },
   "cells_per_position.headline.c16384.interaction_argmax": {
    "value": 15701.333,
