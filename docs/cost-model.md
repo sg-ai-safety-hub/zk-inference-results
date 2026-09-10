@@ -13,10 +13,11 @@ quotes no number of its own.
   commitment rate in cells per second, field operation rates, the time one
   lookup takes and the end-to-end proving rate.
 - What one operation of each kind costs in committed cells, through
-  `constants.json`: the `model_constants.*` keys below, all of them from
-  `microbench-cells`, all of them marginal figures with the shared tables left
-  out because a table is a fixed cost of the segment and is not multiplied by a
-  count.
+  `constants.json`: the `model_constants.*` keys below. The ones from
+  `microbench-cells` are marginal figures with the shared tables left out,
+  because a table is a fixed cost of the segment and is not multiplied by a
+  count. The `*_composed_*` ones are what the composed prover builds the same
+  gadget at, read off the two headline runs; the section below tabulates them.
 - The measured sequence runs, through `constants.json`: cells committed per
   token and the rate at each timing scope (`cells.headline.c16384.fresh`,
   `rate.headline.c16384.commit`, `rate.headline.c16384.whole_wall`,
@@ -31,9 +32,12 @@ quotes no number of its own.
   weight, times the model's parameters, divided by the tokens one proof covers.
   The check's three accumulator columns cost twelve cells a trace row and a row
   carries as many weights as the layout gives it, so the figure is a layout
-  choice and not a constant of the gadget. No subcommand in this repository
-  measures it; the model reads it from a file a retired benchmark tree wrote,
-  and zk-prover #139 asks for the subcommand. No key here backs it.
+  choice and not a constant of the gadget. The key that backs it is
+  `model_constants.weight_freivalds_cells_per_weight`, to be measured by
+  `microbench-cells`: zk-prover #139 asked for the subcommand and it has landed,
+  and until the run is made the model reads the figure from a file a retired
+  benchmark tree wrote. What the composed prover builds the check at is a
+  different figure and has a key of its own, below.
 - Dequantization after each matmul: cells per accumulator, for the bf16 chain
   and for power-of-two scales (`model_constants.dequant_chain_cells_per_acc`,
   `model_constants.dequant_pow2_cells_per_acc`), times the accumulators of
@@ -56,21 +60,28 @@ quotes no number of its own.
   (`model_constants.requant_cells_per_value`), times each distinct matmul input,
   less the committed quantized value the model already counts.
 - Attention: cells per (head, key, token) over the key tiles, a fixed cost per
-  key and per token, and the diagonal block's own share
-  (`attention_grid.fresh_cell_coeffs`). The per-entry half of that is measured
-  on its own (`model_constants.attention_cells_per_head_key_token`) and is what
-  the superseded single-slope form charged for the whole term; the coefficients
-  are not measured here, and until they are the single slope is valid only at
-  the block length it was solved at.
+  key and per token, and the diagonal block's own share. The committed side of
+  those coefficients is measured (`attention_grid.base_cell_coeffs`) and the
+  per-entry half is measured on its own
+  (`model_constants.attention_cells_per_head_key_token`), which is what the
+  superseded single-slope form charged for the whole term; the single slope is
+  valid only at the block length it was solved at. The interaction side,
+  `attention_grid.fresh_cell_coeffs`, is not in the file: with the five
+  reductions on most of the key tiles' interaction is in the reduction rather
+  than in their own columns, and what is left does not take that form.
+  REPRODUCE.md's `prefill-sweep-8b` section says what measuring it would need.
 - Lookups: the exponential table and the range checks on every committed
   activation are inside the per-operation figures above, each of which counts
   the gadget's own lookups. What is not measured anywhere here is the marginal
   cost of a lookup on its own -- the cells one lookup adds beyond the two trace
   cells a witness commits anyway, which depends on how many lookups share one
-  interaction column. The model reads it per batch size from the retired file,
-  and the residual-stream subcommand assumes the same two cells at the default
-  batch of two, in the figure it reports and again inside every marginal it
-  computes. zk-prover #140 asks for the subcommand. No key here backs it.
+  interaction column. The key that backs it is
+  `model_constants.logup_marginal_cells_per_lookup`, one figure per lookup batch
+  size, to be measured by `microbench-cells`: zk-prover #140 asked for the
+  subcommand and it has landed. Until the run is made the model reads it per
+  batch size from the retired file, and the residual-stream subcommand assumes
+  the same two cells at the default batch of two, in the figure it reports and
+  again inside every marginal it computes.
 - The residual stream: one correctly rounded bf16 add
   (`model_constants.residual_stream_add_cells_per_op`) times the two residual
   adds of every layer and the adds of each normalisation's reduction, and one
@@ -96,6 +107,46 @@ two keys beside them one context up, priced as
 `usd_per_1k_positions.headline.c4096.cold_loop` and its three counterparts.
 Neither figure includes emitting the device kernels, installing them or
 rebuilding.
+
+## What the composed prover builds them at
+
+Every figure above was measured on a standalone gadget chain: one gadget per
+proof, with its own tables and its own LogUp running sums. The prover composes
+the seven matmuls, the attention grid and the residual stream into one AIR,
+where a value one gadget commits is the next one's input and the batched
+reductions prove the running sums, and the same gadget does not cost the same
+there. The eight keys below are what it costs there, at the statement both
+headline runs prove: Llama-3.1-8B, a block of 512 decoded tokens, spec
+`b10-final`, all five reductions on. Each one is cells over a count the same
+segment reports, and each is the same pair of integers on all 62 non-embedding
+layer segments of one token block at each context.
+
+| what it counts | at the composed statement | the same gadget on its own |
+|---|---|---|
+| dequantization after each matmul, per accumulator | `model_constants.dequant_chain_composed_cells_per_acc` | `model_constants.dequant_chain_cells_per_acc` |
+| requantization before each matmul, per value | `model_constants.requant_composed_cells_per_value` | `model_constants.requant_cells_per_value` |
+| the quantization of the attention q and k, per value | `model_constants.quant_composed_cells_per_value` | nothing measures it |
+| the Freivalds check of the weight matmuls, per weight | `model_constants.weight_freivalds_composed_cells_per_weight` | `model_constants.weight_freivalds_cells_per_weight`, to be measured by `microbench-cells` |
+| the attention output's fold, per accumulator | `model_constants.attnout_composed_cells_per_acc` | `model_constants.attnout_int8_cells_per_acc` |
+| one bf16 multiply of the residual stream, per operation | `model_constants.residual_stream_composed_mul_cells_per_op` | `model_constants.residual_stream_mul_cells_per_op` |
+| one bf16 add of the residual stream, per operation | `model_constants.residual_stream_composed_add_cells_per_op` | `model_constants.residual_stream_add_cells_per_op` |
+| one SwiGLU channel, table application and product together | `model_constants.residual_stream_composed_swiglu_cells_per_op` | nothing measures the table application on its own |
+
+The two columns are different quantities, and a model pricing the composed
+statement reads the left one and not the right. Three things about the left
+column. The first five rows are the committed columns plus what the reduction
+leaves in the interaction trace, because a reduction moves those cells rather
+than removing them; the three residual stream rows are the committed columns of
+the rope's own components, the only bf16 operations whose count a segment
+reports by itself. Both runs record `params.round: "even"`, so the
+dequantization row is the round half to even, where the model charges rounding
+away from zero on the layer matmuls, one cell an accumulator less. Layer segment
+0 carries the embedding lookup and builds one cell an attention-output
+accumulator more than the rest, and is in none of the eight.
+
+Each figure is a re-fit against one shape and one statement, which is what its
+note says and what a model reading it has to repeat: it is what the 8B layer
+segment builds, not a form in the shape.
 
 ## What the sequence measured, per proved position
 
@@ -141,6 +192,16 @@ the lookup tables, a little, and the argmax row, which is two head segments over
 four times as many positions -- and the rest are within a few per cent of each
 other per position.
 
+Two rows of the same kind stand outside that table: the fresh cells of the 32
+layer segments of one token block over the 512 positions that block proves,
+`cells_per_position.headline.c4096.fresh_layers_block` and
+`cells_per_position.headline.c16384.fresh_layers_block`. The block is the one
+whose prefix is the whole context, the output head segment is not in it, and it
+is what the cost model's own registration compares its layers-only prediction
+per decoded token against. Every row in the table above divides the whole run,
+output heads and shorter prefixes included, by every position the run proves,
+and is smaller for that reason.
+
 One reader in `tools/constants/audit.py` re-derives all of it from the slice
 outputs and refuses unless the shape and model trees add up to the preprocessed
 cells the chunk reports, the eleven components add up to the interaction tree,
@@ -163,9 +224,12 @@ two sums themselves.
 Every `projected` constant lists its inputs; `check.py` recomputes the
 arithmetic between them. The model's own micro-benchmark inputs are runs in
 this repository like any other, made by a driver, with a manifest. Each
-`model_constants.*` key above is re-derived from its run's own JSON by
-`audit.py`'s `microbench-cells` section, which also gates the three statements
-this page makes about a sweep rather than a point: that the width sweep
-reproduces to the cell at all six widths, that the marginal figure is the same
-at all six table sizes, and that the per-entry attention figure is the same at
-all five instance counts.
+`model_constants.*` key measured on a gadget of its own is re-derived from its
+run's own JSON by `audit.py`'s `microbench-cells` section, which also gates the
+three statements this page makes about a sweep rather than a point: that the
+width sweep reproduces to the cell at all six widths, that the marginal figure
+is the same at all six table sizes, and that the per-entry attention figure is
+the same at all five instance counts. The eight composed keys and the two
+per-block rows are re-derived the same way by the section beside it, off the two
+headline runs' slice outputs, and it refuses unless the two contexts give the
+same integers.
