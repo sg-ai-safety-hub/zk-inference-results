@@ -209,14 +209,14 @@ PY
 # <base>_B<b>.  One extraction pass covers every head block: the pass costs what
 # its highest block costs and the dumps are written from inside the forward loop.
 #
-# `--diagonal-block` is on the extraction and not on the head line.  A spec that
-# delays the v matmul -- `y-delay-vw12` does -- has the extractor check the v
-# fold's identity against the diagonal block's `vvc` before it writes anything,
-# and it refuses a dump made without the flag (`harness/witness/extract.py`,
-# "the v fold's identity check reads the diagonal block's vvc").  `b10-final`
+# --diagonal-block is on the extraction and not on the head line.  A spec that
+# delays the v matmul -- y-delay-vw12 does -- has the extractor check the v
+# fold's identity against the diagonal block's vvc before it writes anything,
+# and it refuses a dump made without the flag (harness/witness/extract.py,
+# "the v fold's identity check reads the diagonal block's vvc").  b10-final
 # delays nothing, which is why the head dump used to be made without it.  The
 # head line must still not carry the flag: the head chunk performs no attention
-# and reads no diagonal block (`harness/witness/plan.py`).
+# and reads no diagonal block (harness/witness/plan.py).
 if [ -n "${HEAD_BLOCKS:-}" ]; then
   need=0
   for hb in $(echo "${HEAD_BLOCKS:-}" | tr ',' ' '); do

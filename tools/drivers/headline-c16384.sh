@@ -426,15 +426,15 @@ xdrop() {   # xdrop <first block> <last block>: the dumps go, the shape tables s
 #    one forward pass.  Before the survey, because the plan reads the master
 #    table width and the head's own ao_rem_bits out of these dumps.
 #
-#    `--diagonal-block` is on the extraction and not on the head line.  A spec
-#    that delays the v matmul -- `y-delay-vw12` does -- has the extractor check
-#    the v fold's identity against the diagonal block's `vvc` before it writes
+#    --diagonal-block is on the extraction and not on the head line.  A spec
+#    that delays the v matmul -- y-delay-vw12 does -- has the extractor check
+#    the v fold's identity against the diagonal block's vvc before it writes
 #    anything, and it refuses a dump made without the flag
-#    (`harness/witness/extract.py`, "the v fold's identity check reads the
-#    diagonal block's vvc").  `b10-final` delays nothing, which is why the head
+#    (harness/witness/extract.py, "the v fold's identity check reads the
+#    diagonal block's vvc").  b10-final delays nothing, which is why the head
 #    dump used to be made without it.  The head line must still not carry the
 #    flag: the head chunk performs no attention and reads no diagonal block
-#    (`harness/witness/plan.py`).
+#    (harness/witness/plan.py).
 HEAD_LAST=\$(printf '%s' "$HEAD_BLOCKS" | tr ',' ' ' | awk '{print \$NF}')
 if [ "$WITH_HEAD" = 1 ] && [ ! -f \${HEADW}_B\${HEAD_LAST}/manifest.json ]; then
   st "extract: the output head over blocks $HEAD_BLOCKS, $HEAD_SPEC"
@@ -669,7 +669,7 @@ N=\$(grep -cv '^#' \$OUT/plan.txt); st "plan: \$N segments"
 # emit-head.txt the shapes plan.py's own emit list holds for them.
 #
 # At this prover commit that list is one line for the two heads, and that is
-# zk-prover #131: plan.py keys a head line with `None` where a layer line
+# zk-prover #131: plan.py keys a head line with None where a layer line
 # carries its prefix, so head lines of one master table width and one flag
 # string collapse into one entry whatever their dumps read.  Block 31's head
 # reads 15,872 keys and block 32's 16,384, so they are two dumps, and only
@@ -678,7 +678,7 @@ N=\$(grep -cv '^#' \$OUT/plan.txt); st "plan: \$N segments"
 # head chunks asked for the same generated kernels -- every witness-gen, table
 # and preprocessed line of B32head in slice_1024.err is B31head's line for line
 # -- and out/slice_1024.fallbacks is 0.  That is a coincidence of this context
-# and not a property.  zk-prover #131 keys a head line by its dump's own `c`;
+# and not a property.  zk-prover #131 keys a head line by its dump's own c;
 # at a prover commit with the fix the emit list holds both head lines and both
 # are emitted, which is what keeps the store whole where the fingerprints
 # differ.  Nothing here has to change for that: emit-head.txt is read from the
@@ -724,8 +724,8 @@ PY
 #    install carries every group's shapes.
 K=\$SRC/prover/kernels
 [ -d \$K ] || { st "no prover/kernels in this prover commit; the CUDA backend would evaluate constraints on the CPU"; exit 3; }
-# The two install scripts by either name: zk-prover #108 renamed `m2b_kernels.py`
-# and `m4b_kernels.py` to what they do, and a driver that names only the new ones
+# The two install scripts by either name: zk-prover #108 renamed m2b_kernels.py
+# and m4b_kernels.py to what they do, and a driver that names only the new ones
 # cannot be run at a prover commit before the rename -- 355c19d, which is the
 # commit this campaign's run is pinned to, is one.  The name that is there wins.
 KC=\$K/install_constraint_kernels.py;  [ -f \$KC ] || KC=\$K/m2b_kernels.py

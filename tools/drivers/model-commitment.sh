@@ -199,7 +199,7 @@ CMTPY
 # 4. every segment's model root and shape root against the manifest, over the
 #    serialized statements and proofs of the sequence run and nothing else.
 #
-#    `--prompt` is the sequence run's own published ids, and it is not optional
+#    --prompt is the sequence run's own published ids, and it is not optional
 #    here.  A grid told nothing about the prompt has no way to know which
 #    positions were given and which the model wrote, so it reads every position
 #    after a head block's first as generated and asks that each equal the argmax
