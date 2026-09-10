@@ -329,9 +329,11 @@ them alone is a price for a warm host. Three things the cold rows leave out. The
 head extraction pass, which the job runs and does not time, so no artifact
 carries its seconds. Emitting the device kernels for the plan's 48 distinct
 shapes, installing them and rebuilding, which this job does and does not time
-either: `lib/sequence-job.sh` writes `extract.json` and no other phase file, so
-the extraction is the only phase this run can price. And the link check, 170 s,
-which is a verifier cost and not the prover's.
+either: the `lib/sequence-job.sh` this run shipped wrote `extract.json` and no
+other phase file, so the extraction is the only phase this run can price. That
+job now also times the final grid and writes `timing.json`, so the next run of
+this driver prices the link check as well. And the link check, 170 s, which is a
+verifier cost and not the prover's.
 
 What a proved position commits. A segment commits six trees, and the run's five
 slice outputs count them. `cells.headline.c4096.fresh` is three of them added
