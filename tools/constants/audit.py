@@ -5,7 +5,10 @@ One section per driver, registered in SECTIONS when the driver's first run
 lands.  A section receives the audit and the constants it is responsible for,
 opens `runs/<run>/<artifact>`, recomputes each value, and calls `claim`.  A
 `measured` constant no section claims is a failure: the audit never accepts a
-constant without an artifact it has read.  Run through `check.py`.
+constant without an artifact it has read.  A `derived` constant whose two sides
+are counts in an artifact rather than entries of the file is re-derived here as
+well, and `check.py`'s derived table calls the same reader.  Run through
+`check.py`.
 """
 import fractions
 import hashlib
@@ -1273,6 +1276,140 @@ def _cells_per_position(ctx):
     return section
 
 
+# -- what the composed prover builds each gadget at ----------------------------
+# The prices the cost model charges were measured on standalone gadget chains,
+# one gadget per proof.  The two headline runs prove the same gadgets inside one
+# AIR, where a value one gadget commits is the next one's input and the batched
+# reductions prove the LogUp running sums, and the same gadget does not cost the
+# same there.  The eight `*_composed_*` rows below are what it costs there: cells
+# over a count the same segment reports, on the 31 non-embedding layer segments
+# of one token block at each context, where every one of the sixteen integers is
+# the same on all 62 segments.  Beside them, what those segments cost per decoded
+# token, which is what the cost model's registration is compared against.
+#
+# The ten rows are `derived`, and what they divide are counts in the artifact and
+# not entries of this file, so the arithmetic lives here with the other artifact
+# readers and `check.py`'s derived table calls `composed_figures()`.
+_COMPOSED_KEY = {
+    "dequant": "model_constants.dequant_chain_composed_cells_per_acc",
+    "requant": "model_constants.requant_composed_cells_per_value",
+    "quant": "model_constants.quant_composed_cells_per_value",
+    "freivalds": "model_constants.weight_freivalds_composed_cells_per_weight",
+    "attnout": "model_constants.attnout_composed_cells_per_acc",
+    "residual_stream_mul": "model_constants.residual_stream_composed_mul_cells_per_op",
+    "residual_stream_add": "model_constants.residual_stream_composed_add_cells_per_op",
+    "residual_stream_unary_plus_mul":
+        "model_constants.residual_stream_composed_swiglu_cells_per_op",
+}
+_PER_TOKEN_KEY = "cells_per_position.headline.c{}.fresh_layers_block"
+_LAYER_SEGMENT = re.compile(r"(B\d+)L(\d+)")
+_COMPOSED = None
+
+
+def _composed_counts(ch):
+    """The eight (cells, count) pairs one composed layer segment builds.
+
+    Each `cells` is the committed columns plus what the reduction leaves in the
+    interaction trace, except the three residual-stream rows, which are the
+    components' own committed columns: those are the only bf16 operations whose
+    op count a segment reports by itself, and the interaction beside them is the
+    whole component's and not the operation's.
+    """
+    f = ch["family_cells"]
+    inter = f["interaction_by_family"]
+    rs = {c["tag"]: c for c in f["residual_stream_components"]}
+    p = ch["params"]
+    return {
+        "dequant": (f["dequant"] + inter["dequant"]["cells"],
+                    sum(m["n"] for m in f["mats"])),
+        "requant": (sum(r["cells"]["base"] for r in f["requant"])
+                    + f["requant_tables"]["multiplicity"] + inter["requant"]["cells"],
+                    sum(r["checked"] for r in f["requant"])),
+        "quant": (sum(q["cells"]["base"] for q in f["quant"]) + inter["quant"]["cells"],
+                  sum(q["checked"] for q in f["quant"])),
+        "freivalds": (f["freivalds"] + inter["freivalds"]["cells"],
+                      sum(w["weights"] for w in f["freivalds_weights"])),
+        "attnout": (f["attnout"] + inter["attnout"]["cells"],
+                    p["nh"] * p["hd"] * p["s"]),
+        "residual_stream_mul": (rs["rpqm"]["cells"] + rs["rpkm"]["cells"],
+                                rs["rpqm"]["ops"] + rs["rpkm"]["ops"]),
+        "residual_stream_add": (rs["rpqa"]["cells"] + rs["rpka"]["cells"],
+                                rs["rpqa"]["ops"] + rs["rpka"]["ops"]),
+        "residual_stream_unary_plus_mul": (rs["gsw"]["cells"], rs["gsw"]["ops"]),
+    }
+
+
+def composed_figures():
+    """`({key: value}, [what does not close])`, read once and kept.
+
+    The slice output each per-token row names holds one token block's segments;
+    the block's 32 layer segments give the per-token row and its 31 non-embedding
+    ones the eight prices, which have to be the same integers at both contexts.
+    """
+    global _COMPOSED
+    if _COMPOSED is not None:
+        return _COMPOSED
+    c = load()["constants"]
+    vals, bad, counts = {}, [], {}
+    for ctx in (4096, 16384):
+        key = _PER_TOKEN_KEY.format(ctx)
+        if key not in c:
+            continue
+        e = c[key]
+        if not (ROOT / "runs" / e["run"] / e["artifact"]).exists():
+            bad.append(f"{key}: runs/{e['run']}/{e['artifact']} does not exist")
+            continue
+        blocks = {}
+        for ch in artifact(e["run"], e["artifact"])["result"]["chunks"]:
+            m = _LAYER_SEGMENT.fullmatch(ch["ser_tag"] or "")
+            if m:
+                blocks.setdefault(m.group(1), {})[int(m.group(2))] = ch
+        if len(blocks) != 1:
+            bad.append(f"{key}: {e['artifact']} holds layer segments of "
+                       f"{len(blocks)} token blocks and the row is one block's")
+            continue
+        block, segs = blocks.popitem()
+        if sorted(segs) != list(range(32)):
+            bad.append(f"{key}: block {block} has layer segments {sorted(segs)} "
+                       f"and the row is over the model's 32")
+            continue
+        shape = {(s["params"]["c"], s["params"]["s"], s["params"]["round"])
+                 for s in segs.values()}
+        if shape != {(ctx, 512, "even")}:
+            bad.append(f"{key}: block {block} was proved at (c, s, round) {shape} "
+                       f"and the row is one block of 512 at context {ctx}")
+            continue
+        vals[key] = sum(s["cells"]["fresh"] for s in segs.values()) / 512
+        for k in range(1, 32):
+            for name, pair in _composed_counts(segs[k]).items():
+                counts.setdefault(name, {}).setdefault(pair, []).append(f"{block}L{k}")
+    for name, seen in sorted(counts.items()):
+        if len(seen) > 1:
+            bad.append(f"the composed segments disagree on {name}: "
+                       + "; ".join(f"{p} on {len(w)} segment(s)" for p, w in seen.items()))
+        cells, count = max(seen, key=lambda pair: len(seen[pair]))
+        vals[_COMPOSED_KEY[name]] = cells / count
+    _COMPOSED = (vals, bad)
+    return _COMPOSED
+
+
+def composed_statement(a, keys):
+    """The eight composed prices and the two per-token rows, against the segments."""
+    vals, bad = composed_figures()
+    c = load()["constants"]
+    for b in bad:
+        a.fails.append(f"audit: composed: {b}")
+    for ctx in (4096, 16384):
+        key = _PER_TOKEN_KEY.format(ctx)
+        if key in vals:
+            e = c[key]
+            print(f"  runs/{e['run']}: one token block's 32 layer segments at context "
+                  f"{ctx:,}, {vals[key] * 512:,.0f} fresh cells over 512 positions")
+    for key in sorted(vals):
+        if key in c:
+            a.claim(key, vals[key])
+
+
 # -- sections: (driver name, function(audit, keys)) ----------------------------
 # Added when a driver's first run lands; each function re-derives the constants
 # whose `run` was made by that driver.
@@ -1299,6 +1436,10 @@ SECTIONS = [
                                      "survey": "secs.headline.c16384.extract_survey"})),
     ("headline-c4096", _cells_per_position(4096)),
     ("headline-c16384", _cells_per_position(16384)),
+    # the composed statement's own prices, read off one token block of each of
+    # the two runs; one section, because a price is only a price if the two
+    # agree
+    ("headline-c4096", composed_statement),
 ]
 
 

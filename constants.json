@@ -1307,6 +1307,94 @@
    "artifact": "b6-pack.json",
    "note": "What one entry of the attention score grid costs: the committed shift, the exponential's answer and the probability, over 512 tokens and 1,024 keys at head dimension 64. It is exactly 4 at all five instance counts the run packs, 1 through 16, so it is the grid's own price and not an artefact of one packing. It is the whole of the attention term only in the superseded single-slope form; the key tile coefficients are what the cost model charges, and they carry a per-key and a per-token cost this number does not."
   },
+  "model_constants.dequant_chain_composed_cells_per_acc": {
+   "value": 16.05952380952381,
+   "unit": "cells/accumulator",
+   "card": "none",
+   "context": "n/a",
+   "timing_scope": "n/a",
+   "grade": "derived",
+   "run": "2026-09-09-headline-c4096-h100",
+   "artifact": "slice_0256.json",
+   "note": "What the composed prover builds the whole dequantization at, per matmul accumulator: 353,632,256 cells over 22,020,096 accumulators, on segment B8L16 and on the other 30 non-embedding layer segments of block B8 in runs/2026-09-09-headline-c4096-h100/slice_0256.json, and on all 31 of block B32 in runs/2026-09-08-headline-c16384-h100/slice_1024.json: the same two integers on all 62, so neither the context nor the card is a variable of it. Layer segment 0 carries the embedding lookup, builds one cell an attention-output accumulator more and is not among them. The cells are the committed columns (`family_cells.dequant`) plus what the reduction leaves in the interaction trace (`family_cells.interaction_by_family.dequant.cells`); the accumulators are the segment's own `family_cells.mats[].n` added up. The committed accumulator is in it and the cost model charges that separately as well. A re-fit against one statement -- Llama-3.1-8B, a block of 512 decoded tokens, spec `b10-final`, all five batched reductions on -- and not a price of the gadget on its own. `model_constants.dequant_chain_cells_per_acc` is the standalone chain gadget, 26.125 cells with the round half to even, and must not be read for this. Both segments record `params.round: \"even\"`, so this is the round-half-to-even figure; on the layer matmuls the cost model charges rounding away from zero, which is one cell an accumulator less."
+  },
+  "model_constants.requant_composed_cells_per_value": {
+   "value": 18.437544389204547,
+   "unit": "cells/value",
+   "card": "none",
+   "context": "n/a",
+   "timing_scope": "n/a",
+   "grade": "derived",
+   "run": "2026-09-09-headline-c4096-h100",
+   "artifact": "slice_0256.json",
+   "note": "What the composed prover builds the whole requantization at, per distinct matmul input value: 212,664,832 cells over 11,534,336 values, on segment B8L16 and on the other 30 non-embedding layer segments of block B8 in runs/2026-09-09-headline-c4096-h100/slice_0256.json, and on all 31 of block B32 in runs/2026-09-08-headline-c16384-h100/slice_1024.json: the same two integers on all 62, so neither the context nor the card is a variable of it. Layer segment 0 carries the embedding lookup, builds one cell an attention-output accumulator more and is not among them. The cells are the committed columns of the three seams (`family_cells.requant[].cells.base`), the multiplicity column of their own tables (`family_cells.requant_tables.multiplicity`) and the interaction the reduction leaves (`family_cells.interaction_by_family.requant.cells`); the values are `family_cells.requant[].checked` added up. The committed int8 value and its range check are the producer's and are not in it. A re-fit against one statement -- Llama-3.1-8B, a block of 512 decoded tokens, spec `b10-final`, all five batched reductions on -- and not a price of the gadget on its own. `model_constants.requant_cells_per_value` is the standalone gadget, 11.5, and is not this."
+  },
+  "model_constants.quant_composed_cells_per_value": {
+   "value": 17.5,
+   "unit": "cells/value",
+   "card": "none",
+   "context": "n/a",
+   "timing_scope": "n/a",
+   "grade": "derived",
+   "run": "2026-09-09-headline-c4096-h100",
+   "artifact": "slice_0256.json",
+   "note": "What the composed prover builds the quantization of the attention q and k at, per value: 45,875,200 cells over 2,621,440 values, on segment B8L16 and on the other 30 non-embedding layer segments of block B8 in runs/2026-09-09-headline-c4096-h100/slice_0256.json, and on all 31 of block B32 in runs/2026-09-08-headline-c16384-h100/slice_1024.json: the same two integers on all 62, so neither the context nor the card is a variable of it. Layer segment 0 carries the embedding lookup, builds one cell an attention-output accumulator more and is not among them. The cells are `family_cells.quant[].cells.base` plus `family_cells.interaction_by_family.quant.cells`, the values `family_cells.quant[].checked` added up. No reduction owns this one and no other key names it: until the composed statement was priced the cost model charged nothing for it at all. A re-fit against one statement -- Llama-3.1-8B, a block of 512 decoded tokens, spec `b10-final`, all five batched reductions on -- and not a price of the gadget on its own."
+  },
+  "model_constants.weight_freivalds_composed_cells_per_weight": {
+   "value": 0.20192307692307693,
+   "unit": "cells/weight",
+   "card": "none",
+   "context": "n/a",
+   "timing_scope": "n/a",
+   "grade": "derived",
+   "run": "2026-09-09-headline-c4096-h100",
+   "artifact": "slice_0256.json",
+   "note": "What the composed prover builds the Freivalds check of the weight matmuls at, per weight: 44,040,192 cells over 218,103,808 weights, on segment B8L16 and on the other 30 non-embedding layer segments of block B8 in runs/2026-09-09-headline-c4096-h100/slice_0256.json, and on all 31 of block B32 in runs/2026-09-08-headline-c16384-h100/slice_1024.json: the same two integers on all 62, so neither the context nor the card is a variable of it. Layer segment 0 carries the embedding lookup, builds one cell an attention-output accumulator more and is not among them. The cells are `family_cells.freivalds` plus `family_cells.interaction_by_family.freivalds.cells`, the weights `family_cells.freivalds_weights[].weights` added up. A re-fit against one statement -- Llama-3.1-8B, a block of 512 decoded tokens, spec `b10-final`, all five batched reductions on -- and not a price of the gadget on its own. The standalone check is 0.0902 cells a weight at its own design point in the width sweep the cost model still reads from a retired benchmark tree, and the composed check at this statement is more than twice that, most of the difference interaction the reduction does not remove. `model_constants.weight_freivalds_cells_per_weight`, which `microbench-cells` is to measure, is that standalone figure and is not this."
+  },
+  "model_constants.attnout_composed_cells_per_acc": {
+   "value": 10.375,
+   "unit": "cells/accumulator",
+   "card": "none",
+   "context": "n/a",
+   "timing_scope": "n/a",
+   "grade": "derived",
+   "run": "2026-09-09-headline-c4096-h100",
+   "artifact": "slice_0256.json",
+   "note": "What the composed prover builds the attention-output fold at, per accumulator: 21,757,952 cells over 2,097,152 accumulators, on segment B8L16 and on the other 30 non-embedding layer segments of block B8 in runs/2026-09-09-headline-c4096-h100/slice_0256.json, and on all 31 of block B32 in runs/2026-09-08-headline-c16384-h100/slice_1024.json: the same two integers on all 62, so neither the context nor the card is a variable of it. Layer segment 0 carries the embedding lookup, builds one cell an attention-output accumulator more and is not among them. The cells are `family_cells.attnout` plus `family_cells.interaction_by_family.attnout.cells`; the accumulators are the segment's own `params.nh` x `params.hd` x `params.s`, which is the `family_cells.attnout_stats.n` the segment reports. A re-fit against one statement -- Llama-3.1-8B, a block of 512 decoded tokens, spec `b10-final`, all five batched reductions on -- and not a price of the gadget on its own. `model_constants.attnout_int8_cells_per_acc` is the standalone fold, 10.0625, and is not this."
+  },
+  "model_constants.residual_stream_composed_mul_cells_per_op": {
+   "value": 5.0,
+   "unit": "cells/operation",
+   "card": "none",
+   "context": "n/a",
+   "timing_scope": "n/a",
+   "grade": "derived",
+   "run": "2026-09-09-headline-c4096-h100",
+   "artifact": "slice_0256.json",
+   "note": "What one bf16 multiply of the residual stream costs in the composed prover: 26,214,400 cells over 5,242,880 multiplies, on segment B8L16 and on the other 30 non-embedding layer segments of block B8 in runs/2026-09-09-headline-c4096-h100/slice_0256.json, and on all 31 of block B32 in runs/2026-09-08-headline-c16384-h100/slice_1024.json: the same two integers on all 62, so neither the context nor the card is a variable of it. Layer segment 0 carries the embedding lookup, builds one cell an attention-output accumulator more and is not among them. Read off the rope's own two multiplies per rotated value, the `rpqm` and `rpkm` entries of `family_cells.residual_stream_components`, whose `cells` and `ops` the segment reports on their own; they are the only bf16 multiplies a segment counts by themselves. These are the committed columns alone: the 163,840 cells the reduction leaves for the two components are not in it. A re-fit against one statement -- Llama-3.1-8B, a block of 512 decoded tokens, spec `b10-final`, all five batched reductions on -- and not a price of the gadget on its own. `model_constants.residual_stream_mul_cells_per_op` is the standalone multiply, 8.75, and is not this."
+  },
+  "model_constants.residual_stream_composed_add_cells_per_op": {
+   "value": 18.0,
+   "unit": "cells/operation",
+   "card": "none",
+   "context": "n/a",
+   "timing_scope": "n/a",
+   "grade": "derived",
+   "run": "2026-09-09-headline-c4096-h100",
+   "artifact": "slice_0256.json",
+   "note": "What one bf16 add of the residual stream costs in the composed prover: 47,185,920 cells over 2,621,440 adds, on segment B8L16 and on the other 30 non-embedding layer segments of block B8 in runs/2026-09-09-headline-c4096-h100/slice_0256.json, and on all 31 of block B32 in runs/2026-09-08-headline-c16384-h100/slice_1024.json: the same two integers on all 62, so neither the context nor the card is a variable of it. Layer segment 0 carries the embedding lookup, builds one cell an attention-output accumulator more and is not among them. Read off the rope's own add per rotated value, the `rpqa` and `rpka` entries of `family_cells.residual_stream_components`, on the same terms as the multiply above: the committed columns alone, without the 163,840 cells the reduction leaves for the two components. A re-fit against one statement -- Llama-3.1-8B, a block of 512 decoded tokens, spec `b10-final`, all five batched reductions on -- and not a price of the gadget on its own. `model_constants.residual_stream_add_cells_per_op` is the standalone add, 24.3226, and is not this."
+  },
+  "model_constants.residual_stream_composed_swiglu_cells_per_op": {
+   "value": 10.0,
+   "unit": "cells/operation",
+   "card": "none",
+   "context": "n/a",
+   "timing_scope": "n/a",
+   "grade": "derived",
+   "run": "2026-09-09-headline-c4096-h100",
+   "artifact": "slice_0256.json",
+   "note": "What one SwiGLU channel costs in the composed prover, one `silu` table application and one bf16 product together: 73,400,320 cells over 7,340,032 channels, on segment B8L16 and on the other 30 non-embedding layer segments of block B8 in runs/2026-09-09-headline-c4096-h100/slice_0256.json, and on all 31 of block B32 in runs/2026-09-08-headline-c16384-h100/slice_1024.json: the same two integers on all 62, so neither the context nor the card is a variable of it. Layer segment 0 carries the embedding lookup, builds one cell an attention-output accumulator more and is not among them. Read off the `gsw` entry of `family_cells.residual_stream_components`, the committed columns alone, without the 196,608 cells the reduction leaves for it. The table application on its own is this less the multiply beside it, 5. A re-fit against one statement -- Llama-3.1-8B, a block of 512 decoded tokens, spec `b10-final`, all five batched reductions on -- and not a price of the gadget on its own. No standalone key names the unary application: it is a constant of the micro-benchmark and not one of its measurements."
+  },
   "rate.microbench.commit": {
    "value": 15.8797,
    "unit": "Mcell/s",
@@ -3418,6 +3506,17 @@
    "artifact": "slice_0000.json",
    "note": "The interaction tree's share belonging to the LogUp tables themselves: the exponential, the range checks, the reciprocal and the residual stream's own tables, added up over the run's slice outputs and divided by positions.headline.c4096. The eleven components add up to cells_per_position.headline.c4096.interaction and the artifact splits no other tree this way."
   },
+  "cells_per_position.headline.c4096.fresh_layers_block": {
+   "value": 87026069.90625,
+   "unit": "cells/position",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "n/a",
+   "grade": "derived",
+   "run": "2026-09-09-headline-c4096-h100",
+   "artifact": "slice_0256.json",
+   "note": "The fresh cells of the 32 layer segments of one token block over the 512 positions that block proves: 44,557,347,792 cells over 512, block B8, the one block of the sequence whose prefix is the whole context. It is what the cost model's registration compares its layers-only prediction per decoded token against, and the block is the comparison the prediction means: the model prices 32 layers at the full context, where the earlier blocks of the sequence read a shorter prefix and cost less. The output head segment is not in it; layer segment B8L0 is, with the embedding lookup and the one extra cell an attention-output accumulator it carries, 41,168 cells a position between them. The same 32 segments proved again for the reduction ablation come to the same integer, `cells.ablation.c4096.all_five`. It is a larger figure than `cells_per_position.headline.c4096.base` and its two companions added up, which divide every segment of the run, output heads and short prefixes included, by every position the run proves."
+  },
   "cells_per_position.headline.c16384.base": {
    "value": 75497158.324,
    "unit": "cells/position",
@@ -3593,6 +3692,17 @@
    "run": "2026-09-08-headline-c16384-h100",
    "artifact": "slice_0000.json",
    "note": "The interaction tree's share belonging to the LogUp tables themselves: the exponential, the range checks, the reciprocal and the residual stream's own tables, added up over the run's slice outputs and divided by positions.headline.c16384. The eleven components add up to cells_per_position.headline.c16384.interaction and the artifact splits no other tree this way."
+  },
+  "cells_per_position.headline.c16384.fresh_layers_block": {
+   "value": 140142998.6875,
+   "unit": "cells/position",
+   "card": "H100",
+   "context": 16384,
+   "timing_scope": "n/a",
+   "grade": "derived",
+   "run": "2026-09-08-headline-c16384-h100",
+   "artifact": "slice_1024.json",
+   "note": "The fresh cells of the 32 layer segments of one token block over the 512 positions that block proves: 71,753,215,328 cells over 512, block B32, the one block of the sequence whose prefix is the whole context, on the same terms as the row at context 4,096: the output head segment is out, layer segment B32L0 is in with the embedding lookup and the one extra cell an attention-output accumulator it carries, and the earlier blocks of the sequence read a shorter prefix and are not in it. It is what the cost model's registration compares its layers-only prediction per decoded token against at this context."
   }
  },
  "discrepancies": []

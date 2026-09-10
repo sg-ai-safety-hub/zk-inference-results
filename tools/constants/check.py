@@ -9,7 +9,9 @@ artifact in it; an `external` entry's note carries a URL; an `asserted` entry's
 note gives the reason; a `derived` entry is recomputed below from the entries
 it names.  Then `audit.py` re-derives every `measured` entry from its artifact.
 `--strict` also fails on a non-empty `discrepancies` list, which a release tag
-requires.  This file reads no prose.
+requires.  A `derived` entry whose two sides are counts in a run artifact rather
+than entries of this file is recomputed through `audit.py`'s reader for it.
+This file reads no prose.
 """
 import pathlib
 import re
@@ -22,6 +24,17 @@ ROOT = pathlib.Path(__file__).resolve().parents[2]
 FIELDS = ("value", "unit", "card", "context", "timing_scope", "grade", "note")
 GRADES = ("measured", "derived", "projected", "external", "asserted")
 fails = []
+
+
+def composed():
+    """The composed statement's rows, recomputed from the two headline runs.
+
+    Their two sides are counts one slice output holds and not entries of this
+    file, so the reader lives in `audit.py` beside the other artifact readers and
+    is called here as well; it reads the outputs once.
+    """
+    import audit  # noqa: E402
+    return audit.composed_figures()[0]
 
 
 def chk(name, got, key, tol=0.005):
@@ -179,6 +192,32 @@ DERIVED = {
         * v("cost.h100_reference_usd_per_hour") / 3600 * 1000,
         f"usd_per_1k_positions.headline.c{ctx}.cold_{s}", 0.001))
        for ctx in (4096, 16384) for s in ("whole_wall", "loop")},
+    # What the composed prover builds each gadget at, and what one token block's
+    # 32 layer segments cost per decoded token: cells over a count the same
+    # segment reports, on the two headline runs.  Nothing is rounded, here or in
+    # the recorded value: the reader divides.
+    **{k: (lambda k=k, w=what: chk(w, composed()[k], k, 1e-9))
+       for k, what in (
+           ("model_constants.dequant_chain_composed_cells_per_acc",
+            "composed dequantization, per accumulator"),
+           ("model_constants.requant_composed_cells_per_value",
+            "composed requantization, per value"),
+           ("model_constants.quant_composed_cells_per_value",
+            "composed q and k quantization, per value"),
+           ("model_constants.weight_freivalds_composed_cells_per_weight",
+            "composed Freivalds check, per weight"),
+           ("model_constants.attnout_composed_cells_per_acc",
+            "composed attention-output fold, per accumulator"),
+           ("model_constants.residual_stream_composed_mul_cells_per_op",
+            "composed bf16 multiply, per operation"),
+           ("model_constants.residual_stream_composed_add_cells_per_op",
+            "composed bf16 add, per operation"),
+           ("model_constants.residual_stream_composed_swiglu_cells_per_op",
+            "composed SwiGLU channel, per operation"),
+           ("cells_per_position.headline.c4096.fresh_layers_block",
+            "c4096 one block's layer segments, per position"),
+           ("cells_per_position.headline.c16384.fresh_layers_block",
+            "c16384 one block's layer segments, per position"))},
 }
 
 URL = re.compile(r"https?://\S+")
