@@ -73,6 +73,36 @@ DERIVED = {
         v(f"proof.headline.c{c}.total_bytes") / v(f"positions.headline.c{c}"),
         f"proof.headline.c{c}.bytes_per_position", 0.001))
        for c in (4096, 16384)},
+    # The same proof measured the other three ways the sequence can be divided.
+    # The in-memory total over the positions, beside the serialized row above.
+    # And, per segment, the mean beside the median the file already carries: the
+    # median is a segment the run proved and the mean is the only per-segment
+    # figure that multiplies back to the total, so a reader is given both and
+    # the notes say which is which.
+    **{f"proof.headline.c{c}.in_memory_bytes_per_position": (lambda c=c: chk(
+        f"c{c} headline in-memory proof bytes per proved position",
+        v(f"proof.headline.c{c}.total_in_memory_bytes") / v(f"positions.headline.c{c}"),
+        f"proof.headline.c{c}.in_memory_bytes_per_position", 0.001))
+       for c in (4096, 16384)},
+    **{f"proof.headline.c{c}.{p}bytes_per_segment_mean": (lambda c=c, p=p, t=t: chk(
+        f"c{c} headline {'in-memory ' if p else ''}proof bytes per segment, mean",
+        v(f"proof.headline.c{c}.{t}") / v(f"segments.headline.c{c}"),
+        f"proof.headline.c{c}.{p}bytes_per_segment_mean", 0.001))
+       for c in (4096, 16384)
+       for p, t in (("", "total_bytes"), ("in_memory_", "total_in_memory_bytes"))},
+    # The verifier's side over the same two divisors.  Its seconds are the
+    # host's cores and the proving seconds beside them are the card's, which is
+    # why no row here is a ratio of the two.
+    **{f"verify.headline.c{c}.secs_per_segment_mean": (lambda c=c: chk(
+        f"c{c} headline verifier seconds per segment, mean",
+        v(f"verify.headline.c{c}.secs_total") / v(f"segments.headline.c{c}"),
+        f"verify.headline.c{c}.secs_per_segment_mean", 0.001))
+       for c in (4096, 16384)},
+    **{f"verify.headline.c{c}.secs_per_position": (lambda c=c: chk(
+        f"c{c} headline verifier seconds per proved position",
+        v(f"verify.headline.c{c}.secs_total") / v(f"positions.headline.c{c}"),
+        f"verify.headline.c{c}.secs_per_position", 0.001))
+       for c in (4096, 16384)},
     # The ablation: what one reduction removes, as a fraction of the figure
     # without it.  The key tiles' reduction is measured against no reduction at
     # all; the other four extend it, so each is measured against it.
