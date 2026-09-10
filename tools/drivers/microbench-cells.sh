@@ -6,11 +6,12 @@
 # The cost model prices a proof from a cell count and a rate.  `microbench.sh`
 # measures the rates -- the vendored library's benchmarks of the primitives, and
 # one composed segment's commitment and FRI parts -- and this measures the cell
-# counts: what one dequantized accumulator, one requantized value, one
-# residual-stream operation, one argmax comparison, one packed attention
-# instance, one lookup at each accumulator width and one at each `kmax` cost,
-# what one weight of the Freivalds check costs at a given row width, and what
-# one lookup costs at each of the two LogUp batch sizes the prover uses.
+# counts: what one dequantized accumulator costs at each rounding, one
+# requantized value, one residual-stream operation, one argmax comparison at
+# each of three vocabularies, one packed attention instance, one lookup at each
+# accumulator width and one at each `kmax`, what one weight of the Freivalds
+# check costs at a given row width, and what one lookup costs at each of the two
+# LogUp batch sizes the prover uses.
 # A cell count is the same on both backends, so they are read on the reference
 # backend, on the host's cores, with no card involved.
 #
@@ -62,6 +63,51 @@
 # batch size, and the cost model's reader refuses a scalar under that key, so
 # the record is an object keyed by the batch size written as a string.
 #
+# `dequant` is asked a second time, at the other rounding.  The cost model
+# charges the rounding away from zero on every layer matmul and on the output
+# head, because that is what the quantization configuration specifies and what
+# every recorded proof builds; every dequantization constant recorded so far is
+# at the round half to even, and at the two variants the model charges that is
+# one cell an accumulator above what it charges.
+# `b6-dequant-away.json` is the same sweep at `--round away`, over the three
+# variants the rounding can move, and it backs four keys: the marginal figures
+# `model_constants.dequant_chain_away_cells_per_acc` and
+# `model_constants.dequant_pow2_away_cells_per_acc` from `cells_per_acc_marginal`,
+# and `model_constants.dequant_chain_away_base_cells_per_acc` and
+# `model_constants.dequant_pow2_away_base_cells_per_acc` from `columns.base` over
+# the sixteen accumulators a row carries -- the committed columns with the LogUp
+# running sums left out, which is what a proof with `--gkr-dequant` builds and
+# what the configuration the paper reports proves.  `b6-dequant.json` keeps the
+# round half to even and keeps its own entries, so the two outputs never claim
+# one number.  `int8` and `limbs` are not asked again: neither moved between the
+# two roundings when the private archive swept both, and each already has an
+# entry from the even output.
+#
+# `argmax` is asked at three vocabularies, because one cannot separate what a
+# comparison costs from what the gadget costs whatever the vocabulary is.
+# `model_constants.argmax_cells_per_comparison` is the whole gadget over its
+# comparisons; the cost model charges the marginal and reaches it today by
+# subtracting an assumed fixed side of ten interaction columns over the trace
+# rows, which is an assumption and not a measurement, and that entry's own note
+# says a second vocabulary would settle it.  `b10-argmax.json`,
+# `b10-argmax-v16k.json` and `b10-argmax-v32k.json` are 8 tokens over 8,192,
+# 16,384 and 32,768 entries at the same 64 comparisons a row, so the three fresh
+# cell counts against the three comparison counts give the marginal as a slope
+# and the fixed side as an intercept.  The slope backs
+# `model_constants.argmax_marginal_cells_per_comparison`.
+#
+# Two more of the cost model's cell inputs get no line here, and the record has
+# to say why.  The preprocessed side of the Freivalds check is already in the
+# `freivalds` points: `cells.preprocessed_per_weight`, the same marginal over the
+# same two output widths as the fresh figure, which backs
+# `model_constants.weight_freivalds_preprocessed_cells_per_weight` off
+# `b3-freivalds.json` with no new subcommand.  The per-activation int8 range
+# check and the bf16 unary operation are exact counts on top of `logup`: one
+# arity-2 lookup into the 2^16 byte-pair table range-checks two activations, and
+# a unary operation commits its output as one bf16 value, two cells, and pays one
+# lookup.  Both are derived entries over
+# `model_constants.logup_marginal_cells_per_lookup` and neither is a run.
+#
 # The first call pushes zk-prover at the two commits to the host, starts the
 # job detached and prints the poll command.  Every later call with the same
 # arguments prints the status; once the status says done it fetches the
@@ -94,7 +140,10 @@ b3-width|width --n 1048576 --widths 4,8,16,32,64,128
 b4-kmax|kmax --n 262144 --per-row 16 --kmax-sweep 10,12,14,16,18,21
 b3-freivalds|freivalds --s 32 --nin 64 --nout 544 --widths 136
 b3-freivalds-widths|freivalds --s 32 --nin 64 --nout 64 --widths 8,16,32,64
-logup|logup --table-bits 12 --log-rows 10 --lookups-per-row 4'
+logup|logup --table-bits 12 --log-rows 10 --lookups-per-row 4
+b6-dequant-away|dequant --n 1048576 --per-row 16 --variants round,pow2,chain --round away
+b10-argmax-v16k|argmax --tokens 8 --vocab 16384 --per-row 64
+b10-argmax-v32k|argmax --tokens 8 --vocab 32768 --per-row 64'
 XTHREADS=20
 
 drv_finish "$(drv_status)"
