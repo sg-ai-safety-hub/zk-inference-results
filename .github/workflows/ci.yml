@@ -16,6 +16,8 @@ jobs:
           python3 tools/constants/index.py --check
       - name: banned words in durable prose
         run: python3 tools/constants/words.py README.md REPRODUCE.md docs/
+      - name: no backtick inside a driver's job body
+        run: tools/drivers/lib/check-heredocs.sh
       - name: docs budget (under 1,000 lines)
         run: |
           n=$(find docs -name '*.md' -print0 | xargs -0 cat | wc -l)
