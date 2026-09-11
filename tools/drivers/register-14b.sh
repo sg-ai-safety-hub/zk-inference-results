@@ -79,8 +79,11 @@ LABEL=registration         # a prediction, not a measurement: this run proves no
 # reader, #152 priced the prediction at the statement the measurement proves,
 # #156 gave the model the terms a composed chunk has, and #157 made the whole
 # registration producible from a constants file with no stand-in for a key that
-# is missing.  This is the first commit that carries all four.
-COMMIT=9851ae969dc78ad57adcf28f196f8beb3a777ab3
+# is missing.  #160 then made the 8B anchor and the eight composed prices read
+# the key names this repository records, and #163 gave the registration a shape
+# selection whose default is the three shapes E4 registered, in E4's order.
+# This is that repository's main, and it carries all six.
+COMMIT=ed8de1a0f6e8afc72e4c2e849db7cd0b125123e6
 # The statement the registration prices, which is what `predict-14b.sh` proves:
 # its `LAYER_FLAGS`, and the two drivers have to name the same set.
 STATEMENT="--diagonal-block --gkr-key-tiles --gkr-dequant --gkr-residual-stream --gkr-freivalds --gkr-attnout"

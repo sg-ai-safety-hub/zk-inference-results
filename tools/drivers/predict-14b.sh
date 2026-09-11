@@ -10,18 +10,19 @@
 # 32, forty attention heads instead of thirty-two, a wider inner dimension --
 # and the arithmetic is the fixed configuration.
 #
-# **This driver makes the measurement and not the comparison, and it runs
-# second.** The registration can be produced now: zk-prover #153 gave the cost
-# model a constants-first reader and #157 made every input the prediction reads
-# come off this repository's `constants.json` and its own recorded runs, so
-# `tools/drivers/register-14b.sh` writes it here, with no card and without the
-# private archive. A prediction registered after the measurement would not be a
-# prediction, so the order is register, then measure, then compare: record the
-# registration run before this driver books a card, measure here, and compare
-# with the harness's `harness/eval/predict/compare.py`, which reads the
-# registration out of the run that recorded it. Every field that comparison
-# reads is in the per-layer outputs this run fetches, so it costs no host time
-# to do it later.
+# **This driver runs second.** The registration is produced first: zk-prover
+# #153 gave the cost model a constants-first reader, #157 made every input the
+# prediction reads come off this repository's `constants.json` and its own
+# recorded runs, and #160 gave the anchor and the composed prices the key names
+# this repository records, so `tools/drivers/register-14b.sh` writes it here,
+# with no card and without the private archive. A prediction registered after
+# the measurement would not be a prediction, so the order is register, then
+# measure, then compare: the registration run is recorded before this driver
+# books a card, the card time is the measurement, and the comparison is made
+# from the fetched outputs by the harness's `harness/eval/predict/compare.py`,
+# which reads the registration out of the run that recorded it. That comparison
+# costs no host time -- every field it reads is in the per-layer outputs -- so
+# it is made here, before the outputs become a run, and the run carries it.
 #
 # **The measured 8B reference the registration reads is derived here, from runs
 # this repository already holds.** `harness.eval.predict.predict` states its
@@ -49,6 +50,17 @@
 # are read off each witness, because 48 independent proofs need not agree on a
 # shape the way a chunk loop does.
 #
+# `--tight-table` is in the shared pins for the same reason it is in every other
+# campaign at this context: it sizes the master exponent table by the largest
+# key the key tiles look up rather than by the dump manifest's `d_bits +
+# spread`, and the chunks this measurement is compared against were proved that
+# way. The prediction charges five cells a table row over a master table of
+# 2^23 rows, which is the modal width of the recorded 8B chunks (22 to 25 over
+# their 32 layers); a run that left the table at the manifest's width would
+# commit cells the prediction does not charge and the residual would be that
+# difference and not the shape. The width is still read off each witness, one
+# per layer, and each layer's proof reports it in `params.log_table`.
+#
 # The first call checks the two reference segments are there and pushes
 # zk-prover at the two commits to the host, starts the job detached and prints
 # the poll command. Every later call with the same arguments prints the status;
@@ -72,7 +84,7 @@ SPEC=b10-final             # the fixed configuration; the delayed-requantization
                            # the cost model rather than of the quantization
 CTX=4096; S=512
 NLAY=48
-SHARED="--round even --numbits 9 --z-hi-bits 7 --variants intexp --head-groups 16,16,8"
+SHARED="--round even --numbits 9 --z-hi-bits 7 --variants intexp --head-groups 16,16,8 --tight-table"
 GKR="--gkr-key-tiles --gkr-dequant --gkr-residual-stream --gkr-freivalds --gkr-attnout"
 # The rounding mode is in the shared flags and must not be repeated here: a
 # flag that appears twice on one command line changes the digest
@@ -80,6 +92,18 @@ GKR="--gkr-key-tiles --gkr-dequant --gkr-residual-stream --gkr-freivalds --gkr-a
 # recorded (zk-prover #53), so it is named once and only once.
 LAYER_FLAGS="--diagonal-block $GKR"   # every binding gadget is on by default; no skip flag anywhere
 XTHREADS=20                # torch threads for the extraction, rayon threads for the proofs
+# The registration this measurement is compared against, recorded by
+# `register-14b.sh` before this driver books a card.  The run's config.json
+# names it, so the record says which document the comparison read.
+REGISTRATION=runs/2026-09-11-register-14b-none
+SHAPE=qwen2p5_14b          # the registered shape, as the comparison names it
+# The harness commit the comparison is made at.  It reads the outputs this run
+# fetched and no witness, no card and no weight, so it need not be the commit
+# that proved them; it is named here, and in the run's `derived` block, so the
+# record says which reading made the comparison.
+COMPARE_COMMIT=$HARNESS
+CARD="none: the proofs are the reference backend's, on the host's cores"
+BACKEND="ref (SimdBackend)"
 
 # ---- the 8B reference chunks, derived rather than measured -------------------
 # One segment per context, named by its `ser_tag` and never by the `layer` field
@@ -99,8 +123,79 @@ drv_seq5() {
         --from 2026-09-09-headline-c4096-h100:B8L16:4096 \
         --from 2026-09-08-headline-c16384-h100:B32L16:16384 "$@"
 }
+
+# ---- the comparison, made on the outputs before they become a run -----------
+# `harness/eval/predict/compare.py` reads the per-layer outputs and the
+# registration and writes the two documents the run book asks for: the per-chunk
+# record and the comparison. It runs here, on the fetched outputs and before the
+# manifest is written, so both are outputs of this run like the proofs are, and
+# the manifest says in `derived` which registration they were read against.
+#
+# The harness reads the registration from a path inside its own checkout, so the
+# archive gets a copy and the run that recorded it keeps the original: a
+# registration's identity is `prediction_sha256`, a digest of the content and
+# not of the file, so it is the same document on either side of that copy.
+drv_compare() {
+    out=$1; record=$2
+    reg=$ROOT/$REGISTRATION/registration.json
+    src=$(mktemp -d "${TMPDIR:-/tmp}/$NAME-compare.XXXXXX")
+    trap 'rm -rf "$src"' EXIT INT TERM
+    git -C "$ZK_PROVER" cat-file -e "$COMPARE_COMMIT^{commit}" ||
+      { echo "unknown comparison commit $COMPARE_COMMIT" >&2; exit 2; }
+    git -C "$ZK_PROVER" archive --format=tar "$COMPARE_COMMIT" | tar -C "$src" -xf -
+    echo "$COMPARE_COMMIT" > "$src/.source-commit"
+    mkdir -p "$src/harness/eval/predict/out"
+    python3 - "$reg" "$src/harness/eval/predict/out/registration.json" <<'REGPY'
+import json, sys
+json.dump(json.load(open(sys.argv[1]))["result"], open(sys.argv[2], "w"),
+          indent=1, sort_keys=True)
+REGPY
+    ( cd "$src/harness" && uv sync --frozen )
+    # The comparison's findings are what this run is for, and it exits non-zero
+    # on one while writing both of its documents all the same, so its exit code
+    # is not what is read here: what is read is whether the documents are there.
+    # And a comparison that cannot be made does not cost the measurement its
+    # record: every field it reads is in the outputs beside it, so it can be
+    # made again from the recorded run, and the derived block says it was not
+    # made and what stopped it.
+    ( cd "$ROOT" && uv run --project "$src/harness" --frozen \
+        python -m harness.eval.predict.compare --runs "$out" --shape "$SHAPE" \
+        --ctx $CTX --card "$CARD" --backend "$BACKEND" --out "$out" ) 2>&1 | tee "$src/out.txt"
+    cmp=$out/comparison_${SHAPE}_c$CTX.json
+    python3 - "$record" "$reg" "$REGISTRATION" "$SHAPE" "$CTX" "$cmp" "$src/out.txt" \
+             "$COMPARE_COMMIT" <<'CMPPY'
+import json, os, sys
+record, registration, run, shape, ctx, comparison, log, commit = sys.argv[1:9]
+rec = json.load(open(record))
+r = json.load(open(registration))["result"]
+d = {"what": "the measured layer proofs against the registered prediction, made by "
+             "harness/eval/predict/compare.py at the pinned harness commit",
+     "registration_run": run,
+     "compared_at": commit,
+     "prediction_sha256": r["prediction_sha256"],
+     "prediction_block_sha256": r["prediction_block_sha256"]}
+if os.path.exists(comparison):
+    c = json.load(open(comparison))
+    d.update(made=True,
+             files=[f"measured_{shape}_c{ctx}.json", f"comparison_{shape}_c{ctx}.json"],
+             rho=c["b_rho"]["rho"], tier=c["c_tier"]["tier"],
+             protocol=c["b_rho"]["protocol"],
+             key_tiles_exact_on_every_chunk=c["a_key_tiles_exact"]["exact_on_every_chunk"],
+             boundary_exact_on_every_chunk=c["a2_boundary_exact"]["exact_on_every_chunk"],
+             void=c["void"])
+else:
+    lines = [l for l in open(log).read().splitlines() if l.strip()]
+    d.update(made=False, files=[],
+             why=" ".join(lines[-3:]) or "the comparison printed nothing")
+rec["comparison"] = d
+json.dump(rec, open(record, "w"), indent=1, sort_keys=True)
+CMPPY
+    [ -f "$cmp" ] || echo "$NAME: the comparison was not made; the run is recorded without \
+it and the manifest's derived block says what stopped it" >&2
+}
+
 # the hook lib/driver.sh calls with the fetched directory and the record file
-drv_derive() { drv_seq5 --out "$1" --record "$2"; }
+drv_derive() { drv_seq5 --out "$1" --record "$2"; drv_compare "$1" "$2"; }
 
 drv_finish "$(drv_status)"
 
@@ -110,6 +205,15 @@ drv_finish "$(drv_status)"
 # unbound or that was proved under an unsound skip refuses the run here, where
 # it costs nothing, rather than after the measurement.
 drv_seq5
+# And the registration, for the same price: a prediction written after the
+# measurement is not a prediction, so a measurement whose registration is not
+# recorded here yet is refused before it books a card.
+[ -f "$ROOT/$REGISTRATION/registration.json" ] || {
+    echo "$NAME: no registration at $REGISTRATION." >&2
+    echo "        The prediction is registered first, by tools/drivers/register-14b.sh," >&2
+    echo "        and its run is recorded in this repository before this one measures." >&2
+    exit 2
+}
 
 # ---- start: push the pinned sources, then the job ----------------------------
 drv_check_commits
@@ -166,14 +270,16 @@ cat > \$OUT/config.json <<CFG
  "context": $CTX, "s": $S, "layers": $NLAY, "segments": $NLAY,
  "shared_flags": "$SHARED", "layer_flags": "$LAYER_FLAGS",
  "backend": "simd", "threads": $XTHREADS, "weights": \$WEIGHTS,
- "comparison": "not made here: the registration cannot be produced at this harness commit (zk-prover #67)"}
+ "comparison": "made after the fetch, by the harness's compare.py against the registration in $REGISTRATION"}
 CFG
 
 # 4. the witnesses: the last block of a $((CTX + S))-token sequence, all $NLAY layers.
 #    Layer 0 is its own pass because the embedding table is written into every
-#    dump of the pass it is given, and a one-layer pass writes a directory
-#    without the layer in its name (zk-prover #55), so it is pointed straight at
-#    the name the proofs read.
+#    dump of the pass it is given, and the prover turns the gadget on for any
+#    dump that carries one.  Its pass writes to the same base as the others:
+#    a one-layer pass used to write a directory without the layer in its name
+#    (zk-prover #55), and at the pinned commit every dump of a layers pass is
+#    named the same way, one layer or forty-seven.
 if [ ! -f \$WIT/witness_L$((NLAY - 1))/manifest.json ]; then
   st "extract: layers 1 to $((NLAY - 1)), C=$CTX, $SPEC"
   T0=\$(date +%s)
@@ -187,7 +293,7 @@ if [ ! -f \$WIT/witness_L0/manifest.json ]; then
   T0=\$(date +%s)
   ( cd \$HSRC && \$PY -m harness.witness.extract --tokens $((CTX + S)) --chunk $S \
       --layers 0 --spec $SPEC \
-      --residual-stream --diagonal-block --slim --slim-num --embed --out \$WIT/witness_L0 )
+      --residual-stream --diagonal-block --slim --slim-num --embed --out \$WIT/witness )
   st "extract: layer 0 done in \$(( \$(date +%s) - T0 ))s"
 fi
 du -sh \$WIT | awk '{print "witness size: " \$1 "  " \$2}'
