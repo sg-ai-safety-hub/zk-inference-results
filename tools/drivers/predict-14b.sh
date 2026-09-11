@@ -101,7 +101,14 @@ SHAPE=qwen2p5_14b          # the registered shape, as the comparison names it
 # fetched and no witness, no card and no weight, so it need not be the commit
 # that proved them; it is named here, and in the run's `derived` block, so the
 # record says which reading made the comparison.
-COMPARE_COMMIT=$HARNESS
+#
+# It is NOT the commit that proves, and it is UNMERGED on purpose: zk-prover
+# #175 (`predict-exact`) is what reads a counted registration -- it compares
+# every layer's count against that layer's proved chunk and the fields the
+# registration counted at against the fields the run proved at -- and it carries
+# the one-line fix for the statement key the prover renamed (zk-prover #171),
+# without which the comparison stops on the first chunk it opens.
+COMPARE_COMMIT=b77703c2e6215a90ea05d6a32b75a17b4713b8ad
 CARD="none: the proofs are the reference backend's, on the host's cores"
 BACKEND="ref (SimdBackend)"
 

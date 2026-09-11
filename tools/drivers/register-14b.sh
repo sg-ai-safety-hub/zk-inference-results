@@ -1,7 +1,15 @@
 #!/bin/sh
 # register-14b: the prediction `predict-14b` is measured against, registered.
 #
-#   tools/drivers/register-14b.sh
+#   tools/drivers/register-14b.sh <witness fields file>
+#
+# The fields file is the per-layer witness-calibrated fields of the 48 dumps,
+# written on the host by `harness/eval/predict/witness_fields.py` and fetched
+# here.  It is what makes this registration a COUNTED one: every layer segment
+# is counted from the prover's trace layout at the fields its own dump carries,
+# instead of being priced from per-unit constants read off one measured 8B
+# segment.  The file is refused if it is missing, because the counted path has
+# no fallback -- the table sizes are the model's own or they are not there.
 #
 # **The registration is recorded BEFORE `predict-14b.sh` measures.** That is the
 # one rule the experiment has: a prediction written after the measurement is not
@@ -68,6 +76,7 @@
 # again.  `lib/seq5-reference.py` holds what they are and what makes the
 # derivation refuse.
 set -eu
+FIELDS=${1:-}
 HERE=$(cd "$(dirname "$0")" && pwd)
 ROOT=$(cd "$HERE/../.." && pwd)
 ZK_PROVER=${ZK_PROVER_DIR:-$ROOT/../zk-prover}     # a local clone to archive the commit from
@@ -83,7 +92,21 @@ LABEL=registration         # a prediction, not a measurement: this run proves no
 # the key names this repository records, and #163 gave the registration a shape
 # selection whose default is the three shapes E4 registered, in E4's order.
 # This is that repository's main, and it carries all six.
-COMMIT=ed8de1a0f6e8afc72e4c2e849db7cd0b125123e6
+# UNMERGED, on purpose: `predict-exact` (zk-prover #175), which adds the counted
+# path this driver now uses.  It is stacked on #170, #169 and #168, none of them
+# merged either, and the registration is recorded against the commit that made
+# it whatever its branch.  The measurement's own harness pin is a different
+# number and lives in `predict-14b.sh`.
+COMMIT=b77703c2e6215a90ea05d6a32b75a17b4713b8ad
+# The one shape this document registers.  A counted registration registers one:
+# the fields it counts with are one model's dumps.
+SHAPE=Qwen2.5-14B-Instruct
+REGFILE=registration-qwen2-5-14b-instruct.json
+# The pins the measuring driver passes, which the fields were read under.  The
+# two drivers have to agree about them for the same reason they have to agree
+# about the statement: a segment counted at another grouping or another table
+# rule is another segment.
+FIELD_KNOBS='{"numbits": 9, "tight_table": true, "table_bits": 0, "head_groups": [16, 16, 8]}'
 # The statement the registration prices, which is what `predict-14b.sh` proves:
 # its `LAYER_FLAGS`, and the two drivers have to name the same set.
 STATEMENT="--diagonal-block --gkr-key-tiles --gkr-dequant --gkr-residual-stream --gkr-freivalds --gkr-attnout"
@@ -95,6 +118,20 @@ SEQ5="--from 2026-09-09-headline-c4096-h100:B8L16:4096
       --from 2026-09-08-headline-c16384-h100:B32L16:16384"
 
 # ---- the refusals that cost nothing, before anything is built ----------------
+# 0. the fields file.  The counted path reads every layer's master exponent
+#    table, normalisation width and attention-output widths off that layer's own
+#    dump; without the file there is nothing to count with and nothing stands in
+#    for it.  Write it on the host that holds the dumps and fetch it here:
+#      uv run python -m harness.eval.predict.witness_fields \
+#          --dir <witness base> --layers 48 --numbits 9 --head-groups 16,16,8 \
+#          --out fields.json
+if [ -z "$FIELDS" ] || [ ! -f "$FIELDS" ]; then
+    echo "$NAME: no witness fields file." >&2
+    echo "        usage: tools/drivers/register-14b.sh <witness fields file>" >&2
+    echo "        It is written by the harness on the host that holds the 48 dumps," >&2
+    echo "        reads them without proving, and is fetched here before this runs." >&2
+    exit 2
+fi
 # 1. the measurement must not have happened yet, and the registration must not
 #    have been made already.  A prediction written after the measurement is not
 #    a prediction, and a second registration beside the first is two documents
@@ -143,12 +180,17 @@ SRC=$(mktemp -d "${TMPDIR:-/tmp}/$NAME.XXXXXX")
 # directory this repository can make again.  They are derived, read and removed
 # inside this one run.
 ART=$ROOT/runs/.$NAME-ref
+# The fields file goes to a path under the repository with no random part in it,
+# for the same reason the reference chunks do: what the prediction records as its
+# own arguments has to name a path this repository can make again.
+FIELDSREL=runs/.$NAME-fields.json
 OUT=$(mktemp -d "$ROOT/runs/.$NAME-out.XXXXXX")
 rm -rf "$ART"
 mkdir "$ART"
 DERIVED=$(mktemp)
 GATE=$(mktemp)
-trap 'rm -rf "$SRC" "$ART" "$OUT"; rm -f "$DERIVED" "$GATE"' EXIT INT TERM
+trap 'rm -rf "$SRC" "$ART" "$OUT"; rm -f "$DERIVED" "$GATE" "$ROOT/$FIELDSREL"' EXIT INT TERM
+cp "$FIELDS" "$ROOT/$FIELDSREL"
 git -C "$ZK_PROVER" archive --format=tar "$COMMIT" | tar -C "$SRC" -xf -
 echo "$COMMIT" > "$SRC/.source-commit"
 echo "$NAME: zk-prover@$COMMIT -> $SRC"
@@ -165,7 +207,8 @@ python3 "$HERE/lib/seq5-reference.py" --runs "$ROOT/runs" --layer "$LAYER" $SEQ5
 # is named nowhere.
 ( cd "$SRC/harness" && uv sync --frozen )
 ARTREL=runs/$(basename "$ART")
-ARGS="--constants constants.json --artifacts $ARTREL --json"
+ARGS="--constants constants.json --artifacts $ARTREL --cells exact \
+--witness-fields $FIELDSREL --shape $SHAPE --json"
 # shellcheck disable=SC2086
 if ! ( cd "$ROOT" && uv run --project "$SRC/harness" --frozen \
         python -m harness.eval.predict.predict $ARGS ); then
@@ -192,12 +235,13 @@ import sys
 from harness import provenance
 
 root, out, args, statement, zk_results_commit, label = sys.argv[1:7]
+regfile, fields_file, field_knobs = sys.argv[7:10]
 root, out = pathlib.Path(root), pathlib.Path(out)
 # The file `--json` wrote, found through the module rather than guessed: it is
 # written beside `predict.py`, and where that is depends on how the harness's
 # environment installed the project.
 spec = importlib.util.find_spec("harness.eval.predict.predict")
-reg = json.loads((pathlib.Path(spec.origin).parent / "out" / "registration.json").read_text())
+reg = json.loads((pathlib.Path(spec.origin).parent / "out" / regfile).read_text())
 argv = args.split()
 bad = []
 
@@ -222,6 +266,25 @@ missing = [n for n, e in sorted(costs.items())
 if missing:
     bad.append("the model charges these and this constants file does not name them: "
                + ", ".join(f"{n} ({costs[n]['key']})" for n in missing))
+
+# The counted path: the document has to say it counted, the fields it counted
+# with have to be the file this run fetched, and the knobs they were read under
+# have to be the ones the measuring driver passes.  None of the three is a
+# number a reader could check afterwards, so they are checked here.
+if frozen.get("cells") != "exact":
+    bad.append(f"the registration was made on the {frozen.get('cells', 'priced')} path "
+               f"and this driver registers the counted one")
+wf = frozen.get("witness_fields") or {}
+fsha = hashlib.sha256(pathlib.Path(fields_file).read_bytes()).hexdigest()
+if wf.get("file_sha256") != fsha:
+    bad.append(f"the registration counted with fields {wf.get('file_sha256')} and the "
+               f"file this run fetched is {fsha}")
+want_knobs = json.loads(field_knobs)
+if (wf.get("knobs") or {}) != want_knobs:
+    bad.append(f"the fields were read under {wf.get('knobs')} and the driver that "
+               f"measures this shape passes {want_knobs}")
+if len(wf.get("layers") or {}) != reg["shapes"][sorted(reg["shapes"])[0]]["cfg"][0]:
+    bad.append("the fields file does not name every layer of the shape")
 
 priced = reg["statement"].get("driver_flags", "")
 if sorted(priced.split()) != sorted(statement.split()):
@@ -259,6 +322,13 @@ config = {
     "statement": statement,
     "constants": {"file": "constants.json", "sha256": sha,
                   "zk_results_commit": zk_results_commit},
+    "cells": "exact: every layer segment counted from the prover's trace layout at "
+             "the witness-calibrated fields of its own dump, which exist before any "
+             "proof of them does",
+    "witness_fields": {"file": "witness-fields.json", "sha256": fsha,
+                       "schema": wf.get("schema"), "knobs": wf.get("knobs"),
+                       "layers": len(wf.get("layers") or {}),
+                       "log_table": (wf.get("summary") or {}).get("log_table")},
     "cell_costs_by_source": {s: len(n) for s, n in sorted(by_source.items())},
     "cell_costs_not_priced": frozen["not_priced"],
     "reference_chunks": frozen["reference_chunks"],
@@ -273,19 +343,28 @@ config = {
 with open(out / "config.json", "w") as f:
     json.dump(config, f, indent=1, sort_keys=True)
     f.write("\n")
+print(f"register-14b: counted at {len(wf.get('layers') or {})} layers' own witness "
+      f"fields, {fsha[:12]}...")
 print(f"register-14b: prediction_sha256 {reg['prediction_sha256']}")
 print(f"register-14b: prediction_block_sha256 {reg['prediction_block_sha256']}")
 PY
 ( cd "$ROOT" && uv run --project "$SRC/harness" --frozen python "$GATE" \
-    "$ROOT" "$OUT" "$ARGS" "$STATEMENT" "$ZK_RESULTS_COMMIT" "$LABEL" )
+    "$ROOT" "$OUT" "$ARGS" "$STATEMENT" "$ZK_RESULTS_COMMIT" "$LABEL" \
+    "$REGFILE" "$FIELDS" "$FIELD_KNOBS" )
 
 # ---- the record --------------------------------------------------------------
 python3 "$HERE/lib/manifest.py" --driver "tools/drivers/$NAME.sh" --fetched "$OUT" \
     --runs "$ROOT/runs" --prover-commit "$COMMIT" --harness-commit "$COMMIT" \
     --derived "$DERIVED" --date "$(date -u +%Y-%m-%d)"
-(cd "$ROOT" && python3 tools/constants/check.py)
-
 RUN=$(ls -d "$ROOT"/runs/*-"$NAME"-* | tail -1)
+# The fields the registration counted with, beside it.  They are an INPUT to
+# this run and not an output of it -- they were read off the dumps on the host
+# that holds them, by a harness that proved nothing -- so they carry no
+# provenance block and go in after the manifest rather than through it.  The
+# run's config.json names the file and its digest, and the registration itself
+# names the same digest, so the three cannot drift.
+cp "$FIELDS" "$RUN/witness-fields.json"
+(cd "$ROOT" && python3 tools/constants/check.py)
 echo
 echo "$NAME: recorded in runs/$(basename "$RUN")"
 echo "next:  measure, with the registration already in this repository:"
