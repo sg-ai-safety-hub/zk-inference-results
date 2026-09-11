@@ -111,7 +111,7 @@ LABEL=registration         # a prediction, not a measurement: this run proves no
 # its head: a document that holds no row for a shape refuses to register it.
 # RE-PIN THIS when #175 and #176 are merged -- the merged commit is the one a
 # reader can fetch, and an unmerged branch head is not.
-COMMIT=1a6ed266386a190daafd874ed85bf9f5c984550c
+COMMIT=a86b40f15df868413ab6f0dc88f39f1f0d89efc1
 # The shape, as `harness/eval/predict/predict.py` names it, and the stack's own
 # layer count. What is registered is the segments the fields file carries, which
 # is fewer: layer 0 of this model cannot be dumped -- its attention output's
@@ -371,7 +371,10 @@ echo
 echo "$NAME: recorded in runs/$(basename "$RUN")"
 echo "next:  prove, with the registration already in this repository:"
 echo "         ssh <host> rm -f '~/runs/predict-13b.status'"
-echo "         tools/drivers/predict-13b.sh <host> $COMMIT $COMMIT"
+echo "         tools/drivers/predict-13b.sh <host> <prover commit> <harness commit>"
+echo "       The harness commit is the one whose extraction wrote the dumps this"
+echo "       registration counted, which is what the run has to prove; it is not"
+echo "       necessarily $COMMIT, which is only where the counting code lives."
 echo "       then put the registration where the comparison reads it, and compare:"
 echo "         python3 -c 'import json,sys; json.dump(json.load(open(sys.argv[1]))[\"result\"],"
 echo "           open(sys.argv[2], \"w\"), indent=1, sort_keys=True)' \\"
