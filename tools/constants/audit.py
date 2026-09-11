@@ -993,6 +993,72 @@ def registered_14b(ctx=4096):
     return doc["shapes"]["Qwen2.5-14B-Instruct"]["contexts"][str(ctx)]["cells_per_token_layers"]
 
 
+def predict_13b(a, keys):
+    """The 13B model's layer proofs: what the shape cost, added up over its layers.
+
+    The run's own summary is written from the per-layer outputs by the job, and
+    this section re-derives that summary from those outputs rather than trusting
+    it: every layer's proof is opened, checked to have accepted with no skip and
+    every edge bound, the sums are taken here, and the summary is then checked
+    against them.
+
+    The run proves 39 of the model's 40 layers. Layer 0 is in no dump: the
+    harness refuses to write it, because the attention output's quotient term at
+    that layer is 7 + 26 = 33 bits against the field's 31 in the widest form
+    there is, and the divisor range is the layer's own, which a driver may only
+    widen. So the layer set is read off the run rather than counted from the
+    model, and a gap anywhere but layer 0 is a failure here.
+    """
+    if not keys:
+        return
+    run = sorted({e["run"] for e in keys.values()})[0]
+    cfg = artifact(run, "config.json")
+    layers = sorted(int(f.stem[1:]) for f in (ROOT / "runs" / run).glob("L*.json"))
+    absent = [k for k in range(cfg["layers"]) if k not in layers]
+    if absent != [0]:
+        a.fails.append(f"audit: runs/{run} proves layers {layers}, and the layer this "
+                       f"driver expects to be absent is layer 0 alone, not {absent}")
+    fresh = tiles = 0.0
+    by_layer, rss = {}, 0
+    for k in layers:
+        doc = artifact(run, f"L{k}.json")
+        p, prov = doc["result"]["point"], doc["provenance"]
+        if not p["accepts"]:
+            a.fails.append(f"audit: layer {k} did not accept")
+        if p.get("off_table") or p.get("ref_mismatch"):
+            a.fails.append(f"audit: layer {k}: off_table {p.get('off_table')}, "
+                           f"ref_mismatch {p.get('ref_mismatch')}")
+        if prov["unsound_skips"]:
+            a.fails.append(f"audit: layer {k} ran with skips {prov['unsound_skips']}")
+        if not prov["binding"]["all_bound"]:
+            a.fails.append(f"audit: layer {k} left edges {prov['binding']['unbound']} unbound")
+        by_layer[str(k)] = p["cells"]["fresh"]
+        fresh += p["cells"]["fresh"]
+        tiles += p["family_cells"]["key_tiles"]
+        rss = max(rss, p["peak_rss_bytes"])
+    # the job's own summary, against the same sums taken here
+    summary = artifact(run, "measured.json")["summary"]
+    for field, got in (("layers", len(layers)), ("fresh_sum", fresh),
+                       ("key_tiles_sum", tiles), ("peak_rss_bytes_max", rss)):
+        if summary[field] != got:
+            a.fails.append(f"audit: runs/{run} measured.json says {field} {summary[field]} "
+                           f"and its layer outputs say {got}")
+    print(f"  runs/{run}: {len(layers)} of {cfg['layers']} layers (layer 0 is in no dump), "
+          f"{fresh:,.0f} fresh cells, largest process {rss / 2 ** 30:.1f} GiB")
+    for key, value in (
+            ("e4.codellama_13b.c4096.layers", len(layers)),
+            ("e4.codellama_13b.c4096.cells_fresh_by_layer", by_layer),
+            ("e4.codellama_13b.c4096.cells_fresh", fresh),
+            ("e4.codellama_13b.c4096.cells_per_token_layers", fresh / cfg["s"]),
+            ("e4.codellama_13b.c4096.key_tiles_cells", tiles),
+            ("e4.codellama_13b.c4096.peak_rss_bytes", rss)):
+        if key in keys:
+            if isinstance(value, (int, dict)):
+                a.exact(key, value)
+            else:
+                a.claim(key, value)
+
+
 # -- unproved-baseline ---------------------------------------------------------
 # The three rates one point of the baseline records, and the positions each is
 # over: the prompt for `prefill`, the generated positions less the one the
@@ -1723,6 +1789,7 @@ SECTIONS = [
     ("prefill-sweep", prefill_sweep),
     ("prefill-sweep-8b", prefill_sweep_8b),
     ("predict-14b", predict_14b),
+    ("predict-13b", predict_13b),
     ("unproved-baseline", unproved_baseline),
     ("model-commitment", model_commitment),
     ("microbench-cells", microbench_cells),

@@ -59,6 +59,21 @@ def chk(name, got, key, tol=0.005):
 # -- every `derived` entry this file knows how to recompute --------------------
 # One line per derived constant; a derived entry with no line here fails below.
 DERIVED = {
+    # E4's comparison at the third scale: what the run measured over what the
+    # registration counted, and that ratio as a percentage.  Both sides are
+    # entries of this file -- one measured over the run's 39 layer proofs, one
+    # the registration's own counted figure -- and both are over the same 39
+    # segments, because layer 0 of that model is in no dump and neither side
+    # counts it.
+    "e4.codellama_13b.c4096.rho": lambda: chk(
+        "E4 13B measured over registered cells/token",
+        v("e4.codellama_13b.c4096.cells_per_token_layers")
+        / v("e4.codellama_13b.c4096.registered_cells_per_token_layers"),
+        "e4.codellama_13b.c4096.rho", 1e-9),
+    "e4.codellama_13b.c4096.residual_pct": lambda: chk(
+        "E4 13B residual",
+        (v("e4.codellama_13b.c4096.rho") - 1.0) * 100.0,
+        "e4.codellama_13b.c4096.residual_pct", 1e-9),
     "verinf.maverick.tok_s": lambda: chk(
         "VerInf Maverick positions/s", v("verinf.maverick.positions") / (v("verinf.maverick.prover_hours") * 3600),
         "verinf.maverick.tok_s", 0.001),
