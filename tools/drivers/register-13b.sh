@@ -106,8 +106,11 @@ LABEL=registration         # a prediction, not a measurement: this run proves no
 # is missing. zk-prover #168 to #171 then made the committed side counted rather
 # than priced, and the counted path is what this registers on: it is the only
 # one that states what a segment of a shape nothing was fitted at costs, without
-# assuming the 8B's table.
-COMMIT=b77703c2e6215a90ea05d6a32b75a17b4713b8ad
+# assuming the 8B's table. zk-prover #176 is the shape's three rows, and this is
+# its head: a document that holds no row for a shape refuses to register it.
+# RE-PIN THIS when #175 and #176 are merged -- the merged commit is the one a
+# reader can fetch, and an unmerged branch head is not.
+COMMIT=4f9037b12cf8388db081840d2733baff19214b14
 # The shape, as `harness/eval/predict/predict.py` names it, and the number of
 # layer segments `predict-13b.sh` proves.
 SHAPE=CodeLlama-13b-hf
