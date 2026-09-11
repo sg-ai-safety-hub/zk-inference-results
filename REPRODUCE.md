@@ -28,20 +28,6 @@ Written, not yet run:
   micro-benchmark inputs, which are not artifacts here, and a prediction written
   after the measurement is not a prediction.
 
-- `tools/drivers/negative-controls.sh`: the control suite on one real segment of
-  `headline-c4096`'s plan and on the three synthetic shapes. Written and run
-  twice. The three synthetic shapes now pass: 171 controls refused for the
-  reasons they were written for, no crash, and each of the three covered by the
-  control that says the norm weight is the model's, identified by that refusal
-  and by the model root that moved rather than by its name. Two controls are
-  skipped on two of the shapes and the run records why. The real segment does
-  not finish: 41 controls are refused as designed and the 42nd aborts the
-  process, because it moves three values past the master table `--tight-table`
-  had narrowed to the honest witness's own width and the prover panics where the
-  control expects a refusal (zk-prover #134). The suite writes its record only
-  when it finishes, so both real targets produced no output to keep and the gate
-  fails the run on the two crashes. The same panic ends the o-seam control on
-  that segment.
 
 ## synthetic-digests
 
@@ -1636,6 +1622,102 @@ driver: 5 minutes the build, 15 the token ids, 907 seconds the extraction, 28
 minutes the kernel work and the CUDA rebuild, 5,970.803 seconds the five proving
 processes, and 4,210 seconds the verifying grid, of which 3,801 were the 290
 shape-tree derivations.
+
+## negative-controls
+
+    tools/drivers/negative-controls.sh <host> <prover-commit> <harness-commit>
+
+runs: 2026-09-11-negative-controls-h100
+prover commit: b39b806   harness commit: b39b806
+digests: none in the manifest's `digests` map. `compose-probes` reports its
+  proofs under `probes` rather than as a point or a chunk list, so what the
+  manifest carries from this run is its binding table and no digest
+binding (from the manifest, folded over the five honest proofs, one per
+  target): 3 and 5 unbound; 1, 2, 4 and 6 to 14 bound; 15 and 16 absent. The
+  fold is the weakest answer any target gave: both real targets bind every edge
+  their shape has, and so does `syn_aligned`; 3 and 5 are unbound on `syn_sound`
+  and `syn_gkrfive`, which is the table `synthetic-digests` records for those
+  same two shapes. 15 and 16 are absent everywhere, because a layer segment
+  carries neither an embedding row nor an output head. The run is labelled a
+  control in its own `config.json`
+unsound skips: none
+constants backed: `controls.suite.designed_rejections`,
+  `controls.suite.accepted`, `controls.suite.crashes`,
+  `controls.real.c4096.designed_rejections`,
+  `controls.real.c4096.skipped_by_name`
+
+What the run checks. `zk-prover compose-probes` proves the honest statement once
+and then, for each control, rebuilds the segment with one value bent and asks
+the verifier to check the result against the honest statement. A control passes
+only as a designed rejection: the JSON says `accepts: false`, and `falsified`
+names the verdict fields the bend turned off, which is what says the control hit
+the binding it was written for and not something else. A crash is never a pass.
+The gate fails the run on a crash, on any control the verifier accepted, and on
+the absence of a control over the model tree. A control the shape cannot state
+is not a failure: the prover skips it by name with its reason, and both the name
+and the reason are in the record.
+
+What the run says. 236 controls refused for the reasons they were written for
+over the five targets, none accepted, no crash, and the model tree covered on
+the real segment and on each of the three synthetic shapes. Every honest proof
+accepts.
+
+| target | exit | designed rejections | skipped by name | not selected |
+|---|---|---|---|---|
+| `real` | 0 | 64 | 2 | 0 |
+| `real_o_seam` | 0 | 1 | 1 | 64 |
+| `syn_sound` | 0 | 50 | 3 | 0 |
+| `syn_gkrfive` | 0 | 50 | 3 | 0 |
+| `syn_aligned` | 0 | 71 | 0 | 0 |
+
+The real segment is the campaign's point and it had never finished before. At
+`32e8fae` the suite died on it at the control after `requant gateup: up
+dequantized by another scale`, which was the 42nd, and took the 41 refusals
+before it with the process (zk-prover #134). Here that same `requant gateup`
+control is refused with three values off the master table, counted and recorded;
+the table is the statement's own, narrowed by `--tight-table` from 2^25 to 2^23
+with no slack; and the control after it, the one that used to abort, is skipped
+by name. zk-prover #146 is what turned the abort into a counted refusal and made
+the record outlive the process.
+
+The one rejection on `real_o_seam` is not the seam's control. `--probe` selects
+the controls whose name carries the string, and the tampered claim in the
+statement is recorded outside that filter, so it fires on every target; the
+seam's own control is the target's one skip. The 64 the filter left out are in
+the record by name, which is what a filtered run can be read for.
+
+Two controls are skipped on the real segment and three on two of the synthetic
+shapes, and the reasons are different. On a dump the seam's control and the
+model swap rebuild the segment around a second draw of the residual stream,
+which is the synthetic construction's: a dump's activations are the dump's, and
+a second draw lands outside the windows the statement pins from the honest
+witness, so what would refuse such a witness is the draw and not the binding
+under test (zk-prover #24). On `syn_sound` and `syn_gkrfive` the seam's control
+is skipped because the shape cannot state it, and the two `jo` controls because
+those statements' windows admit one `jo` for every row, and for every token, of
+the witness and no other, so a one-step move leaves the window and is refused by
+that lookup before the pin it tests can see it. `syn_aligned` states all 71.
+
+The control that covers the model tree is the one that says the norm weight is
+the model's and not the prover's. It rejects through the model root, and
+`compose-probes` pins both of the honest run's roots, so what identifies it in
+the gate is the refusal it was written for and the root that moved, never its
+name, which says `norm_scale`.
+
+How the run is made. On the SIMD backend, on the host's cores: a control is
+about the statement, which is the same on both backends, and `synthetic-digests`
+and `reference-digest` have already recorded that the CUDA backend reproduces
+the SIMD proof byte for byte on these shapes. The real segment's line is taken
+from a plan written over the witnesses `control-flags-off-c4096` extracted, with
+the headline row's own layer flags, so the statement under test is the one the
+headline run proved; the line goes last on the command line, so its own pins
+win. The seam's control also runs in a process of its own through `--probe`,
+which since zk-prover #151 costs the honest proof and nothing more, because the
+filter is now read before a control rebuilds anything.
+
+Host time. Three hours: the real segment 2 h 51 m of it at about 110 seconds a
+control, its honest proof 100.3 s; the seam's process 4 minutes; the three
+synthetic shapes 5 minutes between them. The build was already on the host.
 
 ## Entry template
 
