@@ -5,10 +5,12 @@
 #   tools/drivers/control-flags-off-c4096.sh <host> <prover-commit> <harness-commit>
 #
 # The same 290 segments, the same witnesses, the same shared pins and the same
-# binding gadgets as `headline-c4096.sh`; the five `--gkr-*` reductions are the
-# only difference, and they choose the LogUp backend for a component without
-# changing what is proved.  So the pair prices the reductions: what they remove
-# from the committed cells and from the proving time, measured on one plan.
+# binding gadgets as `headline-c4096.sh`; the five `--gkr-*` reductions choose
+# the LogUp backend for a component without changing what is proved, and they
+# are the difference the pair is for.  So the pair prices what the reductions
+# remove from the committed cells, measured on one plan.  It does not price
+# their time, because the pipeline is the second difference and the paragraph
+# below says why.
 #
 # The first segment of the first token block would not prove in this
 # configuration until zk-prover #62: the placeholder claims the prover lowers
@@ -21,6 +23,29 @@
 # The paper's configuration has all five on.  Every constant this driver backs
 # names the control it came from and no number here is a throughput the paper
 # cites.
+#
+# The pipeline is off here and on in the headline row, and that is the one thing
+# beside the five flags the two plans do not share.  Pipelined, the prover
+# generates segment k+1 while it proves segment k and the card holds both; with
+# the reductions off a segment's committed cells are large enough that the pair
+# does not fit, and the attempt of 2026-09-09 stopped in token block 3 with
+# cudaErrorMemoryAllocation after its first process had peaked at 80,497 MiB of
+# the 81,559 MiB the card reports, where the same plan with the reductions on
+# peaked at 73,723 MiB and proved all 290 segments (zk-results #74, and the
+# entry in REPRODUCE.md).  With the pipeline off one segment is in flight, which
+# is the memory this run asks the card for.
+#
+# What that costs the pair.  A cell is committed by the segment it belongs to
+# and a second segment in flight adds none, so the cells here and the cells of
+# `runs/2026-09-09-headline-c4096-h100` are the same measurement and the
+# fraction the five reductions remove is read off them: the memory probe proved
+# one sample of segments both ways at context 16,384 and reported one cell count
+# for the two (`cells.probe.c16384.fresh`).  The seconds are not comparable.
+# That probe's serial loop took 228.7 seconds over the sample where its
+# pipelined loop took 175.8 (`secs.probe.c16384.serial_loop`,
+# `secs.probe.c16384.pipelined_loop`), so a loop second here is a serial loop's
+# and does not belong beside `secs.headline.c4096.loop`.  Wherever this run's
+# seconds are described, that has to be said.
 #
 # `MODEL_ROOTS` below is the one optional part of the configuration and it is
 # empty, exactly as it is in `headline-c4096.sh`: given a path to a recorded
@@ -61,7 +86,7 @@ CTX=4096; S=512
 NBLOCK=$(( (CTX + S) / S ))
 NLAY=32
 SHARED="--round even --numbits 9 --z-hi-bits 7 --variants intexp --head-groups 16,8,8 --tight-table"
-# no GKR here: that is the whole of the difference from headline-c4096
+# no GKR here: that, and the pipeline below, are the difference from headline-c4096
 LAYER_FLAGS="--round even --diagonal-block"   # every binding gadget is still on; no skip flag anywhere
 L0_FLAGS=""
 HEAD_FLAGS=""              # no reduction here, and the pins come off the head dumps
@@ -81,7 +106,15 @@ VERIFY=1                   # the same check the headline row's grid makes
 # is moved to the end of the 16,384-token prompt instead, so this row and the
 # context 16,384 row read the same prose (harness/witness/gen_ids.py).
 OFFSET=$(( 16384 - CTX ))
-PIPELINE=1
+# ZK_PIPELINE: 0, one segment in flight, for the memory reason in the header.
+# Nothing here has to be taken on trust from this file: the prover writes the
+# value it ran under into every slice output, as `modes.PIPELINE` value 0 source
+# env and `result.summary.pipe` false, and the job writes `pipeline` into the
+# run's config.json.  A serial loop also reports what a pipelined one cannot --
+# `mem_after_gen` and `mem_after_prove` per segment, which is one segment's
+# generated state with nothing else in flight, and an `upload_scope` of `chunk`
+# rather than `loop-cumulative` -- and the memory is what this run is for.
+PIPELINE=0
 SLICE=64
 XTHREADS=20
 IDS=${ZK_IDS:-}

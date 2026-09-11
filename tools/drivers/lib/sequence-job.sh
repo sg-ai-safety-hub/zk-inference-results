@@ -341,8 +341,8 @@ if [ "\$(cat \$R/kernels.done 2>/dev/null)" != "\$EMITSUM" ]; then
 fi
 st "kernels installed"
 
-# 6. the timed run: $SLICE segments per process, pipelined, the card sampled once
-#    a second.  The samples stay on the host and what is fetched is their
+# 6. the timed run: $SLICE segments per process, at ZK_PIPELINE $PIPELINE, the
+#    card sampled once a second.  The samples stay on the host and what is fetched is their
 #    summary, because a run directory holds outputs and not logs.
 lo=0
 while [ \$lo -lt \$N ]; do
