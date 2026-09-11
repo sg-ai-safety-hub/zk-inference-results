@@ -1,0 +1,54 @@
+{
+ "compose": {
+  "compose-simd": {
+   "backend": "simd",
+   "accepts": true,
+   "fresh_cells": 28387616,
+   "commit_secs": 1.7010007730000003,
+   "fri_secs": 1.893878851,
+   "prove_call_secs": 2.882783984,
+   "wall_secs": 4.588571158,
+   "unsound_skips": [],
+   "all_bound": true,
+   "unbound": []
+  }
+ },
+ "digests": {
+  "compose-simd": "917645a0e83a04aaeb60674db8f198604222f95b0b5c951391b5e4930e0b2694"
+ },
+ "outputs": [
+  "b10-argmax-v16k.json",
+  "b10-argmax-v32k.json",
+  "b10-argmax.json",
+  "b3-freivalds-widths.json",
+  "b3-freivalds.json",
+  "b3-width.json",
+  "b4-kmax.json",
+  "b6-dequant-away.json",
+  "b6-dequant.json",
+  "b6-pack.json",
+  "b65-requant.json",
+  "b65-residual-stream.json",
+  "compose-simd.json",
+  "config.json",
+  "logup.json",
+  "summary.json"
+ ],
+ "cell_costs_asked": [
+  "b6-dequant",
+  "b6-pack",
+  "b65-requant",
+  "b65-residual-stream",
+  "b10-argmax",
+  "b3-width",
+  "b4-kmax",
+  "b3-freivalds",
+  "b3-freivalds-widths",
+  "logup",
+  "b6-dequant-away",
+  "b10-argmax-v16k",
+  "b10-argmax-v32k"
+ ],
+ "cell_costs_missing": [],
+ "refused": []
+}

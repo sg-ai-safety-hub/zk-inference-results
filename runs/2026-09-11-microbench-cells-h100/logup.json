@@ -1,0 +1,1365 @@
+{
+  "bench": "logup",
+  "env": {
+    "arch": "x86_64",
+    "gpu": "NVIDIA H100 80GB HBM3, 81559 MiB",
+    "mem_total_bytes": 253347463168,
+    "os": "linux",
+    "simd_n_lanes": 16,
+    "threads": 20
+  },
+  "modes": {
+    "COMMIT_BY_REFERENCE": {
+      "source": "default",
+      "value": 1
+    },
+    "DEVICE_ACCUMULATORS": {
+      "source": "default",
+      "value": 0
+    },
+    "DEVICE_PREPROCESSED": {
+      "source": "default",
+      "value": 0
+    },
+    "DEVICE_RESIDUAL_STREAM_BINDING": {
+      "source": "default",
+      "value": 0
+    },
+    "DEVICE_STAGING_POOL": {
+      "source": "default",
+      "value": 0
+    },
+    "DEVICE_TABLES": {
+      "source": "default",
+      "value": 0
+    },
+    "DEVICE_WITNESS_GEN_ATTENTION_FREIVALDS": {
+      "source": "default",
+      "value": 0
+    },
+    "DEVICE_WITNESS_GEN_DEQUANT": {
+      "source": "default",
+      "value": 0
+    },
+    "DEVICE_WITNESS_GEN_DIAGONAL_BLOCK": {
+      "source": "default",
+      "value": 0
+    },
+    "DEVICE_WITNESS_GEN_KEY_TILE": {
+      "source": "default",
+      "value": 0
+    },
+    "DEVICE_WITNESS_GEN_RESIDUAL_STREAM": {
+      "source": "default",
+      "value": 0
+    },
+    "GENERATED_LOGUP": {
+      "source": "default",
+      "value": 0
+    },
+    "KERNEL_REFERENCE_CHECK": {
+      "source": "default",
+      "value": 1
+    },
+    "LDE_ONLY": {
+      "source": "default",
+      "value": 0
+    },
+    "LOWERING_CACHE": {
+      "source": "default",
+      "value": 0
+    },
+    "PARALLEL_GATHER": {
+      "source": "default",
+      "value": 1
+    },
+    "PARALLEL_SCAN": {
+      "source": "default",
+      "value": 1
+    },
+    "PIPELINE": {
+      "source": "default",
+      "value": 0
+    },
+    "PREPROCESSED_TREE_CACHE": {
+      "source": "default",
+      "value": 0
+    }
+  },
+  "provenance": {
+    "args": [
+      "logup",
+      "--table-bits",
+      "12",
+      "--log-rows",
+      "10",
+      "--lookups-per-row",
+      "4"
+    ],
+    "backend": "simd",
+    "binary": "zk-prover",
+    "binding": null,
+    "commit": "ed8de1a0f6e8afc72e4c2e849db7cd0b125123e6",
+    "cuda_version": "13.0",
+    "dirty": false,
+    "driver_version": "580.178.04",
+    "dump_sha256": null,
+    "dumps": [],
+    "gpu": "NVIDIA H100 80GB HBM3, 81559 MiB",
+    "proof_sha256": null,
+    "proof_sha256s": null,
+    "unsound_skips": []
+  },
+  "result": {
+    "closed_form": {
+      "column_cells": 4,
+      "marginal_cells_per_lookup": [
+        4.0,
+        2.0
+      ]
+    },
+    "log_rows": 10,
+    "lookups_per_row": [
+      4,
+      8
+    ],
+    "points": [
+      {
+        "accepts": true,
+        "arity": 1,
+        "builds": [
+          {
+            "accepts": true,
+            "arity": 1,
+            "cells": {
+              "base": 4096,
+              "fresh": 20480,
+              "interaction": 16384,
+              "table_base": 4096,
+              "table_interaction": 16384,
+              "table_preprocessed": 4096
+            },
+            "columns": {
+              "base": 5,
+              "interaction": 20,
+              "preprocessed": 1,
+              "total": 26
+            },
+            "interaction_secs": 0.004782206,
+            "kind": "range",
+            "log_rows": 10,
+            "logup_batch_size": 1,
+            "lookups_per_row": 4,
+            "n_lookups": 4096,
+            "off_table": 0,
+            "point": {
+              "cells": {
+                "base": 8192,
+                "fresh": 40960,
+                "interaction": 32768,
+                "model": 0,
+                "preprocessed": 4096,
+                "shape": 4096,
+                "total": 45056
+              },
+              "columns": {
+                "base": 5,
+                "interaction": 20,
+                "model": 0,
+                "preprocessed": 1,
+                "shape": 1,
+                "total": 26
+              },
+              "peak_rss_bytes": 18083840,
+              "phases": {
+                "commit_plus_fri_frac": 0.6502629922274703,
+                "commit_secs": 0.013865329000000001,
+                "detail": {
+                  "constraint_eval_cpu_autofallback": {
+                    "calls": 0,
+                    "secs": 0.0
+                  },
+                  "constraint_eval_cpu_fallback": {
+                    "calls": 0,
+                    "secs": 0.0
+                  },
+                  "constraint_eval_denom_inv": {
+                    "calls": 0,
+                    "secs": 0.0
+                  },
+                  "constraint_eval_gpu": {
+                    "calls": 0,
+                    "secs": 0.0
+                  },
+                  "constraint_eval_polys": {
+                    "calls": 0,
+                    "secs": 0.0
+                  }
+                },
+                "fri_secs": 0.010442492000000001,
+                "phases": {
+                  "constraint_eval": {
+                    "calls": 2,
+                    "secs": 0.002265033
+                  },
+                  "constraint_extension": {
+                    "calls": 0,
+                    "secs": 0.0
+                  },
+                  "fri_commit": {
+                    "calls": 1,
+                    "secs": 0.005794203
+                  },
+                  "fri_quotients": {
+                    "calls": 1,
+                    "secs": 0.004499554
+                  },
+                  "grind": {
+                    "calls": 1,
+                    "secs": 0.000148735
+                  },
+                  "interpolate": {
+                    "calls": 4,
+                    "secs": 0.002031952
+                  },
+                  "lde_extend": {
+                    "calls": 5,
+                    "secs": 0.0014293189999999999
+                  },
+                  "merkle": {
+                    "calls": 5,
+                    "secs": 0.010404058
+                  },
+                  "oods_eval": {
+                    "calls": 1,
+                    "secs": 0.000447797
+                  },
+                  "other": {
+                    "calls": 0,
+                    "secs": 0.010360871999999997
+                  }
+                },
+                "prove_call_secs": 0.020709024,
+                "wall_secs": 0.037381523
+              },
+              "preprocessed_is_widest": true,
+              "proof_bytes": 143968,
+              "prove_error": null,
+              "prove_secs": 0.037381523,
+              "stark_ok": true,
+              "verify_secs": 0.002704583
+            },
+            "reference_checked": 4096,
+            "reference_mismatch": 0,
+            "reference_ok": 4096,
+            "sums": {
+              "cancels": true,
+              "table_sum": "(390071197 + 1130462245i) + (368034374 + 1808360132i)u",
+              "use_sum": "(1757412450 + 1017021402i) + (1779449273 + 339123515i)u"
+            },
+            "table_bits": 12,
+            "table_rows": 4096,
+            "trace_secs": 0.000656918
+          },
+          {
+            "accepts": true,
+            "arity": 1,
+            "cells": {
+              "base": 8192,
+              "fresh": 40960,
+              "interaction": 32768,
+              "table_base": 4096,
+              "table_interaction": 16384,
+              "table_preprocessed": 4096
+            },
+            "columns": {
+              "base": 9,
+              "interaction": 36,
+              "preprocessed": 1,
+              "total": 46
+            },
+            "interaction_secs": 0.003705716,
+            "kind": "range",
+            "log_rows": 10,
+            "logup_batch_size": 1,
+            "lookups_per_row": 8,
+            "n_lookups": 8192,
+            "off_table": 0,
+            "point": {
+              "cells": {
+                "base": 12288,
+                "fresh": 61440,
+                "interaction": 49152,
+                "model": 0,
+                "preprocessed": 4096,
+                "shape": 4096,
+                "total": 65536
+              },
+              "columns": {
+                "base": 9,
+                "interaction": 36,
+                "model": 0,
+                "preprocessed": 1,
+                "shape": 1,
+                "total": 46
+              },
+              "peak_rss_bytes": 20324352,
+              "phases": {
+                "commit_plus_fri_frac": 0.7203260987393253,
+                "commit_secs": 0.011165089,
+                "detail": {
+                  "constraint_eval_cpu_autofallback": {
+                    "calls": 0,
+                    "secs": 0.0
+                  },
+                  "constraint_eval_cpu_fallback": {
+                    "calls": 0,
+                    "secs": 0.0
+                  },
+                  "constraint_eval_denom_inv": {
+                    "calls": 0,
+                    "secs": 0.0
+                  },
+                  "constraint_eval_gpu": {
+                    "calls": 0,
+                    "secs": 0.0
+                  },
+                  "constraint_eval_polys": {
+                    "calls": 0,
+                    "secs": 0.0
+                  }
+                },
+                "fri_secs": 0.012637175,
+                "phases": {
+                  "constraint_eval": {
+                    "calls": 2,
+                    "secs": 0.001366192
+                  },
+                  "constraint_extension": {
+                    "calls": 0,
+                    "secs": 0.0
+                  },
+                  "fri_commit": {
+                    "calls": 1,
+                    "secs": 0.00832302
+                  },
+                  "fri_quotients": {
+                    "calls": 1,
+                    "secs": 0.004261517
+                  },
+                  "grind": {
+                    "calls": 1,
+                    "secs": 0.000052638
+                  },
+                  "interpolate": {
+                    "calls": 4,
+                    "secs": 0.000265989
+                  },
+                  "lde_extend": {
+                    "calls": 5,
+                    "secs": 0.001448867
+                  },
+                  "merkle": {
+                    "calls": 5,
+                    "secs": 0.009450233
+                  },
+                  "oods_eval": {
+                    "calls": 1,
+                    "secs": 0.000822905
+                  },
+                  "other": {
+                    "calls": 0,
+                    "secs": 0.007052372999999997
+                  }
+                },
+                "prove_call_secs": 0.019969274,
+                "wall_secs": 0.033043734
+              },
+              "preprocessed_is_widest": true,
+              "proof_bytes": 152048,
+              "prove_error": null,
+              "prove_secs": 0.033043734,
+              "stark_ok": true,
+              "verify_secs": 0.002234872
+            },
+            "reference_checked": 8192,
+            "reference_mismatch": 0,
+            "reference_ok": 8192,
+            "sums": {
+              "cancels": true,
+              "table_sum": "(2110672062 + 657508090i) + (1990895258 + 873402600i)u",
+              "use_sum": "(36811585 + 1489975557i) + (156588389 + 1274081047i)u"
+            },
+            "table_bits": 12,
+            "table_rows": 4096,
+            "trace_secs": 0.000094691
+          }
+        ],
+        "cells": {
+          "committed_per_lookup": 1.0,
+          "marginal_cells_per_lookup": 4.0,
+          "per_lookup": 5.0,
+          "table": {
+            "base": 4096,
+            "fresh": 20480,
+            "interaction": 16384,
+            "preprocessed": 4096
+          }
+        },
+        "difference": {
+          "base": 4096,
+          "fresh": 20480,
+          "interaction": 16384,
+          "lookups": 4096
+        },
+        "kind": "range",
+        "log_rows": 10,
+        "logup_batch_size": 1,
+        "lookups_per_row": [
+          4,
+          8
+        ],
+        "n_lookups": 8192,
+        "off_table": 0,
+        "proof_bytes": 152048,
+        "prove_secs": 0.033043734,
+        "reference_checked": 12288,
+        "reference_mismatch": 0,
+        "table_bits": 12,
+        "table_rows": 4096
+      },
+      {
+        "accepts": true,
+        "arity": 1,
+        "builds": [
+          {
+            "accepts": true,
+            "arity": 1,
+            "cells": {
+              "base": 4096,
+              "fresh": 12288,
+              "interaction": 8192,
+              "table_base": 4096,
+              "table_interaction": 16384,
+              "table_preprocessed": 4096
+            },
+            "columns": {
+              "base": 5,
+              "interaction": 12,
+              "preprocessed": 1,
+              "total": 18
+            },
+            "interaction_secs": 0.002137417,
+            "kind": "range",
+            "log_rows": 10,
+            "logup_batch_size": 2,
+            "lookups_per_row": 4,
+            "n_lookups": 4096,
+            "off_table": 0,
+            "point": {
+              "cells": {
+                "base": 8192,
+                "fresh": 32768,
+                "interaction": 24576,
+                "model": 0,
+                "preprocessed": 4096,
+                "shape": 4096,
+                "total": 36864
+              },
+              "columns": {
+                "base": 5,
+                "interaction": 12,
+                "model": 0,
+                "preprocessed": 1,
+                "shape": 1,
+                "total": 18
+              },
+              "peak_rss_bytes": 20815872,
+              "phases": {
+                "commit_plus_fri_frac": 0.5926349470355025,
+                "commit_secs": 0.006357797,
+                "detail": {
+                  "constraint_eval_cpu_autofallback": {
+                    "calls": 0,
+                    "secs": 0.0
+                  },
+                  "constraint_eval_cpu_fallback": {
+                    "calls": 0,
+                    "secs": 0.0
+                  },
+                  "constraint_eval_denom_inv": {
+                    "calls": 0,
+                    "secs": 0.0
+                  },
+                  "constraint_eval_gpu": {
+                    "calls": 0,
+                    "secs": 0.0
+                  },
+                  "constraint_eval_polys": {
+                    "calls": 0,
+                    "secs": 0.0
+                  }
+                },
+                "fri_secs": 0.006150259,
+                "phases": {
+                  "constraint_eval": {
+                    "calls": 2,
+                    "secs": 0.000452116
+                  },
+                  "constraint_extension": {
+                    "calls": 0,
+                    "secs": 0.0
+                  },
+                  "fri_commit": {
+                    "calls": 1,
+                    "secs": 0.004763692
+                  },
+                  "fri_quotients": {
+                    "calls": 1,
+                    "secs": 0.001060623
+                  },
+                  "grind": {
+                    "calls": 1,
+                    "secs": 0.000325944
+                  },
+                  "interpolate": {
+                    "calls": 4,
+                    "secs": 0.00022185800000000002
+                  },
+                  "lde_extend": {
+                    "calls": 5,
+                    "secs": 0.000536068
+                  },
+                  "merkle": {
+                    "calls": 5,
+                    "secs": 0.005599871
+                  },
+                  "oods_eval": {
+                    "calls": 1,
+                    "secs": 0.000556996
+                  },
+                  "other": {
+                    "calls": 0,
+                    "secs": 0.007588668
+                  }
+                },
+                "prove_call_secs": 0.013849727,
+                "wall_secs": 0.021105836
+              },
+              "preprocessed_is_widest": true,
+              "proof_bytes": 130568,
+              "prove_error": null,
+              "prove_secs": 0.021105836,
+              "stark_ok": true,
+              "verify_secs": 0.00191702
+            },
+            "reference_checked": 4096,
+            "reference_mismatch": 0,
+            "reference_ok": 4096,
+            "sums": {
+              "cancels": true,
+              "table_sum": "(390071197 + 1130462245i) + (368034374 + 1808360132i)u",
+              "use_sum": "(1757412450 + 1017021402i) + (1779449273 + 339123515i)u"
+            },
+            "table_bits": 12,
+            "table_rows": 4096,
+            "trace_secs": 0.000087306
+          },
+          {
+            "accepts": true,
+            "arity": 1,
+            "cells": {
+              "base": 8192,
+              "fresh": 24576,
+              "interaction": 16384,
+              "table_base": 4096,
+              "table_interaction": 16384,
+              "table_preprocessed": 4096
+            },
+            "columns": {
+              "base": 9,
+              "interaction": 20,
+              "preprocessed": 1,
+              "total": 30
+            },
+            "interaction_secs": 0.001444353,
+            "kind": "range",
+            "log_rows": 10,
+            "logup_batch_size": 2,
+            "lookups_per_row": 8,
+            "n_lookups": 8192,
+            "off_table": 0,
+            "point": {
+              "cells": {
+                "base": 12288,
+                "fresh": 45056,
+                "interaction": 32768,
+                "model": 0,
+                "preprocessed": 4096,
+                "shape": 4096,
+                "total": 49152
+              },
+              "columns": {
+                "base": 9,
+                "interaction": 20,
+                "model": 0,
+                "preprocessed": 1,
+                "shape": 1,
+                "total": 30
+              },
+              "peak_rss_bytes": 21352448,
+              "phases": {
+                "commit_plus_fri_frac": 0.7280331005406752,
+                "commit_secs": 0.008434808,
+                "detail": {
+                  "constraint_eval_cpu_autofallback": {
+                    "calls": 0,
+                    "secs": 0.0
+                  },
+                  "constraint_eval_cpu_fallback": {
+                    "calls": 0,
+                    "secs": 0.0
+                  },
+                  "constraint_eval_denom_inv": {
+                    "calls": 0,
+                    "secs": 0.0
+                  },
+                  "constraint_eval_gpu": {
+                    "calls": 0,
+                    "secs": 0.0
+                  },
+                  "constraint_eval_polys": {
+                    "calls": 0,
+                    "secs": 0.0
+                  }
+                },
+                "fri_secs": 0.004371327,
+                "phases": {
+                  "constraint_eval": {
+                    "calls": 2,
+                    "secs": 0.000542374
+                  },
+                  "constraint_extension": {
+                    "calls": 0,
+                    "secs": 0.0
+                  },
+                  "fri_commit": {
+                    "calls": 1,
+                    "secs": 0.003364247
+                  },
+                  "fri_quotients": {
+                    "calls": 1,
+                    "secs": 0.000971317
+                  },
+                  "grind": {
+                    "calls": 1,
+                    "secs": 0.000035763
+                  },
+                  "interpolate": {
+                    "calls": 4,
+                    "secs": 0.00019362600000000002
+                  },
+                  "lde_extend": {
+                    "calls": 5,
+                    "secs": 0.000540236
+                  },
+                  "merkle": {
+                    "calls": 5,
+                    "secs": 0.007700946
+                  },
+                  "oods_eval": {
+                    "calls": 1,
+                    "secs": 0.000437919
+                  },
+                  "other": {
+                    "calls": 0,
+                    "secs": 0.0038036170000000005
+                  }
+                },
+                "prove_call_secs": 0.009056526,
+                "wall_secs": 0.017590045
+              },
+              "preprocessed_is_widest": true,
+              "proof_bytes": 148472,
+              "prove_error": null,
+              "prove_secs": 0.017590045,
+              "stark_ok": true,
+              "verify_secs": 0.002160748
+            },
+            "reference_checked": 8192,
+            "reference_mismatch": 0,
+            "reference_ok": 8192,
+            "sums": {
+              "cancels": true,
+              "table_sum": "(2110672062 + 657508090i) + (1990895258 + 873402600i)u",
+              "use_sum": "(36811585 + 1489975557i) + (156588389 + 1274081047i)u"
+            },
+            "table_bits": 12,
+            "table_rows": 4096,
+            "trace_secs": 0.000099754
+          }
+        ],
+        "cells": {
+          "committed_per_lookup": 1.0,
+          "marginal_cells_per_lookup": 2.0,
+          "per_lookup": 3.0,
+          "table": {
+            "base": 4096,
+            "fresh": 20480,
+            "interaction": 16384,
+            "preprocessed": 4096
+          }
+        },
+        "difference": {
+          "base": 4096,
+          "fresh": 12288,
+          "interaction": 8192,
+          "lookups": 4096
+        },
+        "kind": "range",
+        "log_rows": 10,
+        "logup_batch_size": 2,
+        "lookups_per_row": [
+          4,
+          8
+        ],
+        "n_lookups": 8192,
+        "off_table": 0,
+        "proof_bytes": 148472,
+        "prove_secs": 0.017590045,
+        "reference_checked": 12288,
+        "reference_mismatch": 0,
+        "table_bits": 12,
+        "table_rows": 4096
+      },
+      {
+        "accepts": true,
+        "arity": 2,
+        "builds": [
+          {
+            "accepts": true,
+            "arity": 2,
+            "cells": {
+              "base": 8192,
+              "fresh": 24576,
+              "interaction": 16384,
+              "table_base": 4096,
+              "table_interaction": 16384,
+              "table_preprocessed": 8192
+            },
+            "columns": {
+              "base": 9,
+              "interaction": 20,
+              "preprocessed": 2,
+              "total": 31
+            },
+            "interaction_secs": 0.001090876,
+            "kind": "pair",
+            "log_rows": 10,
+            "logup_batch_size": 1,
+            "lookups_per_row": 4,
+            "n_lookups": 4096,
+            "off_table": 0,
+            "point": {
+              "cells": {
+                "base": 12288,
+                "fresh": 45056,
+                "interaction": 32768,
+                "model": 0,
+                "preprocessed": 8192,
+                "shape": 8192,
+                "total": 53248
+              },
+              "columns": {
+                "base": 9,
+                "interaction": 20,
+                "model": 0,
+                "preprocessed": 2,
+                "shape": 2,
+                "total": 31
+              },
+              "peak_rss_bytes": 21504000,
+              "phases": {
+                "commit_plus_fri_frac": 0.6845900087232797,
+                "commit_secs": 0.005197768,
+                "detail": {
+                  "constraint_eval_cpu_autofallback": {
+                    "calls": 0,
+                    "secs": 0.0
+                  },
+                  "constraint_eval_cpu_fallback": {
+                    "calls": 0,
+                    "secs": 0.0
+                  },
+                  "constraint_eval_denom_inv": {
+                    "calls": 0,
+                    "secs": 0.0
+                  },
+                  "constraint_eval_gpu": {
+                    "calls": 0,
+                    "secs": 0.0
+                  },
+                  "constraint_eval_polys": {
+                    "calls": 0,
+                    "secs": 0.0
+                  }
+                },
+                "fri_secs": 0.004364054,
+                "phases": {
+                  "constraint_eval": {
+                    "calls": 2,
+                    "secs": 0.00045940499999999997
+                  },
+                  "constraint_extension": {
+                    "calls": 0,
+                    "secs": 0.0
+                  },
+                  "fri_commit": {
+                    "calls": 1,
+                    "secs": 0.00334055
+                  },
+                  "fri_quotients": {
+                    "calls": 1,
+                    "secs": 0.000984892
+                  },
+                  "grind": {
+                    "calls": 1,
+                    "secs": 0.000038612
+                  },
+                  "interpolate": {
+                    "calls": 4,
+                    "secs": 0.000227896
+                  },
+                  "lde_extend": {
+                    "calls": 5,
+                    "secs": 0.0005231459999999999
+                  },
+                  "merkle": {
+                    "calls": 5,
+                    "secs": 0.004446726
+                  },
+                  "oods_eval": {
+                    "calls": 1,
+                    "secs": 0.00045459
+                  },
+                  "other": {
+                    "calls": 0,
+                    "secs": 0.003491407
+                  }
+                },
+                "prove_call_secs": 0.008994287,
+                "wall_secs": 0.013967224
+              },
+              "preprocessed_is_widest": true,
+              "proof_bytes": 154224,
+              "prove_error": null,
+              "prove_secs": 0.013967224,
+              "stark_ok": true,
+              "verify_secs": 0.002048132
+            },
+            "reference_checked": 4096,
+            "reference_mismatch": 0,
+            "reference_ok": 4096,
+            "sums": {
+              "cancels": true,
+              "table_sum": "(1815273509 + 61795720i) + (1738060662 + 1790369569i)u",
+              "use_sum": "(332210138 + 2085687927i) + (409422985 + 357114078i)u"
+            },
+            "table_bits": 12,
+            "table_rows": 4096,
+            "trace_secs": 0.000100644
+          },
+          {
+            "accepts": true,
+            "arity": 2,
+            "cells": {
+              "base": 16384,
+              "fresh": 49152,
+              "interaction": 32768,
+              "table_base": 4096,
+              "table_interaction": 16384,
+              "table_preprocessed": 8192
+            },
+            "columns": {
+              "base": 17,
+              "interaction": 36,
+              "preprocessed": 2,
+              "total": 55
+            },
+            "interaction_secs": 0.00137901,
+            "kind": "pair",
+            "log_rows": 10,
+            "logup_batch_size": 1,
+            "lookups_per_row": 8,
+            "n_lookups": 8192,
+            "off_table": 0,
+            "point": {
+              "cells": {
+                "base": 20480,
+                "fresh": 69632,
+                "interaction": 49152,
+                "model": 0,
+                "preprocessed": 8192,
+                "shape": 8192,
+                "total": 77824
+              },
+              "columns": {
+                "base": 17,
+                "interaction": 36,
+                "model": 0,
+                "preprocessed": 2,
+                "shape": 2,
+                "total": 55
+              },
+              "peak_rss_bytes": 22126592,
+              "phases": {
+                "commit_plus_fri_frac": 0.6558299011201228,
+                "commit_secs": 0.0051514279999999996,
+                "detail": {
+                  "constraint_eval_cpu_autofallback": {
+                    "calls": 0,
+                    "secs": 0.0
+                  },
+                  "constraint_eval_cpu_fallback": {
+                    "calls": 0,
+                    "secs": 0.0
+                  },
+                  "constraint_eval_denom_inv": {
+                    "calls": 0,
+                    "secs": 0.0
+                  },
+                  "constraint_eval_gpu": {
+                    "calls": 0,
+                    "secs": 0.0
+                  },
+                  "constraint_eval_polys": {
+                    "calls": 0,
+                    "secs": 0.0
+                  }
+                },
+                "fri_secs": 0.004480953,
+                "phases": {
+                  "constraint_eval": {
+                    "calls": 2,
+                    "secs": 0.000560311
+                  },
+                  "constraint_extension": {
+                    "calls": 0,
+                    "secs": 0.0
+                  },
+                  "fri_commit": {
+                    "calls": 1,
+                    "secs": 0.003292127
+                  },
+                  "fri_quotients": {
+                    "calls": 1,
+                    "secs": 0.00114127
+                  },
+                  "grind": {
+                    "calls": 1,
+                    "secs": 0.000047556
+                  },
+                  "interpolate": {
+                    "calls": 4,
+                    "secs": 0.00039936499999999994
+                  },
+                  "lde_extend": {
+                    "calls": 5,
+                    "secs": 0.000595969
+                  },
+                  "merkle": {
+                    "calls": 5,
+                    "secs": 0.004156094
+                  },
+                  "oods_eval": {
+                    "calls": 1,
+                    "secs": 0.000614956
+                  },
+                  "other": {
+                    "calls": 0,
+                    "secs": 0.003879668000000001
+                  }
+                },
+                "prove_call_secs": 0.009277716,
+                "wall_secs": 0.014687316
+              },
+              "preprocessed_is_widest": true,
+              "proof_bytes": 160580,
+              "prove_error": null,
+              "prove_secs": 0.014687316,
+              "stark_ok": true,
+              "verify_secs": 0.002113476
+            },
+            "reference_checked": 8192,
+            "reference_mismatch": 0,
+            "reference_ok": 8192,
+            "sums": {
+              "cancels": true,
+              "table_sum": "(1159907639 + 757190712i) + (446115219 + 743097681i)u",
+              "use_sum": "(987576008 + 1390292935i) + (1701368428 + 1404385966i)u"
+            },
+            "table_bits": 12,
+            "table_rows": 4096,
+            "trace_secs": 0.000145357
+          }
+        ],
+        "cells": {
+          "committed_per_lookup": 2.0,
+          "marginal_cells_per_lookup": 4.0,
+          "per_lookup": 6.0,
+          "table": {
+            "base": 4096,
+            "fresh": 20480,
+            "interaction": 16384,
+            "preprocessed": 8192
+          }
+        },
+        "difference": {
+          "base": 8192,
+          "fresh": 24576,
+          "interaction": 16384,
+          "lookups": 4096
+        },
+        "kind": "pair",
+        "log_rows": 10,
+        "logup_batch_size": 1,
+        "lookups_per_row": [
+          4,
+          8
+        ],
+        "n_lookups": 8192,
+        "off_table": 0,
+        "proof_bytes": 160580,
+        "prove_secs": 0.014687316,
+        "reference_checked": 12288,
+        "reference_mismatch": 0,
+        "table_bits": 12,
+        "table_rows": 4096
+      },
+      {
+        "accepts": true,
+        "arity": 2,
+        "builds": [
+          {
+            "accepts": true,
+            "arity": 2,
+            "cells": {
+              "base": 8192,
+              "fresh": 16384,
+              "interaction": 8192,
+              "table_base": 4096,
+              "table_interaction": 16384,
+              "table_preprocessed": 8192
+            },
+            "columns": {
+              "base": 9,
+              "interaction": 12,
+              "preprocessed": 2,
+              "total": 23
+            },
+            "interaction_secs": 0.000927308,
+            "kind": "pair",
+            "log_rows": 10,
+            "logup_batch_size": 2,
+            "lookups_per_row": 4,
+            "n_lookups": 4096,
+            "off_table": 0,
+            "point": {
+              "cells": {
+                "base": 12288,
+                "fresh": 36864,
+                "interaction": 24576,
+                "model": 0,
+                "preprocessed": 8192,
+                "shape": 8192,
+                "total": 45056
+              },
+              "columns": {
+                "base": 9,
+                "interaction": 12,
+                "model": 0,
+                "preprocessed": 2,
+                "shape": 2,
+                "total": 23
+              },
+              "peak_rss_bytes": 22228992,
+              "phases": {
+                "commit_plus_fri_frac": 0.664996999624252,
+                "commit_secs": 0.004725437,
+                "detail": {
+                  "constraint_eval_cpu_autofallback": {
+                    "calls": 0,
+                    "secs": 0.0
+                  },
+                  "constraint_eval_cpu_fallback": {
+                    "calls": 0,
+                    "secs": 0.0
+                  },
+                  "constraint_eval_denom_inv": {
+                    "calls": 0,
+                    "secs": 0.0
+                  },
+                  "constraint_eval_gpu": {
+                    "calls": 0,
+                    "secs": 0.0
+                  },
+                  "constraint_eval_polys": {
+                    "calls": 0,
+                    "secs": 0.0
+                  }
+                },
+                "fri_secs": 0.004167784,
+                "phases": {
+                  "constraint_eval": {
+                    "calls": 2,
+                    "secs": 0.000448371
+                  },
+                  "constraint_extension": {
+                    "calls": 0,
+                    "secs": 0.0
+                  },
+                  "fri_commit": {
+                    "calls": 1,
+                    "secs": 0.003118249
+                  },
+                  "fri_quotients": {
+                    "calls": 1,
+                    "secs": 0.001006493
+                  },
+                  "grind": {
+                    "calls": 1,
+                    "secs": 0.000043042
+                  },
+                  "interpolate": {
+                    "calls": 4,
+                    "secs": 0.000198071
+                  },
+                  "lde_extend": {
+                    "calls": 5,
+                    "secs": 0.000433695
+                  },
+                  "merkle": {
+                    "calls": 5,
+                    "secs": 0.004093671
+                  },
+                  "oods_eval": {
+                    "calls": 1,
+                    "secs": 0.000412477
+                  },
+                  "other": {
+                    "calls": 0,
+                    "secs": 0.0036192559999999995
+                  }
+                },
+                "prove_call_secs": 0.008781199,
+                "wall_secs": 0.013373325
+              },
+              "preprocessed_is_widest": true,
+              "proof_bytes": 144800,
+              "prove_error": null,
+              "prove_secs": 0.013373325,
+              "stark_ok": true,
+              "verify_secs": 0.001976865
+            },
+            "reference_checked": 4096,
+            "reference_mismatch": 0,
+            "reference_ok": 4096,
+            "sums": {
+              "cancels": true,
+              "table_sum": "(1815273509 + 61795720i) + (1738060662 + 1790369569i)u",
+              "use_sum": "(332210138 + 2085687927i) + (409422985 + 357114078i)u"
+            },
+            "table_bits": 12,
+            "table_rows": 4096,
+            "trace_secs": 0.000094478
+          },
+          {
+            "accepts": true,
+            "arity": 2,
+            "cells": {
+              "base": 16384,
+              "fresh": 32768,
+              "interaction": 16384,
+              "table_base": 4096,
+              "table_interaction": 16384,
+              "table_preprocessed": 8192
+            },
+            "columns": {
+              "base": 17,
+              "interaction": 20,
+              "preprocessed": 2,
+              "total": 39
+            },
+            "interaction_secs": 0.001044069,
+            "kind": "pair",
+            "log_rows": 10,
+            "logup_batch_size": 2,
+            "lookups_per_row": 8,
+            "n_lookups": 8192,
+            "off_table": 0,
+            "point": {
+              "cells": {
+                "base": 20480,
+                "fresh": 53248,
+                "interaction": 32768,
+                "model": 0,
+                "preprocessed": 8192,
+                "shape": 8192,
+                "total": 61440
+              },
+              "columns": {
+                "base": 17,
+                "interaction": 20,
+                "model": 0,
+                "preprocessed": 2,
+                "shape": 2,
+                "total": 39
+              },
+              "peak_rss_bytes": 22458368,
+              "phases": {
+                "commit_plus_fri_frac": 0.6541055419636268,
+                "commit_secs": 0.0047642019999999995,
+                "detail": {
+                  "constraint_eval_cpu_autofallback": {
+                    "calls": 0,
+                    "secs": 0.0
+                  },
+                  "constraint_eval_cpu_fallback": {
+                    "calls": 0,
+                    "secs": 0.0
+                  },
+                  "constraint_eval_denom_inv": {
+                    "calls": 0,
+                    "secs": 0.0
+                  },
+                  "constraint_eval_gpu": {
+                    "calls": 0,
+                    "secs": 0.0
+                  },
+                  "constraint_eval_polys": {
+                    "calls": 0,
+                    "secs": 0.0
+                  }
+                },
+                "fri_secs": 0.004466088,
+                "phases": {
+                  "constraint_eval": {
+                    "calls": 2,
+                    "secs": 0.0008498309999999999
+                  },
+                  "constraint_extension": {
+                    "calls": 0,
+                    "secs": 0.0
+                  },
+                  "fri_commit": {
+                    "calls": 1,
+                    "secs": 0.0035226
+                  },
+                  "fri_quotients": {
+                    "calls": 1,
+                    "secs": 0.000911231
+                  },
+                  "grind": {
+                    "calls": 1,
+                    "secs": 0.000032257
+                  },
+                  "interpolate": {
+                    "calls": 4,
+                    "secs": 0.000237857
+                  },
+                  "lde_extend": {
+                    "calls": 5,
+                    "secs": 0.000504764
+                  },
+                  "merkle": {
+                    "calls": 5,
+                    "secs": 0.004021581
+                  },
+                  "oods_eval": {
+                    "calls": 1,
+                    "secs": 0.000502034
+                  },
+                  "other": {
+                    "calls": 0,
+                    "secs": 0.003529161000000001
+                  }
+                },
+                "prove_call_secs": 0.009363594,
+                "wall_secs": 0.014111316
+              },
+              "preprocessed_is_widest": true,
+              "proof_bytes": 152800,
+              "prove_error": null,
+              "prove_secs": 0.014111316,
+              "stark_ok": true,
+              "verify_secs": 0.001995428
+            },
+            "reference_checked": 8192,
+            "reference_mismatch": 0,
+            "reference_ok": 8192,
+            "sums": {
+              "cancels": true,
+              "table_sum": "(1159907639 + 757190712i) + (446115219 + 743097681i)u",
+              "use_sum": "(987576008 + 1390292935i) + (1701368428 + 1404385966i)u"
+            },
+            "table_bits": 12,
+            "table_rows": 4096,
+            "trace_secs": 0.000142277
+          }
+        ],
+        "cells": {
+          "committed_per_lookup": 2.0,
+          "marginal_cells_per_lookup": 2.0,
+          "per_lookup": 4.0,
+          "table": {
+            "base": 4096,
+            "fresh": 20480,
+            "interaction": 16384,
+            "preprocessed": 8192
+          }
+        },
+        "difference": {
+          "base": 8192,
+          "fresh": 16384,
+          "interaction": 8192,
+          "lookups": 4096
+        },
+        "kind": "pair",
+        "log_rows": 10,
+        "logup_batch_size": 2,
+        "lookups_per_row": [
+          4,
+          8
+        ],
+        "n_lookups": 8192,
+        "off_table": 0,
+        "proof_bytes": 152800,
+        "prove_secs": 0.014111316,
+        "reference_checked": 12288,
+        "reference_mismatch": 0,
+        "table_bits": 12,
+        "table_rows": 4096
+      }
+    ],
+    "table_bits": 12
+  },
+  "security": {
+    "blowup_factor": 2,
+    "fold_step": 1,
+    "hash": "Blake2s (Blake2sM31MerkleChannel)",
+    "log_blowup_factor": 1,
+    "log_last_layer_degree_bound": 0,
+    "m3": {
+      "device_merkle_reduce": true,
+      "fri_gather": true,
+      "launch_sync": false,
+      "lde_only": false,
+      "merkle_mode": "1",
+      "prewarm": true,
+      "store_coeffs": true
+    },
+    "n_queries": 100,
+    "pow_bits": 0,
+    "security_bits_conjectured": 100
+  }
+}
