@@ -191,9 +191,17 @@ residual stream and the keys and values a segment hands on.
 | model, preprocessed | `cells_per_position.headline.c4096.model` | `cells_per_position.headline.c16384.model` |
 | shape, preprocessed | `cells_per_position.headline.c4096.shape` | `cells_per_position.headline.c16384.shape` |
 
-The interaction tree is the one the slice outputs split by component, and the
-split is what the list above prices. Each key is that component's cells over
-the run's proved positions; `interaction_` names the tree they come from.
+The slice outputs split the interaction tree by component themselves. The base
+trace they do not: the reader adds it up out of the counters beside the chunk's
+own cells, charging one committed column of its rows for each LogUp table, and
+both splits are recorded. Each key is that component's cells over the run's
+proved positions, and `base_` or `interaction_` names the tree it comes from.
+The base tree carries nine of the eleven components below and neither the
+reduction link nor the argmax gadget; the argmax gadget's base side is the one
+thing no counter names, and it is recorded whole as
+`cells_per_position.headline.c<ctx>.unattributed`, which only an output head
+segment carries. The table below is the interaction split, which is what the
+list above prices.
 
 | component | what it counts | context 4,096 | context 16,384 |
 |---|---|---|---|
@@ -227,10 +235,17 @@ output heads and shorter prefixes included, by every position the run proves,
 and is smaller for that reason.
 
 One reader in `tools/constants/audit.py` re-derives all of it from the slice
-outputs and refuses unless the shape and model trees add up to the preprocessed
-cells the chunk reports, the eleven components add up to the interaction tree,
-the chunks add up to the run's `fresh` row, and the recorded rows close the same
-two sums themselves.
+outputs. Over the run it refuses unless the shape and model trees add up to the
+preprocessed cells the chunk reports, the eleven components add up to the
+interaction tree, and the chunks add up to the run's `fresh` row. Per segment it
+refuses if a base counter is missing, if the base components add up to more than
+that segment's own base tree, if base cells are left over on a segment that
+states no argmax gadget, if base and interaction are above fresh, or if one of
+the two breakdowns a chunk carries beside a component stops adding up to the
+component it splits. The recorded rows then close three sums of their own: the
+components to the interaction tree, the base components with the unattributed
+cells to the base trace, and the three trees to the run's `fresh` row per proved
+position.
 
 ## What it projects
 
