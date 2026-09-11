@@ -28,19 +28,6 @@ Written, not yet run:
   micro-benchmark inputs, which are not artifacts here, and a prediction written
   after the measurement is not a prediction.
 
-- `tools/drivers/control-flags-off-c4096.sh`: `headline-c4096`'s plan with the
-  five GKR reductions off, which is what prices them. Written and run twice.
-  The segment that used to refuse now proves, and the plan gets as far as token
-  block 3: the 64 layer segments of blocks 0 and 1 proved with every edge bound
-  and no skip, block 2's 32 proved after them, and the card then ran out of
-  memory in a Merkle commit. It had no room to spare from the start -- the
-  first process peaked at 80,497 MiB of the 81,559 MiB the card reports, where
-  the same plan with the reductions on peaked at 73,723 MiB and proved all 290
-  segments. So the five reductions are worth at least 6.8 GB of peak memory at
-  this context, and the whole-sequence control does not fit on this card
-  without them. The run produced no gate output and none is kept.
-  `gkr-ablation-c4096` prices the same five on 32 segments of block 8, which is
-  the block with the longest prefix and where they weigh most.
 - `tools/drivers/negative-controls.sh`: the control suite on one real segment of
   `headline-c4096`'s plan and on the three synthetic shapes. Written and run
   twice. The three synthetic shapes now pass: 171 controls refused for the
@@ -1553,6 +1540,102 @@ Host time. The thirteen subcommands report 26.7 s of proving between them, of
 which the packed attention at five instance counts is 25.6, and the composed
 segment took 4.6 s of end-to-end wall-clock time. The build in front of them is
 not in any output and its time stays in the host's log.
+
+## `control-flags-off-c4096`
+
+```
+tools/drivers/control-flags-off-c4096.sh <host> <prover-commit> <harness-commit>
+```
+
+runs: `2026-09-11-control-flags-off-c4096-h100`
+prover commit: b39b806   harness commit: b39b806
+digests: 290, one per segment, in the manifest's `digests` map under the slice
+  output that proved it; the first is `fd796456ac60513b` and the last
+  `2a7cc72b8131f05f`
+binding (from the manifest, folded over the 290 proofs): 1 to 16 bound, none
+  absent and none unbound
+unsound skips: none
+links: 537 of 537 the grid implies ran and passed, 281 on the layer axis and
+  256 on the token axis
+verified: 290 of 290 segment proofs accepted; 290 of 290 shape roots derived
+  from the statement's own parameters and the published calibration are the
+  root the statement declares; 4,096 prompt ids and 512 generated ids chained,
+  none wrong and none with no proved argmax behind it
+kernel fallback lines: 0 on each of the five processes
+constants backed: `cells.control.c4096.fresh`, `mem.control.c4096.peak_mib`,
+  `secs.control.c4096.serial_loop`, `segments.control.c4096`, and the derived
+  `gkr.control.c4096.leave_frac_cells`
+
+What the run checks. `headline-c4096`'s plan, its witnesses, its shared pins and
+its binding gadgets, with the five `--gkr-*` reductions off: 290 segments, nine
+token blocks of 32 layer segments and the two output head segments, proved on
+the CUDA backend in processes of 64. The reductions choose the LogUp backend for
+a component and change nothing about what is proved, so the pair of runs prices
+what they remove. Every edge inside a segment is bound, the driver passes no
+skip flag, and the grid checks every link, verifies every segment's proof and
+chains every published id as the headline row's grid does. This is a control and
+never a headline row
+(docs/decisions/2026-09-03-paper-configuration-all-five-gkr-flags.md).
+
+Why one segment is in flight. The same plan with a second segment generated
+while the first is proved ran out of the card's memory in token block 3 on
+2026-09-09, after a first process that peaked at 80,497 MiB of the 81,559 MiB
+the card reports (#74). With the pipeline off that same first process peaks at
+71,601 MiB, so the second segment in flight was costing 8,896 MiB, and the whole
+sequence now fits with 4,592 MiB to spare.
+
+What is comparable and what is not. The cells are. A cell is committed by the
+segment it belongs to and a second segment in flight adds none, and this run
+says so of itself: its first process committed 112,089,779,216 cells over blocks
+0 and 1, which is what the pipelined attempt reported over those same 64
+segments, to the cell. The seconds are not. This loop proves one segment at a
+time and the headline row's overlaps two, and over one sample the memory probe
+measured 228.738 s serial against 175.797 s pipelined
+(`secs.probe.c16384.serial_loop`, `secs.probe.c16384.pipelined_loop`). So
+`secs.control.c4096.serial_loop` says serial in its name, nothing here is
+compared with `secs.headline.c4096.loop`, and no figure in this entry is a
+throughput.
+
+What the run says. The five reductions remove 36.8 per cent of the committed
+cells over a whole sequence: 363,878,357,152 with them
+(`cells.headline.c4096.fresh`) against 575,760,898,208 without.
+`gkr-ablation-c4096` prices the same five on 32 segments of the block with the
+longest prefix, where they weigh most, and gets 37.8 per cent; this row is the
+whole sequence, blocks with short prefixes included, and it is the smaller
+figure for that reason.
+
+The peak follows the prefix. The five processes peaked at 71,601, 73,105,
+74,609, 76,145 and 76,967 MiB as the plan moved from the shortest prefix to the
+longest, against 73,723 MiB for the whole of the headline run. So with one
+segment in flight the reductions are worth about 3.2 GB of peak card memory at
+this context, and the pipelined attempt was asking for about 9 GB more than
+that, which is what it did not have.
+
+How the run is made. The witnesses, the prover build and the kernel store are
+the ones the campaigns at this context share; this run extracted the witnesses
+in 907 seconds over five passes, added its own shapes to the store and rebuilt
+the CUDA backend with them. The grid verifies, so it is given the calibration
+the model manifest publishes: since zk-prover #95 the verifier derives each
+segment's shape root from the statement's own parameters and that calibration
+instead of reading the root off the statement, and it refuses to verify without
+one. The file is
+`runs/2026-09-09-model-commitment-h100/model-roots.json`, whose rows cover this
+plan's 290 layer and context coordinates. It was derived at prover commit
+32e8fae and this run proves at b39b806, which is sound because a calibration is
+a property of the weights and the quantization variant and not of the prover --
+and checked, not assumed: every one of the 288 layer dumps this run extracted
+carries the `frac_per_head` the manifest's row for its coordinate publishes, and
+all 290 derived roots came out equal to the ones the statements carry. One end the headline
+row leaves unchecked is therefore checked here, the shape tree behind each
+statement; the model each segment proves against is still one, because this run
+was given no `MODEL_ROOTS`. The serialized statements and proofs are deleted
+after the link check: no campaign re-reads a control's proofs.
+
+Host time. Four hours and thirteen minutes end to end, over two calls of the
+driver: 5 minutes the build, 15 the token ids, 907 seconds the extraction, 28
+minutes the kernel work and the CUDA rebuild, 5,970.803 seconds the five proving
+processes, and 4,210 seconds the verifying grid, of which 3,801 were the 290
+shape-tree derivations.
 
 ## Entry template
 
