@@ -8,25 +8,37 @@ Written, not yet run:
 
 - `tools/drivers/predict-14b.sh`: Qwen2.5-14B's 48 layer segments at context
   4,096 on the reference backend, one proof per layer, measured against a
-  registered prediction. Written and started once; the extraction ran and the
-  first layer did not prove, because the rotation gadget required the product of
-  the block length and the attention head count to be a power of two and this
-  model has 40 heads, which carry a factor of five that no block length divides
-  out (zk-prover #73). The gadget now pads that product (zk-prover #90) and the
-  synthetic layer's exponential table takes its width from `--table-bits`
-  (zk-prover #85); both are merged and the campaign has not been given a host
-  since. The measured 8B reference the registration reads is no longer absent
-  either. It is one layer 16 segment per context, and the driver derives both
-  from the last token block of `2026-09-09-headline-c4096-h100` and of
-  `2026-09-08-headline-c16384-h100` -- the only block in each run whose prefix
-  is the run's whole context -- into its own run directory under `seq5/`, with
-  the source run, output and segment tag of each in the manifest's `derived`
-  block. A source segment that is not there, that was not accepted or that was
-  proved under an unsound skip refuses the run before it books a card. The
-  prediction still cannot be registered from this repository: the registration
-  script imports again (zk-prover #67), but it also reads the cost model's
-  micro-benchmark inputs, which are not artifacts here, and a prediction written
-  after the measurement is not a prediction.
+  registered prediction. Written and started twice, and the second attempt is
+  the one this repository can act on. The prediction is registered now:
+  `runs/2026-09-11-register-14b-none` holds it, made from this repository's
+  constants file alone and recorded before anything measured, which is the one
+  rule the experiment has. The driver then ran at zk-prover b39b806 on a host
+  with 20 cores: the weights came down in 23 seconds, all 48 layer witnesses
+  were extracted in nine minutes and take 27 GB, and layer 0's proof was made
+  and then rejected by the prover's own verification. Not the proof: the
+  document says `prove_error` null, `off_table` 0, `ref_mismatch` 0, every
+  binding edge bound and every other check true, with one binding equality
+  false -- `nn_out_ok`, which asks whether each quantize component published
+  the values the key tiles attended over, on all three of q, k and v. Four
+  diagnostics on the same witnesses say it is the shape and not this run: layer
+  0 and layer 1 fail the same way, `--head-groups 8,8,8,8,8` fails the same way
+  as 16,16,8, and so does the segment with the five reductions off, while the
+  8B shape proves and accepts at the same commit under the same flags. Forty
+  attention heads make `s * nh` 20,480, which is not a power of two, so the
+  rotation and the quantize pad their rows to 32,768 and the two sides of that
+  equality look like they count different rows; zk-prover #172 has the verdict,
+  the parameters and the diagnostics. The job exits before it fetches anything,
+  so there is no run directory and no measured constant here yet.
+  `harness/eval/predict/compare.py` cannot read this prover's chunks either --
+  it reads `params.key_tiles`, which the prover renamed to `head_groups`
+  (zk-prover #171) -- so the comparison waits on that one as well. What the
+  driver carries now: the shared pins of every campaign at this context,
+  `--tight-table` included, because the prediction charges a master exponent
+  table of 2^23 rows and this model's witnesses ask for 2^26 and 2^27 before
+  the flag narrows them to their own keys; layer 0's dump written to the same
+  base as every other layer's, which is what the pinned harness names it; and
+  the comparison itself, made on the fetched outputs before they become a run,
+  so the run carries it.
 
 
 ## synthetic-digests
@@ -1718,6 +1730,81 @@ filter is now read before a control rebuilds anything.
 Host time. Three hours: the real segment 2 h 51 m of it at about 110 seconds a
 control, its honest proof 100.3 s; the seam's process 4 minutes; the three
 synthetic shapes 5 minutes between them. The build was already on the host.
+
+## register-14b
+
+```
+tools/drivers/register-14b.sh
+```
+
+runs: `2026-09-11-register-14b-none`
+prover commit: none, the run proves nothing   harness commit: b39b806
+digests: none. The document's own identity is `prediction_sha256`
+  `ff38a95bd008ff62371a5213b5dfc962cc41cda517cd197c2cdc2a3b1b94b4dd` and
+  `prediction_block_sha256`
+  `7ebf25ca509522a7506bdf9848f808e27a57217dc7ece493f699f47af26eb27b`, both
+  digests of the content and not of the file
+binding: none; a run that commits nothing binds nothing, and the manifest says
+  `kind` `harness`
+unsound skips: none
+constants file frozen: `constants.json` at
+  `841dcd6ebda5bbb0a082f28c1bcba5df474e78c0d9be21d7f5569d0353e59f5b`,
+  `zk_results_commit` cb69914
+constants backed: the derived `e4.qwen2p5_14b.c4096.predicted_cells_per_token_layers`
+
+What the run is. The prediction `predict-14b` is measured against, written down
+before the measurement exists. It takes no host and no card: the registration is
+a computation over this repository's `constants.json` and two layer segments two
+recorded runs already proved, so the driver runs where the repository is and
+opens no ssh connection. A prediction registered after the measurement would not
+be a prediction, which is the one rule this experiment has, so the order is
+register, measure, compare and the driver refuses to run once either a
+`register-14b` or a `predict-14b` run is in `runs/`.
+
+Where every input came from. 29 cell costs are charged and none of them is a
+number from outside these two repositories: 25 are keys of this file, 2 are
+priced by the model itself by standing in a neighbouring quantity
+(`route_selection_cells`, `route_topk_cells`, which a dense model does not use),
+and 2 the model cannot price at all (`gkrlink_cells_per_chunk`,
+`limb_cells_per_acc`) and are recorded as unpriced. The driver refuses a
+registration that charged anything read from a micro-benchmark inputs directory,
+and none was: the run passes no `--inputs` and the gate reads the prediction's
+own record of where each cost came from rather than the command line. The two
+keys that used to stop it, `model_constants.logup_marginal_cells_per_lookup` and
+`model_constants.weight_freivalds_cells_per_weight`, are the ones
+`microbench-cells` measured.
+
+What is registered. Qwen2.5-14B-Instruct, 48 layers, `d` 5,120, 40 heads of 128,
+`dff` 13,824, at the statement `predict-14b.sh` proves -- the diagonal block and
+the five reductions, which the driver and the registration compare flag by flag:
+
+| C | cells/token, layers only | key tile half | the rest | one layer segment |
+|---|---:|---:|---:|---:|
+| 4,096 | 151,193,309 | 28,002,240 | 123,191,069 | 1,612,728,630 |
+| 16,384 | 249,251,549 | 102,467,520 | 146,784,029 | 2,658,683,190 |
+
+The key tile half is a closed form and is registered to the cell: 259,604,480
+base and 39,086,080 interaction cells a segment at C=4,096, 951,664,640 and
+141,322,240 at C=16,384.
+
+The 8B anchors, which are measured. The registration reads one layer 16 segment
+per context out of the two headline runs, derived by `lib/seq5-reference.py` the
+same way `predict-14b.sh` derives them, and the manifest's `derived` block names
+the run, the slice output, the segment tag and the proof digest of each. Against
+them the model predicts 1.33 per cent high at C=4,096 and 0.83 per cent high at
+C=16,384; against the recorded whole-block rows
+(`cells_per_position.headline.c*.fresh_layers_block`) it is 1.38 and 0.27 per
+cent high. Neither is what the 14B is graded against: the acceptance range was
+fixed in advance and is not rebased on any anchor.
+
+Why the pin moved. The driver was written against 9851ae9 and now pins b39b806,
+which is what this repository's keys need: zk-prover #160 made the 8B anchor and
+the eight composed prices read the names recorded here, and #163 gave the
+registration a shape selection whose default is the three shapes E4 registered,
+in E4's order. Both are in the digest, because `frozen_inputs.code_sha256` holds
+the digest of `predict.py` itself: an edit to that file re-registers every
+prediction in it under a new identity, which is why the registration is made
+once, from one commit, and recorded before anything measures.
 
 ## Entry template
 

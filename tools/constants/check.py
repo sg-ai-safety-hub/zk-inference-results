@@ -37,6 +37,16 @@ def composed():
     return audit.composed_figures()[0]
 
 
+def registered_14b():
+    """The 14B prediction's own figure, out of the registration run.
+
+    The same reader the audit uses, for the same reason `composed` is one: the
+    figure is in a run artifact and not in an entry of this file.
+    """
+    import audit  # noqa: E402
+    return audit.registered_14b()
+
+
 def chk(name, got, key, tol=0.005):
     """A `derived` entry recomputed: relative tolerance, absolute when the stored value is 0."""
     exp = v(key)
@@ -52,6 +62,18 @@ DERIVED = {
     "verinf.maverick.tok_s": lambda: chk(
         "VerInf Maverick positions/s", v("verinf.maverick.positions") / (v("verinf.maverick.prover_hours") * 3600),
         "verinf.maverick.tok_s", 0.001),
+    # E4: the 14B measurement against the prediction registered before it.  The
+    # predicted row is the registration's own figure, read off the run that
+    # recorded it; rho divides the measured entry by it, so both sides of the
+    # comparison are rows of this file and neither is a second measurement.
+    "e4.qwen2p5_14b.c4096.predicted_cells_per_token_layers": lambda: chk(
+        "14B registered prediction, cells/token (layers)", registered_14b(),
+        "e4.qwen2p5_14b.c4096.predicted_cells_per_token_layers", 0.0),
+    "e4.qwen2p5_14b.c4096.rho": lambda: chk(
+        "14B measured / registered prediction",
+        v("e4.qwen2p5_14b.c4096.cells_per_token_layers")
+        / v("e4.qwen2p5_14b.c4096.predicted_cells_per_token_layers"),
+        "e4.qwen2p5_14b.c4096.rho", 0.001),
     "verinf.gb10_vs_h200_bandwidth_ratio": lambda: chk(
         "GB10 measured / H200 spec bandwidth",
         v("verinf.gb10_measured_bandwidth_gbps") / v("hardware.h200.hbm_gbps_spec"),

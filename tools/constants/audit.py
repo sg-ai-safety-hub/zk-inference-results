@@ -924,10 +924,12 @@ def predict_14b(a, keys):
     it: every layer's proof is opened, checked to have accepted with no skip and
     every edge bound, and the sums are taken here.
 
-    What is not here is the comparison against the registered prediction. The
-    registration cannot be produced at this harness commit (zk-prover #67), and
-    a prediction written after the measurement is not a prediction, so the
-    measured side is frozen and the comparison waits.
+    The comparison against the registered prediction is not recomputed here:
+    `harness/eval/predict/compare.py` makes it, from these same outputs, and the
+    run carries both of its documents. What this file re-derives of it is the
+    one row that is a constant, `e4.qwen2p5_14b.c4096.rho`, which `check.py`
+    computes from the measured entry below and the registered figure that
+    `registered_14b` reads out of the registration run.
     """
     if not keys:
         return
@@ -964,6 +966,31 @@ def predict_14b(a, keys):
                 a.exact(key, value)
             else:
                 a.claim(key, value)
+
+
+# -- the registered prediction the 14B measurement is compared against ---------
+# Not a section: a registration measures nothing, so no `measured` constant
+# names its run.  It is the reader for the one derived row that is read out of
+# it, and `check.py`'s derived table calls it.
+_PREDICTED_14B = "e4.qwen2p5_14b.c4096.predicted_cells_per_token_layers"
+
+
+def registered_14b(ctx=4096):
+    """The registered prediction's own layers-only figure for the 14B at `ctx`.
+
+    Read out of the registration the entry names, and checked to be the document
+    whose digest that entry's note carries: a registration is the thing that
+    must not move after it is made, so a file that is not the one registered is
+    a failure here and not a number.
+    """
+    e = load()["constants"][_PREDICTED_14B]
+    doc = artifact(e["run"], e["artifact"])["result"]
+    if doc["schema"] != "e4-registration/1":
+        raise SystemExit(f"audit: runs/{e['run']}/{e['artifact']} is not a registration")
+    if doc["prediction_sha256"] not in e["note"]:
+        raise SystemExit(f"audit: {_PREDICTED_14B}: the registration in runs/{e['run']} is "
+                         f"{doc['prediction_sha256']}, which its note does not name")
+    return doc["shapes"]["Qwen2.5-14B-Instruct"]["contexts"][str(ctx)]["cells_per_token_layers"]
 
 
 # -- unproved-baseline ---------------------------------------------------------

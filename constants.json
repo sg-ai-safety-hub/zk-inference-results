@@ -4140,6 +4140,17 @@
    "run": "2026-09-08-headline-c16384-h100",
    "artifact": "slice_1024.json",
    "note": "The fresh cells of the 32 layer segments of one token block over the 512 positions that block proves: 71,753,215,328 cells over 512, block B32, the one block of the sequence whose prefix is the whole context, on the same terms as the row at context 4,096: the output head segment is out, layer segment B32L0 is in with the embedding lookup and the one extra cell an attention-output accumulator it carries, and the earlier blocks of the sequence read a shorter prefix and are not in it. It is what the cost model's registration compares its layers-only prediction per decoded token against at this context."
+  },
+  "e4.qwen2p5_14b.c4096.predicted_cells_per_token_layers": {
+   "value": 151193309.04395604,
+   "unit": "cells/token",
+   "card": "none",
+   "context": 4096,
+   "timing_scope": "n/a",
+   "grade": "derived",
+   "run": "2026-09-11-register-14b-none",
+   "artifact": "registration.json",
+   "note": "The E4 prediction for Qwen2.5-14B-Instruct at context 4,096: fresh cells per decoded token over the model's 48 layer segments, layers only, at the statement tools/drivers/predict-14b.sh proves. It is read out of runs/2026-09-11-register-14b-none/registration.json, whose prediction_sha256 is ff38a95bd008ff62371a5213b5dfc962cc41cda517cd197c2cdc2a3b1b94b4dd, and check.py re-reads that document on every run, because a registration is the one number here that must not move after it is made. The prediction is a computation over this file: 25 of the 29 cell costs the cost model charges are keys of it, two it prices by standing in a neighbouring quantity and two it records as unpriced, and no input comes from outside this repository and zk-prover. It was recorded before anything measured this shape, which is what makes it a prediction; the measured side and the ratio between them are not here yet."
   }
  },
  "discrepancies": []
