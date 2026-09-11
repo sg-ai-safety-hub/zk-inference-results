@@ -1,0 +1,1255 @@
+{
+ "provenance": {
+  "args": [
+   "--constants",
+   "constants.json",
+   "--artifacts",
+   "runs/.register-14b-ref",
+   "--json"
+  ],
+  "backend": "harness",
+  "binary": "python -m harness.eval.predict.predict",
+  "binding": null,
+  "commit": "ed8de1a0f6e8afc72e4c2e849db7cd0b125123e6",
+  "constants": {
+   "file": "constants.json",
+   "sha256": "841dcd6ebda5bbb0a082f28c1bcba5df474e78c0d9be21d7f5569d0353e59f5b",
+   "zk_results_commit": "cb6991453b9ef46fdc218ff2f816c177d773b442"
+  },
+  "cuda_version": null,
+  "device": "cpu",
+  "dirty": false,
+  "driver_version": null,
+  "gpu": "none",
+  "kind": "harness",
+  "model": null,
+  "model_revision": null,
+  "proof_sha256": null,
+  "proof_sha256s": null,
+  "registration": {
+   "prediction_block_sha256": "7ebf25ca509522a7506bdf9848f808e27a57217dc7ece493f699f47af26eb27b",
+   "prediction_sha256": "ff38a95bd008ff62371a5213b5dfc962cc41cda517cd197c2cdc2a3b1b94b4dd"
+  },
+  "threads": 1,
+  "unsound_skips": [],
+  "versions": {
+   "numpy": "2.5.2",
+   "python": "3.12.13",
+   "torch": "2.13.0+cpu",
+   "transformers": "5.15.0"
+  }
+ },
+ "result": {
+  "anchors": {
+   "llama8b_c16384": {
+    "artifact": "slice_1024.json",
+    "card": "H100",
+    "ctx": 16384,
+    "embedding_lookup_per_position": 41168.0,
+    "grade": "derived",
+    "key": "cells_per_position.headline.c16384.fresh_layers_block",
+    "measured": 140142998.6875,
+    "measured_matches_recorded_chunks": true,
+    "note": "both sides are the fresh cells of the model's 32 layer segments over the 512 positions one token block proves, at this context and at the statement this registration prices, with no output head segment on either. The measured block is the one whose prefix is the whole context: the earlier blocks of that sequence read a shorter prefix and cost less, which is the comparison the prediction does not make. Its layer segment 0 carries the embedding lookup and one more cell per attention-output accumulator, which the model prices as no layer's cost -- that is `embedding_lookup_per_position`, and the ratio beside it is the same comparison without it",
+    "predicted": 140525767.1818182,
+    "ratio": 1.0027312709011722,
+    "ratio_without_the_embedding_layer": 1.003025916879443,
+    "recorded_chunks": {
+     "artifact": "slice_1024.json",
+     "block": "B32",
+     "embedding_lookup_per_position": 41168.0,
+     "fresh": 71753215328,
+     "layers": 32,
+     "note": "the same 32 segments the recorded row divides, copied into this repository; `embedding_lookup_per_position` is what layer segment 0 builds above the other 31, which is the embedding lookup and one more cell per attention-output accumulator",
+     "per_position": 140142998.6875,
+     "positions": 512,
+     "run": "2026-09-08-headline-c16384-h100"
+    },
+    "run": "2026-09-08-headline-c16384-h100",
+    "scale": "Llama-3.1-8B",
+    "source": "runs/2026-09-08-headline-c16384-h100/slice_1024.json",
+    "statement": {
+     "bind": true,
+     "diagonal_block": true,
+     "gkr": true,
+     "kv_boundary": true
+    }
+   },
+   "llama8b_c16384_registered_statement": {
+    "card": "n/a (a cell count is the same on either card)",
+    "chunk": {
+     "block": 32,
+     "blocks": 33,
+     "context": 16384,
+     "fresh": 2229832816,
+     "key_tiles": 761331712,
+     "key_tiles_interaction": 113057792,
+     "model": "unsloth/Llama-3.1-8B-Instruct",
+     "plan_index": 1041,
+     "proof_sha256": "45e858dce81a892dfb5948197314fd8625e476dcc69223ade64f773dbe865b94",
+     "prover_commit": "38a3919988ec11e57244516b13b32e434cb01fb1",
+     "run": "2026-09-08-headline-c16384-h100",
+     "s": 512,
+     "segment": "B32L16",
+     "slice": "slice_1024.json",
+     "spec": "y-delay-vw12",
+     "tokens": [
+      16384,
+      16895
+     ]
+    },
+    "ctx": 16384,
+    "grade": "measured",
+    "key_tiles_exact": true,
+    "measured": 139364551.0,
+    "note": "one layer chunk per context, scaled to 32 layers, at exactly the statement this registration prices. The key tile half of this ratio is exact to the cell; every cell of the difference is in `rest`, and the largest single term the model does not price is `gkrlink`, the reductions' own link",
+    "predicted": 140525767.1818182,
+    "ratio": 1.0083322205932999,
+    "rest_ratio": 1.013707293211456,
+    "rest_residual_per_chunk": 18579458.909090996,
+    "scale": "Llama-3.1-8B",
+    "source": "<--artifacts>/seq5/seq_c{4096,16384}_L16.json (result.point.cells.fresh)",
+    "statement": {
+     "bind": true,
+     "diagonal_block": true,
+     "gkr": true,
+     "kv_boundary": true
+    }
+   },
+   "llama8b_c4096": {
+    "artifact": "slice_0256.json",
+    "card": "H100",
+    "ctx": 4096,
+    "embedding_lookup_per_position": 41168.0,
+    "grade": "derived",
+    "key": "cells_per_position.headline.c4096.fresh_layers_block",
+    "measured": 87026069.90625,
+    "measured_matches_recorded_chunks": true,
+    "note": "both sides are the fresh cells of the model's 32 layer segments over the 512 positions one token block proves, at this context and at the statement this registration prices, with no output head segment on either. The measured block is the one whose prefix is the whole context: the earlier blocks of that sequence read a shorter prefix and cost less, which is the comparison the prediction does not make. Its layer segment 0 carries the embedding lookup and one more cell per attention-output accumulator, which the model prices as no layer's cost -- that is `embedding_lookup_per_position`, and the ratio beside it is the same comparison without it",
+    "predicted": 88228039.18181819,
+    "ratio": 1.0138116000971091,
+    "ratio_without_the_embedding_layer": 1.0142914143526656,
+    "recorded_chunks": {
+     "artifact": "slice_0256.json",
+     "block": "B8",
+     "embedding_lookup_per_position": 41168.0,
+     "fresh": 44557347792,
+     "layers": 32,
+     "note": "the same 32 segments the recorded row divides, copied into this repository; `embedding_lookup_per_position` is what layer segment 0 builds above the other 31, which is the embedding lookup and one more cell per attention-output accumulator",
+     "per_position": 87026069.90625,
+     "positions": 512,
+     "run": "2026-09-09-headline-c4096-h100"
+    },
+    "run": "2026-09-09-headline-c4096-h100",
+    "scale": "Llama-3.1-8B",
+    "source": "runs/2026-09-09-headline-c4096-h100/slice_0256.json",
+    "statement": {
+     "bind": true,
+     "diagonal_block": true,
+     "gkr": true,
+     "kv_boundary": true
+    }
+   },
+   "llama8b_c4096_registered_statement": {
+    "card": "n/a (a cell count is the same on either card)",
+    "chunk": {
+     "block": 8,
+     "blocks": 9,
+     "context": 4096,
+     "fresh": 1393069168,
+     "key_tiles": 207683584,
+     "key_tiles_interaction": 31268864,
+     "model": "unsloth/Llama-3.1-8B-Instruct",
+     "plan_index": 273,
+     "proof_sha256": "9f091c704d505d657d98edec784ac374c758c1fa2dd8075bdc78d5c51d16d975",
+     "prover_commit": "a603db1ddf1e2372d1f9761d684df8f2294199a9",
+     "run": "2026-09-09-headline-c4096-h100",
+     "s": 512,
+     "segment": "B8L16",
+     "slice": "slice_0256.json",
+     "spec": "y-delay-vw12",
+     "tokens": [
+      4096,
+      4607
+     ]
+    },
+    "ctx": 4096,
+    "grade": "measured",
+    "key_tiles_exact": true,
+    "measured": 87066823.0,
+    "note": "one layer chunk per context, scaled to 32 layers, at exactly the statement this registration prices. The key tile half of this ratio is exact to the cell; every cell of the difference is in `rest`, and the largest single term the model does not price is `gkrlink`, the reductions' own link",
+    "predicted": 88228039.18181819,
+    "ratio": 1.0133370684929917,
+    "rest_ratio": 1.0160984227913197,
+    "rest_residual_per_chunk": 18579458.909090996,
+    "scale": "Llama-3.1-8B",
+    "source": "<--artifacts>/seq5/seq_c{4096,16384}_L16.json (result.point.cells.fresh)",
+    "statement": {
+     "bind": true,
+     "diagonal_block": true,
+     "gkr": true,
+     "kv_boundary": true
+    }
+   },
+   "qwen0p5b_c1024": {
+    "ctx": 1024,
+    "grade": "absent",
+    "measured": null,
+    "note": "the composed 0.5B layer is in no constants file and no key names it; without the inputs directory this anchor is not evaluated",
+    "predicted": 286665237.61140823,
+    "ratio": null,
+    "scale": "Qwen2.5-0.5B",
+    "source": "b65/compose_host.json under --inputs DIR"
+   }
+  },
+  "bracket": {
+   "also": "SEPARATE and EXACT: the key tiles family. `family_cells.key_tiles` (base) and `family_cells.interaction_by_family.key_tiles.cells` must equal the registered integers TO THE CELL, as they do on every recorded layer chunk at both contexts (`harness.costmodel.key_tile --selftest`). The registered interaction is the statement WITH the five reductions -- `--diagonal-block --gkr-key-tiles --gkr-dequant --gkr-residual-stream --gkr-freivalds --gkr-attnout`, the configuration `tools/drivers/predict-14b.sh` proves every layer under and the one both headline runs used. A run WITHOUT `--gkr-key-tiles` commits the LogUp running sums instead, reports a LARGER interaction, and is compared against `key_tile_family(..., gkr=False)` at the same shape. The base is the same integer either way. Any nonzero deviation is a finding in its own right and must be reported even if rho passes -- it means the layout identities in `key_tile_cells` do not hold at a shape whose `nh` and `d` are not powers of two, which is the one thing the closed form's own docstring flags.\nSEPARATE and EXACT, the second one: the BOUNDARY TREES. `cells.fresh - cells.base - cells.interaction` must equal `2*d*S + 2*nh*hd*(2*C + S)` on every layer chunk and `d*S` on every output head chunk, as it does on all 68 recorded 8B chunks of the two headline runs (`harness.costmodel.key_tile --selftest`). No `family_cells` entry names this family, so a run that does not report `cells.base` and `cells.interaction` beside `cells.fresh` cannot be checked against it. Like the key tiles, a deviation is a finding in its own right and is reported whatever rho does; unlike a configuration miss, it does not void the run.",
+   "invalidation": "The comparison is void, not failed, if the run does not reproduce the registered configuration: spec `b10-final` (round even, all seven matmuls on the `chain` dequant rung), S=512, diagonal block key tile ON, grid_target 64 / chan_target 128 / rw 16, k_bits 11 / q_bits 12, bounds on, and a REAL extracted witness (not `ZK_SYNTHETIC_DIMS`). A void run is re-run, never re-bracketed.",
+   "marginal": [
+    0.8,
+    1.25
+   ],
+   "pass_": [
+    0.9,
+    1.1
+   ],
+   "prize": [
+    0.97,
+    1.03
+   ],
+   "protocol_widening": {
+    "A_all_layers": {
+     "what": "extract and prove every layer at the registered C, the seq5 recipe at a new shape; compare layers-only cells/token",
+     "widen_pct": 0.0
+    },
+    "B_even_subset": {
+     "basis": "the percentages here are the ones registered and are NOT re-derived; `layer_spread` in this document is what the two headline runs' own 32 chunks per context say today, computed rather than quoted",
+     "what": ">= 8 EVENLY SPACED layers (L0, L*1/8, ... by a rule fixed before the run), compare the mean scaled to L layers",
+     "widen_pct": 1.0
+    },
+    "C_single_layer": {
+     "basis": "the percentages here are the ones registered and are NOT re-derived; `layer_spread` in this document is what the two headline runs say today, and the run MUST report `params.log_table` and `interaction_by_family.table.cells` for the layer it proved. The whole chunk is the exact identity `chunk_identity` states, which a single-layer run can check on its own chunk.",
+     "what": "one layer only -- the minimum that still tests anything",
+     "widen_pct_lower": 1.5,
+     "widen_pct_upper": 9.0
+    }
+   },
+   "quantity": "rho = measured / predicted, on layers-only fresh cells per decoded token at the registered (shape, S, C)",
+   "rule": "PRIZE  rho in [0.97, 1.03] -- the model predicts a never-fitted scale to 3%. The extrapolation licence is claimed without qualification and the section 6.3 frontier table keeps its [projected] grade.\nPASS   rho in [0.90, 1.10] -- the range as registered, unchanged. What the same predictor shows at the two scales it WAS built from is not quoted here: it moves whenever the model does, and a number in this sentence went stale once already. It is computed into the `anchors` block of this document, per scale and per context, with the statement each measured side was proved at beside it. The range is NOT rebased on any of them. The licence is claimed with the measured residual quoted beside it.\nMARGINAL rho in [0.80, 0.90) or (1.10, 1.25] -- the licence is claimed only with an explicit +/-25% key tile printed on every frontier row.\nFAIL   rho < 0.80 or rho > 1.25 -- the cost model is REFUTED as an extrapolator. Section 6.3 is regraded from [projected] to [illustrative], the 'you didn't build it' mitigation falls back to publishing the model runnable, and E4 is written up as a negative result. No re-fit may be presented as if it were this prediction."
+  },
+  "chunk_identity": {
+   "checked_by": "harness.costmodel.key_tile --selftest",
+   "chunks": 62,
+   "exact_to_the_cell": true,
+   "form": "cells.fresh == key_tile_family(nh, hd, S, C) + boundary_cells(nh, hd, d, S, C) + 5 * sum_t 2^log_rows(t) + rest",
+   "note": "8B, S=512, spec b10-final, both contexts. The embedding layer's rest is higher by its embedding lookup and one more cell per attention-output accumulator. `boundary_cells` is the term no `family_cells` entry names: what `cells.fresh` has above `base + interaction`.",
+   "rest": 1023482368,
+   "rest_embedding_layer": 1044560384
+  },
+  "frozen_inputs": {
+   "cell_costs": {
+    "argmax_marginal_cells_per_comparison": {
+     "charged": true,
+     "file": "b10/argmax_v8k.json",
+     "grade": "measured",
+     "key": "model_constants.argmax_marginal_cells_per_comparison",
+     "note": "the whole-gadget key is not this quantity",
+     "run": "2026-09-11-microbench-cells-h100",
+     "source": "constants",
+     "value": 4.046875
+    },
+    "attention_cells_per_head_key_token": {
+     "charged": true,
+     "file": "b5/block.json",
+     "grade": "measured",
+     "key": "model_constants.attention_cells_per_head_key_token",
+     "note": "What one entry of the attention score grid costs: the committed shift, the exponential's answer and the probability, over 512 tokens and 1,024 keys at head dimension 64. It is exactly 4 at all five instance counts the run packs, 1 through 16, so it is the grid's own price and not an artefact of one packing. It is the whole of the attention term only in the superseded single-slope form; the key tile coefficients are what the cost model charges, and they carry a per-key and a per-token cost this number does not.",
+     "run": "2026-09-09-microbench-cells-h100",
+     "source": "constants",
+     "value": 4.0
+    },
+    "attnout_int8_cells_per_acc": {
+     "charged": true,
+     "file": "b6/dequant.json",
+     "grade": "measured",
+     "key": "model_constants.attnout_int8_cells_per_acc",
+     "note": "The attention output's own dequantization, folded straight to int8 because its consumer requantizes it anyway: one rounding per output element, on the same sweep and the same terms as the two rows above. The cost model multiplies it by the attention outputs of every layer and head.",
+     "run": "2026-09-09-microbench-cells-h100",
+     "source": "constants",
+     "value": 10.0625
+    },
+    "composed_attnout": {
+     "charged": true,
+     "file": "harness/costmodel/composed_rungs.json",
+     "grade": "derived",
+     "key": "model_constants.attnout_composed_cells_per_acc",
+     "note": "21,757,952 cells over 2,097,152 attention-output accumulators on all 62 recorded 8B layer chunks at both contexts, at the registered statement; a re-fit against one shape. the attention-output fold. Layer 0 builds one cell an accumulator more than every other layer and is not in the 62.",
+     "run": "2026-09-09-headline-c4096-h100",
+     "source": "constants",
+     "value": 10.375
+    },
+    "composed_dequant": {
+     "charged": true,
+     "file": "harness/costmodel/composed_rungs.json",
+     "grade": "derived",
+     "key": "model_constants.dequant_chain_composed_cells_per_acc",
+     "note": "353,632,256 cells over 22,020,096 matmul accumulators on all 62 recorded 8B layer chunks at both contexts, at the registered statement; a re-fit against one shape. the whole dequant family: the committed accumulator, the chain rounding and what the reduction leaves in the interaction trace. The standalone chain rung is 25.125 or 26.125 depending on the rounding and commits its own LogUp running sums.",
+     "run": "2026-09-09-headline-c4096-h100",
+     "source": "constants",
+     "value": 16.05952380952381
+    },
+    "composed_freivalds": {
+     "charged": true,
+     "file": "harness/costmodel/composed_rungs.json",
+     "grade": "derived",
+     "key": "model_constants.weight_freivalds_composed_cells_per_weight",
+     "note": "44,040,192 cells over 218,103,808 weights on all 62 recorded 8B layer chunks at both contexts, at the registered statement; a re-fit against one shape. B3's width sweep put the standalone check at 0.0902 cells a weight at its own design point; the composed check at this statement is more than twice that, and most of the difference is interaction the reduction does not remove.",
+     "run": "2026-09-09-headline-c4096-h100",
+     "source": "constants",
+     "value": 0.20192307692307693
+    },
+    "composed_quant": {
+     "charged": true,
+     "file": "harness/costmodel/composed_rungs.json",
+     "grade": "derived",
+     "key": "model_constants.quant_composed_cells_per_value",
+     "note": "45,875,200 cells over 2,621,440 attention q or k values on all 62 recorded 8B layer chunks at both contexts, at the registered statement; a re-fit against one shape. the q and k quantize, which no reduction owns and no key names at all.",
+     "run": "2026-09-09-headline-c4096-h100",
+     "source": "constants",
+     "value": 17.5
+    },
+    "composed_requant": {
+     "charged": true,
+     "file": "harness/costmodel/composed_rungs.json",
+     "grade": "derived",
+     "key": "model_constants.requant_composed_cells_per_value",
+     "note": "212,664,832 cells over 11,534,336 distinct matmul input values on all 62 recorded 8B layer chunks at both contexts, at the registered statement; a re-fit against one shape. the whole requantize family, the multiplicity column of its own tables included. `model_constants.requant_cells_per_value` is the standalone gadget and is not this.",
+     "run": "2026-09-09-headline-c4096-h100",
+     "source": "constants",
+     "value": 18.437544389204547
+    },
+    "composed_residual_stream_add": {
+     "charged": true,
+     "file": "harness/costmodel/composed_rungs.json",
+     "grade": "derived",
+     "key": "model_constants.residual_stream_composed_add_cells_per_op",
+     "note": "47,185,920 cells over 2,621,440 bf16 adds on all 62 recorded 8B layer chunks at both contexts, at the registered statement; a re-fit against one shape. read off RoPE's own add per rotated value (`rpqa`, `rpka`).",
+     "run": "2026-09-09-headline-c4096-h100",
+     "source": "constants",
+     "value": 18.0
+    },
+    "composed_residual_stream_mul": {
+     "charged": true,
+     "file": "harness/costmodel/composed_rungs.json",
+     "grade": "derived",
+     "key": "model_constants.residual_stream_composed_mul_cells_per_op",
+     "note": "26,214,400 cells over 5,242,880 bf16 multiplys on all 62 recorded 8B layer chunks at both contexts, at the registered statement; a re-fit against one shape. read off RoPE's own two multiplies per rotated value (`rpqm`, `rpkm`), which are the only bf16 multiplies in the chunk whose op count the run reports on their own.",
+     "run": "2026-09-09-headline-c4096-h100",
+     "source": "constants",
+     "value": 5.0
+    },
+    "composed_residual_stream_unary_plus_mul": {
+     "charged": true,
+     "file": "harness/costmodel/composed_rungs.json",
+     "grade": "derived",
+     "key": "model_constants.residual_stream_composed_swiglu_cells_per_op",
+     "note": "73,400,320 cells over 7,340,032 SwiGLU channels on all 62 recorded 8B layer chunks at both contexts, at the registered statement; a re-fit against one shape. one `silu` table application and one bf16 product per channel (`gsw`); the unary on its own is this less the multiply above.",
+     "run": "2026-09-09-headline-c4096-h100",
+     "source": "constants",
+     "value": 10.0
+    },
+    "dequant_chain_away_base_cells_per_acc": {
+     "charged": true,
+     "file": "b6/dequant.json",
+     "grade": "measured",
+     "key": "model_constants.dequant_chain_away_base_cells_per_acc",
+     "note": "the chain rung's committed columns, no LogUp running sums: what `--gkr-dequant` builds",
+     "run": "2026-09-11-microbench-cells-h100",
+     "source": "constants",
+     "value": 14.375
+    },
+    "dequant_chain_away_cells_per_acc": {
+     "charged": true,
+     "file": "b6/dequant.json",
+     "grade": "measured",
+     "key": "model_constants.dequant_chain_away_cells_per_acc",
+     "note": "Dequantization by the bf16 chain at the rounding away from zero, the marginal cells one accumulator adds with the shared tables left out; 1,048,576 accumulators, 16 per row, from the `chain` point's `cells_per_acc_marginal` in runs/2026-09-11-microbench-cells-h100/b6-dequant-away.json. This is what the cost model charges on all seven layer matmuls, because rounding away from zero is what the quantization configuration specifies and what every recorded proof builds. `model_constants.dequant_chain_cells_per_acc` is the same gadget at the round half to even, 26.125, exactly one cell an accumulator more, and is not this.",
+     "run": "2026-09-11-microbench-cells-h100",
+     "source": "constants",
+     "value": 25.125
+    },
+    "dequant_chain_cells_per_acc": {
+     "charged": false,
+     "file": "b6/dequant.json",
+     "grade": "measured",
+     "key": "model_constants.dequant_chain_cells_per_acc",
+     "note": "Dequantization by the bf16 chain, on the same sweep and the same terms as the power-of-two row above. It costs 1.73 times as much per accumulator.",
+     "run": "2026-09-09-microbench-cells-h100",
+     "source": "constants",
+     "value": 26.125
+    },
+    "dequant_pow2_away_base_cells_per_acc": {
+     "charged": true,
+     "file": "b6/dequant.json",
+     "grade": "measured",
+     "key": "model_constants.dequant_pow2_away_base_cells_per_acc",
+     "note": "the power-of-two rung's committed columns, no LogUp running sums",
+     "run": "2026-09-11-microbench-cells-h100",
+     "source": "constants",
+     "value": 9.25
+    },
+    "dequant_pow2_away_cells_per_acc": {
+     "charged": true,
+     "file": "b6/dequant.json",
+     "grade": "measured",
+     "key": "model_constants.dequant_pow2_away_cells_per_acc",
+     "note": "Dequantization by a power-of-two scale at the rounding away from zero, on the same sweep and the same terms as the chain entry above, from the `pow2` point's `cells_per_acc_marginal` in runs/2026-09-11-microbench-cells-h100/b6-dequant-away.json. The cost model charges it on the output head. `model_constants.dequant_pow2_cells_per_acc` is the round half to even, 15.0625, again exactly one cell an accumulator more.",
+     "run": "2026-09-11-microbench-cells-h100",
+     "source": "constants",
+     "value": 14.0625
+    },
+    "dequant_pow2_cells_per_acc": {
+     "charged": false,
+     "file": "b6/dequant.json",
+     "grade": "measured",
+     "key": "model_constants.dequant_pow2_cells_per_acc",
+     "note": "Dequantization by a power-of-two scale, the marginal cells one accumulator adds with the shared tables left out; 1,048,576 accumulators, 16 per row. The tables are a fixed cost of the segment and are not multiplied by a count, which is why the marginal figure and not the with-tables one is the cost model's input.",
+     "run": "2026-09-09-microbench-cells-h100",
+     "source": "constants",
+     "value": 15.0625
+    },
+    "gkrlink_cells_per_chunk": {
+     "charged": false,
+     "file": null,
+     "key": null,
+     "note": "the batched reductions' link. 16 cells per row over the reduced components' heights on both recorded 8B layer chunks; no form in the shape, so a statement with the reductions on is under-priced by it",
+     "source": "absent",
+     "value": null
+    },
+    "int8_range_cells_per_activation": {
+     "charged": true,
+     "file": "b4/range.json",
+     "grade": "derived",
+     "key": "model_constants.int8_range_cells_per_activation",
+     "note": "model_constants.logup_marginal_cells_per_lookup['2'] / 2. The range check on a committed int8 activation is one arity-2 lookup into the 2^16 byte-pair table covering two activations, at the batch size every use side finalizes with; the activations' own committed cells are charged elsewhere. The private archive measured the same 1.0 directly at three sizes, and the byte-at-a-time form it replaced is 2.0.",
+     "run": null,
+     "source": "constants",
+     "value": 1.0
+    },
+    "limb_cells_per_acc": {
+     "charged": false,
+     "file": "b4/limbs.json",
+     "key": null,
+     "note": "",
+     "source": "absent",
+     "value": null
+    },
+    "logup_marginal_cells_per_lookup": {
+     "charged": true,
+     "file": "logup.json",
+     "grade": "measured",
+     "key": "model_constants.logup_marginal_cells_per_lookup",
+     "note": "recorded as an object keyed by the LogUp batch size as a string, {\"1\": 4.0, \"2\": 2.0} -- the marginal is one number per batch size and the model indexes it by the batch it charges",
+     "run": "2026-09-11-microbench-cells-h100",
+     "source": "constants",
+     "value": {
+      "1": 4.0,
+      "2": 2.0
+     }
+    },
+    "preprocessed_cells_per_weight": {
+     "charged": true,
+     "file": "b3/width.json",
+     "grade": "measured",
+     "key": "model_constants.weight_freivalds_preprocessed_cells_per_weight",
+     "note": "The preprocessed side of the same check at the same row width, the trace a proof reads once rather than commits again: `result.points[0].cells.preprocessed_per_weight` of runs/2026-09-11-microbench-cells-h100/b3-freivalds.json. It is exactly 1 + 4/p -- one cell a weight, plus the four selectors amortised over a row -- at 8, 16, 32, 64 and 136 weights a row, so it is the same closed form as the fresh figure beside it. Each point is a marginal over the weights two output widths differ by and carries no row padding; the private archive's 1.0903 is one padded component divided by its weights, from a component that also carried nine preprocessed columns beside its weights where this one carries four. The preprocessed trace is in none of the cost model's cell totals, so this figure moves `moe.<model>.preprocessed_over_fresh` and nothing else.",
+     "run": "2026-09-11-microbench-cells-h100",
+     "source": "constants",
+     "value": 1.0294117647058822
+    },
+    "requant_cells_per_value": {
+     "charged": true,
+     "file": "b65/requant_*.json",
+     "grade": "measured",
+     "key": "model_constants.requant_cells_per_value",
+     "note": "One requantized value with its scale argument, the marginal cells with the shared tables left out and the two committed input cells left out because the producer commits them. The subcommand proves four points: 8.0625 and 11.4375 for power-of-two scales without and with the argument, 8.125 and 11.5 for bf16. The cost model takes the largest of the two with the argument and charges one less than it per distinct matmul input, because the committed quantized value is already counted.",
+     "run": "2026-09-09-microbench-cells-h100",
+     "source": "constants",
+     "value": 11.5
+    },
+    "residual_stream_add_cells_per_op": {
+     "charged": true,
+     "file": "b65/residual_stream.json",
+     "grade": "measured",
+     "key": "model_constants.residual_stream_add_cells_per_op",
+     "note": "One correctly rounded bf16 add of the residual stream, the marginal cells with the shared tables and the component's leaves left out. The cost model multiplies it by the two residual adds of every layer and by the adds of each normalisation's reduction. Putting a unary operation in front of the add does not move it: the same 24.3226 with a square on every leaf.",
+     "run": "2026-09-09-microbench-cells-h100",
+     "source": "constants",
+     "value": 24.322580645161292
+    },
+    "residual_stream_mul_cells_per_op": {
+     "charged": true,
+     "file": "b65/residual_stream.json",
+     "grade": "measured",
+     "key": "model_constants.residual_stream_mul_cells_per_op",
+     "note": "One bf16 multiply of the residual stream, on the same terms as the add above. The cost model multiplies it by the two multiplies of every normalisation and by the SwiGLU's product. The SiLU in front of the product does not move it, and the normalisation's own scale is 8.4375 because its second operand is a preprocessed weight.",
+     "run": "2026-09-09-microbench-cells-h100",
+     "source": "constants",
+     "value": 8.75
+    },
+    "route_selection_cells": {
+     "charged": true,
+     "file": null,
+     "key": null,
+     "note": "nobody has built this gadget; the nearest gadget that was measured stands in for it",
+     "source": "analogy",
+     "value": 3.0
+    },
+    "route_topk_cells": {
+     "charged": true,
+     "file": null,
+     "key": null,
+     "note": "nobody has built this gadget; the nearest gadget that was measured stands in for it",
+     "source": "analogy",
+     "value": 3.36
+    },
+    "unary_cells_per_application": {
+     "charged": true,
+     "file": "b4/unary.json",
+     "grade": "derived",
+     "key": "model_constants.residual_stream_unary_cells_per_op",
+     "note": "2 + model_constants.logup_marginal_cells_per_lookup['2']. One bf16 unary operation commits its output as one bf16 value, which is two cells, and pays one lookup at pairwise batching. The cost model multiplies it by each normalisation's square and inverse square root and by the SwiGLU's SiLU. The prover reports the same figure under primitives.unary of the residual-stream output, built from the same two terms, so it is an exact count and not a second measurement.",
+     "run": null,
+     "source": "constants",
+     "value": 4.0
+    },
+    "weight_freivalds_cells_per_weight": {
+     "charged": true,
+     "file": "b3/width.json",
+     "grade": "measured",
+     "key": "model_constants.weight_freivalds_cells_per_weight",
+     "note": "The weight Freivalds check's committed cells per weight, at the prover's own default row width: `result.points[0].cells.cells_per_weight` of runs/2026-09-11-microbench-cells-h100/b3-freivalds.json. Its three QM31 accumulator columns cost 12 cells a trace row and a row carries p weights, so the law is 12/p and p is a layout knob, not a constant of the gadget: this is 12/136, the default of `params_of`. The sweep beside it, b3-freivalds-widths.json, returns 12/p to the cell at 8, 16, 32 and 64 weights a row, which is what says the closed form holds rather than assuming it. A group of n matmuls shares one accumulator and so costs (4 + 8n)/(n p) per weight and not 12/p, which the cost model does not know: charging 12/p across a layer over-charges the two-matmul group by 20 per cent and the three-matmul one by 29. The private archive's 0.0902 is 12/133, the same law at a shape whose grid padded 32,256 rows up to 2^15, so it is this figure inflated 2.3 per cent by row padding and not a second measurement; this subcommand refuses a ragged tiling and reports the unpadded form.",
+     "run": "2026-09-11-microbench-cells-h100",
+     "source": "constants",
+     "value": 0.08823529411764706
+    }
+   },
+   "code_sha256": {
+    "harness/costmodel/composed_rungs.json": "cc0c303f00d6f22c506a29333c6ce235db97039d6413846edabdb3d52f0386f8",
+    "harness/costmodel/cost_model.py": "7ac7c42a787dec674fda930875a701a94880526dfe8f3d216c10f4496998e8ff",
+    "harness/costmodel/key_tile.py": "22ce6580bef922d69966a81f7b02d42782650a821493ef7b3604d90aca312ab1",
+    "harness/costmodel/layer_chunks.json": "aec3d7b6fbd9107e509606527af96a78bfe6bc87d76450868b57813eba4a2092",
+    "harness/eval/predict/predict.py": "c01ac9404f55ef677862fbe099f47cc5575a69c66e1164648c71cb4744ae7c25"
+   },
+   "constants_entries": {
+    "model_constants.argmax_marginal_cells_per_comparison": {
+     "artifact": "b10-argmax.json",
+     "card": "none",
+     "context": "n/a",
+     "grade": "measured",
+     "run": "2026-09-11-microbench-cells-h100",
+     "timing_scope": "n/a",
+     "unit": "cells/comparison",
+     "value": 4.046875
+    },
+    "model_constants.attention_cells_per_head_key_token": {
+     "artifact": "b6-pack.json",
+     "card": "none",
+     "context": "n/a",
+     "grade": "measured",
+     "run": "2026-09-09-microbench-cells-h100",
+     "timing_scope": "n/a",
+     "unit": "cells per (head, key) per token",
+     "value": 4.0
+    },
+    "model_constants.attnout_composed_cells_per_acc": {
+     "artifact": "slice_0256.json",
+     "card": "none",
+     "context": "n/a",
+     "grade": "derived",
+     "run": "2026-09-09-headline-c4096-h100",
+     "timing_scope": "n/a",
+     "unit": "cells/accumulator",
+     "value": 10.375
+    },
+    "model_constants.attnout_int8_cells_per_acc": {
+     "artifact": "b6-dequant.json",
+     "card": "none",
+     "context": "n/a",
+     "grade": "measured",
+     "run": "2026-09-09-microbench-cells-h100",
+     "timing_scope": "n/a",
+     "unit": "cells/accumulator",
+     "value": 10.0625
+    },
+    "model_constants.dequant_chain_away_base_cells_per_acc": {
+     "artifact": "b6-dequant-away.json",
+     "card": "none",
+     "context": "n/a",
+     "grade": "measured",
+     "run": "2026-09-11-microbench-cells-h100",
+     "timing_scope": "n/a",
+     "unit": "cells/accumulator",
+     "value": 14.375
+    },
+    "model_constants.dequant_chain_away_cells_per_acc": {
+     "artifact": "b6-dequant-away.json",
+     "card": "none",
+     "context": "n/a",
+     "grade": "measured",
+     "run": "2026-09-11-microbench-cells-h100",
+     "timing_scope": "n/a",
+     "unit": "cells/accumulator",
+     "value": 25.125
+    },
+    "model_constants.dequant_chain_cells_per_acc": {
+     "artifact": "b6-dequant.json",
+     "card": "none",
+     "context": "n/a",
+     "grade": "measured",
+     "run": "2026-09-09-microbench-cells-h100",
+     "timing_scope": "n/a",
+     "unit": "cells/accumulator",
+     "value": 26.125
+    },
+    "model_constants.dequant_chain_composed_cells_per_acc": {
+     "artifact": "slice_0256.json",
+     "card": "none",
+     "context": "n/a",
+     "grade": "derived",
+     "run": "2026-09-09-headline-c4096-h100",
+     "timing_scope": "n/a",
+     "unit": "cells/accumulator",
+     "value": 16.05952380952381
+    },
+    "model_constants.dequant_pow2_away_base_cells_per_acc": {
+     "artifact": "b6-dequant-away.json",
+     "card": "none",
+     "context": "n/a",
+     "grade": "measured",
+     "run": "2026-09-11-microbench-cells-h100",
+     "timing_scope": "n/a",
+     "unit": "cells/accumulator",
+     "value": 9.25
+    },
+    "model_constants.dequant_pow2_away_cells_per_acc": {
+     "artifact": "b6-dequant-away.json",
+     "card": "none",
+     "context": "n/a",
+     "grade": "measured",
+     "run": "2026-09-11-microbench-cells-h100",
+     "timing_scope": "n/a",
+     "unit": "cells/accumulator",
+     "value": 14.0625
+    },
+    "model_constants.dequant_pow2_cells_per_acc": {
+     "artifact": "b6-dequant.json",
+     "card": "none",
+     "context": "n/a",
+     "grade": "measured",
+     "run": "2026-09-09-microbench-cells-h100",
+     "timing_scope": "n/a",
+     "unit": "cells/accumulator",
+     "value": 15.0625
+    },
+    "model_constants.int8_range_cells_per_activation": {
+     "card": "none",
+     "context": "n/a",
+     "grade": "derived",
+     "timing_scope": "n/a",
+     "unit": "cells/activation",
+     "value": 1.0
+    },
+    "model_constants.logup_marginal_cells_per_lookup": {
+     "artifact": "logup.json",
+     "card": "none",
+     "context": "n/a",
+     "grade": "measured",
+     "run": "2026-09-11-microbench-cells-h100",
+     "timing_scope": "n/a",
+     "unit": "cells/lookup",
+     "value": {
+      "1": 4.0,
+      "2": 2.0
+     }
+    },
+    "model_constants.quant_composed_cells_per_value": {
+     "artifact": "slice_0256.json",
+     "card": "none",
+     "context": "n/a",
+     "grade": "derived",
+     "run": "2026-09-09-headline-c4096-h100",
+     "timing_scope": "n/a",
+     "unit": "cells/value",
+     "value": 17.5
+    },
+    "model_constants.requant_cells_per_value": {
+     "artifact": "b65-requant.json",
+     "card": "none",
+     "context": "n/a",
+     "grade": "measured",
+     "run": "2026-09-09-microbench-cells-h100",
+     "timing_scope": "n/a",
+     "unit": "cells/value",
+     "value": 11.5
+    },
+    "model_constants.requant_composed_cells_per_value": {
+     "artifact": "slice_0256.json",
+     "card": "none",
+     "context": "n/a",
+     "grade": "derived",
+     "run": "2026-09-09-headline-c4096-h100",
+     "timing_scope": "n/a",
+     "unit": "cells/value",
+     "value": 18.437544389204547
+    },
+    "model_constants.residual_stream_add_cells_per_op": {
+     "artifact": "b65-residual-stream.json",
+     "card": "none",
+     "context": "n/a",
+     "grade": "measured",
+     "run": "2026-09-09-microbench-cells-h100",
+     "timing_scope": "n/a",
+     "unit": "cells/operation",
+     "value": 24.322580645161292
+    },
+    "model_constants.residual_stream_composed_add_cells_per_op": {
+     "artifact": "slice_0256.json",
+     "card": "none",
+     "context": "n/a",
+     "grade": "derived",
+     "run": "2026-09-09-headline-c4096-h100",
+     "timing_scope": "n/a",
+     "unit": "cells/operation",
+     "value": 18.0
+    },
+    "model_constants.residual_stream_composed_mul_cells_per_op": {
+     "artifact": "slice_0256.json",
+     "card": "none",
+     "context": "n/a",
+     "grade": "derived",
+     "run": "2026-09-09-headline-c4096-h100",
+     "timing_scope": "n/a",
+     "unit": "cells/operation",
+     "value": 5.0
+    },
+    "model_constants.residual_stream_composed_swiglu_cells_per_op": {
+     "artifact": "slice_0256.json",
+     "card": "none",
+     "context": "n/a",
+     "grade": "derived",
+     "run": "2026-09-09-headline-c4096-h100",
+     "timing_scope": "n/a",
+     "unit": "cells/operation",
+     "value": 10.0
+    },
+    "model_constants.residual_stream_mul_cells_per_op": {
+     "artifact": "b65-residual-stream.json",
+     "card": "none",
+     "context": "n/a",
+     "grade": "measured",
+     "run": "2026-09-09-microbench-cells-h100",
+     "timing_scope": "n/a",
+     "unit": "cells/operation",
+     "value": 8.75
+    },
+    "model_constants.residual_stream_unary_cells_per_op": {
+     "card": "none",
+     "context": "n/a",
+     "grade": "derived",
+     "timing_scope": "n/a",
+     "unit": "cells/operation",
+     "value": 4.0
+    },
+    "model_constants.weight_freivalds_cells_per_weight": {
+     "artifact": "b3-freivalds.json",
+     "card": "none",
+     "context": "n/a",
+     "grade": "measured",
+     "run": "2026-09-11-microbench-cells-h100",
+     "timing_scope": "n/a",
+     "unit": "cells/weight",
+     "value": 0.08823529411764706
+    },
+    "model_constants.weight_freivalds_composed_cells_per_weight": {
+     "artifact": "slice_0256.json",
+     "card": "none",
+     "context": "n/a",
+     "grade": "derived",
+     "run": "2026-09-09-headline-c4096-h100",
+     "timing_scope": "n/a",
+     "unit": "cells/weight",
+     "value": 0.20192307692307693
+    },
+    "model_constants.weight_freivalds_preprocessed_cells_per_weight": {
+     "artifact": "b3-freivalds.json",
+     "card": "none",
+     "context": "n/a",
+     "grade": "measured",
+     "run": "2026-09-11-microbench-cells-h100",
+     "timing_scope": "n/a",
+     "unit": "cells/weight",
+     "value": 1.0294117647058822
+    }
+   },
+   "constants_file_sha256": "841dcd6ebda5bbb0a082f28c1bcba5df474e78c0d9be21d7f5569d0353e59f5b",
+   "n_from_constants": 25,
+   "n_inputs": 29,
+   "not_priced": [
+    "gkrlink_cells_per_chunk",
+    "limb_cells_per_acc"
+   ],
+   "reference_chunks": {
+    "16384": {
+     "block": 32,
+     "blocks": 33,
+     "context": 16384,
+     "fresh": 2229832816,
+     "key_tiles": 761331712,
+     "key_tiles_interaction": 113057792,
+     "model": "unsloth/Llama-3.1-8B-Instruct",
+     "plan_index": 1041,
+     "proof_sha256": "45e858dce81a892dfb5948197314fd8625e476dcc69223ade64f773dbe865b94",
+     "prover_commit": "38a3919988ec11e57244516b13b32e434cb01fb1",
+     "run": "2026-09-08-headline-c16384-h100",
+     "s": 512,
+     "segment": "B32L16",
+     "slice": "slice_1024.json",
+     "spec": "y-delay-vw12",
+     "tokens": [
+      16384,
+      16895
+     ]
+    },
+    "4096": {
+     "block": 8,
+     "blocks": 9,
+     "context": 4096,
+     "fresh": 1393069168,
+     "key_tiles": 207683584,
+     "key_tiles_interaction": 31268864,
+     "model": "unsloth/Llama-3.1-8B-Instruct",
+     "plan_index": 273,
+     "proof_sha256": "9f091c704d505d657d98edec784ac374c758c1fa2dd8075bdc78d5c51d16d975",
+     "prover_commit": "a603db1ddf1e2372d1f9761d684df8f2294199a9",
+     "run": "2026-09-09-headline-c4096-h100",
+     "s": 512,
+     "segment": "B8L16",
+     "slice": "slice_0256.json",
+     "spec": "y-delay-vw12",
+     "tokens": [
+      4096,
+      4607
+     ]
+    }
+   },
+   "statement": {
+    "bind": true,
+    "diagonal_block": true,
+    "driver": "tools/drivers/predict-14b.sh (zk-results), which proves every layer of the target shape with these flags",
+    "driver_flags": "--diagonal-block --gkr-key-tiles --gkr-dequant --gkr-residual-stream --gkr-freivalds --gkr-attnout",
+    "flags": {
+     "bind": "not a flag: `Params::rope`, which every layer segment has and no output head does",
+     "diagonal_block": "--diagonal-block",
+     "gkr": "--gkr-key-tiles",
+     "kv_boundary": "not a flag: `kv_boundary = diagonal_block && !head` (`main.rs`), so every layer segment of the run has it"
+    },
+    "gkr": true,
+    "key_tiles_half": "priced at exactly this statement: `key_tile_family(nh, hd, S, C, **STATEMENT)`",
+    "kv_boundary": true,
+    "rest_half": {
+     "effect": "each proves the LogUp running sums of the family it names instead of committing them, and moves what it does commit into `gkrlink`. `cells_per_token(gkr=...)` prices all four; `gkrlink` itself is the one family the model does not price, and `cost_model.PROVENANCE['gkrlink_cells_per_chunk']` says so",
+     "flags": "--gkr-dequant --gkr-residual-stream --gkr-freivalds --gkr-attnout"
+    }
+   }
+  },
+  "implied_tok_s_secondary": {
+   "Qwen2.5-14B-Instruct": {
+    "16384": {
+     "note": "this constants file does not name the H200 commit rate, so no tok/s is implied here",
+     "rate": null,
+     "rate_key": "rate.h200.c16384.commit_layers32",
+     "tok_s_commit_boundary": null
+    },
+    "4096": {
+     "note": "this constants file does not name the H200 commit rate, so no tok/s is implied here",
+     "rate": null,
+     "rate_key": "rate.h200.c4096.commit_layers32",
+     "tok_s_commit_boundary": null
+    }
+   },
+   "Qwen2.5-32B-Instruct": {
+    "4096": {
+     "note": "this constants file does not name the H200 commit rate, so no tok/s is implied here",
+     "rate": null,
+     "rate_key": "rate.h200.c4096.commit_layers32",
+     "tok_s_commit_boundary": null
+    }
+   },
+   "Qwen2.5-3B-Instruct": {
+    "16384": {
+     "note": "this constants file does not name the H200 commit rate, so no tok/s is implied here",
+     "rate": null,
+     "rate_key": "rate.h200.c16384.commit_layers32",
+     "tok_s_commit_boundary": null
+    },
+    "4096": {
+     "note": "this constants file does not name the H200 commit rate, so no tok/s is implied here",
+     "rate": null,
+     "rate_key": "rate.h200.c4096.commit_layers32",
+     "tok_s_commit_boundary": null
+    }
+   }
+  },
+  "integrator_notes": {
+   "card_footprint": {
+    "basis": "seq5's single 8B layer chunk peaked 76.8 GiB on the card at C=16384 (eval-plan.md section 8). E4's chunks scale roughly with fresh cells; the H200 has 141 GB and the C=16384 arm must run SERIAL, never pipelined two-ahead.",
+    "ratios": {
+     "Qwen2.5-14B-Instruct": {
+      "16384": {
+       "chunk_over_8b_l16": 1.1923240032728077
+      },
+      "4096": {
+       "chunk_over_8b_l16": 1.1576802264007882
+      }
+     },
+     "Qwen2.5-32B-Instruct": {
+      "4096": {
+       "chunk_over_8b_l16": 1.495629076175598
+      }
+     },
+     "Qwen2.5-3B-Instruct": {
+      "16384": {
+       "chunk_over_8b_l16": 0.5623829716225709
+      },
+      "4096": {
+       "chunk_over_8b_l16": 0.5998540492309605
+      }
+     }
+    }
+   },
+   "frontier_rows_still_on_4p00": {
+    "finding": "Every `cells_per_token.27b.*` row in paper/constants.json reproduces EXACTLY when the cost model is re-run with the legacy alpha=4.00 path, and not otherwise. Re-running the same shape on the key tile model -- the composed-chunk value W0's freeze ruled the paper must use (eval-plan.md 7.5(e)) -- raises them as below. E4 reports this and does not patch it: `paper/constants.json` is owned elsewhere this session.",
+    "grades_still_wrong": [
+     {
+      "grade": "absent",
+      "key": "attention_grid.b5_standalone_alpha"
+     },
+     {
+      "grade": "measured",
+      "key": "model_constants.attention_cells_per_head_key_token"
+     }
+    ],
+    "rows": {
+     "16384": {
+      "frozen": null,
+      "key": "cells_per_token.27b.c16384.model",
+      "note": "this constants file does not name the frozen 27B row, so there is nothing to compare the re-run against",
+      "rerun_alpha_4p00": 376132984.25768715,
+      "rerun_key_tile_model": 291792328.9644314
+     },
+     "4096": {
+      "frozen": null,
+      "key": "cells_per_token.27b.c4096.model",
+      "note": "this constants file does not name the frozen 27B row, so there is nothing to compare the re-run against",
+      "rerun_alpha_4p00": 238998904.25768715,
+      "rerun_key_tile_model": 190465480.9644314
+     }
+    }
+   }
+  },
+  "key_tiles_selfcheck_8b": [
+   {
+    "ctx": 4096,
+    "exact": true,
+    "key_tiles_base": 207683584,
+    "key_tiles_interaction": 31268864,
+    "saturated": false,
+    "statement": {
+     "bind": true,
+     "chan_target": 128,
+     "diagonal_block": true,
+     "gkr": true,
+     "grid_target": 64,
+     "kv_boundary": true,
+     "rw": 16
+    }
+   },
+   {
+    "ctx": 16384,
+    "exact": true,
+    "key_tiles_base": 761331712,
+    "key_tiles_interaction": 113057792,
+    "saturated": false,
+    "statement": {
+     "bind": true,
+     "chan_target": 128,
+     "diagonal_block": true,
+     "gkr": true,
+     "grid_target": 64,
+     "kv_boundary": true,
+     "rw": 16
+    }
+   }
+  ],
+  "layer_spread": {
+   "16384": {
+    "layers": 32,
+    "mean_fresh_per_chunk": 2242287979.0,
+    "narrowest_layer": "B32L3",
+    "note": "the widest layer is the embedding one: it carries the embedding lookup, the largest master exponent table of the 32 and one more cell per attention-output accumulator. Without it the spread is the row above.",
+    "run": "2026-09-08-headline-c16384-h100",
+    "single_layer_pct": [
+     -1.4907435312973227,
+     5.996188458360363
+    ],
+    "single_layer_pct_without_the_embedding_layer": [
+     -1.4907435312973227,
+     5.056169326232651
+    ],
+    "widest_layer": "B32L0",
+    "worst_even_8_subsample_pct": 0.5554666981515299
+   },
+   "4096": {
+    "layers": 32,
+    "mean_fresh_per_chunk": 1392417118.5,
+    "narrowest_layer": "B8L13",
+    "note": "the widest layer is the embedding one: it carries the embedding lookup, the largest master exponent table of the 32 and one more cell per attention-output accumulator. Without it the spread is the row above.",
+    "run": "2026-09-09-headline-c4096-h100",
+    "single_layer_pct": [
+     -1.4593062832989,
+     10.597329172379034
+    ],
+    "single_layer_pct_without_the_embedding_layer": [
+     -1.4593062832989,
+     3.0590753973124274
+    ],
+    "widest_layer": "B8L0",
+    "worst_even_8_subsample_pct": 0.9891088896434086
+   }
+  },
+  "prediction_block_sha256": "7ebf25ca509522a7506bdf9848f808e27a57217dc7ece493f699f47af26eb27b",
+  "prediction_sha256": "ff38a95bd008ff62371a5213b5dfc962cc41cda517cd197c2cdc2a3b1b94b4dd",
+  "provenance": {
+   "inputs_sha256": {
+    "constants.json": "841dcd6ebda5bbb0a082f28c1bcba5df474e78c0d9be21d7f5569d0353e59f5b",
+    "harness/costmodel/composed_rungs.json": "cc0c303f00d6f22c506a29333c6ce235db97039d6413846edabdb3d52f0386f8",
+    "harness/costmodel/cost_model.py": "7ac7c42a787dec674fda930875a701a94880526dfe8f3d216c10f4496998e8ff",
+    "harness/costmodel/key_tile.py": "22ce6580bef922d69966a81f7b02d42782650a821493ef7b3604d90aca312ab1",
+    "harness/costmodel/layer_chunks.json": "aec3d7b6fbd9107e509606527af96a78bfe6bc87d76450868b57813eba4a2092",
+    "harness/eval/predict/predict.py": "c01ac9404f55ef677862fbe099f47cc5575a69c66e1164648c71cb4744ae7c25"
+   },
+   "no_measurement_exists": "At registration there is NO witness, NO proof and NO cell count for Qwen2.5-3B / 14B / 32B anywhere in this repo or on either box. The only scales ever extracted are Qwen2.5-0.5B (experiments/b65/out/) and Llama-3.1-8B (experiments/b8, b9, b10). The H200 queue at registration time is bring-up -> E8 seq6 -> E2 measurement -> E4 extraction, and E8 is the item in progress; the H100 is on E11's third fit point. Neither box has been asked for any number in this file.",
+   "predictor": {
+    "attention_term": "the KEY_TILE MODEL (alpha=None). The legacy single-slope alpha=4.00 path is NOT used -- section 7.5(e)'s ruling is that the paper uses the composed-chunk value.",
+    "engine": "experiments/b2/cost_model.py",
+    "entry_points": [
+     "cells_per_token(cfg, ctx, batch, seq, head=False, gkr=...)",
+     "residual_stream_cells(cfg, 'tree', gkr=...)",
+     "key_tile_family",
+     "key_tile_cells",
+     "key_tile_fresh",
+     "boundary_cells",
+     "lookup_table_cells",
+     "lm_head_chunk"
+    ],
+    "lookup_batch": 2,
+    "not_the_engine": "experiments/budget.py is an early one-shape proxy (eval-plan.md section 3) and is not used here",
+    "reductions_priced": [
+     "key_tiles",
+     "dequant",
+     "residual_stream",
+     "freivalds",
+     "attnout"
+    ],
+    "seq_per_chunk": 512
+   },
+   "registered_by": "stream E4 (desk lane)",
+   "registered_utc_date": "2026-09-01",
+   "registers": [
+    "Qwen2.5-14B-Instruct",
+    "Qwen2.5-3B-Instruct",
+    "Qwen2.5-32B-Instruct"
+   ]
+  },
+  "reference_8b_chunk": {
+   "cells": {
+    "16384": 2229832816,
+    "4096": 1393069168
+   },
+   "source": "<--artifacts>/seq5/seq_c{4096,16384}_L16.json (result.point.cells.fresh)"
+  },
+  "schema": "e4-registration/1",
+  "shapes": {
+   "Qwen2.5-14B-Instruct": {
+    "cfg": [
+     48,
+     5120,
+     40,
+     8,
+     128,
+     13824,
+     152064
+    ],
+    "contexts": {
+     "16384": {
+      "cells_per_token_layers": 249251549.04395604,
+      "cells_per_token_layers_key_tiles": 102467520.0,
+      "cells_per_token_layers_rest": 146784029.04395604,
+      "chunk_over_8b_l16_chunk": 1.1923240032728077,
+      "key_tile_layout_saturated": false,
+      "key_tiles_family_base_per_chunk": 951664640,
+      "key_tiles_family_fresh_per_chunk": 1092986880,
+      "key_tiles_family_interaction_per_chunk": 141322240,
+      "per_layer_chunk_fresh": 2658683189.802198,
+      "sensitivity_base_slope_2p2526": {
+       "cells_per_token_layers": 257445771.12395602,
+       "shift_pct": 3.28753105504469
+      }
+     },
+     "4096": {
+      "cells_per_token_layers": 151193309.04395604,
+      "cells_per_token_layers_key_tiles": 28002240.0,
+      "cells_per_token_layers_rest": 123191069.04395604,
+      "chunk_over_8b_l16_chunk": 1.1576802264007882,
+      "key_tile_layout_saturated": false,
+      "key_tiles_family_base_per_chunk": 259604480,
+      "key_tiles_family_fresh_per_chunk": 298690560,
+      "key_tiles_family_interaction_per_chunk": 39086080,
+      "per_layer_chunk_fresh": 1612728629.8021977,
+      "sensitivity_base_slope_2p2526": {
+       "cells_per_token_layers": 153428096.88395604,
+       "shift_pct": 1.4780996951064163
+      }
+     }
+    },
+    "head_chunk": {
+     "fresh": 1478634556.235294,
+     "per_token": 2887958.117647059,
+     "preprocessed": 801466729.4117646
+    },
+    "hf": "Qwen/Qwen2.5-14B-Instruct",
+    "params_b": 14.769,
+    "params_total": 14769192960,
+    "role": "primary",
+    "tied_embeddings": false,
+    "weights_gib_bf16": 27.51,
+    "why": "above both fitted scales, so the claim is extrapolation and not interpolation; 29.5 GB of bf16 weights and a layer chunk ~1.3x the 8B's, both comfortable on the H200"
+   },
+   "Qwen2.5-32B-Instruct": {
+    "cfg": [
+     64,
+     5120,
+     40,
+     8,
+     128,
+     27648,
+     152064
+    ],
+    "contexts": {
+     "4096": {
+      "cells_per_token_layers": 260439344.0980686,
+      "cells_per_token_layers_key_tiles": 37336320.0,
+      "cells_per_token_layers_rest": 223103024.0980686,
+      "chunk_over_8b_l16_chunk": 1.495629076175598,
+      "key_tile_layout_saturated": false,
+      "key_tiles_family_base_per_chunk": 259604480,
+      "key_tiles_family_fresh_per_chunk": 298690560,
+      "key_tiles_family_interaction_per_chunk": 39086080,
+      "per_layer_chunk_fresh": 2083514752.7845488,
+      "sensitivity_base_slope_2p2526": {
+       "cells_per_token_layers": 263419061.2180686,
+       "shift_pct": 1.1441117433002024
+      }
+     }
+    },
+    "head_chunk": {
+     "fresh": 1478634556.235294,
+     "per_token": 2887958.117647059,
+     "preprocessed": 801466729.4117646
+    },
+    "hf": "Qwen/Qwen2.5-32B-Instruct",
+    "params_b": 32.763,
+    "params_total": 32762757120,
+    "role": "fallback-large",
+    "tied_embeddings": false,
+    "weights_gib_bf16": 61.03,
+    "why": "the strongest test if the window is generous, and the shape closest to the paper's 27B frontier row; C=4096 only -- a 16K layer chunk extrapolates past the card"
+   },
+   "Qwen2.5-3B-Instruct": {
+    "cfg": [
+     36,
+     2048,
+     16,
+     2,
+     128,
+     11008,
+     151936
+    ],
+    "contexts": {
+     "16384": {
+      "cells_per_token_layers": 88173281.6215035,
+      "cells_per_token_layers_key_tiles": 30740256.0,
+      "cells_per_token_layers_rest": 57433025.6215035,
+      "chunk_over_8b_l16_chunk": 0.5623829716225709,
+      "key_tile_layout_saturated": false,
+      "key_tiles_family_base_per_chunk": 380665856,
+      "key_tiles_family_fresh_per_chunk": 437194752,
+      "key_tiles_family_interaction_per_chunk": 56528896,
+      "per_layer_chunk_fresh": 1254020005.2836053,
+      "sensitivity_base_slope_2p2526": {
+       "cells_per_token_layers": 90631548.2455035,
+       "shift_pct": 2.7879949331504505
+      }
+     },
+     "4096": {
+      "cells_per_token_layers": 58755809.621503495,
+      "cells_per_token_layers_key_tiles": 8400672.0,
+      "cells_per_token_layers_rest": 50355137.621503495,
+      "chunk_over_8b_l16_chunk": 0.5998540492309605,
+      "key_tile_layout_saturated": false,
+      "key_tiles_family_base_per_chunk": 103841792,
+      "key_tiles_family_fresh_per_chunk": 119476224,
+      "key_tiles_family_interaction_per_chunk": 15634432,
+      "per_layer_chunk_fresh": 835638181.2836052,
+      "sensitivity_base_slope_2p2526": {
+       "cells_per_token_layers": 59426245.97350349,
+       "shift_pct": 1.1410554229766445
+      }
+     }
+    },
+    "head_chunk": {
+     "fresh": 1436206320.9411764,
+     "per_token": 2805090.470588235,
+     "preprocessed": 320316837.6470588
+    },
+    "hf": "Qwen/Qwen2.5-3B-Instruct",
+    "params_b": 3.086,
+    "params_total": 3085697024,
+    "role": "fallback-small",
+    "tied_embeddings": true,
+    "weights_gib_bf16": 5.75,
+    "why": "if the H200 window is under an hour: interpolates between the two fitted scales rather than extrapolating, so it is a weaker test -- registered so that falling back is not a post-hoc choice"
+   }
+  },
+  "statement": {
+   "bind": true,
+   "diagonal_block": true,
+   "driver": "tools/drivers/predict-14b.sh (zk-results), which proves every layer of the target shape with these flags",
+   "driver_flags": "--diagonal-block --gkr-key-tiles --gkr-dequant --gkr-residual-stream --gkr-freivalds --gkr-attnout",
+   "flags": {
+    "bind": "not a flag: `Params::rope`, which every layer segment has and no output head does",
+    "diagonal_block": "--diagonal-block",
+    "gkr": "--gkr-key-tiles",
+    "kv_boundary": "not a flag: `kv_boundary = diagonal_block && !head` (`main.rs`), so every layer segment of the run has it"
+   },
+   "gkr": true,
+   "key_tiles_half": "priced at exactly this statement: `key_tile_family(nh, hd, S, C, **STATEMENT)`",
+   "kv_boundary": true,
+   "rest_half": {
+    "effect": "each proves the LogUp running sums of the family it names instead of committing them, and moves what it does commit into `gkrlink`. `cells_per_token(gkr=...)` prices all four; `gkrlink` itself is the one family the model does not price, and `cost_model.PROVENANCE['gkrlink_cells_per_chunk']` says so",
+    "flags": "--gkr-dequant --gkr-residual-stream --gkr-freivalds --gkr-attnout"
+   }
+  }
+ }
+}
