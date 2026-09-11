@@ -16,6 +16,15 @@
 # VERIFY PIPELINE SLICE XTHREADS IDS KERNEL_FAMILIES LAYER_LINKS TOKEN_LINKS
 # HARNESS LABEL, and KEEP_SER.
 #
+# `CALIBRATION` is the published document the verifier derives every segment's
+# shape root from, and a driver with `VERIFY` 1 must name one: since zk-prover
+# #95 `boundary-grid --verify` refuses to run without it, because without it the
+# shape root is asserted by the prover and checked by nothing.  `drv_calibration`
+# has put the file beside the job and left its digest in CALIBRATION_SUM before
+# this body is written, and it refuses a driver that verifies and names none, so
+# the refusal costs a second and not a sequence.  `lib/driver.sh` says which
+# manifest serves and why an earlier campaign's is usable.
+#
 # `MODEL_ROOTS` is the optional one and it is empty in every driver.  It is a
 # path to a model commitment this repository recorded, and `drv_model_roots` has
 # put the file beside the job and left its digest in MODEL_ROOTS_SUM before this
@@ -88,11 +97,18 @@ done
 # this is the one place the two arguments are written.
 VERIFY_ARGS=""
 if [ "${VERIFY:-0}" = 1 ]; then
-    VERIFY_ARGS='--verify --prompt $R/prompt_ids.json'
+    # --verify-calibration is not optional beside --verify: zk-prover #95 made
+    # the shape root a thing the verifier derives rather than a thing the
+    # statement declares, and the grid refuses the pair without it.
+    VERIFY_ARGS='--verify --prompt $R/prompt_ids.json --verify-calibration $R/calibration.json'
 fi
 # The published model commitment, when the driver was given one.  Both hold a
 # leading space and are empty otherwise, so a job written without a commitment
 # is the job that was written before there was one to give.
+CAL_CFG=""
+if [ -n "${CALIBRATION_SUM:-}" ]; then
+    CAL_CFG=" \"calibration\": \"$CALIBRATION_SRC\", \"calibration_sha256\": \"$CALIBRATION_SUM\","
+fi
 ROOTS_ARGS=""; ROOTS_CFG=""
 if [ -n "${MODEL_ROOTS_SUM:-}" ]; then
     ROOTS_ARGS=' --expect-model-roots $R/model-roots.json'
@@ -119,7 +135,7 @@ cat > \$OUT/config.json <<CFG
  "model": "$MODEL", "spec": "$SPEC", "head_spec": "$HEAD_SPEC",
  "context": $CTX, "s": $S, "positions": $((CTX + S)), "blocks": $NBLOCK, "layers": $NLAY,
  "segments": $((NBLOCK * NLAY + ${NHEAD:-0})), "head_blocks": "${HEAD_BLOCKS:-}",
- "heads": ${NHEAD:-0}, "verify": ${VERIFY:-0},$ROOTS_CFG
+ "heads": ${NHEAD:-0}, "verify": ${VERIFY:-0},$CAL_CFG$ROOTS_CFG
  "slice": $SLICE, "pipeline": $PIPELINE,
  "shared_flags": "$SHARED", "layer_flags": "$LAYER_FLAGS", "layer0_flags": "$L0_FLAGS",
  "head_flags": "$HEAD_FLAGS",
@@ -461,6 +477,19 @@ if cfg.get("model_roots"):
                    "compared no model root")
     if off:
         bad.append(f"{off} segment(s) do not name the commitment's model root")
+# Issue #95: the shape root the verifier derived per segment, against the root
+# the statement declares.  A segment that failed the comparison is already a
+# failed verification below; what this adds is the run that verified and
+# compared no shape root at all, which is the silent pass.
+if cfg.get("verify"):
+    sr = g.get("shape_roots") or {}
+    print(f"grid: {sr.get('matched', 0)}/{sr.get('of', 0)} segments declare the shape root "
+          f"their parameters and {cfg.get('calibration')} give, "
+          f"{(sr.get('derivations') or {}).get('derived', '?')} shape trees derived in "
+          f"{sr.get('secs', 0):.1f} s")
+    if not sr.get("of") or sr.get("matched") != sr.get("of"):
+        bad.append(f"the grid derived {sr.get('matched', 0)} of {sr.get('of', 0)} shape roots "
+                   "from the published calibration")
 v, tk = g.get("verified", {}), g.get("tokens", {})
 print(f"grid: {v.get('accepted', 0)}/{v.get('run', 0)} segment proofs verified; ids "
       f"{tk.get('prompt_positions', 0)} prompt + {tk.get('generated_positions', 0)} generated, "

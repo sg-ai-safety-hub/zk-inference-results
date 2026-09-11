@@ -47,6 +47,19 @@
 # and does not belong beside `secs.headline.c4096.loop`.  Wherever this run's
 # seconds are described, that has to be said.
 #
+# The grid verifies every segment's proof, and since zk-prover #95 a verifier
+# derives each segment's shape root from the statement's own parameters and the
+# per-layer calibration a model manifest publishes, rather than reading the root
+# off the statement.  So a run that verifies needs a published calibration, and
+# `CALIBRATION` below names the one this repository already holds: the manifest
+# `model-commitment` recorded over this very plan.  The calibration is a
+# property of the weights and the quantization variant, so the manifest's rows
+# are this run's rows even though another prover commit proved them -- checked,
+# not assumed: every one of the 288 layer dumps this run extracted carries the
+# frac_per_head the manifest's row for its (layer, context) publishes.  The
+# shape roots themselves are not the headline run's and are not expected to be:
+# the reductions are in the parameters the tree is derived from.
+#
 # `MODEL_ROOTS` below is the one optional part of the configuration and it is
 # empty, exactly as it is in `headline-c4096.sh`: given a path to a recorded
 # model commitment the grid also compares every segment's model root against it.
@@ -100,6 +113,11 @@ HEAD_LAYER=16              # the layer the head dump is extracted at; the grid p
 HEAD_BLOCKS="$((NBLOCK - 2)),$((NBLOCK - 1))"   # the last prompt block and the generated one
 NHEAD=2
 VERIFY=1                   # the same check the headline row's grid makes
+# The published calibration the verifier derives every segment's shape root
+# from (zk-prover #95, and the header).  A path from the repository root; the
+# rows of this manifest cover this plan's 290 (layer, context) coordinates,
+# which is what a manifest has to do to serve as one.
+CALIBRATION=${ZK_CALIBRATION:-runs/2026-09-09-model-commitment-h100/model-roots.json}
 # The corpus opens with front matter, and a 4,096-token prompt taken from token
 # 0 ends inside its list of illustrations, where the greedy continuation is a
 # repeating index line -- a real decode and a degenerate benchmark.  The window
@@ -141,6 +159,7 @@ drv_check_commits
 BUILD=$(drv_build_root)
 drv_push "$BUILD/src" "$PROVER"
 drv_push "$BUILD/harness-src" "$HARNESS"
+drv_calibration            # the published calibration the grid verifies with
 drv_model_roots            # a no-op unless MODEL_ROOTS names one
 
 JOB=$(mktemp)

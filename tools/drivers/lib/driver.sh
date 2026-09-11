@@ -171,6 +171,74 @@ MRPY
     echo "                 $layers layer coordinates, sha256 $MODEL_ROOTS_SUM"
 }
 
+# ---- the published calibration the verifier derives shape roots with ---------
+# `CALIBRATION` is a path to a document this repository publishes: the manifest
+# `tools/drivers/model-commitment.sh` recorded, `runs/<run-id>/model-roots.json`,
+# whose row for a statement's `(layer, c)` carries that segment's per-head
+# calibration beside its model root.  A relative path is read from the
+# repository root, as `MODEL_ROOTS` is.
+#
+# Since zk-prover #95 the verifier derives every segment's shape root from the
+# statement's own parameters and that calibration and compares it with the root
+# the statement declares, so `boundary-grid --verify` refuses to run without one:
+# without it the shape root is asserted by the prover and checked by nothing.  A
+# run that verifies therefore needs a published calibration, and a driver that
+# sets `VERIFY` 1 and no `CALIBRATION` is refused here rather than at the grid,
+# which on a sequence run is hours in.
+#
+# What makes an earlier campaign's manifest usable: the calibration is a
+# property of the weights and the quantization variant and not of the prover, so
+# two runs of one model at one context under one variant have the same
+# calibration whatever prover commit proved them.  What it is not portable
+# across is the plan: a row is found at `(layer, c)`, so a manifest derived over
+# one context publishes nothing about another, and the grid refuses by name on a
+# statement it has no row for.
+#
+# Sets CALIBRATION_SRC and CALIBRATION_SUM, which the job body writes into the
+# run's config.json; both are empty when the driver names none.
+drv_calibration() {
+    CALIBRATION_SRC=""; CALIBRATION_SUM=""
+    if [ -z "${CALIBRATION:-}" ]; then
+        [ "${VERIFY:-0}" = 1 ] || return 0
+        echo "$NAME: VERIFY is 1 and CALIBRATION is empty. Since zk-prover #95 the grid's" >&2
+        echo "--verify derives each segment's shape root from the published calibration and" >&2
+        echo "refuses to run without one. Set CALIBRATION to the model manifest whose rows" >&2
+        echo "cover this plan's (layer, c) coordinates, or set VERIFY 0." >&2
+        exit 2
+    fi
+    case "$CALIBRATION" in
+      /*) file=$CALIBRATION ;;
+      *)  file=$ROOT/$CALIBRATION ;;
+    esac
+    [ -f "$file" ] || { echo "CALIBRATION: no calibration at $file" >&2; exit 2; }
+    # What the file has to be is checked here and not hours into the run.
+    cover=$(python3 - "$file" <<'CALPY'
+import json, sys
+d = json.load(open(sys.argv[1]))
+rows = d.get("rows", d) if isinstance(d, dict) else d
+if not isinstance(rows, list) or not rows:
+    sys.exit(f"{sys.argv[1]}: not a model manifest; want a list of rows or a `rows` field")
+bad = [i for i, r in enumerate(rows)
+       if not isinstance(r, dict) or "layer" not in r or "c" not in r
+       or not (r.get("frac_per_head") or r.get("calibration"))]
+if bad:
+    sys.exit(f"{sys.argv[1]}: {len(bad)} row(s) carry no layer, context and calibration")
+# The same refusal `drv_model_roots` makes, for the same reason: the verifier's
+# cross-check form covers one token block, so it publishes no calibration for
+# most of a sequence's coordinates and none at all for the head.
+if any(r.get("weights_only") for r in rows):
+    sys.exit(f"{sys.argv[1]}: this is the verifier's cross-check form of the derivation; "
+             "a grid is given the published manifest, model-roots.json")
+print(len({(r["layer"], r["c"]) for r in rows}))
+CALPY
+) || exit 2
+    CALIBRATION_SRC=$CALIBRATION
+    CALIBRATION_SUM=$(sha256sum "$file" | cut -d' ' -f1)
+    ssh -o BatchMode=yes "$HOST" "mkdir -p ~/runs/$NAME && cat > ~/runs/$NAME/calibration.json" < "$file"
+    echo "drv_calibration: $CALIBRATION_SRC -> $HOST:~/runs/$NAME/calibration.json"
+    echo "                 $cover (layer, context) coordinates, sha256 $CALIBRATION_SUM"
+}
+
 # ---- the job's shell preamble ------------------------------------------------
 # Written into every generated job script: the CUDA toolkit the vendored
 # library's build script needs, the harness's CUDA torch group, and `st`, the
