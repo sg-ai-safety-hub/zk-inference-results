@@ -10,7 +10,7 @@
   "--cells",
   "exact",
   "--witness-fields",
-  "/tmp/claude-1001/-home-dev-private-zk-inference/a1286b42-f1c8-47b7-b1bc-099c53fff39e/scratchpad/e4-fallback/witness_fields.json",
+  "/tmp/claude-1001/-home-dev-private-zk-inference/a1286b42-f1c8-47b7-b1bc-099c53fff39e/scratchpad/e4-fallback/witness_fields_tight.json",
   "--json"
  ],
  "backend": "harness",

@@ -11,14 +11,14 @@
  "cells": "exact",
  "cells_per_token_layers": {
   "CodeLlama-13b-hf": {
-   "4096": 166578060.09375
+   "4096": 152528780.09375
   }
  },
  "compared_by": "harness/eval/predict/compare.py, which reads this registration",
  "constants": {
   "file": "constants.json",
   "sha256": "841dcd6ebda5bbb0a082f28c1bcba5df474e78c0d9be21d7f5569d0353e59f5b",
-  "zk_results_commit": "dfaf58548421b30cfb82f59ebd924212684c2fa2"
+  "zk_results_commit": "b4552279742b9c21511ccff410dfebbe1ba83b1c"
  },
  "driver": "register-13b",
  "label": "registration",
@@ -29,8 +29,8 @@
  "layers_counted": 39,
  "layers_in_stack": 40,
  "measured_by": "tools/drivers/predict-13b.sh, which proves after this",
- "prediction_block_sha256": "56811be8e58799b65c2f1207bbb5240ebb760854a6a4a4b13a83591e0fb75e0a",
- "prediction_sha256": "b2298d76800830e98d101a29a5bce9a165d39ad67357c9c9f5094e90260e9029",
+ "prediction_block_sha256": "e18f9d8483ab804c47badd889a56bd05ac5808f32024de12fe9e388624efc391",
+ "prediction_sha256": "1f72abda113efc9d21a2645173a0164b9155ceb6fcb4113ae8f0c9fb712f1d68",
  "reference_chunks": {
   "16384": {
    "block": 32,

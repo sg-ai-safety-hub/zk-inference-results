@@ -10,7 +10,7 @@
    "--cells",
    "exact",
    "--witness-fields",
-   "/tmp/claude-1001/-home-dev-private-zk-inference/a1286b42-f1c8-47b7-b1bc-099c53fff39e/scratchpad/e4-fallback/witness_fields.json",
+   "/tmp/claude-1001/-home-dev-private-zk-inference/a1286b42-f1c8-47b7-b1bc-099c53fff39e/scratchpad/e4-fallback/witness_fields_tight.json",
    "--json"
   ],
   "backend": "harness",
@@ -20,7 +20,7 @@
   "constants": {
    "file": "constants.json",
    "sha256": "841dcd6ebda5bbb0a082f28c1bcba5df474e78c0d9be21d7f5569d0353e59f5b",
-   "zk_results_commit": "dfaf58548421b30cfb82f59ebd924212684c2fa2"
+   "zk_results_commit": "b4552279742b9c21511ccff410dfebbe1ba83b1c"
   },
   "cuda_version": null,
   "device": "cpu",
@@ -33,8 +33,8 @@
   "proof_sha256": null,
   "proof_sha256s": null,
   "registration": {
-   "prediction_block_sha256": "56811be8e58799b65c2f1207bbb5240ebb760854a6a4a4b13a83591e0fb75e0a",
-   "prediction_sha256": "b2298d76800830e98d101a29a5bce9a165d39ad67357c9c9f5094e90260e9029"
+   "prediction_block_sha256": "e18f9d8483ab804c47badd889a56bd05ac5808f32024de12fe9e388624efc391",
+   "prediction_sha256": "1f72abda113efc9d21a2645173a0164b9155ceb6fcb4113ae8f0c9fb712f1d68"
   },
   "threads": 1,
   "unsound_skips": [],
@@ -908,8 +908,8 @@
     "absent": [
      0
     ],
-    "file": "witness_fields.json",
-    "file_sha256": "370a8477c9d7734652b3b235646313ca954b321ce2c1d177371d36526c1b4449",
+    "file": "witness_fields_tight.json",
+    "file_sha256": "b279f83fa09c205b4bf59012e2f8acea9644bdd7118300eae69b444de2819d9d",
     "knobs": {
      "head_groups": [
       16,
@@ -918,7 +918,7 @@
      ],
      "numbits": 9,
      "table_bits": 0,
-     "tight_table": false
+     "tight_table": true
     },
     "layers": {
      "1": {
@@ -943,7 +943,7 @@
       "dump_sha256": "a5cff4b1f6effc3b8b73e47084fe5dae178b17916c21f4317717eeafb307aebf",
       "fold_rem_bits": 0,
       "kmax": 19,
-      "log_table": 29
+      "log_table": 26
      },
      "10": {
       "ao_acc_hi_bits": 6,
@@ -967,7 +967,7 @@
       "dump_sha256": "9655343aa754bdc5f5d09981e2e2f308dd423d8b5adcaa79e0eb1efe746de7d7",
       "fold_rem_bits": 0,
       "kmax": 19,
-      "log_table": 24
+      "log_table": 22
      },
      "11": {
       "ao_acc_hi_bits": 6,
@@ -991,7 +991,7 @@
       "dump_sha256": "62994ff6fb86d2d467e85b530efa2c42d33f86d146aace184f421478c2f4c7e7",
       "fold_rem_bits": 0,
       "kmax": 19,
-      "log_table": 25
+      "log_table": 24
      },
      "12": {
       "ao_acc_hi_bits": 6,
@@ -1015,7 +1015,7 @@
       "dump_sha256": "8a4786aa54b4fd36f2752576faf07c8f302e1128215fba37f6fd60019542bca7",
       "fold_rem_bits": 0,
       "kmax": 19,
-      "log_table": 25
+      "log_table": 23
      },
      "13": {
       "ao_acc_hi_bits": 6,
@@ -1039,7 +1039,7 @@
       "dump_sha256": "adda86654aced8ba4a754e1731b6ae0762cfa96191d6f024251ef526178eef59",
       "fold_rem_bits": 0,
       "kmax": 19,
-      "log_table": 24
+      "log_table": 22
      },
      "14": {
       "ao_acc_hi_bits": 5,
@@ -1063,7 +1063,7 @@
       "dump_sha256": "9b4cf27934ab21ef8482260ec0e1f265550dbe36878e6b58537a60320d2ae1ef",
       "fold_rem_bits": 0,
       "kmax": 19,
-      "log_table": 24
+      "log_table": 22
      },
      "15": {
       "ao_acc_hi_bits": 5,
@@ -1087,7 +1087,7 @@
       "dump_sha256": "d519275f74be949693c7c9d27a14f9116da48d0eba91fc5ff9f58a30959d3665",
       "fold_rem_bits": 0,
       "kmax": 19,
-      "log_table": 25
+      "log_table": 23
      },
      "16": {
       "ao_acc_hi_bits": 5,
@@ -1111,7 +1111,7 @@
       "dump_sha256": "2e03a8120b2d424f30d8cc8a6af62a2df7c2db939efa69194fb21e797a1834ed",
       "fold_rem_bits": 0,
       "kmax": 19,
-      "log_table": 26
+      "log_table": 24
      },
      "17": {
       "ao_acc_hi_bits": 6,
@@ -1135,7 +1135,7 @@
       "dump_sha256": "3b45d9518759cf617cbef051fbc6b141b0098df106df802e060e5d3d4766f504",
       "fold_rem_bits": 0,
       "kmax": 19,
-      "log_table": 24
+      "log_table": 23
      },
      "18": {
       "ao_acc_hi_bits": 6,
@@ -1159,7 +1159,7 @@
       "dump_sha256": "cec1760bbac3a7d245020a7022511d06f5e7085207e4ac44f447850ab1d267fc",
       "fold_rem_bits": 0,
       "kmax": 19,
-      "log_table": 24
+      "log_table": 23
      },
      "19": {
       "ao_acc_hi_bits": 6,
@@ -1183,7 +1183,7 @@
       "dump_sha256": "565e6c8743b2a5392bc4a7a0ef7ae655eff8f975f066e24e9116ea364c27444a",
       "fold_rem_bits": 0,
       "kmax": 19,
-      "log_table": 24
+      "log_table": 23
      },
      "2": {
       "ao_acc_hi_bits": 4,
@@ -1207,7 +1207,7 @@
       "dump_sha256": "8be08d4f0260a03e28de90f4dd244e6a97f17d6f7f1b5e5d8aa215bdbf09c60b",
       "fold_rem_bits": 0,
       "kmax": 19,
-      "log_table": 25
+      "log_table": 24
      },
      "20": {
       "ao_acc_hi_bits": 6,
@@ -1231,7 +1231,7 @@
       "dump_sha256": "57c902ef15cb6a463bfb5b01384e66dad7043f368665ec2bde9d1b4533b08cba",
       "fold_rem_bits": 0,
       "kmax": 19,
-      "log_table": 25
+      "log_table": 23
      },
      "21": {
       "ao_acc_hi_bits": 7,
@@ -1255,7 +1255,7 @@
       "dump_sha256": "ae018fda6710e00c1a5e1a5c39b3eb5407a3e54adfe919bf54dadbf98f11dcf1",
       "fold_rem_bits": 0,
       "kmax": 19,
-      "log_table": 24
+      "log_table": 22
      },
      "22": {
       "ao_acc_hi_bits": 5,
@@ -1279,7 +1279,7 @@
       "dump_sha256": "87a55d6e0598e1827142082a8a38b36c0e6d901bce7f58878e34837dc3ae5d4b",
       "fold_rem_bits": 0,
       "kmax": 19,
-      "log_table": 24
+      "log_table": 23
      },
      "23": {
       "ao_acc_hi_bits": 5,
@@ -1303,7 +1303,7 @@
       "dump_sha256": "e75e8a4ae4a8fbdc1ab74be42a5d8037bda6288d431bcab0c8e0bed032fb7e98",
       "fold_rem_bits": 0,
       "kmax": 19,
-      "log_table": 24
+      "log_table": 23
      },
      "24": {
       "ao_acc_hi_bits": 5,
@@ -1327,7 +1327,7 @@
       "dump_sha256": "bf0b702199cf5f827baa3594849aa4a0bc4ac60a1593b7c85997e1a7700b9755",
       "fold_rem_bits": 0,
       "kmax": 19,
-      "log_table": 24
+      "log_table": 22
      },
      "25": {
       "ao_acc_hi_bits": 5,
@@ -1351,7 +1351,7 @@
       "dump_sha256": "0ff66232e9bebc521b5f371445e23022b2e9828d6751daff4845fb4c240b01eb",
       "fold_rem_bits": 0,
       "kmax": 19,
-      "log_table": 24
+      "log_table": 22
      },
      "26": {
       "ao_acc_hi_bits": 5,
@@ -1375,7 +1375,7 @@
       "dump_sha256": "16b3b68e47c20baa24db7327f716a647866f61f0568d2dda127056a44036bbe7",
       "fold_rem_bits": 0,
       "kmax": 19,
-      "log_table": 24
+      "log_table": 22
      },
      "27": {
       "ao_acc_hi_bits": 6,
@@ -1399,7 +1399,7 @@
       "dump_sha256": "e07948ebf06fc9872ea4e665ea08f6cbc8b4979a15ab7cd4923c80457756ea95",
       "fold_rem_bits": 0,
       "kmax": 19,
-      "log_table": 24
+      "log_table": 22
      },
      "28": {
       "ao_acc_hi_bits": 6,
@@ -1423,7 +1423,7 @@
       "dump_sha256": "11e1753cd2aed7181ed9bb3756c55b629008a9a242e78e119abeb0f9a73c6e9f",
       "fold_rem_bits": 0,
       "kmax": 19,
-      "log_table": 24
+      "log_table": 22
      },
      "29": {
       "ao_acc_hi_bits": 5,
@@ -1447,7 +1447,7 @@
       "dump_sha256": "8b9cd05b074c0612616fe64b16fd1decf6578bcd970f9df8ebb64057a9bc8281",
       "fold_rem_bits": 0,
       "kmax": 19,
-      "log_table": 24
+      "log_table": 22
      },
      "3": {
       "ao_acc_hi_bits": 4,
@@ -1471,7 +1471,7 @@
       "dump_sha256": "4f63635c033e44ba0ff430d3cdea0995bf67b7c913020e7f597b7c4d6d8f2612",
       "fold_rem_bits": 0,
       "kmax": 19,
-      "log_table": 24
+      "log_table": 22
      },
      "30": {
       "ao_acc_hi_bits": 5,
@@ -1495,7 +1495,7 @@
       "dump_sha256": "8e9f68f92370a339c666c6dbb7db3781900f944eec9eeecfccd50ecba23fdc22",
       "fold_rem_bits": 0,
       "kmax": 19,
-      "log_table": 24
+      "log_table": 22
      },
      "31": {
       "ao_acc_hi_bits": 5,
@@ -1519,7 +1519,7 @@
       "dump_sha256": "e79b90301c4060639feb67ee819aaef7af1563c9f65f77b1e0c5628018852932",
       "fold_rem_bits": 0,
       "kmax": 19,
-      "log_table": 24
+      "log_table": 22
      },
      "32": {
       "ao_acc_hi_bits": 6,
@@ -1543,7 +1543,7 @@
       "dump_sha256": "d36af342bf68a44b3e51c765c1daedeb1b238911a3544be3dde3f2165a373c81",
       "fold_rem_bits": 0,
       "kmax": 19,
-      "log_table": 24
+      "log_table": 22
      },
      "33": {
       "ao_acc_hi_bits": 5,
@@ -1567,7 +1567,7 @@
       "dump_sha256": "0c7c07d45ebedf7c0339c3912b83067d078880001156676d01082b6a0805579b",
       "fold_rem_bits": 0,
       "kmax": 19,
-      "log_table": 25
+      "log_table": 23
      },
      "34": {
       "ao_acc_hi_bits": 5,
@@ -1591,7 +1591,7 @@
       "dump_sha256": "a73aae39701a45f784a7bf9a90ab9f951e2870ae3aa1cd314e84f715e11197d3",
       "fold_rem_bits": 0,
       "kmax": 19,
-      "log_table": 24
+      "log_table": 22
      },
      "35": {
       "ao_acc_hi_bits": 6,
@@ -1615,7 +1615,7 @@
       "dump_sha256": "5a26ed1df4663216e39fb76e247bbac99ce0a4cf170e0142b468ef3c1f1c75e7",
       "fold_rem_bits": 0,
       "kmax": 19,
-      "log_table": 24
+      "log_table": 22
      },
      "36": {
       "ao_acc_hi_bits": 6,
@@ -1639,7 +1639,7 @@
       "dump_sha256": "39850891cf358e572a677f20d856b316f95988cafc5611e2b7c3f164b959ac81",
       "fold_rem_bits": 0,
       "kmax": 19,
-      "log_table": 24
+      "log_table": 23
      },
      "37": {
       "ao_acc_hi_bits": 5,
@@ -1663,7 +1663,7 @@
       "dump_sha256": "5f301e5f4e5ef0ab7b5976169bc64c34f6f5e44d00f3a33858289a93bb79c92c",
       "fold_rem_bits": 0,
       "kmax": 19,
-      "log_table": 24
+      "log_table": 23
      },
      "38": {
       "ao_acc_hi_bits": 7,
@@ -1687,7 +1687,7 @@
       "dump_sha256": "26ad12799d6225b8b877337094e3f87267e8ef6de047bd586fc3fa20e2a604a3",
       "fold_rem_bits": 0,
       "kmax": 19,
-      "log_table": 24
+      "log_table": 22
      },
      "39": {
       "ao_acc_hi_bits": 7,
@@ -1711,7 +1711,7 @@
       "dump_sha256": "e1134dfd38de4717295a5021b2ec9fbd7f536005e7df502d0896637b8aa064d3",
       "fold_rem_bits": 0,
       "kmax": 19,
-      "log_table": 26
+      "log_table": 23
      },
      "4": {
       "ao_acc_hi_bits": 6,
@@ -1735,7 +1735,7 @@
       "dump_sha256": "da3c758c6650121553ded149f8c1ab6bae7a7b19884cf39d2989a31f7fcbb3c2",
       "fold_rem_bits": 0,
       "kmax": 19,
-      "log_table": 28
+      "log_table": 25
      },
      "5": {
       "ao_acc_hi_bits": 5,
@@ -1759,7 +1759,7 @@
       "dump_sha256": "dc333bab7ae792f2a6ad1e177abee71196d398944dc96072627c733397c3d252",
       "fold_rem_bits": 0,
       "kmax": 19,
-      "log_table": 26
+      "log_table": 24
      },
      "6": {
       "ao_acc_hi_bits": 5,
@@ -1783,7 +1783,7 @@
       "dump_sha256": "5505d3478b65d3365bd1c26d07242f075635244891d731320b1f20b08636fd50",
       "fold_rem_bits": 0,
       "kmax": 19,
-      "log_table": 27
+      "log_table": 24
      },
      "7": {
       "ao_acc_hi_bits": 4,
@@ -1807,7 +1807,7 @@
       "dump_sha256": "37ead28431a05899c9e68db380ec44b773e3a9672833e23009e89ed2faef17f5",
       "fold_rem_bits": 0,
       "kmax": 19,
-      "log_table": 24
+      "log_table": 22
      },
      "8": {
       "ao_acc_hi_bits": 5,
@@ -1831,7 +1831,7 @@
       "dump_sha256": "0fdb4f5a9a84d17ab055a29748180d2aae81b341db4cfdb4f37bda722bf392fd",
       "fold_rem_bits": 0,
       "kmax": 19,
-      "log_table": 25
+      "log_table": 23
      },
      "9": {
       "ao_acc_hi_bits": 5,
@@ -1855,7 +1855,7 @@
       "dump_sha256": "b2de4e200898519f3a8029a78bf0384df225a7c8bf040fb2413984e164d4a3fb",
       "fold_rem_bits": 0,
       "kmax": 19,
-      "log_table": 24
+      "log_table": 22
      }
     },
     "note": "every field here is a property of the dump and exists before any proof of it does. The rule for each one, and the line of the prover it comes from, is in `harness/eval/predict/witness_fields.py`",
@@ -2002,22 +2002,20 @@
      },
      "log_table": {
       "histogram": {
-       "24": 26,
-       "25": 7,
-       "26": 3,
-       "27": 1,
-       "28": 1,
-       "29": 1
+       "22": 19,
+       "23": 13,
+       "24": 5,
+       "25": 1,
+       "26": 1
       },
-      "max": 29,
-      "min": 24,
+      "max": 26,
+      "min": 22,
       "values": [
+       22,
+       23,
        24,
        25,
-       26,
-       27,
-       28,
-       29
+       26
       ]
      }
     }
@@ -2039,7 +2037,7 @@
     "ratios": {
      "CodeLlama-13b-hf": {
       "4096": {
-       "chunk_over_8b_l16": 1.5305766706912
+       "chunk_over_8b_l16": 1.4014870403046635
       }
      }
     }
@@ -2144,8 +2142,8 @@
     "worst_even_8_subsample_pct": 0.9891088896434086
    }
   },
-  "prediction_block_sha256": "56811be8e58799b65c2f1207bbb5240ebb760854a6a4a4b13a83591e0fb75e0a",
-  "prediction_sha256": "b2298d76800830e98d101a29a5bce9a165d39ad67357c9c9f5094e90260e9029",
+  "prediction_block_sha256": "e18f9d8483ab804c47badd889a56bd05ac5808f32024de12fe9e388624efc391",
+  "prediction_sha256": "1f72abda113efc9d21a2645173a0164b9155ceb6fcb4113ae8f0c9fb712f1d68",
   "provenance": {
    "inputs_sha256": {
     "constants.json": "841dcd6ebda5bbb0a082f28c1bcba5df474e78c0d9be21d7f5569d0353e59f5b",
@@ -2219,13 +2217,13 @@
     ],
     "contexts": {
      "4096": {
-      "bound_shift_pct": -2.740468566166998,
+      "bound_shift_pct": 6.218013819536616,
       "cells": "exact",
-      "cells_per_token_layers": 166578060.09375,
+      "cells_per_token_layers": 152528780.09375,
       "cells_per_token_layers_bound": 162013040.71875,
       "cells_per_token_layers_key_tiles": 22751820.0,
-      "cells_per_token_layers_rest": 143826240.09375,
-      "chunk_over_8b_l16_chunk": 1.5305766706912,
+      "cells_per_token_layers_rest": 129776960.09375,
+      "chunk_over_8b_l16_chunk": 1.4014870403046635,
       "components_per_token": {
        "argmax": 0.0,
        "attnout": 3314688.0,
@@ -2238,7 +2236,7 @@
        "requant": 16713216.0,
        "requant_tables": 65325.0,
        "residual_stream": 41033772.0,
-       "tables": 18346431.09375
+       "tables": 4297151.09375
       },
       "head_segment": {
        "fields": {
@@ -2270,7 +2268,7 @@
       "key_tiles_family_interaction_per_chunk": 39086080,
       "layers": [
        {
-        "base": 1986052640,
+        "base": 1516290592,
         "bound_fresh": 2126940432,
         "boundary": 94371840,
         "components": {
@@ -2285,7 +2283,7 @@
          "requant": 219414528,
          "requant_tables": 857600,
          "residual_stream": 538699776,
-         "tables": 2692910240
+         "tables": 344100000
         },
         "deq_variants": {
          "down": "chain",
@@ -2309,16 +2307,16 @@
          "ao_rem_bits": 17,
          "fold_rem_bits": 0,
          "kmax": 19,
-         "log_table": 29
+         "log_table": 26
         },
-        "fresh": 4638925472,
-        "interaction": 2558500992,
+        "fresh": 2290115232,
+        "interaction": 679452800,
         "kind": "layer",
         "layer": 1,
-        "table_rows": 538582048
+        "table_rows": 68820000
        },
        {
-        "base": 1482605088,
+        "base": 1465827872,
         "bound_fresh": 2126940432,
         "boundary": 94371840,
         "components": {
@@ -2333,7 +2331,7 @@
          "requant": 219414528,
          "requant_tables": 857600,
          "residual_stream": 538699776,
-         "tables": 175672480
+         "tables": 91786400
         },
         "deq_variants": {
          "down": "chain",
@@ -2357,16 +2355,16 @@
          "ao_rem_bits": 16,
          "fold_rem_bits": 0,
          "kmax": 19,
-         "log_table": 25
+         "log_table": 24
         },
-        "fresh": 2121687712,
-        "interaction": 544710784,
+        "fresh": 2037801632,
+        "interaction": 477601920,
         "kind": "layer",
         "layer": 2,
-        "table_rows": 35134496
+        "table_rows": 18357280
        },
        {
-        "base": 1465827872,
+        "base": 1453244960,
         "bound_fresh": 2126940432,
         "boundary": 94371840,
         "components": {
@@ -2381,7 +2379,7 @@
          "requant": 219414528,
          "requant_tables": 857600,
          "residual_stream": 538699776,
-         "tables": 91786400
+         "tables": 28871840
         },
         "deq_variants": {
          "down": "chain",
@@ -2405,16 +2403,16 @@
          "ao_rem_bits": 15,
          "fold_rem_bits": 0,
          "kmax": 19,
-         "log_table": 24
+         "log_table": 22
         },
-        "fresh": 2037801632,
-        "interaction": 477601920,
+        "fresh": 1974887072,
+        "interaction": 427270272,
         "kind": "layer",
         "layer": 3,
-        "table_rows": 18357280
+        "table_rows": 5774368
        },
        {
-        "base": 1718010448,
+        "base": 1483129424,
         "bound_fresh": 2126940432,
         "boundary": 94371840,
         "components": {
@@ -2429,7 +2427,7 @@
          "requant": 219414528,
          "requant_tables": 857600,
          "residual_stream": 538699776,
-         "tables": 1352699280
+         "tables": 178294160
         },
         "deq_variants": {
          "down": "chain",
@@ -2453,16 +2451,16 @@
          "ao_rem_bits": 19,
          "fold_rem_bits": 0,
          "kmax": 19,
-         "log_table": 28
+         "log_table": 25
         },
-        "fresh": 3298714512,
-        "interaction": 1486332224,
+        "fresh": 2124309392,
+        "interaction": 546808128,
         "kind": "layer",
         "layer": 4,
-        "table_rows": 270539856
+        "table_rows": 35658832
        },
        {
-        "base": 1516159536,
+        "base": 1465827888,
         "bound_fresh": 2126940432,
         "boundary": 94371840,
         "components": {
@@ -2477,7 +2475,7 @@
          "requant": 219414528,
          "requant_tables": 857600,
          "residual_stream": 538699776,
-         "tables": 343444720
+         "tables": 91786480
         },
         "deq_variants": {
          "down": "chain",
@@ -2501,16 +2499,16 @@
          "ao_rem_bits": 16,
          "fold_rem_bits": 0,
          "kmax": 19,
-         "log_table": 26
+         "log_table": 24
         },
-        "fresh": 2289459952,
-        "interaction": 678928576,
+        "fresh": 2037801712,
+        "interaction": 477601984,
         "kind": "layer",
         "layer": 5,
-        "table_rows": 68688944
+        "table_rows": 18357296
        },
        {
-        "base": 1583268400,
+        "base": 1465827888,
         "bound_fresh": 2126940432,
         "boundary": 94371840,
         "components": {
@@ -2525,7 +2523,7 @@
          "requant": 219414528,
          "requant_tables": 857600,
          "residual_stream": 538699776,
-         "tables": 678989040
+         "tables": 91786480
         },
         "deq_variants": {
          "down": "chain",
@@ -2549,16 +2547,16 @@
          "ao_rem_bits": 16,
          "fold_rem_bits": 0,
          "kmax": 19,
-         "log_table": 27
+         "log_table": 24
         },
-        "fresh": 2625004272,
-        "interaction": 947364032,
+        "fresh": 2037801712,
+        "interaction": 477601984,
         "kind": "layer",
         "layer": 6,
-        "table_rows": 135797808
+        "table_rows": 18357296
        },
        {
-        "base": 1465827872,
+        "base": 1453244960,
         "bound_fresh": 2126940432,
         "boundary": 94371840,
         "components": {
@@ -2573,7 +2571,7 @@
          "requant": 219414528,
          "requant_tables": 857600,
          "residual_stream": 538699776,
-         "tables": 91786400
+         "tables": 28871840
         },
         "deq_variants": {
          "down": "chain",
@@ -2597,16 +2595,16 @@
          "ao_rem_bits": 16,
          "fold_rem_bits": 0,
          "kmax": 19,
-         "log_table": 24
+         "log_table": 22
         },
-        "fresh": 2037801632,
-        "interaction": 477601920,
+        "fresh": 1974887072,
+        "interaction": 427270272,
         "kind": "layer",
         "layer": 7,
-        "table_rows": 18357280
+        "table_rows": 5774368
        },
        {
-        "base": 1482736176,
+        "base": 1457570352,
         "bound_fresh": 2126940432,
         "boundary": 94371840,
         "components": {
@@ -2621,7 +2619,7 @@
          "requant": 219414528,
          "requant_tables": 857600,
          "residual_stream": 538699776,
-         "tables": 176327920
+         "tables": 50498800
         },
         "deq_variants": {
          "down": "chain",
@@ -2645,16 +2643,16 @@
          "ao_rem_bits": 17,
          "fold_rem_bits": 0,
          "kmax": 19,
-         "log_table": 25
+         "log_table": 23
         },
-        "fresh": 2122343152,
-        "interaction": 545235136,
+        "fresh": 1996514032,
+        "interaction": 444571840,
         "kind": "layer",
         "layer": 8,
-        "table_rows": 35265584
+        "table_rows": 10099760
        },
        {
-        "base": 1465827888,
+        "base": 1453244976,
         "bound_fresh": 2126940432,
         "boundary": 94371840,
         "components": {
@@ -2669,7 +2667,7 @@
          "requant": 219414528,
          "requant_tables": 857600,
          "residual_stream": 538699776,
-         "tables": 91786480
+         "tables": 28871920
         },
         "deq_variants": {
          "down": "chain",
@@ -2693,16 +2691,16 @@
          "ao_rem_bits": 16,
          "fold_rem_bits": 0,
          "kmax": 19,
-         "log_table": 24
+         "log_table": 22
         },
-        "fresh": 2037801712,
-        "interaction": 477601984,
+        "fresh": 1974887152,
+        "interaction": 427270336,
         "kind": "layer",
         "layer": 9,
-        "table_rows": 18357296
+        "table_rows": 5774384
        },
        {
-        "base": 1466090064,
+        "base": 1453507152,
         "bound_fresh": 2126940432,
         "boundary": 94371840,
         "components": {
@@ -2717,7 +2715,7 @@
          "requant": 219414528,
          "requant_tables": 857600,
          "residual_stream": 538699776,
-         "tables": 93097360
+         "tables": 30182800
         },
         "deq_variants": {
          "down": "chain",
@@ -2741,16 +2739,16 @@
          "ao_rem_bits": 18,
          "fold_rem_bits": 0,
          "kmax": 19,
-         "log_table": 24
+         "log_table": 22
         },
-        "fresh": 2039112592,
-        "interaction": 478650688,
+        "fresh": 1976198032,
+        "interaction": 428319040,
         "kind": "layer",
         "layer": 10,
-        "table_rows": 18619472
+        "table_rows": 6036560
        },
        {
-        "base": 1482736208,
+        "base": 1465958992,
         "bound_fresh": 2126940432,
         "boundary": 94371840,
         "components": {
@@ -2765,7 +2763,7 @@
          "requant": 219414528,
          "requant_tables": 857600,
          "residual_stream": 538699776,
-         "tables": 176328080
+         "tables": 92442000
         },
         "deq_variants": {
          "down": "chain",
@@ -2789,16 +2787,16 @@
          "ao_rem_bits": 17,
          "fold_rem_bits": 0,
          "kmax": 19,
-         "log_table": 25
+         "log_table": 24
         },
-        "fresh": 2122343312,
-        "interaction": 545235264,
+        "fresh": 2038457232,
+        "interaction": 478126400,
         "kind": "layer",
         "layer": 11,
-        "table_rows": 35265616
+        "table_rows": 18488400
        },
        {
-        "base": 1482867280,
+        "base": 1457701456,
         "bound_fresh": 2126940432,
         "boundary": 94371840,
         "components": {
@@ -2813,7 +2811,7 @@
          "requant": 219414528,
          "requant_tables": 857600,
          "residual_stream": 538699776,
-         "tables": 176983440
+         "tables": 51154320
         },
         "deq_variants": {
          "down": "chain",
@@ -2837,16 +2835,16 @@
          "ao_rem_bits": 18,
          "fold_rem_bits": 0,
          "kmax": 19,
-         "log_table": 25
+         "log_table": 23
         },
-        "fresh": 2122998672,
-        "interaction": 545759552,
+        "fresh": 1997169552,
+        "interaction": 445096256,
         "kind": "layer",
         "layer": 12,
-        "table_rows": 35396688
+        "table_rows": 10230864
        },
        {
-        "base": 1466090064,
+        "base": 1453507152,
         "bound_fresh": 2126940432,
         "boundary": 94371840,
         "components": {
@@ -2861,7 +2859,7 @@
          "requant": 219414528,
          "requant_tables": 857600,
          "residual_stream": 538699776,
-         "tables": 93097360
+         "tables": 30182800
         },
         "deq_variants": {
          "down": "chain",
@@ -2885,16 +2883,16 @@
          "ao_rem_bits": 18,
          "fold_rem_bits": 0,
          "kmax": 19,
-         "log_table": 24
+         "log_table": 22
         },
-        "fresh": 2039112592,
-        "interaction": 478650688,
+        "fresh": 1976198032,
+        "interaction": 428319040,
         "kind": "layer",
         "layer": 13,
-        "table_rows": 18619472
+        "table_rows": 6036560
        },
        {
-        "base": 1465958960,
+        "base": 1453376048,
         "bound_fresh": 2126940432,
         "boundary": 94371840,
         "components": {
@@ -2909,7 +2907,7 @@
          "requant": 219414528,
          "requant_tables": 857600,
          "residual_stream": 538699776,
-         "tables": 92441840
+         "tables": 29527280
         },
         "deq_variants": {
          "down": "chain",
@@ -2933,16 +2931,16 @@
          "ao_rem_bits": 17,
          "fold_rem_bits": 0,
          "kmax": 19,
-         "log_table": 24
+         "log_table": 22
         },
-        "fresh": 2038457072,
-        "interaction": 478126272,
+        "fresh": 1975542512,
+        "interaction": 427794624,
         "kind": "layer",
         "layer": 14,
-        "table_rows": 18488368
+        "table_rows": 5905456
        },
        {
-        "base": 1482736176,
+        "base": 1457570352,
         "bound_fresh": 2126940432,
         "boundary": 94371840,
         "components": {
@@ -2957,7 +2955,7 @@
          "requant": 219414528,
          "requant_tables": 857600,
          "residual_stream": 538699776,
-         "tables": 176327920
+         "tables": 50498800
         },
         "deq_variants": {
          "down": "chain",
@@ -2981,16 +2979,16 @@
          "ao_rem_bits": 17,
          "fold_rem_bits": 0,
          "kmax": 19,
-         "log_table": 25
+         "log_table": 23
         },
-        "fresh": 2122343152,
-        "interaction": 545235136,
+        "fresh": 1996514032,
+        "interaction": 444571840,
         "kind": "layer",
         "layer": 15,
-        "table_rows": 35265584
+        "table_rows": 10099760
        },
        {
-        "base": 1516290608,
+        "base": 1465958960,
         "bound_fresh": 2126940432,
         "boundary": 94371840,
         "components": {
@@ -3005,7 +3003,7 @@
          "requant": 219414528,
          "requant_tables": 857600,
          "residual_stream": 538699776,
-         "tables": 344100080
+         "tables": 92441840
         },
         "deq_variants": {
          "down": "chain",
@@ -3029,16 +3027,16 @@
          "ao_rem_bits": 17,
          "fold_rem_bits": 0,
          "kmax": 19,
-         "log_table": 26
+         "log_table": 24
         },
-        "fresh": 2290115312,
-        "interaction": 679452864,
+        "fresh": 2038457072,
+        "interaction": 478126272,
         "kind": "layer",
         "layer": 16,
-        "table_rows": 68820016
+        "table_rows": 18488368
        },
        {
-        "base": 1466352208,
+        "base": 1457963600,
         "bound_fresh": 2126940432,
         "boundary": 94371840,
         "components": {
@@ -3053,7 +3051,7 @@
          "requant": 219414528,
          "requant_tables": 857600,
          "residual_stream": 538699776,
-         "tables": 94408080
+         "tables": 52465040
         },
         "deq_variants": {
          "down": "chain",
@@ -3077,16 +3075,16 @@
          "ao_rem_bits": 19,
          "fold_rem_bits": 0,
          "kmax": 19,
-         "log_table": 24
+         "log_table": 23
         },
-        "fresh": 2040423312,
-        "interaction": 479699264,
+        "fresh": 1998480272,
+        "interaction": 446144832,
         "kind": "layer",
         "layer": 17,
-        "table_rows": 18881616
+        "table_rows": 10493008
        },
        {
-        "base": 1465958992,
+        "base": 1457570384,
         "bound_fresh": 2126940432,
         "boundary": 94371840,
         "components": {
@@ -3101,7 +3099,7 @@
          "requant": 219414528,
          "requant_tables": 857600,
          "residual_stream": 538699776,
-         "tables": 92442000
+         "tables": 50498960
         },
         "deq_variants": {
          "down": "chain",
@@ -3125,16 +3123,16 @@
          "ao_rem_bits": 17,
          "fold_rem_bits": 0,
          "kmax": 19,
-         "log_table": 24
+         "log_table": 23
         },
-        "fresh": 2038457232,
-        "interaction": 478126400,
+        "fresh": 1996514192,
+        "interaction": 444571968,
         "kind": "layer",
         "layer": 18,
-        "table_rows": 18488400
+        "table_rows": 10099792
        },
        {
-        "base": 1465958992,
+        "base": 1457570384,
         "bound_fresh": 2126940432,
         "boundary": 94371840,
         "components": {
@@ -3149,7 +3147,7 @@
          "requant": 219414528,
          "requant_tables": 857600,
          "residual_stream": 538699776,
-         "tables": 92442000
+         "tables": 50498960
         },
         "deq_variants": {
          "down": "chain",
@@ -3173,16 +3171,16 @@
          "ao_rem_bits": 17,
          "fold_rem_bits": 0,
          "kmax": 19,
-         "log_table": 24
+         "log_table": 23
         },
-        "fresh": 2038457232,
-        "interaction": 478126400,
+        "fresh": 1996514192,
+        "interaction": 444571968,
         "kind": "layer",
         "layer": 19,
-        "table_rows": 18488400
+        "table_rows": 10099792
        },
        {
-        "base": 1482736208,
+        "base": 1457570384,
         "bound_fresh": 2126940432,
         "boundary": 94371840,
         "components": {
@@ -3197,7 +3195,7 @@
          "requant": 219414528,
          "requant_tables": 857600,
          "residual_stream": 538699776,
-         "tables": 176328080
+         "tables": 50498960
         },
         "deq_variants": {
          "down": "chain",
@@ -3221,16 +3219,16 @@
          "ao_rem_bits": 17,
          "fold_rem_bits": 0,
          "kmax": 19,
-         "log_table": 25
+         "log_table": 23
         },
-        "fresh": 2122343312,
-        "interaction": 545235264,
+        "fresh": 1996514192,
+        "interaction": 444571968,
         "kind": "layer",
         "layer": 20,
-        "table_rows": 35265616
+        "table_rows": 10099792
        },
        {
-        "base": 1465958928,
+        "base": 1453376016,
         "bound_fresh": 2126940432,
         "boundary": 94371840,
         "components": {
@@ -3245,7 +3243,7 @@
          "requant": 219414528,
          "requant_tables": 857600,
          "residual_stream": 538699776,
-         "tables": 92441680
+         "tables": 29527120
         },
         "deq_variants": {
          "down": "chain",
@@ -3269,16 +3267,16 @@
          "ao_rem_bits": 17,
          "fold_rem_bits": 0,
          "kmax": 19,
-         "log_table": 24
+         "log_table": 22
         },
-        "fresh": 2038456912,
-        "interaction": 478126144,
+        "fresh": 1975542352,
+        "interaction": 427794496,
         "kind": "layer",
         "layer": 21,
-        "table_rows": 18488336
+        "table_rows": 5905424
        },
        {
-        "base": 1465958960,
+        "base": 1457570352,
         "bound_fresh": 2126940432,
         "boundary": 94371840,
         "components": {
@@ -3293,7 +3291,7 @@
          "requant": 219414528,
          "requant_tables": 857600,
          "residual_stream": 538699776,
-         "tables": 92441840
+         "tables": 50498800
         },
         "deq_variants": {
          "down": "chain",
@@ -3317,16 +3315,16 @@
          "ao_rem_bits": 17,
          "fold_rem_bits": 0,
          "kmax": 19,
-         "log_table": 24
+         "log_table": 23
         },
-        "fresh": 2038457072,
-        "interaction": 478126272,
+        "fresh": 1996514032,
+        "interaction": 444571840,
         "kind": "layer",
         "layer": 22,
-        "table_rows": 18488368
+        "table_rows": 10099760
        },
        {
-        "base": 1465958960,
+        "base": 1457570352,
         "bound_fresh": 2126940432,
         "boundary": 94371840,
         "components": {
@@ -3341,7 +3339,7 @@
          "requant": 219414528,
          "requant_tables": 857600,
          "residual_stream": 538699776,
-         "tables": 92441840
+         "tables": 50498800
         },
         "deq_variants": {
          "down": "chain",
@@ -3365,16 +3363,16 @@
          "ao_rem_bits": 17,
          "fold_rem_bits": 0,
          "kmax": 19,
-         "log_table": 24
+         "log_table": 23
         },
-        "fresh": 2038457072,
-        "interaction": 478126272,
+        "fresh": 1996514032,
+        "interaction": 444571840,
         "kind": "layer",
         "layer": 23,
-        "table_rows": 18488368
+        "table_rows": 10099760
        },
        {
-        "base": 1465958960,
+        "base": 1453376048,
         "bound_fresh": 2126940432,
         "boundary": 94371840,
         "components": {
@@ -3389,7 +3387,7 @@
          "requant": 219414528,
          "requant_tables": 857600,
          "residual_stream": 538699776,
-         "tables": 92441840
+         "tables": 29527280
         },
         "deq_variants": {
          "down": "chain",
@@ -3413,16 +3411,16 @@
          "ao_rem_bits": 17,
          "fold_rem_bits": 0,
          "kmax": 19,
-         "log_table": 24
+         "log_table": 22
         },
-        "fresh": 2038457072,
-        "interaction": 478126272,
+        "fresh": 1975542512,
+        "interaction": 427794624,
         "kind": "layer",
         "layer": 24,
-        "table_rows": 18488368
+        "table_rows": 5905456
        },
        {
-        "base": 1465827888,
+        "base": 1453244976,
         "bound_fresh": 2126940432,
         "boundary": 94371840,
         "components": {
@@ -3437,7 +3435,7 @@
          "requant": 219414528,
          "requant_tables": 857600,
          "residual_stream": 538699776,
-         "tables": 91786480
+         "tables": 28871920
         },
         "deq_variants": {
          "down": "chain",
@@ -3461,16 +3459,16 @@
          "ao_rem_bits": 16,
          "fold_rem_bits": 0,
          "kmax": 19,
-         "log_table": 24
+         "log_table": 22
         },
-        "fresh": 2037801712,
-        "interaction": 477601984,
+        "fresh": 1974887152,
+        "interaction": 427270336,
         "kind": "layer",
         "layer": 25,
-        "table_rows": 18357296
+        "table_rows": 5774384
        },
        {
-        "base": 1465827888,
+        "base": 1453244976,
         "bound_fresh": 2126940432,
         "boundary": 94371840,
         "components": {
@@ -3485,7 +3483,7 @@
          "requant": 219414528,
          "requant_tables": 857600,
          "residual_stream": 538699776,
-         "tables": 91786480
+         "tables": 28871920
         },
         "deq_variants": {
          "down": "chain",
@@ -3509,16 +3507,16 @@
          "ao_rem_bits": 16,
          "fold_rem_bits": 0,
          "kmax": 19,
-         "log_table": 24
+         "log_table": 22
         },
-        "fresh": 2037801712,
-        "interaction": 477601984,
+        "fresh": 1974887152,
+        "interaction": 427270336,
         "kind": "layer",
         "layer": 26,
-        "table_rows": 18357296
+        "table_rows": 5774384
        },
        {
-        "base": 1465958992,
+        "base": 1453376080,
         "bound_fresh": 2126940432,
         "boundary": 94371840,
         "components": {
@@ -3533,7 +3531,7 @@
          "requant": 219414528,
          "requant_tables": 857600,
          "residual_stream": 538699776,
-         "tables": 92442000
+         "tables": 29527440
         },
         "deq_variants": {
          "down": "chain",
@@ -3557,16 +3555,16 @@
          "ao_rem_bits": 17,
          "fold_rem_bits": 0,
          "kmax": 19,
-         "log_table": 24
+         "log_table": 22
         },
-        "fresh": 2038457232,
-        "interaction": 478126400,
+        "fresh": 1975542672,
+        "interaction": 427794752,
         "kind": "layer",
         "layer": 27,
-        "table_rows": 18488400
+        "table_rows": 5905488
        },
        {
-        "base": 1465827920,
+        "base": 1453245008,
         "bound_fresh": 2126940432,
         "boundary": 94371840,
         "components": {
@@ -3581,7 +3579,7 @@
          "requant": 219414528,
          "requant_tables": 857600,
          "residual_stream": 538699776,
-         "tables": 91786640
+         "tables": 28872080
         },
         "deq_variants": {
          "down": "chain",
@@ -3605,16 +3603,16 @@
          "ao_rem_bits": 16,
          "fold_rem_bits": 0,
          "kmax": 19,
-         "log_table": 24
+         "log_table": 22
         },
-        "fresh": 2037801872,
-        "interaction": 477602112,
+        "fresh": 1974887312,
+        "interaction": 427270464,
         "kind": "layer",
         "layer": 28,
-        "table_rows": 18357328
+        "table_rows": 5774416
        },
        {
-        "base": 1465958960,
+        "base": 1453376048,
         "bound_fresh": 2126940432,
         "boundary": 94371840,
         "components": {
@@ -3629,7 +3627,7 @@
          "requant": 219414528,
          "requant_tables": 857600,
          "residual_stream": 538699776,
-         "tables": 92441840
+         "tables": 29527280
         },
         "deq_variants": {
          "down": "chain",
@@ -3653,16 +3651,16 @@
          "ao_rem_bits": 17,
          "fold_rem_bits": 0,
          "kmax": 19,
-         "log_table": 24
+         "log_table": 22
         },
-        "fresh": 2038457072,
-        "interaction": 478126272,
+        "fresh": 1975542512,
+        "interaction": 427794624,
         "kind": "layer",
         "layer": 29,
-        "table_rows": 18488368
+        "table_rows": 5905456
        },
        {
-        "base": 1465827888,
+        "base": 1453244976,
         "bound_fresh": 2126940432,
         "boundary": 94371840,
         "components": {
@@ -3677,7 +3675,7 @@
          "requant": 219414528,
          "requant_tables": 857600,
          "residual_stream": 538699776,
-         "tables": 91786480
+         "tables": 28871920
         },
         "deq_variants": {
          "down": "chain",
@@ -3701,16 +3699,16 @@
          "ao_rem_bits": 16,
          "fold_rem_bits": 0,
          "kmax": 19,
-         "log_table": 24
+         "log_table": 22
         },
-        "fresh": 2037801712,
-        "interaction": 477601984,
+        "fresh": 1974887152,
+        "interaction": 427270336,
         "kind": "layer",
         "layer": 30,
-        "table_rows": 18357296
+        "table_rows": 5774384
        },
        {
-        "base": 1465958960,
+        "base": 1453376048,
         "bound_fresh": 2126940432,
         "boundary": 94371840,
         "components": {
@@ -3725,7 +3723,7 @@
          "requant": 219414528,
          "requant_tables": 857600,
          "residual_stream": 538699776,
-         "tables": 92441840
+         "tables": 29527280
         },
         "deq_variants": {
          "down": "chain",
@@ -3749,16 +3747,16 @@
          "ao_rem_bits": 17,
          "fold_rem_bits": 0,
          "kmax": 19,
-         "log_table": 24
+         "log_table": 22
         },
-        "fresh": 2038457072,
-        "interaction": 478126272,
+        "fresh": 1975542512,
+        "interaction": 427794624,
         "kind": "layer",
         "layer": 31,
-        "table_rows": 18488368
+        "table_rows": 5905456
        },
        {
-        "base": 1465827920,
+        "base": 1453245008,
         "bound_fresh": 2126940432,
         "boundary": 94371840,
         "components": {
@@ -3773,7 +3771,7 @@
          "requant": 219414528,
          "requant_tables": 857600,
          "residual_stream": 538699776,
-         "tables": 91786640
+         "tables": 28872080
         },
         "deq_variants": {
          "down": "chain",
@@ -3797,16 +3795,16 @@
          "ao_rem_bits": 16,
          "fold_rem_bits": 0,
          "kmax": 19,
-         "log_table": 24
+         "log_table": 22
         },
-        "fresh": 2037801872,
-        "interaction": 477602112,
+        "fresh": 1974887312,
+        "interaction": 427270464,
         "kind": "layer",
         "layer": 32,
-        "table_rows": 18357328
+        "table_rows": 5774416
        },
        {
-        "base": 1482605104,
+        "base": 1457439280,
         "bound_fresh": 2126940432,
         "boundary": 94371840,
         "components": {
@@ -3821,7 +3819,7 @@
          "requant": 219414528,
          "requant_tables": 857600,
          "residual_stream": 538699776,
-         "tables": 175672560
+         "tables": 49843440
         },
         "deq_variants": {
          "down": "chain",
@@ -3845,16 +3843,16 @@
          "ao_rem_bits": 16,
          "fold_rem_bits": 0,
          "kmax": 19,
-         "log_table": 25
+         "log_table": 23
         },
-        "fresh": 2121687792,
-        "interaction": 544710848,
+        "fresh": 1995858672,
+        "interaction": 444047552,
         "kind": "layer",
         "layer": 33,
-        "table_rows": 35134512
+        "table_rows": 9968688
        },
        {
-        "base": 1465958960,
+        "base": 1453376048,
         "bound_fresh": 2126940432,
         "boundary": 94371840,
         "components": {
@@ -3869,7 +3867,7 @@
          "requant": 219414528,
          "requant_tables": 857600,
          "residual_stream": 538699776,
-         "tables": 92441840
+         "tables": 29527280
         },
         "deq_variants": {
          "down": "chain",
@@ -3893,16 +3891,16 @@
          "ao_rem_bits": 17,
          "fold_rem_bits": 0,
          "kmax": 19,
-         "log_table": 24
+         "log_table": 22
         },
-        "fresh": 2038457072,
-        "interaction": 478126272,
+        "fresh": 1975542512,
+        "interaction": 427794624,
         "kind": "layer",
         "layer": 34,
-        "table_rows": 18488368
+        "table_rows": 5905456
        },
        {
-        "base": 1466090064,
+        "base": 1453507152,
         "bound_fresh": 2126940432,
         "boundary": 94371840,
         "components": {
@@ -3917,7 +3915,7 @@
          "requant": 219414528,
          "requant_tables": 857600,
          "residual_stream": 538699776,
-         "tables": 93097360
+         "tables": 30182800
         },
         "deq_variants": {
          "down": "chain",
@@ -3941,16 +3939,16 @@
          "ao_rem_bits": 18,
          "fold_rem_bits": 0,
          "kmax": 19,
-         "log_table": 24
+         "log_table": 22
         },
-        "fresh": 2039112592,
-        "interaction": 478650688,
+        "fresh": 1976198032,
+        "interaction": 428319040,
         "kind": "layer",
         "layer": 35,
-        "table_rows": 18619472
+        "table_rows": 6036560
        },
        {
-        "base": 1465827920,
+        "base": 1457439312,
         "bound_fresh": 2126940432,
         "boundary": 94371840,
         "components": {
@@ -3965,7 +3963,7 @@
          "requant": 219414528,
          "requant_tables": 857600,
          "residual_stream": 538699776,
-         "tables": 91786640
+         "tables": 49843600
         },
         "deq_variants": {
          "down": "chain",
@@ -3989,16 +3987,16 @@
          "ao_rem_bits": 16,
          "fold_rem_bits": 0,
          "kmax": 19,
-         "log_table": 24
+         "log_table": 23
         },
-        "fresh": 2037801872,
-        "interaction": 477602112,
+        "fresh": 1995858832,
+        "interaction": 444047680,
         "kind": "layer",
         "layer": 36,
-        "table_rows": 18357328
+        "table_rows": 9968720
        },
        {
-        "base": 1465827888,
+        "base": 1457439280,
         "bound_fresh": 2126940432,
         "boundary": 94371840,
         "components": {
@@ -4013,7 +4011,7 @@
          "requant": 219414528,
          "requant_tables": 857600,
          "residual_stream": 538699776,
-         "tables": 91786480
+         "tables": 49843440
         },
         "deq_variants": {
          "down": "chain",
@@ -4037,16 +4035,16 @@
          "ao_rem_bits": 16,
          "fold_rem_bits": 0,
          "kmax": 19,
-         "log_table": 24
+         "log_table": 23
         },
-        "fresh": 2037801712,
-        "interaction": 477601984,
+        "fresh": 1995858672,
+        "interaction": 444047552,
         "kind": "layer",
         "layer": 37,
-        "table_rows": 18357296
+        "table_rows": 9968688
        },
        {
-        "base": 1466090000,
+        "base": 1453507088,
         "bound_fresh": 2126940432,
         "boundary": 94371840,
         "components": {
@@ -4061,7 +4059,7 @@
          "requant": 219414528,
          "requant_tables": 857600,
          "residual_stream": 538699776,
-         "tables": 93097040
+         "tables": 30182480
         },
         "deq_variants": {
          "down": "chain",
@@ -4085,16 +4083,16 @@
          "ao_rem_bits": 18,
          "fold_rem_bits": 0,
          "kmax": 19,
-         "log_table": 24
+         "log_table": 22
         },
-        "fresh": 2039112272,
-        "interaction": 478650432,
+        "fresh": 1976197712,
+        "interaction": 428318784,
         "kind": "layer",
         "layer": 38,
-        "table_rows": 18619408
+        "table_rows": 6036496
        },
        {
-        "base": 1516683792,
+        "base": 1457963536,
         "bound_fresh": 2126940432,
         "boundary": 94371840,
         "components": {
@@ -4109,7 +4107,7 @@
          "requant": 219414528,
          "requant_tables": 857600,
          "residual_stream": 538699776,
-         "tables": 346066000
+         "tables": 52464720
         },
         "deq_variants": {
          "down": "chain",
@@ -4133,17 +4131,17 @@
          "ao_rem_bits": 19,
          "fold_rem_bits": 0,
          "kmax": 19,
-         "log_table": 26
+         "log_table": 23
         },
-        "fresh": 2292081232,
-        "interaction": 681025600,
+        "fresh": 1998479952,
+        "interaction": 446144576,
         "kind": "layer",
         "layer": 39,
-        "table_rows": 69213200
+        "table_rows": 10492944
        }
       ],
-      "layers_fresh_sum": 85287966768,
-      "per_layer_chunk_fresh": 2132199169.2
+      "layers_fresh_sum": 78094735408,
+      "per_layer_chunk_fresh": 1952368385.2
      }
     },
     "contexts_not_registered": {
