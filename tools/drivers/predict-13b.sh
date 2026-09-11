@@ -64,6 +64,17 @@
 # the segment each one came from. What the file holds and what makes the
 # derivation refuse are in `lib/seq5-reference.py`.
 #
+# **Layer 0 of this model cannot be dumped, so the measurement is layers 1 to
+# 39.** The attention output's quotient term at that layer is 7 + 26 = 33 bits
+# against the field's 31 in the widest form there is: `q_bits` is the fold's
+# int8 target minus one and the divisor range is the layer's own, which a driver
+# may only widen, so nothing moves it. The harness refuses to write the dump and
+# the prover would not have said so -- it takes the wider form and proves on --
+# which is why that refusal is where it is. The job records it, keeps going, and
+# names the layer in the fields file, so the registration counts 39 segments and
+# says which one it does not carry. The embedding segment is in neither: it is
+# layer 0's.
+#
 # One process per layer, not one loop over all of them. The comparison reads a
 # single-proof document per layer, which is what `compose` writes and what a
 # chunk loop does not; and 40 separate processes each return their memory to
@@ -218,22 +229,12 @@ PY
 )
 st "weights: \$WEIGHTS"
 
-cat > \$OUT/config.json <<CFG
-{"driver": "$NAME", "label": "$LABEL",
- "model": "$MODEL", "spec": "$SPEC",
- "context": $CTX, "s": $S, "layers": $NLAY, "segments": $NLAY,
- "shared_flags": "$SHARED", "layer_flags": "$LAYER_FLAGS",
- "backend": "simd", "threads": $XTHREADS, "weights": \$WEIGHTS,
- "registered_prediction_sha256": "$PREDICTION",
- "replaces": "Qwen2.5-14B-Instruct, whose layers cannot be proved: zk-prover #172, #174",
- "comparison": "not made here: harness/eval/predict/compare.py reads the registration"}
-CFG
-
 # 4. the witnesses: the last block of a $((CTX + S))-token sequence, all $NLAY layers.
 #    Layer 0 is its own pass because the embedding table is written into every
-#    dump of the pass it is given, and a one-layer pass writes a directory
-#    without the layer in its name (zk-prover #55), so it is pointed straight at
-#    the name the proofs read.
+#    dump of the pass it is given, and the prover turns the gadget on for any
+#    dump that carries one.  Its pass writes to the same base as the others: a
+#    one-layer pass whose out path already ends in L0 gets the layer tagged in twice
+#    (zk-prover #55), which is a directory nothing downstream reads.
 if [ ! -f \$WIT/witness_L$((NLAY - 1))/manifest.json ]; then
   st "extract: layers 1 to $((NLAY - 1)), C=$CTX, $SPEC"
   T0=\$(date +%s)
@@ -242,14 +243,54 @@ if [ ! -f \$WIT/witness_L$((NLAY - 1))/manifest.json ]; then
       --residual-stream --diagonal-block --slim --slim-num --out \$WIT/witness )
   st "extract: layers 1 to $((NLAY - 1)) done in \$(( \$(date +%s) - T0 ))s"
 fi
-if [ ! -f \$WIT/witness_L0/manifest.json ]; then
+#    Layer 0 is also the one layer of this model the harness refuses to write,
+#    so its refusal is recorded and the run goes on with the other 39. The
+#    record is the marker a restart reads, so the refusal costs its forward
+#    pass once and not once per call.
+if [ ! -f \$WIT/witness_L0/manifest.json ] && [ ! -f \$OUT/layer0-refused.txt ]; then
   st "extract: layer 0 with the embedding table"
   T0=\$(date +%s)
-  ( cd \$HSRC && \$PY -m harness.witness.extract --tokens $((CTX + S)) --chunk $S \
+  if ( cd \$HSRC && \$PY -m harness.witness.extract --tokens $((CTX + S)) --chunk $S \
       --layers 0 --spec $SPEC \
-      --residual-stream --diagonal-block --slim --slim-num --embed --out \$WIT/witness_L0 )
-  st "extract: layer 0 done in \$(( \$(date +%s) - T0 ))s"
+      --residual-stream --diagonal-block --slim --slim-num --embed --out \$WIT/witness \
+      > \$R/L0.extract.log 2>&1 ); then
+    st "extract: layer 0 done in \$(( \$(date +%s) - T0 ))s"
+  else
+    tail -n 4 \$R/L0.extract.log > \$OUT/layer0-refused.txt
+    st "extract: layer 0 refused, see out/layer0-refused.txt"
+  fi
 fi
+
+# 4b. which layers there are a dump for. Every layer but one is the expected
+#     case and the one is layer 0; anything else stops the run here, because a
+#     gap the driver did not expect is a failed extraction and not a refusal.
+LAYERS=
+ABSENT=
+k=0
+while [ \$k -lt $NLAY ]; do
+  if [ -f \$WIT/witness_L\$k/manifest.json ]; then LAYERS="\$LAYERS \$k"
+  else ABSENT="\${ABSENT:+\$ABSENT,}\$k"; fi
+  k=\$((k + 1))
+done
+NPROVE=\$(echo \$LAYERS | wc -w)
+st "dumps: \$NPROVE of $NLAY layers; absent \${ABSENT:-none}"
+if [ "\${ABSENT:-}" != "" ] && [ "\${ABSENT:-}" != "0" ]; then
+  st "stop: the absent layers are \$ABSENT and this driver expects at most layer 0"
+  exit 5
+fi
+
+cat > \$OUT/config.json <<CFG
+{"driver": "$NAME", "label": "$LABEL",
+ "model": "$MODEL", "spec": "$SPEC",
+ "context": $CTX, "s": $S, "layers": $NLAY, "segments": \$NPROVE,
+ "layers_absent": "\${ABSENT:-none}",
+ "shared_flags": "$SHARED", "layer_flags": "$LAYER_FLAGS",
+ "backend": "simd", "threads": $XTHREADS, "weights": \$WEIGHTS,
+ "registered_prediction_sha256": "$PREDICTION",
+ "replaces": "Qwen2.5-14B-Instruct, whose layers cannot be proved: zk-prover #172, #174",
+ "comparison": "not made here: harness/eval/predict/compare.py reads the registration"}
+CFG
+
 du -sh \$WIT | awk '{print "witness size: " \$1 "  " \$2}'
 python3 - \$WIT \$OUT/extract.json <<'PY'
 import json, os, sys
@@ -269,12 +310,13 @@ PY
 st "fields"
 ( cd \$HSRC && \$PY -m harness.eval.predict.witness_fields --dir \$WIT/witness \
     --layers $NLAY --numbits 9 --no-tight-table --head-groups 16,16,8 \
-    --out \$OUT/witness_fields.json )
+    \${ABSENT:+--absent \$ABSENT} --out \$OUT/witness_fields.json )
 
 if [ $PROVE -eq 0 ]; then
   st "stop: extracted, not proved"
   echo
-  echo "$NAME: the $NLAY dumps are written and \$OUT/witness_fields.json with them."
+  echo "$NAME: \$NPROVE dumps of $NLAY layers are written and \$OUT/witness_fields.json"
+  echo "       with them; absent \${ABSENT:-none}."
   echo "       Nothing is proved yet, on purpose: the registration is counted from"
   echo "       these dumps and has to be recorded before the first proof."
   echo "         scp $HOST:runs/$NAME/out/witness_fields.json ."
@@ -287,26 +329,25 @@ fi
 # 6. one proof per layer, one process each.  A layer whose proof is already
 #    written is not proved again, so a job that was interrupted is restarted for
 #    the price of what it did not finish.
-k=0
-while [ \$k -lt $NLAY ]; do
+for k in \$LAYERS; do
   f=\$OUT/L\$k.json
-  if [ -s \$f ]; then st "L\$k already proved"; k=\$((k + 1)); continue; fi
-  st "prove: layer \$k of $NLAY"
+  if [ -s \$f ]; then st "L\$k already proved"; continue; fi
+  st "prove: layer \$k, \$NPROVE segments in this run"
   T0=\$(date +%s)
   if \$SIMD compose $SHARED $LAYER_FLAGS --witness \$WIT/witness_L\$k > \$f 2> \$R/L\$k.err; then
-    st "L\$k proved in \$(( \$(date +%s) - T0 ))s"
+    st "L\$k proved in \$(( \$(date +%s) - T0 ))s, peak \$(python3 -c 'import json,sys; print(round(json.load(open(sys.argv[1]))["result"]["point"]["peak_rss_bytes"]/2**30,1))' \$f) GiB"
   else
     rm -f \$f; st "L\$k did not prove, see \$R/L\$k.err"; exit 4
   fi
-  k=\$((k + 1))
 done
 
 # 7. the gate, and the measured side of the comparison
-python3 - \$OUT $NLAY $S <<'PY'
+python3 - \$OUT $S \$LAYERS <<'PY'
 import json, pathlib, sys
-out, nlay, s = pathlib.Path(sys.argv[1]), int(sys.argv[2]), int(sys.argv[3])
+out, s = pathlib.Path(sys.argv[1]), int(sys.argv[2])
+layers = [int(x) for x in sys.argv[3:]]
 bad, rows = [], []
-for k in range(nlay):
+for k in layers:
     f = out / f"L{k}.json"
     if not f.exists():
         bad.append(f"layer {k} has no proof"); continue

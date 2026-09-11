@@ -62,8 +62,9 @@
 #     `predict-13b.sh` proves. A registration that prices another statement is
 #     another registration, so the two lists of flags are compared here and the
 #     driver is the place they have to agree;
-#   * the document counted a shape or a layer count other than the one
-#     `predict-13b.sh` proves, or counted no layer at all.
+#   * the document counted a shape other than the one `predict-13b.sh` proves,
+#     counted no layer at all, or is missing a layer the driver does not know
+#     is missing: a gap nobody named is a failed extraction and not a refusal.
 #
 # What it does not refuse, and records instead: an input the model prices by
 # analogy or by standing in a neighbouring one, the composed-prover figures the
@@ -110,11 +111,17 @@ LABEL=registration         # a prediction, not a measurement: this run proves no
 # its head: a document that holds no row for a shape refuses to register it.
 # RE-PIN THIS when #175 and #176 are merged -- the merged commit is the one a
 # reader can fetch, and an unmerged branch head is not.
-COMMIT=4f9037b12cf8388db081840d2733baff19214b14
-# The shape, as `harness/eval/predict/predict.py` names it, and the number of
-# layer segments `predict-13b.sh` proves.
+COMMIT=1a6ed266386a190daafd874ed85bf9f5c984550c
+# The shape, as `harness/eval/predict/predict.py` names it, and the stack's own
+# layer count. What is registered is the segments the fields file carries, which
+# is fewer: layer 0 of this model cannot be dumped -- its attention output's
+# quotient term is 7 + 26 = 33 bits against the field's 31 in the widest form
+# there is, and the divisor range is the layer's own -- so the fields file names
+# it absent and this run counts the other 39. A layer absent for any other
+# reason is refused below.
 SHAPE=CodeLlama-13b-hf
 NLAY=40
+ABSENT=0
 # The statement the registration prices, which is what `predict-13b.sh` proves:
 # its `LAYER_FLAGS`, and the two drivers have to name the same set.
 STATEMENT="--diagonal-block --gkr-key-tiles --gkr-dequant --gkr-residual-stream --gkr-freivalds --gkr-attnout"
@@ -231,8 +238,9 @@ import sys
 
 from harness import provenance
 
-root, out, args, statement, zk_results_commit, label, shape, nlay = sys.argv[1:9]
+root, out, args, statement, zk_results_commit, label, shape, nlay, absent = sys.argv[1:10]
 root, out, nlay = pathlib.Path(root), pathlib.Path(out), int(nlay)
+want_absent = sorted(int(x) for x in absent.split(",") if x != "")
 # The file `--json` wrote, found through the module rather than guessed: it is
 # written beside `predict.py`, and where that is depends on how the harness's
 # environment installed the project.  A shape registered on its own is written
@@ -281,10 +289,17 @@ if sorted(reg["shapes"]) != [shape]:
 if frozen.get("cells") != "exact":
     bad.append("the registration was priced and not counted; the committed cells of a "
                "shape nothing was fitted at are counted from the trace layout")
-counted = frozen.get("witness_fields", {}).get("layers", {})
-if len(counted) != nlay:
-    bad.append(f"the fields file carries {len(counted)} layers and the measurement proves "
-               f"{nlay}; every segment is counted at its own dump's fields")
+wfr = frozen.get("witness_fields", {})
+counted = wfr.get("layers", {})
+got_absent = sorted(wfr.get("absent") or ())
+if got_absent != want_absent:
+    bad.append(f"the fields file names layers {got_absent or 'none'} absent and this run "
+               f"expects {want_absent or 'none'}; a layer missing for a reason the driver "
+               f"does not name is a failed extraction and not a refusal")
+if len(counted) + len(got_absent) != nlay:
+    bad.append(f"the fields file carries {len(counted)} layers and names {len(got_absent)} "
+               f"absent, and the stack has {nlay}; every segment is counted at its own "
+               f"dump's fields and none is counted at a guess")
 
 for source, names in sorted(by_source.items()):
     print(f"register-13b: {len(names):>2} cell cost(s) from {source}: {', '.join(names)}")
@@ -314,7 +329,8 @@ shapes = {n: {c: p["cells_per_token_layers"] for c, p in e["contexts"].items()}
 config = {
     "driver": "register-13b", "label": label,
     "statement": statement,
-    "shape": shape, "layers_counted": len(counted), "cells": frozen.get("cells"),
+    "shape": shape, "layers_counted": len(counted), "layers_absent": got_absent,
+    "layers_in_stack": nlay, "cells": frozen.get("cells"),
     "constants": {"file": "constants.json", "sha256": sha,
                   "zk_results_commit": zk_results_commit},
     "cell_costs_by_source": {s: len(n) for s, n in sorted(by_source.items())},
@@ -329,6 +345,9 @@ config = {
     "witness": "the extracted dumps and no proof of them: every committed cell is counted "
                "from the trace layout at the fields each dump asks for, and no accepted "
                "proof of this shape exists anywhere when this is written",
+    "layer_0": "not registered and not measured: the harness refuses to dump it, because "
+               "the attention output's quotient term is 7 + 26 = 33 bits against the "
+               "field's 31 in the widest form there is",
 }
 with open(out / "config.json", "w") as f:
     json.dump(config, f, indent=1, sort_keys=True)
@@ -337,7 +356,8 @@ print(f"register-13b: prediction_sha256 {reg['prediction_sha256']}")
 print(f"register-13b: prediction_block_sha256 {reg['prediction_block_sha256']}")
 PY
 ( cd "$ROOT" && uv run --project "$SRC/harness" --frozen python "$GATE" \
-    "$ROOT" "$OUT" "$ARGS" "$STATEMENT" "$ZK_RESULTS_COMMIT" "$LABEL" "$SHAPE" "$NLAY" )
+    "$ROOT" "$OUT" "$ARGS" "$STATEMENT" "$ZK_RESULTS_COMMIT" "$LABEL" "$SHAPE" "$NLAY" \
+    "$ABSENT" )
 
 # ---- the record --------------------------------------------------------------
 python3 "$HERE/lib/manifest.py" --driver "tools/drivers/$NAME.sh" --fetched "$OUT" \
