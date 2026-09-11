@@ -510,6 +510,61 @@
    "artifact": "commitment.json",
    "note": "The (layer, prefix width) cells the table was derived over, one per segment of headline-c4096's plan. Every one of them was compared against the published commitment."
   },
+  "controls.suite.designed_rejections": {
+   "value": 236,
+   "unit": "controls",
+   "card": "H100",
+   "context": "n/a",
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-11-negative-controls-h100",
+   "artifact": "controls.json",
+   "note": "Controls the verifier refused for the reason each was written for, over the suite's five targets: one real layer segment of headline-c4096's plan, that segment again under the --probe filter, and the three synthetic shapes. A control passes only as a designed rejection, with accepts false and falsified naming the verdict fields the bend turned off; a crash is never a pass and a skip by name is counted apart."
+  },
+  "controls.suite.accepted": {
+   "value": 0,
+   "unit": "controls",
+   "card": "H100",
+   "context": "n/a",
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-11-negative-controls-h100",
+   "artifact": "real.json",
+   "note": "Controls the verifier accepted, over the same five targets, counted from every target's own probe record. Any number but zero is a soundness failure, and the run's gate fails on it."
+  },
+  "controls.suite.crashes": {
+   "value": 0,
+   "unit": "targets",
+   "card": "H100",
+   "context": "n/a",
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-11-negative-controls-h100",
+   "artifact": "controls.json",
+   "note": "Targets whose process died rather than finishing its list. A crash is never a pass: the gate fails the run on one, and each target's exit code is recorded beside its output so a run that dies is visible as a crash and not as a missing file."
+  },
+  "controls.real.c4096.designed_rejections": {
+   "value": 64,
+   "unit": "controls",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-11-negative-controls-h100",
+   "artifact": "controls.json",
+   "note": "Controls refused as designed on the real segment: layer 16 of the last token block of headline-c4096's plan, proved from that plan's own line. The suite had never finished on a real segment before: at 32e8fae it died at the control after the one that moves three values off the master table, taking the 41 refusals before it (zk-prover #134)."
+  },
+  "controls.real.c4096.skipped_by_name": {
+   "value": 2,
+   "unit": "controls",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-11-negative-controls-h100",
+   "artifact": "controls.json",
+   "note": "Controls the prover skipped on the real segment by name, with the reason in the record: the attention-output seam's and the model swap's. Both rebuild the segment around a second draw of the residual stream, which is the synthetic construction's, so on a dump the draw and not the binding under test is what a refusal would be about (zk-prover #24). A control skipped by name is not a control that passed, which is why it is counted apart from the rejections."
+  },
   "cells.headline.c16384.fresh": {
    "value": 1775391426272,
    "unit": "cells",

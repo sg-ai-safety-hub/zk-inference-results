@@ -435,6 +435,33 @@ def control_flags_off_c4096(a, keys):
     a.exact("mem.control.c4096.peak_mib", t["peak_mib"])
 
 
+# -- negative-controls ---------------------------------------------------------
+def negative_controls(a, keys):
+    """The control suite: what refused, what was skipped by name, what crashed.
+
+    Every number here is a count the run's own gate wrote into `controls.json`,
+    except the accepted controls, which are counted again from each target's
+    probe record: the gate fails the run on one, so a stored zero has to be
+    re-derived from the records and not from the gate that already refused to
+    pass a non-zero."""
+    if not keys:
+        return
+    run = sorted({e["run"] for e in keys.values()})[0]
+    c = artifact(run, "controls.json")
+    accepted = 0
+    for name in sorted(c["targets"]):
+        doc = artifact(run, f"{name}.json")
+        accepted += sum(1 for p in doc["result"]["probes"] if p.get("accepted"))
+    print(f"  runs/{run}: {len(c['targets'])} targets, {c['designed_rejections']} designed "
+          f"rejections, {c['crashes']} crash(es), {accepted} accepted")
+    a.exact("controls.suite.designed_rejections", c["designed_rejections"])
+    a.exact("controls.suite.accepted", accepted)
+    a.exact("controls.suite.crashes", c["crashes"])
+    real = c["targets"]["real"]
+    a.exact("controls.real.c4096.designed_rejections", real["designed_rejections"])
+    a.exact("controls.real.c4096.skipped_by_name", len(real["skipped"]))
+
+
 # -- memory-probe-c16384 -------------------------------------------------------
 def memory_probe_c16384(a, keys):
     """The segment loops at context 16,384: what each cost and what each peaked at.
@@ -1660,6 +1687,7 @@ SECTIONS = [
     ("headline-c16384", headline_c16384),
     ("gkr-ablation-c4096", gkr_ablation_c4096),
     ("control-flags-off-c4096", control_flags_off_c4096),
+    ("negative-controls", negative_controls),
     ("memory-probe-c16384", memory_probe_c16384),
     ("microbench", microbench),
     ("quality-0p5b", _quality("quality.0p5b")),
