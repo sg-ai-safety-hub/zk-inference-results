@@ -1025,7 +1025,18 @@ def _cell_points(a, run, name, key="points"):
 def microbench_cells(a, keys):
     """What one operation of each kind costs in committed cells.
 
-    Seven subcommands, and each of them reports a marginal figure: the cells the
+    The driver has been run more than once and a later run answers subcommands an
+    earlier one could not, so each entry is re-derived from its own run's outputs
+    and never from another run that the same driver made.
+    """
+    for run in sorted({e["run"] for e in keys.values()}):
+        _microbench_cells_run(a, run, {k: e for k, e in keys.items() if e["run"] == run})
+
+
+def _microbench_cells_run(a, run, keys):
+    """One microbench-cells run, and the entries that name it.
+
+    Eleven subcommands, and each of them reports a marginal figure: the cells the
     gadget adds, with the shared tables left out because a table is a fixed cost
     of the segment and is not multiplied by a count, and with the cells the
     producer already commits left out because the cost model charges those
@@ -1033,14 +1044,12 @@ def microbench_cells(a, keys):
     repetitions: a cell count is the same in every repetition and each point
     carries the one count its own proof committed.
 
-    Six of the seven back a constant.  `kmax` backs none and is a gate instead:
-    it is the same gadget at six table sizes, and the figure the cost model reads
-    must not move across them.
+    `kmax` backs no constant and is a gate instead: it is the same gadget at six
+    table sizes, and the figure the cost model reads must not move across them.
+    The four sections below section (7) read outputs an earlier run of this
+    driver does not have, so each of them is entered only for a run whose own
+    entries name it.
     """
-    if not keys:
-        return
-    run = sorted({e["run"] for e in keys.values()})[0]
-
     # (1) the dequantization variants, one point each, read off each point's own
     #     `spec` rather than off the order the points come in.
     dq, pts = _cell_points(a, run, "b6-dequant.json")
@@ -1150,6 +1159,124 @@ def microbench_cells(a, keys):
         a.fails.append(f"audit: the grid figure moves with the instance count: {sorted(grid)}")
     if "model_constants.attention_cells_per_head_key_token" in keys:
         a.claim("model_constants.attention_cells_per_head_key_token", pts[0]["alpha_grid"])
+
+    # (8) the weight Freivalds check.  What it measures is a law and not a point:
+    #     the three QM31 accumulator columns cost 12 cells a trace row and a row
+    #     carries `p` weights, so the fresh side is `12/p` and the preprocessed
+    #     side `1 + 4/p`.  The design point backs the two entries; the sweep
+    #     beside it is the gate, and these are cell counts, so both closed forms
+    #     have to hold exactly at every width and not to a tolerance.  The law is
+    #     the one-matmul group's: a group of `n` costs `(4 + 8n)/(n p)`.
+    freivalds = ("model_constants.weight_freivalds_cells_per_weight",
+                 "model_constants.weight_freivalds_preprocessed_cells_per_weight")
+    if any(k in keys for k in freivalds):
+        fv, design = _cell_points(a, run, "b3-freivalds.json")
+        _, widths = _cell_points(a, run, "b3-freivalds-widths.json")
+        if len(design) != 1:
+            a.fails.append(f"audit: {len(design)} Freivalds design points, expected one")
+        for pt in design + widths:
+            p, cells = pt["weights_per_row"], pt["cells"]
+            if pt["matmuls"] != 1:
+                a.fails.append(f"audit: the Freivalds point at {p} weights a row covers "
+                               f"{pt['matmuls']} matmuls, and 12/p is the one-matmul group")
+            if (cells["cells_per_weight"], cells["preprocessed_per_weight"]) != (12 / p, 1 + 4 / p):
+                a.fails.append(f"audit: the Freivalds point at {p} weights a row reports "
+                               f"{cells['cells_per_weight']} fresh and "
+                               f"{cells['preprocessed_per_weight']} preprocessed cells a weight, "
+                               f"and the law is {12 / p} and {1 + 4 / p}")
+        print(f"  runs/{run}: Freivalds at "
+              f"{', '.join(str(pt['weights_per_row']) for pt in design + widths)} weights a row, "
+              f"12/p fresh and 1 + 4/p preprocessed at every one")
+        for key, name in zip(freivalds, ("cells_per_weight", "preprocessed_per_weight")):
+            if key in keys:
+                a.claim(key, design[0]["cells"][name])
+
+    # (9) one LogUp lookup on its own, which every other subcommand here reports
+    #     only from inside a gadget that has its own lookups.  One figure per
+    #     lookup batch size, and the two arities have to agree at each: an
+    #     interaction column is one QM31 whatever the relation's arity, so the
+    #     arity moves what the gadget commits and not the column count.
+    if "model_constants.logup_marginal_cells_per_lookup" in keys:
+        lg, pts = _cell_points(a, run, "logup.json")
+        by_batch = {}
+        for pt in pts:
+            b, marg = str(pt["logup_batch_size"]), pt["cells"]["marginal_cells_per_lookup"]
+            if by_batch.setdefault(b, marg) != marg:
+                a.fails.append(f"audit: the LogUp marginal at batch {b} is {by_batch[b]} on the "
+                               f"{pt['kind']} lookup's arity and {marg} on the other")
+        closed = lg["closed_form"]["marginal_cells_per_lookup"]
+        if [by_batch.get(str(b + 1)) for b in range(len(closed))] != closed:
+            a.fails.append(f"audit: the LogUp points report {by_batch} and the subcommand's own "
+                           f"closed form {closed}")
+        print(f"  runs/{run}: {len(pts)} LogUp points over {len(by_batch)} batch sizes, "
+              f"marginal {by_batch}")
+        a.exact("model_constants.logup_marginal_cells_per_lookup", by_batch)
+
+    # (10) the dequantization at the rounding the cost model charges, in its own
+    #      output so that the two roundings never claim one number.  The base
+    #      figures are the committed columns alone over the accumulators a row
+    #      carries, which is what a proof with `--gkr-dequant` builds.  The gate
+    #      is the distance to the sweep in (1): one cell an accumulator at every
+    #      variant the rounding can move, on the marginal figure and on the base.
+    away_keys = {"model_constants.dequant_chain_away_cells_per_acc": ("chain", "marginal"),
+                 "model_constants.dequant_pow2_away_cells_per_acc": ("pow2", "marginal"),
+                 "model_constants.dequant_chain_away_base_cells_per_acc": ("chain", "base"),
+                 "model_constants.dequant_pow2_away_base_cells_per_acc": ("pow2", "base")}
+    if any(k in keys for k in away_keys):
+        aw, pts = _cell_points(a, run, "b6-dequant-away.json")
+        away = {}
+        for pt in pts:
+            if pt["spec"]["round"] != "away":
+                a.fails.append(f"audit: the away sweep carries a {pt['spec']['round']} point")
+            away[pt["spec"]["variant"]] = pt
+        print(f"  runs/{run}: {len(away)} dequantization variants at the rounding away from zero "
+              f"over {aw['n']:,} accumulators, {aw['per_row']} per row")
+        for variant, pt in sorted(away.items()):
+            even = by_variant[variant]
+            dm = even["cells_per_acc_marginal"] - pt["cells_per_acc_marginal"]
+            db = even["columns"]["base"] - pt["columns"]["base"]
+            if (dm, db) != (1, aw["per_row"]):
+                a.fails.append(f"audit: the {variant} variant is {dm} cells an accumulator and "
+                               f"{db} columns cheaper at the rounding away from zero, and the "
+                               f"round half to even is one cell and {aw['per_row']} columns above it")
+        for key, (variant, side) in sorted(away_keys.items()):
+            if key in keys:
+                a.claim(key, away[variant]["cells_per_acc_marginal"] if side == "marginal"
+                        else away[variant]["columns"]["base"] / aw["per_row"])
+
+    # (11) the argmax marginal, as a slope.  One vocabulary cannot separate what
+    #      a comparison costs from what the gadget costs whatever the vocabulary
+    #      is; three at the same token count and the same comparisons a row can,
+    #      and cell counts have to be collinear exactly and not to a tolerance.
+    if "model_constants.argmax_marginal_cells_per_comparison" in keys:
+        sweep = []
+        for name in ("b10-argmax.json", "b10-argmax-v16k.json", "b10-argmax-v32k.json"):
+            res, pts = _cell_points(a, run, name)
+            strict = [pt for pt in pts if not pt.get("lax")]
+            if len(strict) != 1:
+                a.fails.append(f"audit: {len(strict)} strict argmax points in {name}, expected one")
+                return
+            sweep.append((res["vocab"] * res["tokens"], strict[0]["cells"]["fresh"],
+                          res["tokens"], strict[0]["layout"]["per_row"]))
+        sweep.sort()
+        shape = {(tok, per_row) for _, _, tok, per_row in sweep}
+        if len(shape) != 1 or len({x for x, _, _, _ in sweep}) != len(sweep):
+            a.fails.append(f"audit: the three argmax vocabularies are at {sorted(shape)} tokens "
+                           f"and comparisons a row over "
+                           f"{sorted(x for x, _, _, _ in sweep)} comparisons; the slope needs one "
+                           f"token count, one row width and three comparison counts")
+            return
+        slopes = {fractions.Fraction(y1 - y0, x1 - x0)
+                  for (x0, y0, _, _), (x1, y1, _, _) in zip(sweep, sweep[1:])}
+        slope = sorted(slopes)[0]
+        fixed = sweep[0][1] - slope * sweep[0][0]
+        print(f"  runs/{run}: argmax over {', '.join(f'{x:,}' for x, _, _, _ in sweep)} "
+              f"comparisons, {float(slope)} cells each and a fixed side of {float(fixed):,.0f} "
+              f"cells")
+        if len(slopes) != 1:
+            a.fails.append(f"audit: the three argmax vocabularies are not collinear: "
+                           f"{sorted(float(s) for s in slopes)} cells a comparison")
+        a.claim("model_constants.argmax_marginal_cells_per_comparison", float(slope))
 
 
 # -- the witness extraction, at both contexts ----------------------------------

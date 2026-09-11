@@ -168,6 +168,20 @@ DERIVED = {
         v(f"secs.headline.c{c}.loop") / 32,
         f"secs_per_layer.headline.c{c}.loop", 0.001))
        for c in (4096, 16384)},
+    # The two cell inputs that are exact counts on top of one LogUp lookup, not
+    # measurements of their own: the range check on a committed int8 activation,
+    # which is half an arity-2 lookup into the byte-pair table, and one bf16
+    # unary operation, which commits its output as one bf16 value and pays one
+    # lookup.  Both index the recorded marginal at the batch every use side
+    # finalizes with, which is the batch the cost model charges.
+    "model_constants.int8_range_cells_per_activation": lambda: chk(
+        "int8 range check per activation",
+        v("model_constants.logup_marginal_cells_per_lookup")["2"] / 2,
+        "model_constants.int8_range_cells_per_activation", 0.001),
+    "model_constants.residual_stream_unary_cells_per_op": lambda: chk(
+        "bf16 unary operation",
+        2 + v("model_constants.logup_marginal_cells_per_lookup")["2"],
+        "model_constants.residual_stream_unary_cells_per_op", 0.001),
     # The cost model's commitment-rate input: committed cells over the seconds
     # the commitment path took, both measured on the same proof.
     "rate.microbench.commit": lambda: chk(
@@ -236,6 +250,18 @@ def structure():
             fails.append(f"{k}: grade {e['grade']!r} is not one of {GRADES}")
         if e["value"] is None and not e["note"]:
             fails.append(f"{k}: null with no note")
+        if isinstance(e["value"], dict):
+            # An object-valued entry is one number per key -- the LogUp marginal
+            # is one figure per lookup batch size -- and its readers index it.  A
+            # member that is not a number would fail inside the cost model or in
+            # a `derived` line below rather than here.
+            bad = [m for m, n in e["value"].items() if not isinstance(n, (int, float))]
+            if not e["value"]:
+                fails.append(f"{k}: object-valued and empty; an object-valued entry is one "
+                             f"number per key")
+            elif bad:
+                fails.append(f"{k}: object-valued, and {bad} carries no number; an "
+                             f"object-valued entry is one number per key")
         if e["grade"] == "measured":
             run, art = e.get("run"), e.get("artifact")
             if not run or not art:

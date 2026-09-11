@@ -1420,14 +1420,25 @@ times.
 
     tools/drivers/microbench-cells.sh <host> <prover-commit> <harness-commit>
 
-runs: 2026-09-09-microbench-cells-h100
-prover commit: fb92850   harness commit: fb92850
+runs: 2026-09-11-microbench-cells-h100, and 2026-09-09-microbench-cells-h100
+  before it
+prover commit: b39b806   harness commit: b39b806
 digests: one, the composed segment's, in the manifest's `digests` map
 binding (from the manifest, over that one proof): 1 to 14 bound; 15 and 16
   absent, because a synthetic segment has neither an embedding row nor an
   output head
 unsound skips: none
-constants backed: `model_constants.dequant_chain_cells_per_acc`,
+constants backed, from the 2026-09-11 run:
+  `model_constants.weight_freivalds_cells_per_weight`,
+  `model_constants.weight_freivalds_preprocessed_cells_per_weight`,
+  `model_constants.logup_marginal_cells_per_lookup`,
+  `model_constants.dequant_chain_away_cells_per_acc`,
+  `model_constants.dequant_pow2_away_cells_per_acc`,
+  `model_constants.dequant_chain_away_base_cells_per_acc`,
+  `model_constants.dequant_pow2_away_base_cells_per_acc`,
+  `model_constants.argmax_marginal_cells_per_comparison`
+constants backed, from the 2026-09-09 run, which the newer one does not
+  re-point: `model_constants.dequant_chain_cells_per_acc`,
   `model_constants.dequant_pow2_cells_per_acc`,
   `model_constants.attnout_int8_cells_per_acc`,
   `model_constants.dequant_pow2_cells_per_acc_intercept`,
@@ -1439,56 +1450,109 @@ constants backed: `model_constants.dequant_chain_cells_per_acc`,
   `model_constants.attention_cells_per_head_key_token`
 
 What the run measures. What one operation of each kind costs in committed
-cells: a dequantized accumulator under each of the five quantization variants,
-a requantized value, a residual-stream operation under each of its five
-gadgets, an argmax comparison, a packed attention instance at five instance
-counts, a dequantized accumulator at six accumulator widths, and the same at
-six values of `kmax`. Seven subcommands, all seven answered, none refused. A
-cell count is the same on both backends, so they are read on the reference
-backend and no card is used.
+cells: a dequantized accumulator under each of the five quantization variants
+and again at the rounding the cost model charges, a requantized value, a
+residual-stream operation under each of its five gadgets, an argmax comparison
+at each of three vocabularies, a packed attention instance at five instance
+counts, a dequantized accumulator at six accumulator widths and the same at six
+values of `kmax`, one weight of the Freivalds check at its design point and at
+four row widths, and one lookup at each of the two LogUp batch sizes this
+prover uses. Thirteen subcommands, all thirteen answered, none refused. A cell
+count is the same on both backends, so they are read on the reference backend
+and no card is used; the driver logs the card where the host has one and goes
+on where it has none.
 
 Why it is its own run. `microbench` measures the rates the cost model reads --
 the vendored library's benchmarks of the primitives, and one composed segment's
 commitment and FRI parts -- and those were measured at another prover commit.
 A run that re-derived them here would either re-point the constants that name
-that run or leave two runs claiming one number. The seven subcommands could not
-run at that commit at all (zk-prover #88); zk-prover #98 then bounded the packed
+that run or leave two runs claiming one number. The subcommands could not run
+at that commit at all (zk-prover #88); zk-prover #98 then bounded the packed
 attention benchmark's shared exponent table by `--table-bits`, which is why the
 instance counts above 4 can be asked for and why this driver passes
 `--table-bits 23`. The counts at 1, 2 and 4 do not move under the flag.
+
+Why it was run a second time. The 2026-09-09 run answered seven subcommands and
+left two of the cost model's inputs measured by nothing: the Freivalds check's
+cells per weight and the marginal cells of one lookup. zk-prover #139 and #140
+built the two subcommands, and three more lines were asked for beside them --
+the dequantization at the rounding away from zero and two more argmax
+vocabularies -- so the newer run answers thirteen. The ten constants the
+2026-09-09 run backs are unchanged and still name it: nothing is re-pointed,
+and every subcommand the older run answered returns the same figures here.
 
 The composed segment is here for one reason: `compose` is the only subcommand
 that makes a proof and therefore the only one that writes a binding table,
 which is what makes the run admissible. Its numbers back no constant here.
 
-What the run measured and what is recorded. Six of the seven subcommands back
-a constant, all of them marginal figures with the shared tables left out,
-because the tables are a fixed cost of the segment and are not multiplied by a
-count, and with the cells the producer already commits left out too. The
-dequantization sweep gives three: 15.0625 cells per accumulator by a
-power-of-two scale, 26.125 by the bf16 chain, 10.0625 for the attention
-output's fold to int8. The width sweep gives two: it is exactly 15 cells per
-accumulator plus 1 cell per trace row at all six widths, which is the closed
-form behind the 15.0625 above at the sixteen-per-row layout. The requantize
-gives 11.5 cells per value with its scale argument, the residual stream 24.3226
-per bf16 add and 8.75 per bf16 multiply, the argmax 9.046875 per comparison, and
-the packed attention 4 cells per grid entry at every one of the five instance
-counts. The `kmax` sweep backs nothing and is a gate: the marginal figure is
-15.0625 at all six table sizes while the figure with the tables in goes from
-15.475 to 143.756, so the constant the cost model reads does not depend on the
-table knob. Two of the cost model's inputs are still measured by no subcommand
-at this prover commit -- the cells per weight of a Freivalds check (zk-prover
-#139) and the marginal cells of one lookup (zk-prover #140) -- and
-`docs/cost-model.md` says so rather than naming a key for either.
+What the run measured and what is recorded. Every figure is a marginal, with
+the shared tables left out, because a table is a fixed cost of the segment and
+is not multiplied by a count, and with the cells the producer already commits
+left out too. Eight new entries come off the 2026-09-11 outputs.
+
+The Freivalds check measures a law and not a number: its three accumulator
+columns cost 12 cells a trace row and a row carries `p` weights, so it is
+`12/p` fresh cells per weight and `1 + 4/p` preprocessed, and `p` is a layout
+knob. The design point is the prover's own default row width, `p = 136`, which
+gives 0.0882353 and 1.0294118; the sweep beside it returns both closed forms to
+the cell at 8, 16, 32 and 64 weights a row, which is what says the law holds
+rather than assuming it. Two things the record has to say beside the number:
+the private archive's 0.0902 is `12/133`, the same law at a shape whose grid
+padded 32,256 rows up to 2^15, and this subcommand refuses a ragged tiling and
+so reports the unpadded form; and a group of `n` matmuls shares one accumulator,
+so it costs `(4 + 8n)/(n p)` per weight and not `12/p`, which the cost model
+does not know.
+
+The LogUp subcommand gives 4 marginal cells a lookup at batch 1, which every
+shared table's own side finalizes with, and 2 at batch 2, which every use side
+does -- `4/batch` at both sizes this prover uses. The range check and the pair
+table agree at each batch, because an interaction column is one QM31 whatever
+the relation's arity. The entry is an object keyed by the batch size, because
+the cost model indexes it by the batch it charges and refuses a scalar.
+
+The dequantization at the rounding away from zero gives four: 25.125 cells an
+accumulator for the bf16 chain and 14.0625 for a power-of-two scale, and,
+with the LogUp running sums left to the batched reduction, 14.375 and 9.25 from
+the same points' committed columns over the sixteen accumulators a row carries.
+That is the rounding the quantization configuration specifies and what every
+recorded proof builds, and the committed-columns figures are what a proof with
+`--gkr-dequant` builds. Each of the four is exactly one cell an accumulator
+below the round-half-to-even figure beside it, at both variants and on both the
+marginal and the committed side.
+
+The argmax at three vocabularies gives the marginal a single vocabulary cannot:
+8 tokens over 8,192, 16,384 and 32,768 entries at the same 64 comparisons a
+row are exactly collinear at 4.046875 fresh cells a comparison, over a fixed
+side of 327,680 cells -- 65,536 committed and 262,144 interaction -- that does
+not move with the vocabulary. The cost model charges the marginal; until this
+run it reached one by subtracting an assumed fixed side of ten interaction
+columns over the trace rows, which at this prover's row counts gives 8.421875
+and is wrong by the whole of the real fixed side.
+
+Two more of the cost model's cell inputs get no subcommand and are recorded as
+`derived` over the LogUp figure: the per-activation int8 range check, one
+arity-2 lookup into the 2^16 byte-pair table covering two activations, and the
+bf16 unary operation, one committed bf16 value and one lookup. Neither is a
+measurement and neither is a run.
+
+The `kmax` sweep backs nothing and is a gate: the marginal figure is 15.0625 at
+all six table sizes while the figure with the tables in goes from 15.475 to
+143.756, so the constant the cost model reads does not depend on the table
+knob.
 
 What the run does not check. Nothing here is a rate: every number is a cell
 count, and the seconds each subcommand reports are on the host's cores with
 twenty threads and are not comparable with a card's. The reference check each
 subcommand makes is against its own model of the arithmetic, and every point
-reported zero mismatches.
+reported zero mismatches. The `manifest.json` field `cuda_version` reads 13.0
+because the prover scrapes it from the `nvidia-smi` banner, which reports the
+version the installed display driver supports and not the toolkit the build
+used; the 2026-09-09 manifest reads the same 13.0 for the same reason.
 
-Host time. Six and a half minutes: five of them the build, and the seven
-subcommands 91 seconds between them.
+Host time. The thirteen subcommands report 26.7 s of proving between them, of
+which the packed attention at five instance counts is 25.6, and the composed
+segment took 4.6 s of end-to-end wall-clock time. The build in front of them is
+not in any output and its time stays in the host's log.
 
 ## Entry template
 

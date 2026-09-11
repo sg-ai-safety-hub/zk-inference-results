@@ -2,7 +2,7 @@
  "_file": "constants.json",
  "_purpose": "Every number the paper cites lives here once, with the run and artifact it is re-derived from. tools/constants/check.py and audit.py enforce it; tools/constants/export.py writes the paper's macros from it.",
  "_schema": {
-  "value": "the number (or list); null means not yet measured, and the note says why",
+  "value": "the number (or list, or an object where a reader indexes one number per key); null means not yet measured, and the note says why",
   "unit": "as printed in the paper",
   "card": "the GPU the number is about, as the machine reported it; 'none' for a number about no card",
   "context": "the context length C the number was measured at; 'n/a' where it does not apply",
@@ -1306,6 +1306,115 @@
    "run": "2026-09-09-microbench-cells-h100",
    "artifact": "b6-pack.json",
    "note": "What one entry of the attention score grid costs: the committed shift, the exponential's answer and the probability, over 512 tokens and 1,024 keys at head dimension 64. It is exactly 4 at all five instance counts the run packs, 1 through 16, so it is the grid's own price and not an artefact of one packing. It is the whole of the attention term only in the superseded single-slope form; the key tile coefficients are what the cost model charges, and they carry a per-key and a per-token cost this number does not."
+  },
+  "model_constants.weight_freivalds_cells_per_weight": {
+   "value": 0.08823529411764706,
+   "unit": "cells/weight",
+   "card": "none",
+   "context": "n/a",
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-11-microbench-cells-h100",
+   "artifact": "b3-freivalds.json",
+   "note": "The weight Freivalds check's committed cells per weight, at the prover's own default row width: `result.points[0].cells.cells_per_weight` of runs/2026-09-11-microbench-cells-h100/b3-freivalds.json. Its three QM31 accumulator columns cost 12 cells a trace row and a row carries p weights, so the law is 12/p and p is a layout knob, not a constant of the gadget: this is 12/136, the default of `params_of`. The sweep beside it, b3-freivalds-widths.json, returns 12/p to the cell at 8, 16, 32 and 64 weights a row, which is what says the closed form holds rather than assuming it. A group of n matmuls shares one accumulator and so costs (4 + 8n)/(n p) per weight and not 12/p, which the cost model does not know: charging 12/p across a layer over-charges the two-matmul group by 20 per cent and the three-matmul one by 29. The private archive's 0.0902 is 12/133, the same law at a shape whose grid padded 32,256 rows up to 2^15, so it is this figure inflated 2.3 per cent by row padding and not a second measurement; this subcommand refuses a ragged tiling and reports the unpadded form."
+  },
+  "model_constants.weight_freivalds_preprocessed_cells_per_weight": {
+   "value": 1.0294117647058822,
+   "unit": "cells/weight",
+   "card": "none",
+   "context": "n/a",
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-11-microbench-cells-h100",
+   "artifact": "b3-freivalds.json",
+   "note": "The preprocessed side of the same check at the same row width, the trace a proof reads once rather than commits again: `result.points[0].cells.preprocessed_per_weight` of runs/2026-09-11-microbench-cells-h100/b3-freivalds.json. It is exactly 1 + 4/p -- one cell a weight, plus the four selectors amortised over a row -- at 8, 16, 32, 64 and 136 weights a row, so it is the same closed form as the fresh figure beside it. Each point is a marginal over the weights two output widths differ by and carries no row padding; the private archive's 1.0903 is one padded component divided by its weights, from a component that also carried nine preprocessed columns beside its weights where this one carries four. The preprocessed trace is in none of the cost model's cell totals, so this figure moves `moe.<model>.preprocessed_over_fresh` and nothing else."
+  },
+  "model_constants.logup_marginal_cells_per_lookup": {
+   "value": {
+    "1": 4.0,
+    "2": 2.0
+   },
+   "unit": "cells/lookup",
+   "card": "none",
+   "context": "n/a",
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-11-microbench-cells-h100",
+   "artifact": "logup.json",
+   "note": "The marginal cells one LogUp lookup adds, per lookup batch size: `result.closed_form.marginal_cells_per_lookup` of runs/2026-09-11-microbench-cells-h100/logup.json and the four points beside it. 4 at batch 1, which every shared table's own side finalizes with, and 2 at batch 2, which every use side does, so it is 4/batch at both sizes this prover uses. Measured on a range check, one committed cell a lookup, and on a pair table lookup, two; the two agree, because an interaction column is one QM31 whatever the relation's arity, so the arity moves what the gadget commits and not the column count. Recorded as an object keyed by the batch size written as a string, because the cost model indexes it by the batch it charges and `cost_model.logup_marginal_by_batch` refuses a scalar."
+  },
+  "model_constants.dequant_chain_away_cells_per_acc": {
+   "value": 25.125,
+   "unit": "cells/accumulator",
+   "card": "none",
+   "context": "n/a",
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-11-microbench-cells-h100",
+   "artifact": "b6-dequant-away.json",
+   "note": "Dequantization by the bf16 chain at the rounding away from zero, the marginal cells one accumulator adds with the shared tables left out; 1,048,576 accumulators, 16 per row, from the `chain` point's `cells_per_acc_marginal` in runs/2026-09-11-microbench-cells-h100/b6-dequant-away.json. This is what the cost model charges on all seven layer matmuls, because rounding away from zero is what the quantization configuration specifies and what every recorded proof builds. `model_constants.dequant_chain_cells_per_acc` is the same gadget at the round half to even, 26.125, exactly one cell an accumulator more, and is not this."
+  },
+  "model_constants.dequant_pow2_away_cells_per_acc": {
+   "value": 14.0625,
+   "unit": "cells/accumulator",
+   "card": "none",
+   "context": "n/a",
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-11-microbench-cells-h100",
+   "artifact": "b6-dequant-away.json",
+   "note": "Dequantization by a power-of-two scale at the rounding away from zero, on the same sweep and the same terms as the chain entry above, from the `pow2` point's `cells_per_acc_marginal` in runs/2026-09-11-microbench-cells-h100/b6-dequant-away.json. The cost model charges it on the output head. `model_constants.dequant_pow2_cells_per_acc` is the round half to even, 15.0625, again exactly one cell an accumulator more."
+  },
+  "model_constants.dequant_chain_away_base_cells_per_acc": {
+   "value": 14.375,
+   "unit": "cells/accumulator",
+   "card": "none",
+   "context": "n/a",
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-11-microbench-cells-h100",
+   "artifact": "b6-dequant-away.json",
+   "note": "The chain variant's committed columns alone, with the LogUp running sums left to the batched reduction: `columns.base` of the same `chain` point in runs/2026-09-11-microbench-cells-h100/b6-dequant-away.json, 230 columns over the 16 accumulators a trace row carries. That is what a proof with `--gkr-dequant` builds, which is the configuration the paper reports. The round-half-to-even output gives 246/16 = 15.375, one cell an accumulator more, the same difference as on the marginal figures."
+  },
+  "model_constants.dequant_pow2_away_base_cells_per_acc": {
+   "value": 9.25,
+   "unit": "cells/accumulator",
+   "card": "none",
+   "context": "n/a",
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-11-microbench-cells-h100",
+   "artifact": "b6-dequant-away.json",
+   "note": "The power-of-two variant's committed columns alone, on the same terms as the chain entry above: `columns.base` of the `pow2` point in runs/2026-09-11-microbench-cells-h100/b6-dequant-away.json, 148 columns over 16 accumulators a row. Of the four away figures this is the one the sound statement charges most, because with `--gkr-dequant` on the layer matmuls read the composed price instead and the output head's dequantization is this. The round-half-to-even output gives 164/16 = 10.25."
+  },
+  "model_constants.argmax_marginal_cells_per_comparison": {
+   "value": 4.046875,
+   "unit": "cells/comparison",
+   "card": "none",
+   "context": "n/a",
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-11-microbench-cells-h100",
+   "artifact": "b10-argmax.json",
+   "note": "What one argmax comparison adds, as the slope of fresh cells against comparisons over three vocabularies at the same 8 tokens and the same 64 comparisons a row: 592,896 cells over 65,536 comparisons in runs/2026-09-11-microbench-cells-h100/b10-argmax.json (vocabulary 8,192), 858,112 over 131,072 in b10-argmax-v16k.json and 1,388,544 over 262,144 in b10-argmax-v32k.json, each the strict point's `cells.fresh`. The three are exactly collinear: 4.046875 cells a comparison, and a fixed side of 327,680 cells -- 65,536 of committed trace and 262,144 of interaction -- that does not move with the vocabulary. This is the figure the cost model charges. `model_constants.argmax_cells_per_comparison` is the whole gadget over its comparisons, 9.046875 at the smallest of the three vocabularies, and is not this; subtracting an assumed fixed side of ten interaction columns over the trace rows, which is what the model did until this run, gives 8.421875 and is wrong by the whole of the real fixed side. The private archive's 4.046875 is this same number."
+  },
+  "model_constants.int8_range_cells_per_activation": {
+   "value": 1.0,
+   "unit": "cells/activation",
+   "card": "none",
+   "context": "n/a",
+   "timing_scope": "n/a",
+   "grade": "derived",
+   "note": "model_constants.logup_marginal_cells_per_lookup['2'] / 2. The range check on a committed int8 activation is one arity-2 lookup into the 2^16 byte-pair table covering two activations, at the batch size every use side finalizes with; the activations' own committed cells are charged elsewhere. The private archive measured the same 1.0 directly at three sizes, and the byte-at-a-time form it replaced is 2.0."
+  },
+  "model_constants.residual_stream_unary_cells_per_op": {
+   "value": 4.0,
+   "unit": "cells/operation",
+   "card": "none",
+   "context": "n/a",
+   "timing_scope": "n/a",
+   "grade": "derived",
+   "note": "2 + model_constants.logup_marginal_cells_per_lookup['2']. One bf16 unary operation commits its output as one bf16 value, which is two cells, and pays one lookup at pairwise batching. The cost model multiplies it by each normalisation's square and inverse square root and by the SwiGLU's SiLU. The prover reports the same figure under primitives.unary of the residual-stream output, built from the same two terms, so it is an exact count and not a second measurement."
   },
   "model_constants.dequant_chain_composed_cells_per_acc": {
    "value": 16.05952380952381,
