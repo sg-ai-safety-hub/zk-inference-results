@@ -117,7 +117,15 @@ SPEC=b10-final             # the fixed configuration; the delayed-requantization
                            # the cost model rather than of the quantization
 CTX=4096; S=512
 NLAY=40
-SHARED="--round even --numbits 9 --z-hi-bits 7 --variants intexp --head-groups 16,16,8"
+# `--tight-table` is in here because every recorded run of this repository has
+# it -- both headline runs, the controls, the ablation, the memory probe -- and
+# the reference chunks this measurement is anchored on were proved with it. It
+# only ever narrows the master exponent table, to the largest key the key tiles
+# actually look up. `predict-14b.sh` is the one driver that left it off, which
+# at this shape is not a difference of a few per cent: layer 1 asks for a table
+# of 2^29 without it and the STARK refuses the column outright (a circle domain
+# is at most 2^31), and with it the same layer proves at 2^26.
+SHARED="--round even --numbits 9 --z-hi-bits 7 --variants intexp --head-groups 16,16,8 --tight-table"
 GKR="--gkr-key-tiles --gkr-dequant --gkr-residual-stream --gkr-freivalds --gkr-attnout"
 # The rounding mode is in the shared flags and must not be repeated here: a
 # flag that appears twice on one command line changes the digest
@@ -305,12 +313,11 @@ PY
 #    counts every segment at the calibration its own dump asks for -- the master
 #    table, the accumulator widths, the fold's pins -- and at a new model the
 #    8B's modal values are wrong by a whole table.  Written before any proof
-#    exists, which is what the counted registration's standing rests on, and the
-#    table is the size the dump asks for because this run passes no tight-table
-#    flag.
+#    exists, which is what the counted registration's standing rests on, and at
+#    the table this run proves at, which is the narrowed one.
 st "fields"
 ( cd \$HSRC && \$PY -m harness.eval.predict.witness_fields --dir \$WIT/witness \
-    --layers $NLAY --numbits 9 --no-tight-table --head-groups 16,16,8 \
+    --layers $NLAY --numbits 9 --tight-table --head-groups 16,16,8 \
     \${ABSENT:+--absent \$ABSENT} --out \$OUT/witness_fields.json )
 
 if [ $PROVE -eq 0 ]; then
