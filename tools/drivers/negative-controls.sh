@@ -29,11 +29,23 @@
 # over the model tree.  A control the shape cannot state is not a failure: the
 # prover skips it by name with its reason, and the run's record carries both.
 #
-# The seam between the attention output and the o matmul is the one control
-# known to crash on a real dump rather than reject (zk-prover #24), and it is
-# late in the list, so a crash there would take the whole suite's record with
-# it.  It therefore also runs on its own, in a process of its own, through
-# `--probe`: whatever the whole suite does, that one control has a record.
+# The seam between the attention output and the o matmul is the control that
+# used to crash on a real dump rather than reject (zk-prover #24).  It no longer
+# runs on one: its rebuild draws the residual stream a second time, which is the
+# synthetic construction's, and on a dump that draw lands outside the windows
+# the statement pins from the honest witness -- the master table's width and the
+# attention output's accumulator -- so what would refuse such a witness is the
+# draw and not the seam.  The prover skips it there by name and the record
+# carries its reason; on the synthetic shapes, where the construction is the one
+# it was written for, it rejects as designed.
+#
+# It still runs on its own, in a process of its own, through `--probe`: one
+# control with a record of its own is what the separate process is for, and
+# since zk-prover #151 the filter is read before a control rebuilds anything, so
+# that process now costs the honest proof and nothing more.  A crash anywhere in
+# the suite costs one control instead of the run either way, because zk-prover
+# #146 writes each control's result as it happens and a panic emits what is
+# there, with the panic under `crashed`.
 #
 # The first call pushes zk-prover at the two commits to the host, starts the
 # job detached and prints the poll command.  Every later call with the same
