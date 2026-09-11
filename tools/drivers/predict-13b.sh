@@ -256,7 +256,8 @@ if [ ! -f \$WIT/witness_L0/manifest.json ] && [ ! -f \$OUT/layer0-refused.txt ];
       > \$R/L0.extract.log 2>&1 ); then
     st "extract: layer 0 done in \$(( \$(date +%s) - T0 ))s"
   else
-    tail -n 4 \$R/L0.extract.log > \$OUT/layer0-refused.txt
+    grep -E "AssertionError|Error|error:" \$R/L0.extract.log > \$OUT/layer0-refused.txt ||
+      tail -n 4 \$R/L0.extract.log > \$OUT/layer0-refused.txt
     st "extract: layer 0 refused, see out/layer0-refused.txt"
   fi
 fi
