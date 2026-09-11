@@ -1,0 +1,40 @@
+[PROFILE]   prove_ex: composition commit: 304ms
+[PROFILE]   prove_ex: prove_values:       1570ms
+compose probe kv: one cell of K/V boundary side 1, component untouched
+[PROFILE]   prove_ex: composition gen:    167ms
+[PROFILE]   prove_ex: composition commit: 288ms
+[PROFILE]   prove_ex: prove_values:       1617ms
+compose probe kv: one cell of K/V boundary side 2, component untouched
+[PROFILE]   prove_ex: composition gen:    167ms
+[PROFILE]   prove_ex: composition commit: 302ms
+[PROFILE]   prove_ex: prove_values:       1586ms
+compose probe kv: one cell of K/V boundary side 3, component untouched
+[PROFILE]   prove_ex: composition gen:    167ms
+[PROFILE]   prove_ex: composition commit: 294ms
+[PROFILE]   prove_ex: prove_values:       1593ms
+compose probe attnout: one non-last row rounded against den - 1
+[PROFILE]   prove_ex: composition gen:    169ms
+[PROFILE]   prove_ex: composition commit: 297ms
+[PROFILE]   prove_ex: prove_values:       1621ms
+compose probe attnout: one row's jo moved by one
+[PROFILE]   prove_ex: composition gen:    166ms
+[PROFILE]   prove_ex: composition commit: 293ms
+[PROFILE]   prove_ex: prove_values:       1564ms
+compose probe attnout: one slot's num a doubling out of the window
+[PROFILE]   prove_ex: composition gen:    173ms
+[PROFILE]   prove_ex: composition commit: 301ms
+[PROFILE]   prove_ex: prove_values:       1607ms
+compose probe attnout: one accumulator limb off its own decomposition
+[PROFILE]   prove_ex: composition gen:    163ms
+[PROFILE]   prove_ex: composition commit: 303ms
+[PROFILE]   prove_ex: prove_values:       1495ms
+compose probe SKIP attnout magnitude root: this statement is in the offset form (--ao-acc-mag forces the other)
+compose probe attnout: a whole token's jo moved by one
+[PROFILE]   prove_ex: composition gen:    162ms
+[PROFILE]   prove_ex: composition commit: 292ms
+[PROFILE]   prove_ex: prove_values:       1497ms
+compose probe tampered claim
+[PROFILE]   prove_ex: composition gen:    169ms
+[PROFILE]   prove_ex: composition commit: 282ms
+[PROFILE]   prove_ex: prove_values:       1505ms
+compose probes: 11 segment rebuilds

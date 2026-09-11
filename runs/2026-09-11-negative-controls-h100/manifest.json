@@ -1,0 +1,179 @@
+{
+ "argv": [
+  "zk-prover",
+  "compose-probes",
+  "--round",
+  "even",
+  "--numbits",
+  "9",
+  "--z-hi-bits",
+  "7",
+  "--variants",
+  "intexp",
+  "--head-groups",
+  "16,8,8",
+  "--tight-table",
+  "--kmax",
+  "19",
+  "--ao-rem-bits",
+  "20",
+  "--fold-rem-bits",
+  "15",
+  "--fold-alpha",
+  "6",
+  "--table-bits",
+  "25",
+  "--round",
+  "even",
+  "--diagonal-block",
+  "--gkr-key-tiles",
+  "--gkr-dequant",
+  "--gkr-residual-stream",
+  "--gkr-freivalds",
+  "--gkr-attnout",
+  "--witness",
+  "/root/witness/ed8de1a0f6e8/y-delay-vw12-c4096/witness_B8_L16"
+ ],
+ "backend": "simd",
+ "binding": {
+  "all_bound": false,
+  "edges": [
+   {
+    "edge": "residual stream into the first norm's reduction",
+    "n": 1,
+    "state": "bound",
+    "why": null
+   },
+   {
+    "edge": "first norm's output into the q, k, v matmul inputs",
+    "n": 2,
+    "state": "bound",
+    "why": null
+   },
+   {
+    "edge": "q, k, v outputs into the attention block",
+    "n": 3,
+    "state": "unbound",
+    "why": "the statement carries no rotation parameters, so q, k and v publish output claims with no counterparty (deq_out_open)"
+   },
+   {
+    "edge": "attention scores and values into the attention output",
+    "n": 4,
+    "state": "bound",
+    "why": null
+   },
+   {
+    "edge": "attention output into the o matmul input",
+    "n": 5,
+    "state": "unbound",
+    "why": "the o matmul reads 64 channels and the attention output has 96 (nh x hd), so the two folds run over different sequences (ao_q_open)"
+   },
+   {
+    "edge": "o output into the first residual add",
+    "n": 6,
+    "state": "bound",
+    "why": null
+   },
+   {
+    "edge": "first residual add into the second norm's reduction",
+    "n": 7,
+    "state": "bound",
+    "why": null
+   },
+   {
+    "edge": "second norm's output into the gate and up matmul inputs",
+    "n": 8,
+    "state": "bound",
+    "why": null
+   },
+   {
+    "edge": "gate and up outputs into the SwiGLU product",
+    "n": 9,
+    "state": "bound",
+    "why": null
+   },
+   {
+    "edge": "SwiGLU output into the down matmul input",
+    "n": 10,
+    "state": "bound",
+    "why": null
+   },
+   {
+    "edge": "down output into the second residual add",
+    "n": 11,
+    "state": "bound",
+    "why": null
+   },
+   {
+    "edge": "each matmul's input times the pinned weights into its accumulator",
+    "n": 12,
+    "state": "bound",
+    "why": null
+   },
+   {
+    "edge": "residual stream out of this segment into the next layer's segment",
+    "n": 13,
+    "state": "bound",
+    "why": null
+   },
+   {
+    "edge": "keys and values out of this token block into the next block",
+    "n": 14,
+    "state": "bound",
+    "why": null
+   },
+   {
+    "edge": "embedding row into the first segment's residual stream",
+    "n": 15,
+    "state": "absent",
+    "why": null
+   },
+   {
+    "edge": "logits into the emitted token",
+    "n": 16,
+    "state": "absent",
+    "why": null
+   }
+  ],
+  "proofs": 5,
+  "unbound": [
+   3,
+   5
+  ]
+ },
+ "cuda_version": "13.0",
+ "date": "2026-09-11",
+ "derived": null,
+ "digests": {},
+ "driver": "tools/drivers/negative-controls.sh",
+ "driver_version": "580.178.04",
+ "gpu": "NVIDIA H100 80GB HBM3, 81559 MiB",
+ "harness_commit": "ed8de1a0f6e8afc72e4c2e849db7cd0b125123e6",
+ "harness_dirty": null,
+ "imported": false,
+ "kind": "prover",
+ "outputs": [
+  "config.json",
+  "controls.json",
+  "real.json",
+  "real.rc",
+  "real.stderr_tail.txt",
+  "real_o_seam.json",
+  "real_o_seam.rc",
+  "real_o_seam.stderr_tail.txt",
+  "shapes.json",
+  "syn_aligned.json",
+  "syn_aligned.rc",
+  "syn_aligned.stderr_tail.txt",
+  "syn_gkrfive.json",
+  "syn_gkrfive.rc",
+  "syn_gkrfive.stderr_tail.txt",
+  "syn_sound.json",
+  "syn_sound.rc",
+  "syn_sound.stderr_tail.txt"
+ ],
+ "prover_commit": "ed8de1a0f6e8afc72e4c2e849db7cd0b125123e6",
+ "prover_dirty": true,
+ "run_id": "2026-09-11-negative-controls-h100",
+ "unsound_skips": []
+}

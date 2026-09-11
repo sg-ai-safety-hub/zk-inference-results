@@ -1,0 +1,18 @@
+tight-table: 2^25 -> 2^23 (key max 4659588, 23 bits, slack 0, off_table 0)
+compose: the attention output takes the denp2 form -- the quotient term is 11 + 20 > 30 (log row 73)
+compose: rope inv_freq differs from the dump's in 3 of 64 f64 places and in 0 of 131072 committed bf16 cells -- a `pow` rounding difference, not a different rotation
+[PROFILE]   prove_ex: composition gen:    1855ms
+[PROFILE]   prove_ex: composition commit: 601ms
+[PROFILE]   prove_ex: prove_values:       7948ms
+compose probe SKIP o seam: one activation the attention output did not produce: the seam's control rebuilds this segment around a second draw of the residual stream, which is the synthetic construction's; a dump's activations are the dump's, and a second draw lands outside the windows this statement pins from the honest witness -- the master exp table's width and the attention output's accumulator -- so what refuses such a witness is the draw and not the seam
+  key_tile Q: SKIP -- the consumer-side control needs the synthetic generator (Layer::synth_residual_stream_key_tile_bent); on a dump the key_tiles are B1's
+  key_tile K: SKIP -- the consumer-side control needs the synthetic generator (Layer::synth_residual_stream_key_tile_bent); on a dump the key_tiles are B1's
+  key_tile V: SKIP -- the consumer-side control needs the synthetic generator (Layer::synth_residual_stream_key_tile_bent); on a dump the key_tiles are B1's
+  prefix Q: SKIP -- the consumer-side control needs the synthetic generator (Layer::synth_residual_stream_prefix_q_bent); on a dump the key_tiles are B1's
+compose probe SKIP attnout magnitude root: this statement is in the offset form (--ao-acc-mag forces the other)
+compose probe tampered claim
+compose: rope inv_freq differs from the dump's in 3 of 64 f64 places and in 0 of 131072 committed bf16 cells -- a `pow` rounding difference, not a different rotation
+[PROFILE]   prove_ex: composition gen:    1784ms
+[PROFILE]   prove_ex: composition commit: 594ms
+[PROFILE]   prove_ex: prove_values:       7509ms
+compose probes: 0 segment rebuilds

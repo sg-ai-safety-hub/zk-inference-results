@@ -1,0 +1,7 @@
+{"driver": "negative-controls", "label": "control",
+ "spec": "y-delay-vw12", "context": 4096, "s": 512,
+ "sample_block": 8, "sample_layer": 16,
+ "backend": "simd", "shared_flags": "--round even --numbits 9 --z-hi-bits 7 --variants intexp --head-groups 16,8,8 --tight-table", "pins": "--kmax 19 --ao-rem-bits 20 --fold-rem-bits 15 --fold-alpha 6",
+ "real_line": "--table-bits 25 --round even --diagonal-block --gkr-key-tiles --gkr-dequant --gkr-residual-stream --gkr-freivalds --gkr-attnout --witness /root/witness/ed8de1a0f6e8/y-delay-vw12-c4096/witness_B8_L16 ",
+ "synthetic_flags": "--round away --variants intsplit6 --table-bits 16 --s 32 --ctx 128 --hd 32",
+ "note": "the control suite on one real segment of headline-c4096's plan and on the three synthetic shapes"}

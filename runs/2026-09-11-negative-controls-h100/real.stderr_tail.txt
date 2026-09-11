@@ -1,0 +1,40 @@
+[PROFILE]   prove_ex: prove_values:       7516ms
+compose probe kv: one cell of K/V boundary side 5, component untouched
+compose: rope inv_freq differs from the dump's in 3 of 64 f64 places and in 0 of 131072 committed bf16 cells -- a `pow` rounding difference, not a different rotation
+[PROFILE]   prove_ex: composition gen:    1799ms
+[PROFILE]   prove_ex: composition commit: 598ms
+[PROFILE]   prove_ex: prove_values:       7323ms
+compose probe attnout: one non-last row rounded against den - 1
+compose: rope inv_freq differs from the dump's in 3 of 64 f64 places and in 0 of 131072 committed bf16 cells -- a `pow` rounding difference, not a different rotation
+[PROFILE]   prove_ex: composition gen:    1784ms
+[PROFILE]   prove_ex: composition commit: 597ms
+[PROFILE]   prove_ex: prove_values:       7424ms
+compose probe attnout: one row's jo moved by one
+compose: rope inv_freq differs from the dump's in 3 of 64 f64 places and in 0 of 131072 committed bf16 cells -- a `pow` rounding difference, not a different rotation
+[PROFILE]   prove_ex: composition gen:    1808ms
+[PROFILE]   prove_ex: composition commit: 601ms
+[PROFILE]   prove_ex: prove_values:       7372ms
+compose probe attnout: one slot's num a doubling out of the window
+compose: rope inv_freq differs from the dump's in 3 of 64 f64 places and in 0 of 131072 committed bf16 cells -- a `pow` rounding difference, not a different rotation
+[PROFILE]   prove_ex: composition gen:    1809ms
+[PROFILE]   prove_ex: composition commit: 588ms
+[PROFILE]   prove_ex: prove_values:       7272ms
+compose probe attnout: one accumulator limb off its own decomposition
+compose: rope inv_freq differs from the dump's in 3 of 64 f64 places and in 0 of 131072 committed bf16 cells -- a `pow` rounding difference, not a different rotation
+[PROFILE]   prove_ex: composition gen:    1782ms
+[PROFILE]   prove_ex: composition commit: 594ms
+[PROFILE]   prove_ex: prove_values:       7342ms
+compose probe SKIP attnout magnitude root: this statement is in the offset form (--ao-acc-mag forces the other)
+compose probe attnout: a whole token's jo moved by one
+compose: rope inv_freq differs from the dump's in 3 of 64 f64 places and in 0 of 131072 committed bf16 cells -- a `pow` rounding difference, not a different rotation
+[PROFILE]   prove_ex: composition gen:    1765ms
+[PROFILE]   prove_ex: composition commit: 596ms
+[PROFILE]   prove_ex: prove_values:       7551ms
+off_table 1 by table: {"ao_qnz": (1, 2251, 2251)}
+exp table: 8388608 rows, max key 4659588, off 0 in [9223372036854775807, -9223372036854775808]
+compose probe tampered claim
+compose: rope inv_freq differs from the dump's in 3 of 64 f64 places and in 0 of 131072 committed bf16 cells -- a `pow` rounding difference, not a different rotation
+[PROFILE]   prove_ex: composition gen:    1814ms
+[PROFILE]   prove_ex: composition commit: 590ms
+[PROFILE]   prove_ex: prove_values:       7565ms
+compose probes: 5 segment rebuilds

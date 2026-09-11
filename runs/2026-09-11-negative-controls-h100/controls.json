@@ -1,0 +1,99 @@
+{
+ "targets": {
+  "real": {
+   "exit": 0,
+   "designed_rejections": 64,
+   "skipped": [
+    "o seam: one activation the attention output did not produce",
+    "model tree: this segment under another layer's weights"
+   ],
+   "skipped_why": [
+    {
+     "probe": "o seam: one activation the attention output did not produce",
+     "why": "the seam's control rebuilds this segment around a second draw of the residual stream, which is the synthetic construction's; a dump's activations are the dump's, and a second draw lands outside the windows this statement pins from the honest witness -- the master exp table's width and the attention output's accumulator -- so what refuses such a witness is the draw and not the seam"
+    },
+    {
+     "probe": "model tree: this segment under another layer's weights",
+     "why": "a dump carries its own model half, and rebuilding this segment's activations around a second draw is the synthetic construction's; on a dump the swap would be a witness nothing wrote"
+    }
+   ],
+   "not_selected": 0,
+   "model_tree_control": true
+  },
+  "real_o_seam": {
+   "exit": 0,
+   "designed_rejections": 1,
+   "skipped": [
+    "o seam: one activation the attention output did not produce"
+   ],
+   "skipped_why": [
+    {
+     "probe": "o seam: one activation the attention output did not produce",
+     "why": "the seam's control rebuilds this segment around a second draw of the residual stream, which is the synthetic construction's; a dump's activations are the dump's, and a second draw lands outside the windows this statement pins from the honest witness -- the master exp table's width and the attention output's accumulator -- so what refuses such a witness is the draw and not the seam"
+    }
+   ],
+   "not_selected": 64,
+   "model_tree_control": false
+  },
+  "syn_aligned": {
+   "exit": 0,
+   "designed_rejections": 71,
+   "skipped": [],
+   "skipped_why": [],
+   "not_selected": 0,
+   "model_tree_control": true
+  },
+  "syn_gkrfive": {
+   "exit": 0,
+   "designed_rejections": 50,
+   "skipped": [
+    "o seam: one activation the attention output did not produce",
+    "attnout: one row's jo moved by one",
+    "attnout: a whole token's jo moved by one"
+   ],
+   "skipped_why": [
+    {
+     "probe": "o seam: one activation the attention output did not produce",
+     "why": "this shape has no residual-stream family of a layer segment, or its family is the head's final norm, or its o Freivalds check is not nh*hd wide, so the two folds are over different sequences and ao_q_ok is not statable here"
+    },
+    {
+     "probe": "attnout: one row's jo moved by one",
+     "why": "this statement's windows admit one jo for every row of this witness and no other, so a one-step move leaves the EPOW window and is refused by that lookup before the joff pin it tests can see it; a run with --ao-jo-max above the witness's own jo states it"
+    },
+    {
+     "probe": "attnout: a whole token's jo moved by one",
+     "why": "this statement's windows admit one jo for every token of this witness and no other, so a one-step move leaves the EPOW window and is refused by that lookup before the joff pin it tests can see it; a run with --ao-jo-max above the witness's own jo states it"
+    }
+   ],
+   "not_selected": 0,
+   "model_tree_control": true
+  },
+  "syn_sound": {
+   "exit": 0,
+   "designed_rejections": 50,
+   "skipped": [
+    "o seam: one activation the attention output did not produce",
+    "attnout: one row's jo moved by one",
+    "attnout: a whole token's jo moved by one"
+   ],
+   "skipped_why": [
+    {
+     "probe": "o seam: one activation the attention output did not produce",
+     "why": "this shape has no residual-stream family of a layer segment, or its family is the head's final norm, or its o Freivalds check is not nh*hd wide, so the two folds are over different sequences and ao_q_ok is not statable here"
+    },
+    {
+     "probe": "attnout: one row's jo moved by one",
+     "why": "this statement's windows admit one jo for every row of this witness and no other, so a one-step move leaves the EPOW window and is refused by that lookup before the joff pin it tests can see it; a run with --ao-jo-max above the witness's own jo states it"
+    },
+    {
+     "probe": "attnout: a whole token's jo moved by one",
+     "why": "this statement's windows admit one jo for every token of this witness and no other, so a one-step move leaves the EPOW window and is refused by that lookup before the joff pin it tests can see it; a run with --ao-jo-max above the witness's own jo states it"
+    }
+   ],
+   "not_selected": 0,
+   "model_tree_control": true
+  }
+ },
+ "designed_rejections": 236,
+ "crashes": 0
+}

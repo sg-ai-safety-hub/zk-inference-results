@@ -1,0 +1,40 @@
+compose probe residual boundary side 1, its residual-stream component untouched
+[PROFILE]   prove_ex: composition gen:    29ms
+[PROFILE]   prove_ex: composition commit: 10ms
+[PROFILE]   prove_ex: prove_values:       138ms
+compose probe kv: one cell of K/V boundary side 0, component untouched
+[PROFILE]   prove_ex: composition gen:    29ms
+[PROFILE]   prove_ex: composition commit: 11ms
+[PROFILE]   prove_ex: prove_values:       132ms
+compose probe kv: one cell of K/V boundary side 1, component untouched
+[PROFILE]   prove_ex: composition gen:    31ms
+[PROFILE]   prove_ex: composition commit: 11ms
+[PROFILE]   prove_ex: prove_values:       134ms
+compose probe kv: one cell of K/V boundary side 2, component untouched
+[PROFILE]   prove_ex: composition gen:    29ms
+[PROFILE]   prove_ex: composition commit: 11ms
+[PROFILE]   prove_ex: prove_values:       139ms
+compose probe kv: one cell of K/V boundary side 3, component untouched
+[PROFILE]   prove_ex: composition gen:    30ms
+[PROFILE]   prove_ex: composition commit: 10ms
+[PROFILE]   prove_ex: prove_values:       134ms
+compose probe attnout: one non-last row rounded against den - 1
+[PROFILE]   prove_ex: composition gen:    29ms
+[PROFILE]   prove_ex: composition commit: 11ms
+[PROFILE]   prove_ex: prove_values:       134ms
+compose probe SKIP attnout: one row's jo moved by one: this statement's windows admit one jo for every row of this witness and no other, so a one-step move leaves the EPOW window and is refused by that lookup before the joff pin it tests can see it; a run with --ao-jo-max above the witness's own jo states it
+compose probe attnout: one slot's num a doubling out of the window
+[PROFILE]   prove_ex: composition gen:    30ms
+[PROFILE]   prove_ex: composition commit: 12ms
+[PROFILE]   prove_ex: prove_values:       132ms
+compose probe attnout: one accumulator limb off its own decomposition
+[PROFILE]   prove_ex: composition gen:    33ms
+[PROFILE]   prove_ex: composition commit: 12ms
+[PROFILE]   prove_ex: prove_values:       133ms
+compose probe SKIP attnout magnitude root: this statement is in the offset form (--ao-acc-mag forces the other)
+compose probe SKIP attnout: a whole token's jo moved by one: this statement's windows admit one jo for every token of this witness and no other, so a one-step move leaves the EPOW window and is refused by that lookup before the joff pin it tests can see it; a run with --ao-jo-max above the witness's own jo states it
+compose probe tampered claim
+[PROFILE]   prove_ex: composition gen:    28ms
+[PROFILE]   prove_ex: composition commit: 11ms
+[PROFILE]   prove_ex: prove_values:       129ms
+compose probes: 6 segment rebuilds
