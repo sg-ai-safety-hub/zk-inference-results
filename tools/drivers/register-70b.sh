@@ -72,11 +72,11 @@ LABEL=registration         # a prediction, not a measurement: this run proves no
 SHAPE="Llama-3.1-70B"
 REGFILE=registration-llama-3-1-70b.json
 # The pinned commit. It has to carry the `Llama-3.1-70B` row in the cost model's
-# shape table and the `--shape` selection in the registration document, which is
-# zk-prover#163; that pull request is open, so there is no commit on main to pin
-# yet and this driver refuses rather than registering a document from a tree
-# that cannot name the shape.
-COMMIT=
+# shape table and the `--shape` selection in the registration document, which
+# zk-prover#163 added in 33d893b. This is that repository's main; the two
+# commits it has gained since are prover changes and touch no harness file the
+# registration reads.
+COMMIT=ed8de1a0f6e8afc72e4c2e849db7cd0b125123e6
 # The statement the registration prices, which is what `predict-70b.sh` proves:
 # its GKR flags and its diagonal block, and the two drivers have to name the
 # same set.
@@ -91,15 +91,7 @@ SEQ5="--from 2026-09-09-headline-c4096-h100:B8L16:4096
       --from 2026-09-08-headline-c16384-h100:B32L16:16384"
 
 # ---- the refusals that cost nothing, before anything is built ----------------
-# 1. the pinned commit has to exist.
-if [ -z "$COMMIT" ]; then
-    echo "$NAME: no zk-prover commit is pinned." >&2
-    echo "        The registration needs a tree that carries the Llama-3.1-70B shape" >&2
-    echo "        row and the --shape selection (zk-prover#163). Pin that commit in" >&2
-    echo "        this driver once it is on main, and register then." >&2
-    exit 2
-fi
-# 2. the measurement must not have happened yet, and the registration must not
+# 1. the measurement must not have happened yet, and the registration must not
 #    have been made already. A prediction written after the measurement is not a
 #    prediction, and a second registration beside the first is two documents
 #    where the record needs one: replacing a registration means removing the run
@@ -113,7 +105,7 @@ for d in "$@"; do
     echo "        measurement has already happened it is the measurement that is re-run." >&2
     exit 2
 done
-# 3. a micro-benchmark inputs directory in the environment would be read at
+# 2. a micro-benchmark inputs directory in the environment would be read at
 #    import by the cost model and would put numbers from outside both
 #    repositories into the prediction.
 if [ -n "${ZK_COSTMODEL_INPUTS:-}" ]; then
@@ -121,7 +113,7 @@ if [ -n "${ZK_COSTMODEL_INPUTS:-}" ]; then
     echo "        constants.json alone; unset it and run this again." >&2
     exit 2
 fi
-# 4. the constants file has to be the one in the repository's history: the
+# 3. the constants file has to be the one in the repository's history: the
 #    registration freezes it by digest, and a digest of uncommitted bytes names
 #    nothing anyone can read back.
 if [ -n "$(git -C "$ROOT" status --porcelain -- constants.json)" ]; then
