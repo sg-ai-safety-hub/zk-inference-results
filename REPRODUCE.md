@@ -29,16 +29,25 @@ Written, not yet run:
   equality look like they count different rows; zk-prover #172 has the verdict,
   the parameters and the diagnostics. The job exits before it fetches anything,
   so there is no run directory and no measured constant here yet.
-  `harness/eval/predict/compare.py` cannot read this prover's chunks either --
-  it reads `params.key_tiles`, which the prover renamed to `head_groups`
-  (zk-prover #171) -- so the comparison waits on that one as well. What the
-  driver carries now: the shared pins of every campaign at this context,
-  `--tight-table` included, because the prediction charges a master exponent
-  table of 2^23 rows and this model's witnesses ask for 2^26 and 2^27 before
-  the flag narrows them to their own keys; layer 0's dump written to the same
-  base as every other layer's, which is what the pinned harness names it; and
-  the comparison itself, made on the fetched outputs before they become a run,
-  so the run carries it.
+  The rejection is not a run that needs re-trying: zk-prover #173 traced it to
+  this model's q, k and v projection biases, which the statement has no site
+  for, so **Qwen2.5-14B is not provable as the statement stands** and the
+  successor work is zk-prover #174. The measurement is blocked on those two and
+  not on a host.
+
+  The prediction is registered all the same, and re-registered on the counted
+  path: the witnesses exist, the fields the count needs are properties of them,
+  and what the registration then records is what a proof of this shape would
+  cost and how far the priced model is from it. What the driver carries now: the
+  shared pins of every campaign at this context, `--tight-table` included,
+  because this model's witnesses ask for a master exponent table of 2^26 and
+  2^27 rows before the flag narrows them to their own keys; layer 0's dump
+  written to the same base as every other layer's, which is what the pinned
+  harness names it; and the comparison itself, made on the fetched outputs
+  before they become a run, so the run carries it. Its comparison is pinned at
+  zk-prover #175, which reads a counted registration layer by layer and carries
+  the one-line fix for the statement key the prover renamed (zk-prover #171),
+  without which the comparison stops on the first chunk it opens.
 
 
 ## synthetic-digests
@@ -1734,77 +1743,127 @@ synthetic shapes 5 minutes between them. The build was already on the host.
 ## register-14b
 
 ```
-tools/drivers/register-14b.sh
+tools/drivers/register-14b.sh <witness fields file>
 ```
 
 runs: `2026-09-11-register-14b-none`
-prover commit: none, the run proves nothing   harness commit: b39b806
+prover commit: none, the run proves nothing   harness commit: 64318ab
 digests: none. The document's own identity is `prediction_sha256`
-  `ff38a95bd008ff62371a5213b5dfc962cc41cda517cd197c2cdc2a3b1b94b4dd` and
+  `406cf7e43961547cec58957ecd2042bc0085ae4d84efc6508810248ce4de3c37` and
   `prediction_block_sha256`
-  `7ebf25ca509522a7506bdf9848f808e27a57217dc7ece493f699f47af26eb27b`, both
+  `2119d291f96cd0c1ee150cec3c00aa29c6d1fd8db547693f9bec044f1e0826f1`, both
   digests of the content and not of the file
 binding: none; a run that commits nothing binds nothing, and the manifest says
   `kind` `harness`
 unsound skips: none
 constants file frozen: `constants.json` at
-  `841dcd6ebda5bbb0a082f28c1bcba5df474e78c0d9be21d7f5569d0353e59f5b`,
-  `zk_results_commit` cb69914
+  `b7c3280bcb027b4cdb4c9ed4bbe530f29f29b7473c35e9ca448fc8471d670809`,
+  `zk_results_commit` 485e69f
 constants backed: the derived `e4.qwen2p5_14b.c4096.predicted_cells_per_token_layers`
 
 What the run is. The prediction `predict-14b` is measured against, written down
 before the measurement exists. It takes no host and no card: the registration is
-a computation over this repository's `constants.json` and two layer segments two
-recorded runs already proved, so the driver runs where the repository is and
-opens no ssh connection. A prediction registered after the measurement would not
-be a prediction, which is the one rule this experiment has, so the order is
-register, measure, compare and the driver refuses to run once either a
-`register-14b` or a `predict-14b` run is in `runs/`.
+a computation over this repository's `constants.json`, two layer segments two
+recorded runs already proved, and the witness fields of the 48 dumps, so the
+driver runs where the repository is and opens no ssh connection. A prediction
+registered after the measurement would not be a prediction, which is the one
+rule this experiment has, so the order is register, measure, compare and the
+driver refuses to run once either a `register-14b` or a `predict-14b` run is in
+`runs/`.
 
-Where every input came from. 29 cell costs are charged and none of them is a
-number from outside these two repositories: 25 are keys of this file, 2 are
-priced by the model itself by standing in a neighbouring quantity
-(`route_selection_cells`, `route_topk_cells`, which a dense model does not use),
-and 2 the model cannot price at all (`gkrlink_cells_per_chunk`,
-`limb_cells_per_acc`) and are recorded as unpriced. The driver refuses a
-registration that charged anything read from a micro-benchmark inputs directory,
-and none was: the run passes no `--inputs` and the gate reads the prediction's
-own record of where each cost came from rather than the command line. The two
-keys that used to stop it, `model_constants.logup_marginal_cells_per_lookup` and
-`model_constants.weight_freivalds_cells_per_weight`, are the ones
-`microbench-cells` measured.
+This registration REPLACES the one this run directory held before, and the old
+one is in this repository's history at cb69914. Replacing it is allowed because
+nothing has been measured against either: a registration is the document that
+must not move after the measurement, and there is none. **Why it was replaced is
+the table term.** The cost model priced the whole shape from per-unit constants
+read off one measured 8B segment, and one of those inputs is the master exponent
+table's size: it charged 2^23 rows on all 48 layers, because 2^23 is what the 8B
+segments carry. This model's layers are not that. After `--tight-table` narrows
+each one to the largest key its own key tiles look up, they are
+
+| rows | 2^21 | 2^22 | 2^23 | 2^24 | 2^25 |
+|---|---:|---:|---:|---:|---:|
+| layers | 1 | 32 | 8 | 5 | 2 |
+
+and five cells a table row makes the two layers at 2^25 short by 125.8 M cells
+each. The owner's ruling on 2026-09-11 was to use the size the model is known to
+need, so the registration now counts every segment from the prover's trace
+layout at the fields that segment's own dump carries.
+
+What the fields are, and why reading them keeps this a prediction. They are the
+calibration a run takes off its own witness -- the master table's size, the
+normalisation width, the attention output's five exponent and accumulator widths
+and the fold's pins -- and every one of them is a property of the forward pass,
+fixed before any proof is built: the prover derives them all inside its own
+witness load, before it first touches a card. `harness/eval/predict/witness_fields.py`
+reads them the same way on the host that holds the dumps, without proving,
+and the file it writes is `witness-fields.json` in the run directory, one row
+per layer with that dump's digest beside it. The registration names the file by
+digest and carries every row inside its own hashed content, so the count can be
+checked without the dumps.
 
 What is registered. Qwen2.5-14B-Instruct, 48 layers, `d` 5,120, 40 heads of 128,
 `dff` 13,824, at the statement `predict-14b.sh` proves -- the diagonal block and
-the five reductions, which the driver and the registration compare flag by flag:
+the five reductions, which the driver and the registration compare flag by flag.
+**Context 4,096 only**: a witness field is a property of one forward pass over
+one prefix, and these dumps are that context's, so the other context is refused
+rather than counted at fields it was not read at.
 
-| C | cells/token, layers only | key tile half | the rest | one layer segment |
+| C | cells/token, layers only | key tile half | the rest | one layer segment, mean |
 |---|---:|---:|---:|---:|
-| 4,096 | 151,193,309 | 28,002,240 | 123,191,069 | 1,612,728,630 |
-| 16,384 | 249,251,549 | 102,467,520 | 146,784,029 | 2,658,683,190 |
+| 4,096 | 158,802,703 | 28,002,240 | 130,800,463 | 1,693,895,499 |
 
-The key tile half is a closed form and is registered to the cell: 259,604,480
-base and 39,086,080 interaction cells a segment at C=4,096, 951,664,640 and
-141,322,240 at C=16,384.
+Against the priced registration this replaces, at the same context and the same
+statement: 151,193,309 against 158,802,703, +5.03 per cent, all of it in the
+rest. The key tile half is the same integer on both, to the cell -- 259,604,480
+base and 39,086,080 interaction cells a segment -- because it is a closed form of
+the layout either way and the three grids tile exactly at 40 heads grouped 16,
+16, 8. The 48 segments are 1,666,319,008 to 1,824,875,168 cells and no longer one
+number, which is the other thing the priced model could not say. With every
+witness field at the dearest value the recorded 8B runs carry, the same count is
+171,554,425 a token, +8.03 per cent: that is what this shape would have to be
+registered at if its witnesses did not exist.
+
+Two of the 48 layers were not blind. The first proof attempt was rejected by the
+prover's own verification (zk-prover #172), and those two rejected documents
+reported `cells.fresh` for layers 0 and 1 before this registration was made. The
+counted numbers are 1,793,630,880 and 1,824,875,168, which is what those two
+documents reported, to the cell. Nothing here is fitted to them and neither is an
+input to anything: the same code reproduces all 84 recorded 8B segments to the
+cell without having seen this shape, and the registration's own provenance says
+which two layers were visible and that the other 46 were not.
 
 The 8B anchors, which are measured. The registration reads one layer 16 segment
 per context out of the two headline runs, derived by `lib/seq5-reference.py` the
 same way `predict-14b.sh` derives them, and the manifest's `derived` block names
-the run, the slice output, the segment tag and the proof digest of each. Against
-them the model predicts 1.33 per cent high at C=4,096 and 0.83 per cent high at
-C=16,384; against the recorded whole-block rows
-(`cells_per_position.headline.c*.fresh_layers_block`) it is 1.38 and 0.27 per
-cent high. Neither is what the 14B is graded against: the acceptance range was
-fixed in advance and is not rebased on any anchor.
+the run, the slice output, the segment tag and the proof digest of each. On the
+counted path the anchor is the same function at the same fields as the runs
+recorded, and it reproduces both recorded whole-block rows
+(`cells_per_position.headline.c*.fresh_layers_block`) exactly, to the cell, at
+both contexts. That is not what the 14B is graded against: the acceptance range
+was fixed in advance and is not rebased on any anchor.
 
-Why the pin moved. The driver was written against 9851ae9 and now pins b39b806,
-which is what this repository's keys need: zk-prover #160 made the 8B anchor and
-the eight composed prices read the names recorded here, and #163 gave the
-registration a shape selection whose default is the three shapes E4 registered,
-in E4's order. Both are in the digest, because `frozen_inputs.code_sha256` holds
-the digest of `predict.py` itself: an edit to that file re-registers every
-prediction in it under a new identity, which is why the registration is made
-once, from one commit, and recorded before anything measures.
+Where every input came from. No cell cost is charged on the committed side at
+all: every cell of every layer segment is counted. The 29 inputs the cost model
+would charge are still recorded, with the source of each, so a reader can see the
+two paths beside each other, and none of them is a number from outside these two
+repositories. The driver refuses a registration that charged anything read from a
+micro-benchmark inputs directory, and none was: the run passes no `--inputs` and
+the gate reads the prediction's own record rather than the command line. It also
+refuses a registration whose fields are not the file this run fetched, or whose
+fields were read under knobs the measuring driver does not pass -- the head
+grouping, the table rule and the quantize width are three of those, and a segment
+counted at another grouping is another segment.
+
+Why the pin moved, again. The driver pinned b39b806 and now pins 64318ab, which
+is zk-prover #175 and is NOT merged: that is the commit that added the counted
+path and the module that reads the fields. A registration is recorded against the
+commit that made it whatever branch that commit is on, and the digest says so --
+`frozen_inputs.code_sha256` holds the digest of every file the count is a
+function of, `predict.py`, `exact_cells.py` and `witness_fields.py` among them,
+so an edit to any of them re-registers the prediction under a new identity. That
+is why the registration is made once, from one commit, and recorded before
+anything measures.
 
 ## Entry template
 

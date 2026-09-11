@@ -4142,7 +4142,7 @@
    "note": "The fresh cells of the 32 layer segments of one token block over the 512 positions that block proves: 71,753,215,328 cells over 512, block B32, the one block of the sequence whose prefix is the whole context, on the same terms as the row at context 4,096: the output head segment is out, layer segment B32L0 is in with the embedding lookup and the one extra cell an attention-output accumulator it carries, and the earlier blocks of the sequence read a shorter prefix and are not in it. It is what the cost model's registration compares its layers-only prediction per decoded token against at this context."
   },
   "e4.qwen2p5_14b.c4096.predicted_cells_per_token_layers": {
-   "value": 151193309.04395604,
+   "value": 158802703.0,
    "unit": "cells/token",
    "card": "none",
    "context": 4096,
@@ -4150,7 +4150,7 @@
    "grade": "derived",
    "run": "2026-09-11-register-14b-none",
    "artifact": "registration.json",
-   "note": "The E4 prediction for Qwen2.5-14B-Instruct at context 4,096: fresh cells per decoded token over the model's 48 layer segments, layers only, at the statement tools/drivers/predict-14b.sh proves. It is read out of runs/2026-09-11-register-14b-none/registration.json, whose prediction_sha256 is ff38a95bd008ff62371a5213b5dfc962cc41cda517cd197c2cdc2a3b1b94b4dd, and check.py re-reads that document on every run, because a registration is the one number here that must not move after it is made. The prediction is a computation over this file: 25 of the 29 cell costs the cost model charges are keys of it, two it prices by standing in a neighbouring quantity and two it records as unpriced, and no input comes from outside this repository and zk-prover. It was recorded before anything measured this shape, which is what makes it a prediction; the measured side and the ratio between them are not here yet."
+   "note": "The E4 prediction for Qwen2.5-14B-Instruct at context 4,096: fresh cells per decoded token over the model's 48 layer segments, layers only, at the statement tools/drivers/predict-14b.sh proves. Every segment is COUNTED from the prover's trace layout at the witness-calibrated fields of its own dump -- the master exponent table's size, the normalisation width and the attention output's five widths -- which are properties of the forward pass and exist before any proof of them does; runs/2026-09-11-register-14b-none/witness-fields.json holds them, one row per layer, and the registration names that file by digest. The 48 tables are 2^21 to 2^25 rows and not one size: a prediction that charges one, as the priced model does at the 8B's 2^23, is wrong by most of a table on the layers that are not 2^23, which is why this number moved from 151,193,309 when the owner ruled on 2026-09-11 that a model whose table size is known is priced at it. It is read out of runs/2026-09-11-register-14b-none/registration.json, whose prediction_sha256 is 406cf7e43961547cec58957ecd2042bc0085ae4d84efc6508810248ce4de3c37, and check.py re-reads that document on every run, because a registration is the one number here that must not move after it is made. No cell cost is charged on the committed side: nothing in this number is priced from a per-unit constant and no input comes from outside this repository and zk-prover. It was recorded before anything measured this shape, which is what makes it a prediction; the measured side and the ratio between them are not here yet, and are blocked on zk-prover #172 and #174."
   }
  },
  "discrepancies": []
