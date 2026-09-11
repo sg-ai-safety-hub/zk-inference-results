@@ -8,30 +8,23 @@
   "gkrlink_cells_per_chunk",
   "limb_cells_per_acc"
  ],
+ "cells": "exact: every layer segment counted from the prover's trace layout at the witness-calibrated fields of its own dump, which exist before any proof of them does",
  "cells_per_token_layers": {
   "Qwen2.5-14B-Instruct": {
-   "16384": 249251549.04395604,
-   "4096": 151193309.04395604
-  },
-  "Qwen2.5-32B-Instruct": {
-   "4096": 260439344.0980686
-  },
-  "Qwen2.5-3B-Instruct": {
-   "16384": 88173281.6215035,
-   "4096": 58755809.621503495
+   "4096": 158802703.0
   }
  },
  "compared_by": "harness/eval/predict/compare.py, which reads this registration",
  "constants": {
   "file": "constants.json",
-  "sha256": "841dcd6ebda5bbb0a082f28c1bcba5df474e78c0d9be21d7f5569d0353e59f5b",
-  "zk_results_commit": "cb6991453b9ef46fdc218ff2f816c177d773b442"
+  "sha256": "b7c3280bcb027b4cdb4c9ed4bbe530f29f29b7473c35e9ca448fc8471d670809",
+  "zk_results_commit": "485e69f8bf8000852c24972e0f34e27bc1fa3fa4"
  },
  "driver": "register-14b",
  "label": "registration",
  "measured_by": "tools/drivers/predict-14b.sh, which runs after this",
- "prediction_block_sha256": "7ebf25ca509522a7506bdf9848f808e27a57217dc7ece493f699f47af26eb27b",
- "prediction_sha256": "ff38a95bd008ff62371a5213b5dfc962cc41cda517cd197c2cdc2a3b1b94b4dd",
+ "prediction_block_sha256": "2119d291f96cd0c1ee150cec3c00aa29c6d1fd8db547693f9bec044f1e0826f1",
+ "prediction_sha256": "406cf7e43961547cec58957ecd2042bc0085ae4d84efc6508810248ce4de3c37",
  "reference_chunks": {
   "16384": {
    "block": 32,
@@ -77,5 +70,39 @@
   }
  },
  "statement": "--diagonal-block --gkr-key-tiles --gkr-dequant --gkr-residual-stream --gkr-freivalds --gkr-attnout",
- "witness": "none: no witness, no proof and no cell count exists at the registered shape, which is what makes this a prediction"
+ "witness": "none: no witness, no proof and no cell count exists at the registered shape, which is what makes this a prediction",
+ "witness_fields": {
+  "file": "witness-fields.json",
+  "knobs": {
+   "head_groups": [
+    16,
+    16,
+    8
+   ],
+   "numbits": 9,
+   "table_bits": 0,
+   "tight_table": true
+  },
+  "layers": 48,
+  "log_table": {
+   "histogram": {
+    "21": 1,
+    "22": 32,
+    "23": 8,
+    "24": 5,
+    "25": 2
+   },
+   "max": 25,
+   "min": 21,
+   "values": [
+    21,
+    22,
+    23,
+    24,
+    25
+   ]
+  },
+  "schema": "witness-fields/1",
+  "sha256": "c2acc330033551c750d3217b44e4b44b39ac22eed30c3f2dd4c70251e4bd63d7"
+ }
 }
