@@ -411,6 +411,30 @@ def gkr_ablation_c4096(a, keys):
         assert s["n"] == cfg["sample_segments"], f"{name}: {s['n']} segments, not the sample's"
         a.claim(f"cells.ablation.c4096.{name}", s["fresh_sum"])
         a.claim(f"secs.ablation.c4096.{name}.loop", s["loop_secs"])
+# -- control-flags-off-c4096 ---------------------------------------------------
+def control_flags_off_c4096(a, keys):
+    """The same sequence with the five reductions off, one segment in flight.
+
+    A plan split over processes reports one summary per process, so this run is
+    read exactly as the headline rows are.  The loop key says serial because
+    this loop is: the headline row's overlaps one segment's generation with
+    another's proving and this one does not, so the two are not a pair at that
+    scope while their cells are one.  The fraction the reductions remove is
+    `derived` and check.py recomputes it from the two cell counts."""
+    if not keys:
+        return
+    run = sorted({e["run"] for e in keys.values()})[0]
+    cfg = artifact(run, "config.json")
+    t = _sequence_totals(run)
+    assert cfg["pipeline"] == 0, f"{run}: the control is the run with one segment in flight"
+    print(f"  runs/{run}: {t['slices']} slices, {t['segments']} segments, "
+          f"{t['fresh']:,.0f} fresh cells, one segment in flight")
+    a.exact("segments.control.c4096", t["segments"])
+    a.claim("cells.control.c4096.fresh", t["fresh"])
+    a.claim("secs.control.c4096.serial_loop", t["loop"])
+    a.exact("mem.control.c4096.peak_mib", t["peak_mib"])
+
+
 # -- memory-probe-c16384 -------------------------------------------------------
 def memory_probe_c16384(a, keys):
     """The segment loops at context 16,384: what each cost and what each peaked at.
@@ -1635,6 +1659,7 @@ SECTIONS = [
     ("headline-c4096", headline_c4096),
     ("headline-c16384", headline_c16384),
     ("gkr-ablation-c4096", gkr_ablation_c4096),
+    ("control-flags-off-c4096", control_flags_off_c4096),
     ("memory-probe-c16384", memory_probe_c16384),
     ("microbench", microbench),
     ("quality-0p5b", _quality("quality.0p5b")),

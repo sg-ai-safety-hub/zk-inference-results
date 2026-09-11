@@ -1065,6 +1065,59 @@
    "grade": "derived",
    "note": "1 - cells.ablation.c4096.all_five / cells.ablation.c4096.none: the fraction of the committed cells that this configuration removes against none. Four of the five reductions join the key tiles' own backend and the prover refuses them without it, so each is priced on top of the key tiles and the key tiles against no reduction at all."
   },
+  "segments.control.c4096": {
+   "value": 290,
+   "unit": "segments",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-11-control-flags-off-c4096-h100",
+   "artifact": "slice_0000.json",
+   "note": "The same 290 segments as the headline row: 9 token blocks of 32 layer segments and an output head segment over the last prompt block and over the generated block. A control that proved one segment fewer would price that segment as well."
+  },
+  "cells.control.c4096.fresh": {
+   "value": 575760898208,
+   "unit": "cells",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-11-control-flags-off-c4096-h100",
+   "artifact": "slice_0000.json",
+   "note": "Fresh committed cells over the same 290 segments with the five GKR reductions off, added up from the run's 5 slice outputs. The pair with cells.headline.c4096.fresh is what prices the reductions; the seconds of the two runs are not a pair, because this loop proves one segment at a time and the headline row's overlaps two."
+  },
+  "secs.control.c4096.serial_loop": {
+   "value": 5970.803036895,
+   "unit": "s",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "loop",
+   "grade": "measured",
+   "run": "2026-09-11-control-flags-off-c4096-h100",
+   "artifact": "slice_0000.json",
+   "note": "The segment loop's own wall-clock time with one segment in flight, summed over the run's 5 processes. Not comparable with secs.headline.c4096.loop, which is pipelined: over one sample the memory probe measured 228.738 s serial against 175.797 s pipelined for the same segments."
+  },
+  "mem.control.c4096.peak_mib": {
+   "value": 76967,
+   "unit": "MiB",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "loop",
+   "grade": "measured",
+   "run": "2026-09-11-control-flags-off-c4096-h100",
+   "artifact": "slice_0000.json",
+   "note": "The most the card reported holding at any moment of the segment loop, sampled once a second, with one segment in flight. The card has 81,559 MiB; the same plan with the reductions on peaks at 73,723 MiB, and with them off and two segments in flight it ran out of memory in token block 3 (zk-results #74)."
+  },
+  "gkr.control.c4096.leave_frac_cells": {
+   "value": 0.368,
+   "unit": "fraction",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "n/a",
+   "grade": "derived",
+   "note": "1 - cells.headline.c4096.fresh / cells.control.c4096.fresh: the fraction of the committed cells the five reductions remove over a whole sequence at this context. gkr.ablation.all_five.leave_frac_cells is the same fraction on 32 segments of the block with the longest prefix, where the reductions weigh most."
+  },
   "segments.probe.c16384": {
    "value": 4,
    "unit": "segments",

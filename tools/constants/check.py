@@ -130,6 +130,16 @@ DERIVED = {
        for name, base in (("bands", "none"), ("bands_dequant", "bands"),
                           ("bands_residual_stream", "bands"), ("bands_freivalds", "bands"),
                           ("bands_attnout", "bands"), ("all_five", "none"))},
+    # The whole-sequence control against the headline row: what the five
+    # reductions remove over a sequence, as a fraction of the count without
+    # them.  Only the cells are a pair -- this control's loop proves one segment
+    # at a time and the headline row's overlaps two -- so there is no
+    # leave_frac_loop here, which the ablation has because its seven
+    # configurations were all proved the same way.
+    "gkr.control.c4096.leave_frac_cells": lambda: chk(
+        "the five reductions remove, whole sequence, cells",
+        1 - v("cells.headline.c4096.fresh") / v("cells.control.c4096.fresh"),
+        "gkr.control.c4096.leave_frac_cells", 0.002),
     **{f"pos_s.headline.c4096.{s}": (lambda s=s: chk(
         f"c4096 headline positions/s, {s.replace('_', ' ')}",
         v("positions.headline.c4096") / v(f"secs.headline.c4096.{s}"),
