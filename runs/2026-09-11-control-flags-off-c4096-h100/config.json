@@ -1,0 +1,11 @@
+{"driver": "control-flags-off-c4096", "label": "control",
+ "model": "unsloth/Llama-3.1-8B-Instruct", "spec": "y-delay-vw12", "head_spec": "y-delay-vw12",
+ "context": 4096, "s": 512, "positions": 4608, "blocks": 9, "layers": 32,
+ "segments": 290, "head_blocks": "7,8",
+ "heads": 2, "verify": 1, "calibration": "runs/2026-09-09-model-commitment-h100/model-roots.json", "calibration_sha256": "eaf1e7706bfd8c5f666dfa25ded10b9ade609a4b01f4523bd01cf226356bab3b",
+ "slice": 64, "pipeline": 0,
+ "shared_flags": "--round even --numbits 9 --z-hi-bits 7 --variants intexp --head-groups 16,8,8 --tight-table", "layer_flags": "--round even --diagonal-block", "layer0_flags": "",
+ "head_flags": "",
+ "expect_layer_links": 281, "expect_token_links": 256,
+ "ids": "generated: the corpus's tokens 12288 to 16384 and the model's own greedy continuation under y-delay-vw12",
+ "corpus_offset": 12288}

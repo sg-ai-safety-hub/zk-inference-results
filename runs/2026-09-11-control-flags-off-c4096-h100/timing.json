@@ -1,0 +1,5 @@
+{
+ "grid_seconds": 4210,
+ "grid_verify": true,
+ "note": "Wall-clock seconds of the final grid pass, which checks every link between the segments over their serialized statements and proofs. With grid_verify true the same pass also replayed every segment's proof and chained the published ids, so these seconds are the link check and the verification together; grid.json carries each segment's own verify_secs under result.verified.chunks. The prover's own loop, commit, stwo total and whole wall scopes are in the slice outputs and the extraction is in extract.json."
+}

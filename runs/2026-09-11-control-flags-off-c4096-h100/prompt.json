@@ -1,0 +1,5 @@
+{
+ "positions": 4096,
+ "sha256": "38f8b69f39fd268c8324f41637a47c79d8702326613613a5857a8cb49a3d3165",
+ "note": "the ids the statement publishes for the prompt's positions. They stay on the host, because they are the corpus. boundary-grid --prompt compares every one of them against the ids the block's layer-0 segment committed, and every later position against the token the head segment proved for the position before it."
+}
