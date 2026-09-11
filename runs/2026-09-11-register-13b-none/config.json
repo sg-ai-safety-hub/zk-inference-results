@@ -1,0 +1,82 @@
+{
+ "cell_costs_by_source": {
+  "absent": 2,
+  "analogy": 2,
+  "constants": 25
+ },
+ "cell_costs_not_priced": [
+  "gkrlink_cells_per_chunk",
+  "limb_cells_per_acc"
+ ],
+ "cells": "exact",
+ "cells_per_token_layers": {
+  "CodeLlama-13b-hf": {
+   "4096": 166578060.09375
+  }
+ },
+ "compared_by": "harness/eval/predict/compare.py, which reads this registration",
+ "constants": {
+  "file": "constants.json",
+  "sha256": "841dcd6ebda5bbb0a082f28c1bcba5df474e78c0d9be21d7f5569d0353e59f5b",
+  "zk_results_commit": "dfaf58548421b30cfb82f59ebd924212684c2fa2"
+ },
+ "driver": "register-13b",
+ "label": "registration",
+ "layer_0": "not registered and not measured: the harness refuses to dump it, because the attention output's quotient term is 7 + 26 = 33 bits against the field's 31 in the widest form there is",
+ "layers_absent": [
+  0
+ ],
+ "layers_counted": 39,
+ "layers_in_stack": 40,
+ "measured_by": "tools/drivers/predict-13b.sh, which proves after this",
+ "prediction_block_sha256": "56811be8e58799b65c2f1207bbb5240ebb760854a6a4a4b13a83591e0fb75e0a",
+ "prediction_sha256": "b2298d76800830e98d101a29a5bce9a165d39ad67357c9c9f5094e90260e9029",
+ "reference_chunks": {
+  "16384": {
+   "block": 32,
+   "blocks": 33,
+   "context": 16384,
+   "fresh": 2229832816,
+   "key_tiles": 761331712,
+   "key_tiles_interaction": 113057792,
+   "model": "unsloth/Llama-3.1-8B-Instruct",
+   "plan_index": 1041,
+   "proof_sha256": "45e858dce81a892dfb5948197314fd8625e476dcc69223ade64f773dbe865b94",
+   "prover_commit": "38a3919988ec11e57244516b13b32e434cb01fb1",
+   "run": "2026-09-08-headline-c16384-h100",
+   "s": 512,
+   "segment": "B32L16",
+   "slice": "slice_1024.json",
+   "spec": "y-delay-vw12",
+   "tokens": [
+    16384,
+    16895
+   ]
+  },
+  "4096": {
+   "block": 8,
+   "blocks": 9,
+   "context": 4096,
+   "fresh": 1393069168,
+   "key_tiles": 207683584,
+   "key_tiles_interaction": 31268864,
+   "model": "unsloth/Llama-3.1-8B-Instruct",
+   "plan_index": 273,
+   "proof_sha256": "9f091c704d505d657d98edec784ac374c758c1fa2dd8075bdc78d5c51d16d975",
+   "prover_commit": "a603db1ddf1e2372d1f9761d684df8f2294199a9",
+   "run": "2026-09-09-headline-c4096-h100",
+   "s": 512,
+   "segment": "B8L16",
+   "slice": "slice_0256.json",
+   "spec": "y-delay-vw12",
+   "tokens": [
+    4096,
+    4607
+   ]
+  }
+ },
+ "replaces": "Qwen2.5-14B-Instruct, whose layers cannot be proved: zk-prover #172, #174",
+ "shape": "CodeLlama-13b-hf",
+ "statement": "--diagonal-block --gkr-key-tiles --gkr-dequant --gkr-residual-stream --gkr-freivalds --gkr-attnout",
+ "witness": "the extracted dumps and no proof of them: every committed cell is counted from the trace layout at the fields each dump asks for, and no accepted proof of this shape exists anywhere when this is written"
+}

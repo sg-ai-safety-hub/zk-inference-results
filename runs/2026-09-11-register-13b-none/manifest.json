@@ -1,0 +1,87 @@
+{
+ "argv": [
+  "python -m harness.eval.predict.predict",
+  "--constants",
+  "constants.json",
+  "--artifacts",
+  "runs/.register-13b-ref",
+  "--shape",
+  "CodeLlama-13b-hf",
+  "--cells",
+  "exact",
+  "--witness-fields",
+  "/tmp/claude-1001/-home-dev-private-zk-inference/a1286b42-f1c8-47b7-b1bc-099c53fff39e/scratchpad/e4-fallback/witness_fields.json",
+  "--json"
+ ],
+ "backend": "harness",
+ "binding": null,
+ "cuda_version": null,
+ "date": "2026-09-11",
+ "derived": {
+  "contexts": {
+   "16384": {
+    "block": 32,
+    "blocks": 33,
+    "context": 16384,
+    "file": "seq5/seq_c16384_L16.json",
+    "fresh": 2229832816,
+    "key_tiles": 761331712,
+    "key_tiles_interaction": 113057792,
+    "model": "unsloth/Llama-3.1-8B-Instruct",
+    "plan_index": 1041,
+    "proof_sha256": "45e858dce81a892dfb5948197314fd8625e476dcc69223ade64f773dbe865b94",
+    "prover_commit": "38a3919988ec11e57244516b13b32e434cb01fb1",
+    "run": "2026-09-08-headline-c16384-h100",
+    "s": 512,
+    "segment": "B32L16",
+    "slice": "slice_1024.json",
+    "spec": "y-delay-vw12",
+    "tokens": [
+     16384,
+     16895
+    ]
+   },
+   "4096": {
+    "block": 8,
+    "blocks": 9,
+    "context": 4096,
+    "file": "seq5/seq_c4096_L16.json",
+    "fresh": 1393069168,
+    "key_tiles": 207683584,
+    "key_tiles_interaction": 31268864,
+    "model": "unsloth/Llama-3.1-8B-Instruct",
+    "plan_index": 273,
+    "proof_sha256": "9f091c704d505d657d98edec784ac374c758c1fa2dd8075bdc78d5c51d16d975",
+    "prover_commit": "a603db1ddf1e2372d1f9761d684df8f2294199a9",
+    "run": "2026-09-09-headline-c4096-h100",
+    "s": 512,
+    "segment": "B8L16",
+    "slice": "slice_0256.json",
+    "spec": "y-delay-vw12",
+    "tokens": [
+     4096,
+     4607
+    ]
+   }
+  },
+  "how": "derived from the segment each named run proved, by `ser_tag`; nothing was proved for it and no field was transcribed",
+  "what": "the measured 8B layer 16 reference chunk at each context, which `harness.eval.predict.predict` reads from `<--artifacts>/seq5/seq_c<C>_L16.json` and takes `result.point.cells.fresh` out of",
+  "why_this_block": "the last token block of each run, the only one whose prefix is the run's whole context: a decode run grows the prefix one block of 512 tokens at a time, so every earlier block is a different C"
+ },
+ "digests": {},
+ "driver": "tools/drivers/register-13b.sh",
+ "driver_version": null,
+ "gpu": "none",
+ "harness_commit": "a86b40f15df868413ab6f0dc88f39f1f0d89efc1",
+ "harness_dirty": false,
+ "imported": false,
+ "kind": "harness",
+ "outputs": [
+  "config.json",
+  "registration.json"
+ ],
+ "prover_commit": null,
+ "prover_dirty": null,
+ "run_id": "2026-09-11-register-13b-none",
+ "unsound_skips": []
+}

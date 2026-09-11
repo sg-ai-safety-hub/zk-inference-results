@@ -1,0 +1,4186 @@
+{
+ "provenance": {
+  "args": [
+   "--constants",
+   "constants.json",
+   "--artifacts",
+   "runs/.register-13b-ref",
+   "--shape",
+   "CodeLlama-13b-hf",
+   "--cells",
+   "exact",
+   "--witness-fields",
+   "/tmp/claude-1001/-home-dev-private-zk-inference/a1286b42-f1c8-47b7-b1bc-099c53fff39e/scratchpad/e4-fallback/witness_fields.json",
+   "--json"
+  ],
+  "backend": "harness",
+  "binary": "python -m harness.eval.predict.predict",
+  "binding": null,
+  "commit": "a86b40f15df868413ab6f0dc88f39f1f0d89efc1",
+  "constants": {
+   "file": "constants.json",
+   "sha256": "841dcd6ebda5bbb0a082f28c1bcba5df474e78c0d9be21d7f5569d0353e59f5b",
+   "zk_results_commit": "dfaf58548421b30cfb82f59ebd924212684c2fa2"
+  },
+  "cuda_version": null,
+  "device": "cpu",
+  "dirty": false,
+  "driver_version": null,
+  "gpu": "none",
+  "kind": "harness",
+  "model": null,
+  "model_revision": null,
+  "proof_sha256": null,
+  "proof_sha256s": null,
+  "registration": {
+   "prediction_block_sha256": "56811be8e58799b65c2f1207bbb5240ebb760854a6a4a4b13a83591e0fb75e0a",
+   "prediction_sha256": "b2298d76800830e98d101a29a5bce9a165d39ad67357c9c9f5094e90260e9029"
+  },
+  "threads": 1,
+  "unsound_skips": [],
+  "versions": {
+   "numpy": "2.5.2",
+   "python": "3.12.13",
+   "torch": "2.13.0+cpu",
+   "transformers": "5.15.0"
+  }
+ },
+ "result": {
+  "anchors": {
+   "llama8b_c16384": {
+    "artifact": "slice_1024.json",
+    "card": "H100",
+    "ctx": 16384,
+    "embedding_lookup_per_position": 41168.0,
+    "grade": "derived",
+    "key": "cells_per_position.headline.c16384.fresh_layers_block",
+    "measured": 140142998.6875,
+    "measured_matches_recorded_chunks": true,
+    "note": "both sides are the fresh cells of the model's 32 layer segments over the 512 positions one token block proves, at this context and at the statement this registration prices, with no output head segment on either. The measured block is the one whose prefix is the whole context: the earlier blocks of that sequence read a shorter prefix and cost less, which is the comparison the prediction does not make. Its layer segment 0 carries the embedding lookup and one more cell per attention-output accumulator, which the model prices as no layer's cost -- that is `embedding_lookup_per_position`, and the ratio beside it is the same comparison without it",
+    "predicted": 140142998.6875,
+    "ratio": 1.0,
+    "ratio_without_the_embedding_layer": 1.0002938434123094,
+    "recorded_chunks": {
+     "artifact": "slice_1024.json",
+     "block": "B32",
+     "embedding_lookup_per_position": 41168.0,
+     "fresh": 71753215328,
+     "layers": 32,
+     "note": "the same 32 segments the recorded row divides, copied into this repository; `embedding_lookup_per_position` is what layer segment 0 builds above the other 31, which is the embedding lookup and one more cell per attention-output accumulator",
+     "per_position": 140142998.6875,
+     "positions": 512,
+     "run": "2026-09-08-headline-c16384-h100"
+    },
+    "run": "2026-09-08-headline-c16384-h100",
+    "scale": "Llama-3.1-8B",
+    "source": "runs/2026-09-08-headline-c16384-h100/slice_1024.json",
+    "statement": {
+     "bind": true,
+     "diagonal_block": true,
+     "gkr": true,
+     "kv_boundary": true
+    }
+   },
+   "llama8b_c16384_registered_statement": {
+    "card": "n/a (a cell count is the same on either card)",
+    "chunk": {
+     "block": 32,
+     "blocks": 33,
+     "context": 16384,
+     "fresh": 2229832816,
+     "key_tiles": 761331712,
+     "key_tiles_interaction": 113057792,
+     "model": "unsloth/Llama-3.1-8B-Instruct",
+     "plan_index": 1041,
+     "proof_sha256": "45e858dce81a892dfb5948197314fd8625e476dcc69223ade64f773dbe865b94",
+     "prover_commit": "38a3919988ec11e57244516b13b32e434cb01fb1",
+     "run": "2026-09-08-headline-c16384-h100",
+     "s": 512,
+     "segment": "B32L16",
+     "slice": "slice_1024.json",
+     "spec": "y-delay-vw12",
+     "tokens": [
+      16384,
+      16895
+     ]
+    },
+    "ctx": 16384,
+    "grade": "measured",
+    "key_tiles_exact": true,
+    "measured": 139364551.0,
+    "note": "one layer chunk per context, scaled to 32 layers, at exactly the statement this registration prices. The key tile half of this ratio is exact to the cell; every cell of the difference is in `rest`, and the largest single term the model does not price is `gkrlink`, the reductions' own link",
+    "predicted": 140142998.6875,
+    "ratio": 1.0055856936495997,
+    "rest_ratio": 1.0091889958729605,
+    "rest_residual_per_chunk": 12455163.0,
+    "scale": "Llama-3.1-8B",
+    "source": "<--artifacts>/seq5/seq_c{4096,16384}_L16.json (result.point.cells.fresh)",
+    "statement": {
+     "bind": true,
+     "diagonal_block": true,
+     "gkr": true,
+     "kv_boundary": true
+    }
+   },
+   "llama8b_c4096": {
+    "artifact": "slice_0256.json",
+    "card": "H100",
+    "ctx": 4096,
+    "embedding_lookup_per_position": 41168.0,
+    "grade": "derived",
+    "key": "cells_per_position.headline.c4096.fresh_layers_block",
+    "measured": 87026069.90625,
+    "measured_matches_recorded_chunks": true,
+    "note": "both sides are the fresh cells of the model's 32 layer segments over the 512 positions one token block proves, at this context and at the statement this registration prices, with no output head segment on either. The measured block is the one whose prefix is the whole context: the earlier blocks of that sequence read a shorter prefix and cost less, which is the comparison the prediction does not make. Its layer segment 0 carries the embedding lookup and one more cell per attention-output accumulator, which the model prices as no layer's cost -- that is `embedding_lookup_per_position`, and the ratio beside it is the same comparison without it",
+    "predicted": 87026069.90625,
+    "ratio": 1.0,
+    "ratio_without_the_embedding_layer": 1.0004732775355012,
+    "recorded_chunks": {
+     "artifact": "slice_0256.json",
+     "block": "B8",
+     "embedding_lookup_per_position": 41168.0,
+     "fresh": 44557347792,
+     "layers": 32,
+     "note": "the same 32 segments the recorded row divides, copied into this repository; `embedding_lookup_per_position` is what layer segment 0 builds above the other 31, which is the embedding lookup and one more cell per attention-output accumulator",
+     "per_position": 87026069.90625,
+     "positions": 512,
+     "run": "2026-09-09-headline-c4096-h100"
+    },
+    "run": "2026-09-09-headline-c4096-h100",
+    "scale": "Llama-3.1-8B",
+    "source": "runs/2026-09-09-headline-c4096-h100/slice_0256.json",
+    "statement": {
+     "bind": true,
+     "diagonal_block": true,
+     "gkr": true,
+     "kv_boundary": true
+    }
+   },
+   "llama8b_c4096_registered_statement": {
+    "card": "n/a (a cell count is the same on either card)",
+    "chunk": {
+     "block": 8,
+     "blocks": 9,
+     "context": 4096,
+     "fresh": 1393069168,
+     "key_tiles": 207683584,
+     "key_tiles_interaction": 31268864,
+     "model": "unsloth/Llama-3.1-8B-Instruct",
+     "plan_index": 273,
+     "proof_sha256": "9f091c704d505d657d98edec784ac374c758c1fa2dd8075bdc78d5c51d16d975",
+     "prover_commit": "a603db1ddf1e2372d1f9761d684df8f2294199a9",
+     "run": "2026-09-09-headline-c4096-h100",
+     "s": 512,
+     "segment": "B8L16",
+     "slice": "slice_0256.json",
+     "spec": "y-delay-vw12",
+     "tokens": [
+      4096,
+      4607
+     ]
+    },
+    "ctx": 4096,
+    "grade": "measured",
+    "key_tiles_exact": true,
+    "measured": 87066823.0,
+    "note": "one layer chunk per context, scaled to 32 layers, at exactly the statement this registration prices. The key tile half of this ratio is exact to the cell; every cell of the difference is in `rest`, and the largest single term the model does not price is `gkrlink`, the reductions' own link",
+    "predicted": 87026069.90625,
+    "ratio": 0.9995319331480603,
+    "rest_ratio": 0.9994350229151866,
+    "rest_residual_per_chunk": -652049.5,
+    "scale": "Llama-3.1-8B",
+    "source": "<--artifacts>/seq5/seq_c{4096,16384}_L16.json (result.point.cells.fresh)",
+    "statement": {
+     "bind": true,
+     "diagonal_block": true,
+     "gkr": true,
+     "kv_boundary": true
+    }
+   },
+   "qwen0p5b_c1024": {
+    "cells": "fitted",
+    "cells_note": "the priced path, whatever this document registers with: no witness of this chunk is in either repository, so its fields cannot be read",
+    "ctx": 1024,
+    "grade": "absent",
+    "measured": null,
+    "note": "the composed 0.5B layer is in no constants file and no key names it; without the inputs directory this anchor is not evaluated",
+    "predicted": 286665237.61140823,
+    "ratio": null,
+    "scale": "Qwen2.5-0.5B",
+    "source": "b65/compose_host.json under --inputs DIR"
+   }
+  },
+  "bracket": {
+   "also": "SEPARATE and EXACT: the key tiles family. `family_cells.key_tiles` (base) and `family_cells.interaction_by_family.key_tiles.cells` must equal the registered integers TO THE CELL, as they do on every recorded layer chunk at both contexts (`harness.costmodel.key_tile --selftest`). The registered interaction is the statement WITH the five reductions -- `--diagonal-block --gkr-key-tiles --gkr-dequant --gkr-residual-stream --gkr-freivalds --gkr-attnout`, the configuration `tools/drivers/predict-14b.sh` proves every layer under and the one both headline runs used. A run WITHOUT `--gkr-key-tiles` commits the LogUp running sums instead, reports a LARGER interaction, and is compared against `key_tile_family(..., gkr=False)` at the same shape. The base is the same integer either way. Any nonzero deviation is a finding in its own right and must be reported even if rho passes -- it means the layout identities in `key_tile_cells` do not hold at a shape whose `nh` and `d` are not powers of two, which is the one thing the closed form's own docstring flags.\nSEPARATE and EXACT, the second one: the BOUNDARY TREES. `cells.fresh - cells.base - cells.interaction` must equal `2*d*S + 2*nh*hd*(2*C + S)` on every layer chunk and `d*S` on every output head chunk, as it does on all 68 recorded 8B chunks of the two headline runs (`harness.costmodel.key_tile --selftest`). No `family_cells` entry names this family, so a run that does not report `cells.base` and `cells.interaction` beside `cells.fresh` cannot be checked against it. Like the key tiles, a deviation is a finding in its own right and is reported whatever rho does; unlike a configuration miss, it does not void the run.",
+   "counted_invalidation": "Also void, and for the same reason the clause above is: a run whose layer segments were not proved from the dumps this registration was counted from. `frozen_inputs.witness_fields.layers[<k>].dump_sha256` names each one, the run's own manifest names what it proved, and the two have to be the same 48 dumps. A re-extraction at the same spec is a different witness and a different registration.",
+   "invalidation": "The comparison is void, not failed, if the run does not reproduce the registered configuration: spec `b10-final` (round even, all seven matmuls on the `chain` dequant rung), S=512, diagonal block key tile ON, grid_target 64 / chan_target 128 / rw 16, k_bits 11 / q_bits 12, bounds on, and a REAL extracted witness (not `ZK_SYNTHETIC_DIMS`). A void run is re-run, never re-bracketed.",
+   "marginal": [
+    0.8,
+    1.25
+   ],
+   "pass_": [
+    0.9,
+    1.1
+   ],
+   "prize": [
+    0.97,
+    1.03
+   ],
+   "protocol_widening": {
+    "A_all_layers": {
+     "what": "extract and prove every layer at the registered C, the seq5 recipe at a new shape; compare layers-only cells/token",
+     "widen_pct": 0.0
+    },
+    "B_even_subset": {
+     "basis": "the percentages here are the ones registered and are NOT re-derived; `layer_spread` in this document is what the two headline runs' own 32 chunks per context say today, computed rather than quoted",
+     "what": ">= 8 EVENLY SPACED layers (L0, L*1/8, ... by a rule fixed before the run), compare the mean scaled to L layers",
+     "widen_pct": 1.0
+    },
+    "C_single_layer": {
+     "basis": "the percentages here are the ones registered and are NOT re-derived; `layer_spread` in this document is what the two headline runs say today, and the run MUST report `params.log_table` and `interaction_by_family.table.cells` for the layer it proved. The whole chunk is the exact identity `chunk_identity` states, which a single-layer run can check on its own chunk.",
+     "what": "one layer only -- the minimum that still tests anything",
+     "widen_pct_lower": 1.5,
+     "widen_pct_upper": 9.0
+    }
+   },
+   "quantity": "rho = measured / predicted, on layers-only fresh cells per decoded token at the registered (shape, S, C)",
+   "rule": "PRIZE  rho in [0.97, 1.03] -- the model predicts a never-fitted scale to 3%. The extrapolation licence is claimed without qualification and the section 6.3 frontier table keeps its [projected] grade.\nPASS   rho in [0.90, 1.10] -- the range as registered, unchanged. What the same predictor shows at the two scales it WAS built from is not quoted here: it moves whenever the model does, and a number in this sentence went stale once already. It is computed into the `anchors` block of this document, per scale and per context, with the statement each measured side was proved at beside it. The range is NOT rebased on any of them. The licence is claimed with the measured residual quoted beside it.\nMARGINAL rho in [0.80, 0.90) or (1.10, 1.25] -- the licence is claimed only with an explicit +/-25% key tile printed on every frontier row.\nFAIL   rho < 0.80 or rho > 1.25 -- the cost model is REFUTED as an extrapolator. Section 6.3 is regraded from [projected] to [illustrative], the 'you didn't build it' mitigation falls back to publishing the model runnable, and E4 is written up as a negative result. No re-fit may be presented as if it were this prediction."
+  },
+  "chunk_identity": {
+   "checked_by": "harness.costmodel.key_tile --selftest",
+   "chunks": 62,
+   "exact_to_the_cell": true,
+   "form": "cells.fresh == key_tile_family(nh, hd, S, C) + boundary_cells(nh, hd, d, S, C) + 5 * sum_t 2^log_rows(t) + rest",
+   "note": "8B, S=512, spec b10-final, both contexts. The embedding layer's rest is higher by its embedding lookup and one more cell per attention-output accumulator. `boundary_cells` is the term no `family_cells` entry names: what `cells.fresh` has above `base + interaction`.",
+   "rest": 1023482368,
+   "rest_embedding_layer": 1044560384
+  },
+  "frozen_inputs": {
+   "cell_costs": {
+    "argmax_marginal_cells_per_comparison": {
+     "charged": true,
+     "file": "b10/argmax_v8k.json",
+     "grade": "measured",
+     "key": "model_constants.argmax_marginal_cells_per_comparison",
+     "note": "the whole-gadget key is not this quantity",
+     "run": "2026-09-11-microbench-cells-h100",
+     "source": "constants",
+     "value": 4.046875
+    },
+    "attention_cells_per_head_key_token": {
+     "charged": true,
+     "file": "b5/block.json",
+     "grade": "measured",
+     "key": "model_constants.attention_cells_per_head_key_token",
+     "note": "What one entry of the attention score grid costs: the committed shift, the exponential's answer and the probability, over 512 tokens and 1,024 keys at head dimension 64. It is exactly 4 at all five instance counts the run packs, 1 through 16, so it is the grid's own price and not an artefact of one packing. It is the whole of the attention term only in the superseded single-slope form; the key tile coefficients are what the cost model charges, and they carry a per-key and a per-token cost this number does not.",
+     "run": "2026-09-09-microbench-cells-h100",
+     "source": "constants",
+     "value": 4.0
+    },
+    "attnout_int8_cells_per_acc": {
+     "charged": true,
+     "file": "b6/dequant.json",
+     "grade": "measured",
+     "key": "model_constants.attnout_int8_cells_per_acc",
+     "note": "The attention output's own dequantization, folded straight to int8 because its consumer requantizes it anyway: one rounding per output element, on the same sweep and the same terms as the two rows above. The cost model multiplies it by the attention outputs of every layer and head.",
+     "run": "2026-09-09-microbench-cells-h100",
+     "source": "constants",
+     "value": 10.0625
+    },
+    "composed_attnout": {
+     "charged": true,
+     "file": "harness/costmodel/composed_rungs.json",
+     "grade": "derived",
+     "key": "model_constants.attnout_composed_cells_per_acc",
+     "note": "21,757,952 cells over 2,097,152 attention-output accumulators on all 62 recorded 8B layer chunks at both contexts, at the registered statement; a re-fit against one shape. the attention-output fold. Layer 0 builds one cell an accumulator more than every other layer and is not in the 62.",
+     "run": "2026-09-09-headline-c4096-h100",
+     "source": "constants",
+     "value": 10.375
+    },
+    "composed_dequant": {
+     "charged": true,
+     "file": "harness/costmodel/composed_rungs.json",
+     "grade": "derived",
+     "key": "model_constants.dequant_chain_composed_cells_per_acc",
+     "note": "353,632,256 cells over 22,020,096 matmul accumulators on all 62 recorded 8B layer chunks at both contexts, at the registered statement; a re-fit against one shape. the whole dequant family: the committed accumulator, the chain rounding and what the reduction leaves in the interaction trace. The standalone chain rung is 25.125 or 26.125 depending on the rounding and commits its own LogUp running sums.",
+     "run": "2026-09-09-headline-c4096-h100",
+     "source": "constants",
+     "value": 16.05952380952381
+    },
+    "composed_freivalds": {
+     "charged": true,
+     "file": "harness/costmodel/composed_rungs.json",
+     "grade": "derived",
+     "key": "model_constants.weight_freivalds_composed_cells_per_weight",
+     "note": "44,040,192 cells over 218,103,808 weights on all 62 recorded 8B layer chunks at both contexts, at the registered statement; a re-fit against one shape. B3's width sweep put the standalone check at 0.0902 cells a weight at its own design point; the composed check at this statement is more than twice that, and most of the difference is interaction the reduction does not remove.",
+     "run": "2026-09-09-headline-c4096-h100",
+     "source": "constants",
+     "value": 0.20192307692307693
+    },
+    "composed_quant": {
+     "charged": true,
+     "file": "harness/costmodel/composed_rungs.json",
+     "grade": "derived",
+     "key": "model_constants.quant_composed_cells_per_value",
+     "note": "45,875,200 cells over 2,621,440 attention q or k values on all 62 recorded 8B layer chunks at both contexts, at the registered statement; a re-fit against one shape. the q and k quantize, which no reduction owns and no key names at all.",
+     "run": "2026-09-09-headline-c4096-h100",
+     "source": "constants",
+     "value": 17.5
+    },
+    "composed_requant": {
+     "charged": true,
+     "file": "harness/costmodel/composed_rungs.json",
+     "grade": "derived",
+     "key": "model_constants.requant_composed_cells_per_value",
+     "note": "212,664,832 cells over 11,534,336 distinct matmul input values on all 62 recorded 8B layer chunks at both contexts, at the registered statement; a re-fit against one shape. the whole requantize family, the multiplicity column of its own tables included. `model_constants.requant_cells_per_value` is the standalone gadget and is not this.",
+     "run": "2026-09-09-headline-c4096-h100",
+     "source": "constants",
+     "value": 18.437544389204547
+    },
+    "composed_residual_stream_add": {
+     "charged": true,
+     "file": "harness/costmodel/composed_rungs.json",
+     "grade": "derived",
+     "key": "model_constants.residual_stream_composed_add_cells_per_op",
+     "note": "47,185,920 cells over 2,621,440 bf16 adds on all 62 recorded 8B layer chunks at both contexts, at the registered statement; a re-fit against one shape. read off RoPE's own add per rotated value (`rpqa`, `rpka`).",
+     "run": "2026-09-09-headline-c4096-h100",
+     "source": "constants",
+     "value": 18.0
+    },
+    "composed_residual_stream_mul": {
+     "charged": true,
+     "file": "harness/costmodel/composed_rungs.json",
+     "grade": "derived",
+     "key": "model_constants.residual_stream_composed_mul_cells_per_op",
+     "note": "26,214,400 cells over 5,242,880 bf16 multiplys on all 62 recorded 8B layer chunks at both contexts, at the registered statement; a re-fit against one shape. read off RoPE's own two multiplies per rotated value (`rpqm`, `rpkm`), which are the only bf16 multiplies in the chunk whose op count the run reports on their own.",
+     "run": "2026-09-09-headline-c4096-h100",
+     "source": "constants",
+     "value": 5.0
+    },
+    "composed_residual_stream_unary_plus_mul": {
+     "charged": true,
+     "file": "harness/costmodel/composed_rungs.json",
+     "grade": "derived",
+     "key": "model_constants.residual_stream_composed_swiglu_cells_per_op",
+     "note": "73,400,320 cells over 7,340,032 SwiGLU channels on all 62 recorded 8B layer chunks at both contexts, at the registered statement; a re-fit against one shape. one `silu` table application and one bf16 product per channel (`gsw`); the unary on its own is this less the multiply above.",
+     "run": "2026-09-09-headline-c4096-h100",
+     "source": "constants",
+     "value": 10.0
+    },
+    "dequant_chain_away_base_cells_per_acc": {
+     "charged": true,
+     "file": "b6/dequant.json",
+     "grade": "measured",
+     "key": "model_constants.dequant_chain_away_base_cells_per_acc",
+     "note": "the chain rung's committed columns, no LogUp running sums: what `--gkr-dequant` builds",
+     "run": "2026-09-11-microbench-cells-h100",
+     "source": "constants",
+     "value": 14.375
+    },
+    "dequant_chain_away_cells_per_acc": {
+     "charged": true,
+     "file": "b6/dequant.json",
+     "grade": "measured",
+     "key": "model_constants.dequant_chain_away_cells_per_acc",
+     "note": "Dequantization by the bf16 chain at the rounding away from zero, the marginal cells one accumulator adds with the shared tables left out; 1,048,576 accumulators, 16 per row, from the `chain` point's `cells_per_acc_marginal` in runs/2026-09-11-microbench-cells-h100/b6-dequant-away.json. This is what the cost model charges on all seven layer matmuls, because rounding away from zero is what the quantization configuration specifies and what every recorded proof builds. `model_constants.dequant_chain_cells_per_acc` is the same gadget at the round half to even, 26.125, exactly one cell an accumulator more, and is not this.",
+     "run": "2026-09-11-microbench-cells-h100",
+     "source": "constants",
+     "value": 25.125
+    },
+    "dequant_chain_cells_per_acc": {
+     "charged": false,
+     "file": "b6/dequant.json",
+     "grade": "measured",
+     "key": "model_constants.dequant_chain_cells_per_acc",
+     "note": "Dequantization by the bf16 chain, on the same sweep and the same terms as the power-of-two row above. It costs 1.73 times as much per accumulator.",
+     "run": "2026-09-09-microbench-cells-h100",
+     "source": "constants",
+     "value": 26.125
+    },
+    "dequant_pow2_away_base_cells_per_acc": {
+     "charged": true,
+     "file": "b6/dequant.json",
+     "grade": "measured",
+     "key": "model_constants.dequant_pow2_away_base_cells_per_acc",
+     "note": "the power-of-two rung's committed columns, no LogUp running sums",
+     "run": "2026-09-11-microbench-cells-h100",
+     "source": "constants",
+     "value": 9.25
+    },
+    "dequant_pow2_away_cells_per_acc": {
+     "charged": true,
+     "file": "b6/dequant.json",
+     "grade": "measured",
+     "key": "model_constants.dequant_pow2_away_cells_per_acc",
+     "note": "Dequantization by a power-of-two scale at the rounding away from zero, on the same sweep and the same terms as the chain entry above, from the `pow2` point's `cells_per_acc_marginal` in runs/2026-09-11-microbench-cells-h100/b6-dequant-away.json. The cost model charges it on the output head. `model_constants.dequant_pow2_cells_per_acc` is the round half to even, 15.0625, again exactly one cell an accumulator more.",
+     "run": "2026-09-11-microbench-cells-h100",
+     "source": "constants",
+     "value": 14.0625
+    },
+    "dequant_pow2_cells_per_acc": {
+     "charged": false,
+     "file": "b6/dequant.json",
+     "grade": "measured",
+     "key": "model_constants.dequant_pow2_cells_per_acc",
+     "note": "Dequantization by a power-of-two scale, the marginal cells one accumulator adds with the shared tables left out; 1,048,576 accumulators, 16 per row. The tables are a fixed cost of the segment and are not multiplied by a count, which is why the marginal figure and not the with-tables one is the cost model's input.",
+     "run": "2026-09-09-microbench-cells-h100",
+     "source": "constants",
+     "value": 15.0625
+    },
+    "gkrlink_cells_per_chunk": {
+     "charged": false,
+     "file": null,
+     "key": null,
+     "note": "the batched reductions' link. 16 cells per row over the reduced components' heights on both recorded 8B layer chunks; no form in the shape, so a statement with the reductions on is under-priced by it",
+     "source": "absent",
+     "value": null
+    },
+    "int8_range_cells_per_activation": {
+     "charged": true,
+     "file": "b4/range.json",
+     "grade": "derived",
+     "key": "model_constants.int8_range_cells_per_activation",
+     "note": "model_constants.logup_marginal_cells_per_lookup['2'] / 2. The range check on a committed int8 activation is one arity-2 lookup into the 2^16 byte-pair table covering two activations, at the batch size every use side finalizes with; the activations' own committed cells are charged elsewhere. The private archive measured the same 1.0 directly at three sizes, and the byte-at-a-time form it replaced is 2.0.",
+     "run": null,
+     "source": "constants",
+     "value": 1.0
+    },
+    "limb_cells_per_acc": {
+     "charged": false,
+     "file": "b4/limbs.json",
+     "key": null,
+     "note": "",
+     "source": "absent",
+     "value": null
+    },
+    "logup_marginal_cells_per_lookup": {
+     "charged": true,
+     "file": "logup.json",
+     "grade": "measured",
+     "key": "model_constants.logup_marginal_cells_per_lookup",
+     "note": "recorded as an object keyed by the LogUp batch size as a string, {\"1\": 4.0, \"2\": 2.0} -- the marginal is one number per batch size and the model indexes it by the batch it charges",
+     "run": "2026-09-11-microbench-cells-h100",
+     "source": "constants",
+     "value": {
+      "1": 4.0,
+      "2": 2.0
+     }
+    },
+    "preprocessed_cells_per_weight": {
+     "charged": true,
+     "file": "b3/width.json",
+     "grade": "measured",
+     "key": "model_constants.weight_freivalds_preprocessed_cells_per_weight",
+     "note": "The preprocessed side of the same check at the same row width, the trace a proof reads once rather than commits again: `result.points[0].cells.preprocessed_per_weight` of runs/2026-09-11-microbench-cells-h100/b3-freivalds.json. It is exactly 1 + 4/p -- one cell a weight, plus the four selectors amortised over a row -- at 8, 16, 32, 64 and 136 weights a row, so it is the same closed form as the fresh figure beside it. Each point is a marginal over the weights two output widths differ by and carries no row padding; the private archive's 1.0903 is one padded component divided by its weights, from a component that also carried nine preprocessed columns beside its weights where this one carries four. The preprocessed trace is in none of the cost model's cell totals, so this figure moves `moe.<model>.preprocessed_over_fresh` and nothing else.",
+     "run": "2026-09-11-microbench-cells-h100",
+     "source": "constants",
+     "value": 1.0294117647058822
+    },
+    "requant_cells_per_value": {
+     "charged": true,
+     "file": "b65/requant_*.json",
+     "grade": "measured",
+     "key": "model_constants.requant_cells_per_value",
+     "note": "One requantized value with its scale argument, the marginal cells with the shared tables left out and the two committed input cells left out because the producer commits them. The subcommand proves four points: 8.0625 and 11.4375 for power-of-two scales without and with the argument, 8.125 and 11.5 for bf16. The cost model takes the largest of the two with the argument and charges one less than it per distinct matmul input, because the committed quantized value is already counted.",
+     "run": "2026-09-09-microbench-cells-h100",
+     "source": "constants",
+     "value": 11.5
+    },
+    "residual_stream_add_cells_per_op": {
+     "charged": true,
+     "file": "b65/residual_stream.json",
+     "grade": "measured",
+     "key": "model_constants.residual_stream_add_cells_per_op",
+     "note": "One correctly rounded bf16 add of the residual stream, the marginal cells with the shared tables and the component's leaves left out. The cost model multiplies it by the two residual adds of every layer and by the adds of each normalisation's reduction. Putting a unary operation in front of the add does not move it: the same 24.3226 with a square on every leaf.",
+     "run": "2026-09-09-microbench-cells-h100",
+     "source": "constants",
+     "value": 24.322580645161292
+    },
+    "residual_stream_mul_cells_per_op": {
+     "charged": true,
+     "file": "b65/residual_stream.json",
+     "grade": "measured",
+     "key": "model_constants.residual_stream_mul_cells_per_op",
+     "note": "One bf16 multiply of the residual stream, on the same terms as the add above. The cost model multiplies it by the two multiplies of every normalisation and by the SwiGLU's product. The SiLU in front of the product does not move it, and the normalisation's own scale is 8.4375 because its second operand is a preprocessed weight.",
+     "run": "2026-09-09-microbench-cells-h100",
+     "source": "constants",
+     "value": 8.75
+    },
+    "route_selection_cells": {
+     "charged": true,
+     "file": null,
+     "key": null,
+     "note": "nobody has built this gadget; the nearest gadget that was measured stands in for it",
+     "source": "analogy",
+     "value": 3.0
+    },
+    "route_topk_cells": {
+     "charged": true,
+     "file": null,
+     "key": null,
+     "note": "nobody has built this gadget; the nearest gadget that was measured stands in for it",
+     "source": "analogy",
+     "value": 3.36
+    },
+    "unary_cells_per_application": {
+     "charged": true,
+     "file": "b4/unary.json",
+     "grade": "derived",
+     "key": "model_constants.residual_stream_unary_cells_per_op",
+     "note": "2 + model_constants.logup_marginal_cells_per_lookup['2']. One bf16 unary operation commits its output as one bf16 value, which is two cells, and pays one lookup at pairwise batching. The cost model multiplies it by each normalisation's square and inverse square root and by the SwiGLU's SiLU. The prover reports the same figure under primitives.unary of the residual-stream output, built from the same two terms, so it is an exact count and not a second measurement.",
+     "run": null,
+     "source": "constants",
+     "value": 4.0
+    },
+    "weight_freivalds_cells_per_weight": {
+     "charged": true,
+     "file": "b3/width.json",
+     "grade": "measured",
+     "key": "model_constants.weight_freivalds_cells_per_weight",
+     "note": "The weight Freivalds check's committed cells per weight, at the prover's own default row width: `result.points[0].cells.cells_per_weight` of runs/2026-09-11-microbench-cells-h100/b3-freivalds.json. Its three QM31 accumulator columns cost 12 cells a trace row and a row carries p weights, so the law is 12/p and p is a layout knob, not a constant of the gadget: this is 12/136, the default of `params_of`. The sweep beside it, b3-freivalds-widths.json, returns 12/p to the cell at 8, 16, 32 and 64 weights a row, which is what says the closed form holds rather than assuming it. A group of n matmuls shares one accumulator and so costs (4 + 8n)/(n p) per weight and not 12/p, which the cost model does not know: charging 12/p across a layer over-charges the two-matmul group by 20 per cent and the three-matmul one by 29. The private archive's 0.0902 is 12/133, the same law at a shape whose grid padded 32,256 rows up to 2^15, so it is this figure inflated 2.3 per cent by row padding and not a second measurement; this subcommand refuses a ragged tiling and reports the unpadded form.",
+     "run": "2026-09-11-microbench-cells-h100",
+     "source": "constants",
+     "value": 0.08823529411764706
+    }
+   },
+   "cell_costs_charged_on_the_counted_side": [],
+   "cell_costs_note": "the counted path charges NO per-unit cell cost on the committed side: every cell of every layer segment is counted from the trace layout. `cell_costs` above is the model's own record of what it COULD price and what each of those would have come from, kept so a reader can see the two paths side by side and so the driver's gate still reads one record; the only figure in this document that still comes from a per-unit constant is the output head's preprocessed weight trace, which is no committed cell of any segment",
+   "cells": "exact",
+   "code_sha256": {
+    "harness/costmodel/composed_rungs.json": "cc0c303f00d6f22c506a29333c6ce235db97039d6413846edabdb3d52f0386f8",
+    "harness/costmodel/cost_model.py": "bb72cfb5528414e7791e72ef25ac5d585dc2577df6b0ba19b15cf272860276da",
+    "harness/costmodel/exact_cells.py": "b47650ac66cd5ebf876e6a01c2729fcf3f71b10435836bcfec665fe5459086f0",
+    "harness/costmodel/exact_chunks.json": "a8024152a0c2b5d44c8f1d4ce13f187ca07dcd98b92a3ab8a94b9fd657830e8e",
+    "harness/costmodel/key_tile.py": "22ce6580bef922d69966a81f7b02d42782650a821493ef7b3604d90aca312ab1",
+    "harness/costmodel/layer_chunks.json": "aec3d7b6fbd9107e509606527af96a78bfe6bc87d76450868b57813eba4a2092",
+    "harness/eval/predict/predict.py": "51b1f29d213d0925d29e72ac5b8923b38aed6f91fc942b1c14dfca956d42f499",
+    "harness/eval/predict/witness_fields.py": "89cd63309506f1cade8c0b072babd7c3854b8424537d05a92ccd95660b4a81be"
+   },
+   "constants_entries": {
+    "model_constants.argmax_marginal_cells_per_comparison": {
+     "artifact": "b10-argmax.json",
+     "card": "none",
+     "context": "n/a",
+     "grade": "measured",
+     "run": "2026-09-11-microbench-cells-h100",
+     "timing_scope": "n/a",
+     "unit": "cells/comparison",
+     "value": 4.046875
+    },
+    "model_constants.attention_cells_per_head_key_token": {
+     "artifact": "b6-pack.json",
+     "card": "none",
+     "context": "n/a",
+     "grade": "measured",
+     "run": "2026-09-09-microbench-cells-h100",
+     "timing_scope": "n/a",
+     "unit": "cells per (head, key) per token",
+     "value": 4.0
+    },
+    "model_constants.attnout_composed_cells_per_acc": {
+     "artifact": "slice_0256.json",
+     "card": "none",
+     "context": "n/a",
+     "grade": "derived",
+     "run": "2026-09-09-headline-c4096-h100",
+     "timing_scope": "n/a",
+     "unit": "cells/accumulator",
+     "value": 10.375
+    },
+    "model_constants.attnout_int8_cells_per_acc": {
+     "artifact": "b6-dequant.json",
+     "card": "none",
+     "context": "n/a",
+     "grade": "measured",
+     "run": "2026-09-09-microbench-cells-h100",
+     "timing_scope": "n/a",
+     "unit": "cells/accumulator",
+     "value": 10.0625
+    },
+    "model_constants.dequant_chain_away_base_cells_per_acc": {
+     "artifact": "b6-dequant-away.json",
+     "card": "none",
+     "context": "n/a",
+     "grade": "measured",
+     "run": "2026-09-11-microbench-cells-h100",
+     "timing_scope": "n/a",
+     "unit": "cells/accumulator",
+     "value": 14.375
+    },
+    "model_constants.dequant_chain_away_cells_per_acc": {
+     "artifact": "b6-dequant-away.json",
+     "card": "none",
+     "context": "n/a",
+     "grade": "measured",
+     "run": "2026-09-11-microbench-cells-h100",
+     "timing_scope": "n/a",
+     "unit": "cells/accumulator",
+     "value": 25.125
+    },
+    "model_constants.dequant_chain_cells_per_acc": {
+     "artifact": "b6-dequant.json",
+     "card": "none",
+     "context": "n/a",
+     "grade": "measured",
+     "run": "2026-09-09-microbench-cells-h100",
+     "timing_scope": "n/a",
+     "unit": "cells/accumulator",
+     "value": 26.125
+    },
+    "model_constants.dequant_chain_composed_cells_per_acc": {
+     "artifact": "slice_0256.json",
+     "card": "none",
+     "context": "n/a",
+     "grade": "derived",
+     "run": "2026-09-09-headline-c4096-h100",
+     "timing_scope": "n/a",
+     "unit": "cells/accumulator",
+     "value": 16.05952380952381
+    },
+    "model_constants.dequant_pow2_away_base_cells_per_acc": {
+     "artifact": "b6-dequant-away.json",
+     "card": "none",
+     "context": "n/a",
+     "grade": "measured",
+     "run": "2026-09-11-microbench-cells-h100",
+     "timing_scope": "n/a",
+     "unit": "cells/accumulator",
+     "value": 9.25
+    },
+    "model_constants.dequant_pow2_away_cells_per_acc": {
+     "artifact": "b6-dequant-away.json",
+     "card": "none",
+     "context": "n/a",
+     "grade": "measured",
+     "run": "2026-09-11-microbench-cells-h100",
+     "timing_scope": "n/a",
+     "unit": "cells/accumulator",
+     "value": 14.0625
+    },
+    "model_constants.dequant_pow2_cells_per_acc": {
+     "artifact": "b6-dequant.json",
+     "card": "none",
+     "context": "n/a",
+     "grade": "measured",
+     "run": "2026-09-09-microbench-cells-h100",
+     "timing_scope": "n/a",
+     "unit": "cells/accumulator",
+     "value": 15.0625
+    },
+    "model_constants.int8_range_cells_per_activation": {
+     "card": "none",
+     "context": "n/a",
+     "grade": "derived",
+     "timing_scope": "n/a",
+     "unit": "cells/activation",
+     "value": 1.0
+    },
+    "model_constants.logup_marginal_cells_per_lookup": {
+     "artifact": "logup.json",
+     "card": "none",
+     "context": "n/a",
+     "grade": "measured",
+     "run": "2026-09-11-microbench-cells-h100",
+     "timing_scope": "n/a",
+     "unit": "cells/lookup",
+     "value": {
+      "1": 4.0,
+      "2": 2.0
+     }
+    },
+    "model_constants.quant_composed_cells_per_value": {
+     "artifact": "slice_0256.json",
+     "card": "none",
+     "context": "n/a",
+     "grade": "derived",
+     "run": "2026-09-09-headline-c4096-h100",
+     "timing_scope": "n/a",
+     "unit": "cells/value",
+     "value": 17.5
+    },
+    "model_constants.requant_cells_per_value": {
+     "artifact": "b65-requant.json",
+     "card": "none",
+     "context": "n/a",
+     "grade": "measured",
+     "run": "2026-09-09-microbench-cells-h100",
+     "timing_scope": "n/a",
+     "unit": "cells/value",
+     "value": 11.5
+    },
+    "model_constants.requant_composed_cells_per_value": {
+     "artifact": "slice_0256.json",
+     "card": "none",
+     "context": "n/a",
+     "grade": "derived",
+     "run": "2026-09-09-headline-c4096-h100",
+     "timing_scope": "n/a",
+     "unit": "cells/value",
+     "value": 18.437544389204547
+    },
+    "model_constants.residual_stream_add_cells_per_op": {
+     "artifact": "b65-residual-stream.json",
+     "card": "none",
+     "context": "n/a",
+     "grade": "measured",
+     "run": "2026-09-09-microbench-cells-h100",
+     "timing_scope": "n/a",
+     "unit": "cells/operation",
+     "value": 24.322580645161292
+    },
+    "model_constants.residual_stream_composed_add_cells_per_op": {
+     "artifact": "slice_0256.json",
+     "card": "none",
+     "context": "n/a",
+     "grade": "derived",
+     "run": "2026-09-09-headline-c4096-h100",
+     "timing_scope": "n/a",
+     "unit": "cells/operation",
+     "value": 18.0
+    },
+    "model_constants.residual_stream_composed_mul_cells_per_op": {
+     "artifact": "slice_0256.json",
+     "card": "none",
+     "context": "n/a",
+     "grade": "derived",
+     "run": "2026-09-09-headline-c4096-h100",
+     "timing_scope": "n/a",
+     "unit": "cells/operation",
+     "value": 5.0
+    },
+    "model_constants.residual_stream_composed_swiglu_cells_per_op": {
+     "artifact": "slice_0256.json",
+     "card": "none",
+     "context": "n/a",
+     "grade": "derived",
+     "run": "2026-09-09-headline-c4096-h100",
+     "timing_scope": "n/a",
+     "unit": "cells/operation",
+     "value": 10.0
+    },
+    "model_constants.residual_stream_mul_cells_per_op": {
+     "artifact": "b65-residual-stream.json",
+     "card": "none",
+     "context": "n/a",
+     "grade": "measured",
+     "run": "2026-09-09-microbench-cells-h100",
+     "timing_scope": "n/a",
+     "unit": "cells/operation",
+     "value": 8.75
+    },
+    "model_constants.residual_stream_unary_cells_per_op": {
+     "card": "none",
+     "context": "n/a",
+     "grade": "derived",
+     "timing_scope": "n/a",
+     "unit": "cells/operation",
+     "value": 4.0
+    },
+    "model_constants.weight_freivalds_cells_per_weight": {
+     "artifact": "b3-freivalds.json",
+     "card": "none",
+     "context": "n/a",
+     "grade": "measured",
+     "run": "2026-09-11-microbench-cells-h100",
+     "timing_scope": "n/a",
+     "unit": "cells/weight",
+     "value": 0.08823529411764706
+    },
+    "model_constants.weight_freivalds_composed_cells_per_weight": {
+     "artifact": "slice_0256.json",
+     "card": "none",
+     "context": "n/a",
+     "grade": "derived",
+     "run": "2026-09-09-headline-c4096-h100",
+     "timing_scope": "n/a",
+     "unit": "cells/weight",
+     "value": 0.20192307692307693
+    },
+    "model_constants.weight_freivalds_preprocessed_cells_per_weight": {
+     "artifact": "b3-freivalds.json",
+     "card": "none",
+     "context": "n/a",
+     "grade": "measured",
+     "run": "2026-09-11-microbench-cells-h100",
+     "timing_scope": "n/a",
+     "unit": "cells/weight",
+     "value": 1.0294117647058822
+    }
+   },
+   "constants_file_sha256": "841dcd6ebda5bbb0a082f28c1bcba5df474e78c0d9be21d7f5569d0353e59f5b",
+   "constants_keys_read": [
+    "model_constants.argmax_marginal_cells_per_comparison",
+    "model_constants.attention_cells_per_head_key_token",
+    "model_constants.attnout_composed_cells_per_acc",
+    "model_constants.attnout_int8_cells_per_acc",
+    "model_constants.dequant_chain_away_base_cells_per_acc",
+    "model_constants.dequant_chain_away_cells_per_acc",
+    "model_constants.dequant_chain_cells_per_acc",
+    "model_constants.dequant_chain_composed_cells_per_acc",
+    "model_constants.dequant_pow2_away_base_cells_per_acc",
+    "model_constants.dequant_pow2_away_cells_per_acc",
+    "model_constants.dequant_pow2_cells_per_acc",
+    "model_constants.int8_range_cells_per_activation",
+    "model_constants.logup_marginal_cells_per_lookup",
+    "model_constants.quant_composed_cells_per_value",
+    "model_constants.requant_cells_per_value",
+    "model_constants.requant_composed_cells_per_value",
+    "model_constants.residual_stream_add_cells_per_op",
+    "model_constants.residual_stream_composed_add_cells_per_op",
+    "model_constants.residual_stream_composed_mul_cells_per_op",
+    "model_constants.residual_stream_composed_swiglu_cells_per_op",
+    "model_constants.residual_stream_mul_cells_per_op",
+    "model_constants.residual_stream_unary_cells_per_op",
+    "model_constants.weight_freivalds_cells_per_weight",
+    "model_constants.weight_freivalds_composed_cells_per_weight",
+    "model_constants.weight_freivalds_preprocessed_cells_per_weight"
+   ],
+   "n_from_constants": 25,
+   "n_inputs": 29,
+   "not_priced": [
+    "gkrlink_cells_per_chunk",
+    "limb_cells_per_acc"
+   ],
+   "reference_chunks": {
+    "16384": {
+     "block": 32,
+     "blocks": 33,
+     "context": 16384,
+     "fresh": 2229832816,
+     "key_tiles": 761331712,
+     "key_tiles_interaction": 113057792,
+     "model": "unsloth/Llama-3.1-8B-Instruct",
+     "plan_index": 1041,
+     "proof_sha256": "45e858dce81a892dfb5948197314fd8625e476dcc69223ade64f773dbe865b94",
+     "prover_commit": "38a3919988ec11e57244516b13b32e434cb01fb1",
+     "run": "2026-09-08-headline-c16384-h100",
+     "s": 512,
+     "segment": "B32L16",
+     "slice": "slice_1024.json",
+     "spec": "y-delay-vw12",
+     "tokens": [
+      16384,
+      16895
+     ]
+    },
+    "4096": {
+     "block": 8,
+     "blocks": 9,
+     "context": 4096,
+     "fresh": 1393069168,
+     "key_tiles": 207683584,
+     "key_tiles_interaction": 31268864,
+     "model": "unsloth/Llama-3.1-8B-Instruct",
+     "plan_index": 273,
+     "proof_sha256": "9f091c704d505d657d98edec784ac374c758c1fa2dd8075bdc78d5c51d16d975",
+     "prover_commit": "a603db1ddf1e2372d1f9761d684df8f2294199a9",
+     "run": "2026-09-09-headline-c4096-h100",
+     "s": 512,
+     "segment": "B8L16",
+     "slice": "slice_0256.json",
+     "spec": "y-delay-vw12",
+     "tokens": [
+      4096,
+      4607
+     ]
+    }
+   },
+   "statement": {
+    "bind": true,
+    "diagonal_block": true,
+    "driver": "tools/drivers/register-13b.sh (zk-results), which passes `--cells exact` and the fields file, and tools/drivers/predict-13b.sh, which proves every layer of the target shape with these flags",
+    "driver_flags": "--diagonal-block --gkr-key-tiles --gkr-dequant --gkr-residual-stream --gkr-freivalds --gkr-attnout",
+    "flags": {
+     "bind": "not a flag: `Params::rope`, which every layer segment has and no output head does",
+     "diagonal_block": "--diagonal-block",
+     "gkr": "--gkr-key-tiles",
+     "kv_boundary": "not a flag: `kv_boundary = diagonal_block && !head` (`main.rs`), so every layer segment of the run has it"
+    },
+    "gkr": true,
+    "key_tiles_half": "priced at exactly this statement: `key_tile_family(nh, hd, S, C, **STATEMENT)`",
+    "kv_boundary": true,
+    "rest_half": {
+     "effect": "each proves the LogUp running sums of the family it names instead of committing them, and moves what it does commit into `gkrlink`. `cells_per_token(gkr=...)` prices all four; `gkrlink` itself is the one family the model does not price, and `cost_model.PROVENANCE['gkrlink_cells_per_chunk']` says so",
+     "flags": "--gkr-dequant --gkr-residual-stream --gkr-freivalds --gkr-attnout"
+    }
+   },
+   "witness_fields": {
+    "absent": [
+     0
+    ],
+    "file": "witness_fields.json",
+    "file_sha256": "370a8477c9d7734652b3b235646313ca954b321ce2c1d177371d36526c1b4449",
+    "knobs": {
+     "head_groups": [
+      16,
+      16,
+      8
+     ],
+     "numbits": 9,
+     "table_bits": 0,
+     "tight_table": false
+    },
+    "layers": {
+     "1": {
+      "ao_acc_hi_bits": 4,
+      "ao_acc_lo_bits": 16,
+      "ao_acc_mag": false,
+      "ao_jo_max": -7,
+      "ao_jo_min": -9,
+      "ao_jv_max": -5,
+      "ao_jv_min": -10,
+      "ao_q_bits": 7,
+      "ao_rem_bits": 17,
+      "deq_variants": {
+       "down": "chain",
+       "gate": "chain",
+       "k": "chain",
+       "o": "chain",
+       "q": "chain",
+       "up": "chain",
+       "v": "chain"
+      },
+      "dump_sha256": "a5cff4b1f6effc3b8b73e47084fe5dae178b17916c21f4317717eeafb307aebf",
+      "fold_rem_bits": 0,
+      "kmax": 19,
+      "log_table": 29
+     },
+     "10": {
+      "ao_acc_hi_bits": 6,
+      "ao_acc_lo_bits": 16,
+      "ao_acc_mag": false,
+      "ao_jo_max": -5,
+      "ao_jo_min": -8,
+      "ao_jv_max": -4,
+      "ao_jv_min": -7,
+      "ao_q_bits": 7,
+      "ao_rem_bits": 18,
+      "deq_variants": {
+       "down": "chain",
+       "gate": "chain",
+       "k": "chain",
+       "o": "chain",
+       "q": "chain",
+       "up": "chain",
+       "v": "chain"
+      },
+      "dump_sha256": "9655343aa754bdc5f5d09981e2e2f308dd423d8b5adcaa79e0eb1efe746de7d7",
+      "fold_rem_bits": 0,
+      "kmax": 19,
+      "log_table": 24
+     },
+     "11": {
+      "ao_acc_hi_bits": 6,
+      "ao_acc_lo_bits": 16,
+      "ao_acc_mag": false,
+      "ao_jo_max": -5,
+      "ao_jo_min": -8,
+      "ao_jv_max": -4,
+      "ao_jv_min": -7,
+      "ao_q_bits": 7,
+      "ao_rem_bits": 17,
+      "deq_variants": {
+       "down": "chain",
+       "gate": "chain",
+       "k": "chain",
+       "o": "chain",
+       "q": "chain",
+       "up": "chain",
+       "v": "chain"
+      },
+      "dump_sha256": "62994ff6fb86d2d467e85b530efa2c42d33f86d146aace184f421478c2f4c7e7",
+      "fold_rem_bits": 0,
+      "kmax": 19,
+      "log_table": 25
+     },
+     "12": {
+      "ao_acc_hi_bits": 6,
+      "ao_acc_lo_bits": 16,
+      "ao_acc_mag": false,
+      "ao_jo_max": -5,
+      "ao_jo_min": -7,
+      "ao_jv_max": -4,
+      "ao_jv_min": -6,
+      "ao_q_bits": 7,
+      "ao_rem_bits": 18,
+      "deq_variants": {
+       "down": "chain",
+       "gate": "chain",
+       "k": "chain",
+       "o": "chain",
+       "q": "chain",
+       "up": "chain",
+       "v": "chain"
+      },
+      "dump_sha256": "8a4786aa54b4fd36f2752576faf07c8f302e1128215fba37f6fd60019542bca7",
+      "fold_rem_bits": 0,
+      "kmax": 19,
+      "log_table": 25
+     },
+     "13": {
+      "ao_acc_hi_bits": 6,
+      "ao_acc_lo_bits": 16,
+      "ao_acc_mag": false,
+      "ao_jo_max": -5,
+      "ao_jo_min": -8,
+      "ao_jv_max": -4,
+      "ao_jv_min": -6,
+      "ao_q_bits": 7,
+      "ao_rem_bits": 18,
+      "deq_variants": {
+       "down": "chain",
+       "gate": "chain",
+       "k": "chain",
+       "o": "chain",
+       "q": "chain",
+       "up": "chain",
+       "v": "chain"
+      },
+      "dump_sha256": "adda86654aced8ba4a754e1731b6ae0762cfa96191d6f024251ef526178eef59",
+      "fold_rem_bits": 0,
+      "kmax": 19,
+      "log_table": 24
+     },
+     "14": {
+      "ao_acc_hi_bits": 5,
+      "ao_acc_lo_bits": 16,
+      "ao_acc_mag": false,
+      "ao_jo_max": -5,
+      "ao_jo_min": -7,
+      "ao_jv_max": -4,
+      "ao_jv_min": -6,
+      "ao_q_bits": 7,
+      "ao_rem_bits": 17,
+      "deq_variants": {
+       "down": "chain",
+       "gate": "chain",
+       "k": "chain",
+       "o": "chain",
+       "q": "chain",
+       "up": "chain",
+       "v": "chain"
+      },
+      "dump_sha256": "9b4cf27934ab21ef8482260ec0e1f265550dbe36878e6b58537a60320d2ae1ef",
+      "fold_rem_bits": 0,
+      "kmax": 19,
+      "log_table": 24
+     },
+     "15": {
+      "ao_acc_hi_bits": 5,
+      "ao_acc_lo_bits": 16,
+      "ao_acc_mag": false,
+      "ao_jo_max": -5,
+      "ao_jo_min": -8,
+      "ao_jv_max": -4,
+      "ao_jv_min": -7,
+      "ao_q_bits": 7,
+      "ao_rem_bits": 17,
+      "deq_variants": {
+       "down": "chain",
+       "gate": "chain",
+       "k": "chain",
+       "o": "chain",
+       "q": "chain",
+       "up": "chain",
+       "v": "chain"
+      },
+      "dump_sha256": "d519275f74be949693c7c9d27a14f9116da48d0eba91fc5ff9f58a30959d3665",
+      "fold_rem_bits": 0,
+      "kmax": 19,
+      "log_table": 25
+     },
+     "16": {
+      "ao_acc_hi_bits": 5,
+      "ao_acc_lo_bits": 16,
+      "ao_acc_mag": false,
+      "ao_jo_max": -5,
+      "ao_jo_min": -7,
+      "ao_jv_max": -4,
+      "ao_jv_min": -6,
+      "ao_q_bits": 7,
+      "ao_rem_bits": 17,
+      "deq_variants": {
+       "down": "chain",
+       "gate": "chain",
+       "k": "chain",
+       "o": "chain",
+       "q": "chain",
+       "up": "chain",
+       "v": "chain"
+      },
+      "dump_sha256": "2e03a8120b2d424f30d8cc8a6af62a2df7c2db939efa69194fb21e797a1834ed",
+      "fold_rem_bits": 0,
+      "kmax": 19,
+      "log_table": 26
+     },
+     "17": {
+      "ao_acc_hi_bits": 6,
+      "ao_acc_lo_bits": 16,
+      "ao_acc_mag": false,
+      "ao_jo_max": -5,
+      "ao_jo_min": -7,
+      "ao_jv_max": -4,
+      "ao_jv_min": -6,
+      "ao_q_bits": 7,
+      "ao_rem_bits": 19,
+      "deq_variants": {
+       "down": "chain",
+       "gate": "chain",
+       "k": "chain",
+       "o": "chain",
+       "q": "chain",
+       "up": "chain",
+       "v": "chain"
+      },
+      "dump_sha256": "3b45d9518759cf617cbef051fbc6b141b0098df106df802e060e5d3d4766f504",
+      "fold_rem_bits": 0,
+      "kmax": 19,
+      "log_table": 24
+     },
+     "18": {
+      "ao_acc_hi_bits": 6,
+      "ao_acc_lo_bits": 16,
+      "ao_acc_mag": false,
+      "ao_jo_max": -5,
+      "ao_jo_min": -7,
+      "ao_jv_max": -4,
+      "ao_jv_min": -6,
+      "ao_q_bits": 7,
+      "ao_rem_bits": 17,
+      "deq_variants": {
+       "down": "chain",
+       "gate": "chain",
+       "k": "chain",
+       "o": "chain",
+       "q": "chain",
+       "up": "chain",
+       "v": "chain"
+      },
+      "dump_sha256": "cec1760bbac3a7d245020a7022511d06f5e7085207e4ac44f447850ab1d267fc",
+      "fold_rem_bits": 0,
+      "kmax": 19,
+      "log_table": 24
+     },
+     "19": {
+      "ao_acc_hi_bits": 6,
+      "ao_acc_lo_bits": 16,
+      "ao_acc_mag": false,
+      "ao_jo_max": -4,
+      "ao_jo_min": -8,
+      "ao_jv_max": -4,
+      "ao_jv_min": -6,
+      "ao_q_bits": 7,
+      "ao_rem_bits": 17,
+      "deq_variants": {
+       "down": "chain",
+       "gate": "chain",
+       "k": "chain",
+       "o": "chain",
+       "q": "chain",
+       "up": "chain",
+       "v": "chain"
+      },
+      "dump_sha256": "565e6c8743b2a5392bc4a7a0ef7ae655eff8f975f066e24e9116ea364c27444a",
+      "fold_rem_bits": 0,
+      "kmax": 19,
+      "log_table": 24
+     },
+     "2": {
+      "ao_acc_hi_bits": 4,
+      "ao_acc_lo_bits": 16,
+      "ao_acc_mag": false,
+      "ao_jo_max": -6,
+      "ao_jo_min": -8,
+      "ao_jv_max": -4,
+      "ao_jv_min": -9,
+      "ao_q_bits": 7,
+      "ao_rem_bits": 16,
+      "deq_variants": {
+       "down": "chain",
+       "gate": "chain",
+       "k": "chain",
+       "o": "chain",
+       "q": "chain",
+       "up": "chain",
+       "v": "chain"
+      },
+      "dump_sha256": "8be08d4f0260a03e28de90f4dd244e6a97f17d6f7f1b5e5d8aa215bdbf09c60b",
+      "fold_rem_bits": 0,
+      "kmax": 19,
+      "log_table": 25
+     },
+     "20": {
+      "ao_acc_hi_bits": 6,
+      "ao_acc_lo_bits": 16,
+      "ao_acc_mag": false,
+      "ao_jo_max": -5,
+      "ao_jo_min": -7,
+      "ao_jv_max": -4,
+      "ao_jv_min": -7,
+      "ao_q_bits": 7,
+      "ao_rem_bits": 17,
+      "deq_variants": {
+       "down": "chain",
+       "gate": "chain",
+       "k": "chain",
+       "o": "chain",
+       "q": "chain",
+       "up": "chain",
+       "v": "chain"
+      },
+      "dump_sha256": "57c902ef15cb6a463bfb5b01384e66dad7043f368665ec2bde9d1b4533b08cba",
+      "fold_rem_bits": 0,
+      "kmax": 19,
+      "log_table": 25
+     },
+     "21": {
+      "ao_acc_hi_bits": 7,
+      "ao_acc_lo_bits": 16,
+      "ao_acc_mag": false,
+      "ao_jo_max": -4,
+      "ao_jo_min": -7,
+      "ao_jv_max": -4,
+      "ao_jv_min": -6,
+      "ao_q_bits": 7,
+      "ao_rem_bits": 17,
+      "deq_variants": {
+       "down": "chain",
+       "gate": "chain",
+       "k": "chain",
+       "o": "chain",
+       "q": "chain",
+       "up": "chain",
+       "v": "chain"
+      },
+      "dump_sha256": "ae018fda6710e00c1a5e1a5c39b3eb5407a3e54adfe919bf54dadbf98f11dcf1",
+      "fold_rem_bits": 0,
+      "kmax": 19,
+      "log_table": 24
+     },
+     "22": {
+      "ao_acc_hi_bits": 5,
+      "ao_acc_lo_bits": 16,
+      "ao_acc_mag": false,
+      "ao_jo_max": -5,
+      "ao_jo_min": -7,
+      "ao_jv_max": -4,
+      "ao_jv_min": -6,
+      "ao_q_bits": 7,
+      "ao_rem_bits": 17,
+      "deq_variants": {
+       "down": "chain",
+       "gate": "chain",
+       "k": "chain",
+       "o": "chain",
+       "q": "chain",
+       "up": "chain",
+       "v": "chain"
+      },
+      "dump_sha256": "87a55d6e0598e1827142082a8a38b36c0e6d901bce7f58878e34837dc3ae5d4b",
+      "fold_rem_bits": 0,
+      "kmax": 19,
+      "log_table": 24
+     },
+     "23": {
+      "ao_acc_hi_bits": 5,
+      "ao_acc_lo_bits": 16,
+      "ao_acc_mag": false,
+      "ao_jo_max": -4,
+      "ao_jo_min": -8,
+      "ao_jv_max": -4,
+      "ao_jv_min": -6,
+      "ao_q_bits": 7,
+      "ao_rem_bits": 17,
+      "deq_variants": {
+       "down": "chain",
+       "gate": "chain",
+       "k": "chain",
+       "o": "chain",
+       "q": "chain",
+       "up": "chain",
+       "v": "chain"
+      },
+      "dump_sha256": "e75e8a4ae4a8fbdc1ab74be42a5d8037bda6288d431bcab0c8e0bed032fb7e98",
+      "fold_rem_bits": 0,
+      "kmax": 19,
+      "log_table": 24
+     },
+     "24": {
+      "ao_acc_hi_bits": 5,
+      "ao_acc_lo_bits": 16,
+      "ao_acc_mag": false,
+      "ao_jo_max": -5,
+      "ao_jo_min": -8,
+      "ao_jv_max": -4,
+      "ao_jv_min": -6,
+      "ao_q_bits": 7,
+      "ao_rem_bits": 17,
+      "deq_variants": {
+       "down": "chain",
+       "gate": "chain",
+       "k": "chain",
+       "o": "chain",
+       "q": "chain",
+       "up": "chain",
+       "v": "chain"
+      },
+      "dump_sha256": "bf0b702199cf5f827baa3594849aa4a0bc4ac60a1593b7c85997e1a7700b9755",
+      "fold_rem_bits": 0,
+      "kmax": 19,
+      "log_table": 24
+     },
+     "25": {
+      "ao_acc_hi_bits": 5,
+      "ao_acc_lo_bits": 16,
+      "ao_acc_mag": false,
+      "ao_jo_max": -4,
+      "ao_jo_min": -8,
+      "ao_jv_max": -4,
+      "ao_jv_min": -6,
+      "ao_q_bits": 7,
+      "ao_rem_bits": 16,
+      "deq_variants": {
+       "down": "chain",
+       "gate": "chain",
+       "k": "chain",
+       "o": "chain",
+       "q": "chain",
+       "up": "chain",
+       "v": "chain"
+      },
+      "dump_sha256": "0ff66232e9bebc521b5f371445e23022b2e9828d6751daff4845fb4c240b01eb",
+      "fold_rem_bits": 0,
+      "kmax": 19,
+      "log_table": 24
+     },
+     "26": {
+      "ao_acc_hi_bits": 5,
+      "ao_acc_lo_bits": 16,
+      "ao_acc_mag": false,
+      "ao_jo_max": -4,
+      "ao_jo_min": -8,
+      "ao_jv_max": -4,
+      "ao_jv_min": -6,
+      "ao_q_bits": 7,
+      "ao_rem_bits": 16,
+      "deq_variants": {
+       "down": "chain",
+       "gate": "chain",
+       "k": "chain",
+       "o": "chain",
+       "q": "chain",
+       "up": "chain",
+       "v": "chain"
+      },
+      "dump_sha256": "16b3b68e47c20baa24db7327f716a647866f61f0568d2dda127056a44036bbe7",
+      "fold_rem_bits": 0,
+      "kmax": 19,
+      "log_table": 24
+     },
+     "27": {
+      "ao_acc_hi_bits": 6,
+      "ao_acc_lo_bits": 16,
+      "ao_acc_mag": false,
+      "ao_jo_max": -5,
+      "ao_jo_min": -8,
+      "ao_jv_max": -3,
+      "ao_jv_min": -6,
+      "ao_q_bits": 7,
+      "ao_rem_bits": 17,
+      "deq_variants": {
+       "down": "chain",
+       "gate": "chain",
+       "k": "chain",
+       "o": "chain",
+       "q": "chain",
+       "up": "chain",
+       "v": "chain"
+      },
+      "dump_sha256": "e07948ebf06fc9872ea4e665ea08f6cbc8b4979a15ab7cd4923c80457756ea95",
+      "fold_rem_bits": 0,
+      "kmax": 19,
+      "log_table": 24
+     },
+     "28": {
+      "ao_acc_hi_bits": 6,
+      "ao_acc_lo_bits": 16,
+      "ao_acc_mag": false,
+      "ao_jo_max": -4,
+      "ao_jo_min": -8,
+      "ao_jv_max": -4,
+      "ao_jv_min": -6,
+      "ao_q_bits": 7,
+      "ao_rem_bits": 16,
+      "deq_variants": {
+       "down": "chain",
+       "gate": "chain",
+       "k": "chain",
+       "o": "chain",
+       "q": "chain",
+       "up": "chain",
+       "v": "chain"
+      },
+      "dump_sha256": "11e1753cd2aed7181ed9bb3756c55b629008a9a242e78e119abeb0f9a73c6e9f",
+      "fold_rem_bits": 0,
+      "kmax": 19,
+      "log_table": 24
+     },
+     "29": {
+      "ao_acc_hi_bits": 5,
+      "ao_acc_lo_bits": 16,
+      "ao_acc_mag": false,
+      "ao_jo_max": -4,
+      "ao_jo_min": -8,
+      "ao_jv_max": -4,
+      "ao_jv_min": -6,
+      "ao_q_bits": 7,
+      "ao_rem_bits": 17,
+      "deq_variants": {
+       "down": "chain",
+       "gate": "chain",
+       "k": "chain",
+       "o": "chain",
+       "q": "chain",
+       "up": "chain",
+       "v": "chain"
+      },
+      "dump_sha256": "8b9cd05b074c0612616fe64b16fd1decf6578bcd970f9df8ebb64057a9bc8281",
+      "fold_rem_bits": 0,
+      "kmax": 19,
+      "log_table": 24
+     },
+     "3": {
+      "ao_acc_hi_bits": 4,
+      "ao_acc_lo_bits": 16,
+      "ao_acc_mag": false,
+      "ao_jo_max": -6,
+      "ao_jo_min": -9,
+      "ao_jv_max": -4,
+      "ao_jv_min": -8,
+      "ao_q_bits": 7,
+      "ao_rem_bits": 15,
+      "deq_variants": {
+       "down": "chain",
+       "gate": "chain",
+       "k": "chain",
+       "o": "chain",
+       "q": "chain",
+       "up": "chain",
+       "v": "chain"
+      },
+      "dump_sha256": "4f63635c033e44ba0ff430d3cdea0995bf67b7c913020e7f597b7c4d6d8f2612",
+      "fold_rem_bits": 0,
+      "kmax": 19,
+      "log_table": 24
+     },
+     "30": {
+      "ao_acc_hi_bits": 5,
+      "ao_acc_lo_bits": 16,
+      "ao_acc_mag": false,
+      "ao_jo_max": -4,
+      "ao_jo_min": -8,
+      "ao_jv_max": -4,
+      "ao_jv_min": -6,
+      "ao_q_bits": 7,
+      "ao_rem_bits": 16,
+      "deq_variants": {
+       "down": "chain",
+       "gate": "chain",
+       "k": "chain",
+       "o": "chain",
+       "q": "chain",
+       "up": "chain",
+       "v": "chain"
+      },
+      "dump_sha256": "8e9f68f92370a339c666c6dbb7db3781900f944eec9eeecfccd50ecba23fdc22",
+      "fold_rem_bits": 0,
+      "kmax": 19,
+      "log_table": 24
+     },
+     "31": {
+      "ao_acc_hi_bits": 5,
+      "ao_acc_lo_bits": 16,
+      "ao_acc_mag": false,
+      "ao_jo_max": -4,
+      "ao_jo_min": -8,
+      "ao_jv_max": -4,
+      "ao_jv_min": -6,
+      "ao_q_bits": 7,
+      "ao_rem_bits": 17,
+      "deq_variants": {
+       "down": "chain",
+       "gate": "chain",
+       "k": "chain",
+       "o": "chain",
+       "q": "chain",
+       "up": "chain",
+       "v": "chain"
+      },
+      "dump_sha256": "e79b90301c4060639feb67ee819aaef7af1563c9f65f77b1e0c5628018852932",
+      "fold_rem_bits": 0,
+      "kmax": 19,
+      "log_table": 24
+     },
+     "32": {
+      "ao_acc_hi_bits": 6,
+      "ao_acc_lo_bits": 16,
+      "ao_acc_mag": false,
+      "ao_jo_max": -5,
+      "ao_jo_min": -8,
+      "ao_jv_max": -4,
+      "ao_jv_min": -6,
+      "ao_q_bits": 7,
+      "ao_rem_bits": 16,
+      "deq_variants": {
+       "down": "chain",
+       "gate": "chain",
+       "k": "chain",
+       "o": "chain",
+       "q": "chain",
+       "up": "chain",
+       "v": "chain"
+      },
+      "dump_sha256": "d36af342bf68a44b3e51c765c1daedeb1b238911a3544be3dde3f2165a373c81",
+      "fold_rem_bits": 0,
+      "kmax": 19,
+      "log_table": 24
+     },
+     "33": {
+      "ao_acc_hi_bits": 5,
+      "ao_acc_lo_bits": 16,
+      "ao_acc_mag": false,
+      "ao_jo_max": -4,
+      "ao_jo_min": -7,
+      "ao_jv_max": -3,
+      "ao_jv_min": -6,
+      "ao_q_bits": 7,
+      "ao_rem_bits": 16,
+      "deq_variants": {
+       "down": "chain",
+       "gate": "chain",
+       "k": "chain",
+       "o": "chain",
+       "q": "chain",
+       "up": "chain",
+       "v": "chain"
+      },
+      "dump_sha256": "0c7c07d45ebedf7c0339c3912b83067d078880001156676d01082b6a0805579b",
+      "fold_rem_bits": 0,
+      "kmax": 19,
+      "log_table": 25
+     },
+     "34": {
+      "ao_acc_hi_bits": 5,
+      "ao_acc_lo_bits": 16,
+      "ao_acc_mag": false,
+      "ao_jo_max": -4,
+      "ao_jo_min": -8,
+      "ao_jv_max": -4,
+      "ao_jv_min": -6,
+      "ao_q_bits": 7,
+      "ao_rem_bits": 17,
+      "deq_variants": {
+       "down": "chain",
+       "gate": "chain",
+       "k": "chain",
+       "o": "chain",
+       "q": "chain",
+       "up": "chain",
+       "v": "chain"
+      },
+      "dump_sha256": "a73aae39701a45f784a7bf9a90ab9f951e2870ae3aa1cd314e84f715e11197d3",
+      "fold_rem_bits": 0,
+      "kmax": 19,
+      "log_table": 24
+     },
+     "35": {
+      "ao_acc_hi_bits": 6,
+      "ao_acc_lo_bits": 16,
+      "ao_acc_mag": false,
+      "ao_jo_max": -4,
+      "ao_jo_min": -7,
+      "ao_jv_max": -4,
+      "ao_jv_min": -6,
+      "ao_q_bits": 7,
+      "ao_rem_bits": 18,
+      "deq_variants": {
+       "down": "chain",
+       "gate": "chain",
+       "k": "chain",
+       "o": "chain",
+       "q": "chain",
+       "up": "chain",
+       "v": "chain"
+      },
+      "dump_sha256": "5a26ed1df4663216e39fb76e247bbac99ce0a4cf170e0142b468ef3c1f1c75e7",
+      "fold_rem_bits": 0,
+      "kmax": 19,
+      "log_table": 24
+     },
+     "36": {
+      "ao_acc_hi_bits": 6,
+      "ao_acc_lo_bits": 16,
+      "ao_acc_mag": false,
+      "ao_jo_max": -4,
+      "ao_jo_min": -7,
+      "ao_jv_max": -4,
+      "ao_jv_min": -6,
+      "ao_q_bits": 7,
+      "ao_rem_bits": 16,
+      "deq_variants": {
+       "down": "chain",
+       "gate": "chain",
+       "k": "chain",
+       "o": "chain",
+       "q": "chain",
+       "up": "chain",
+       "v": "chain"
+      },
+      "dump_sha256": "39850891cf358e572a677f20d856b316f95988cafc5611e2b7c3f164b959ac81",
+      "fold_rem_bits": 0,
+      "kmax": 19,
+      "log_table": 24
+     },
+     "37": {
+      "ao_acc_hi_bits": 5,
+      "ao_acc_lo_bits": 16,
+      "ao_acc_mag": false,
+      "ao_jo_max": -4,
+      "ao_jo_min": -8,
+      "ao_jv_max": -4,
+      "ao_jv_min": -6,
+      "ao_q_bits": 7,
+      "ao_rem_bits": 16,
+      "deq_variants": {
+       "down": "chain",
+       "gate": "chain",
+       "k": "chain",
+       "o": "chain",
+       "q": "chain",
+       "up": "chain",
+       "v": "chain"
+      },
+      "dump_sha256": "5f301e5f4e5ef0ab7b5976169bc64c34f6f5e44d00f3a33858289a93bb79c92c",
+      "fold_rem_bits": 0,
+      "kmax": 19,
+      "log_table": 24
+     },
+     "38": {
+      "ao_acc_hi_bits": 7,
+      "ao_acc_lo_bits": 16,
+      "ao_acc_mag": false,
+      "ao_jo_max": -4,
+      "ao_jo_min": -7,
+      "ao_jv_max": -4,
+      "ao_jv_min": -6,
+      "ao_q_bits": 7,
+      "ao_rem_bits": 18,
+      "deq_variants": {
+       "down": "chain",
+       "gate": "chain",
+       "k": "chain",
+       "o": "chain",
+       "q": "chain",
+       "up": "chain",
+       "v": "chain"
+      },
+      "dump_sha256": "26ad12799d6225b8b877337094e3f87267e8ef6de047bd586fc3fa20e2a604a3",
+      "fold_rem_bits": 0,
+      "kmax": 19,
+      "log_table": 24
+     },
+     "39": {
+      "ao_acc_hi_bits": 7,
+      "ao_acc_lo_bits": 16,
+      "ao_acc_mag": false,
+      "ao_jo_max": -4,
+      "ao_jo_min": -6,
+      "ao_jv_max": -3,
+      "ao_jv_min": -6,
+      "ao_q_bits": 7,
+      "ao_rem_bits": 19,
+      "deq_variants": {
+       "down": "chain",
+       "gate": "chain",
+       "k": "chain",
+       "o": "chain",
+       "q": "chain",
+       "up": "chain",
+       "v": "chain"
+      },
+      "dump_sha256": "e1134dfd38de4717295a5021b2ec9fbd7f536005e7df502d0896637b8aa064d3",
+      "fold_rem_bits": 0,
+      "kmax": 19,
+      "log_table": 26
+     },
+     "4": {
+      "ao_acc_hi_bits": 6,
+      "ao_acc_lo_bits": 16,
+      "ao_acc_mag": false,
+      "ao_jo_max": -5,
+      "ao_jo_min": -8,
+      "ao_jv_max": -5,
+      "ao_jv_min": -9,
+      "ao_q_bits": 7,
+      "ao_rem_bits": 19,
+      "deq_variants": {
+       "down": "chain",
+       "gate": "chain",
+       "k": "chain",
+       "o": "chain",
+       "q": "chain",
+       "up": "chain",
+       "v": "chain"
+      },
+      "dump_sha256": "da3c758c6650121553ded149f8c1ab6bae7a7b19884cf39d2989a31f7fcbb3c2",
+      "fold_rem_bits": 0,
+      "kmax": 19,
+      "log_table": 28
+     },
+     "5": {
+      "ao_acc_hi_bits": 5,
+      "ao_acc_lo_bits": 16,
+      "ao_acc_mag": false,
+      "ao_jo_max": -6,
+      "ao_jo_min": -9,
+      "ao_jv_max": -3,
+      "ao_jv_min": -7,
+      "ao_q_bits": 7,
+      "ao_rem_bits": 16,
+      "deq_variants": {
+       "down": "chain",
+       "gate": "chain",
+       "k": "chain",
+       "o": "chain",
+       "q": "chain",
+       "up": "chain",
+       "v": "chain"
+      },
+      "dump_sha256": "dc333bab7ae792f2a6ad1e177abee71196d398944dc96072627c733397c3d252",
+      "fold_rem_bits": 0,
+      "kmax": 19,
+      "log_table": 26
+     },
+     "6": {
+      "ao_acc_hi_bits": 5,
+      "ao_acc_lo_bits": 16,
+      "ao_acc_mag": false,
+      "ao_jo_max": -6,
+      "ao_jo_min": -8,
+      "ao_jv_max": -4,
+      "ao_jv_min": -8,
+      "ao_q_bits": 7,
+      "ao_rem_bits": 16,
+      "deq_variants": {
+       "down": "chain",
+       "gate": "chain",
+       "k": "chain",
+       "o": "chain",
+       "q": "chain",
+       "up": "chain",
+       "v": "chain"
+      },
+      "dump_sha256": "5505d3478b65d3365bd1c26d07242f075635244891d731320b1f20b08636fd50",
+      "fold_rem_bits": 0,
+      "kmax": 19,
+      "log_table": 27
+     },
+     "7": {
+      "ao_acc_hi_bits": 4,
+      "ao_acc_lo_bits": 16,
+      "ao_acc_mag": false,
+      "ao_jo_max": -5,
+      "ao_jo_min": -8,
+      "ao_jv_max": -4,
+      "ao_jv_min": -7,
+      "ao_q_bits": 7,
+      "ao_rem_bits": 16,
+      "deq_variants": {
+       "down": "chain",
+       "gate": "chain",
+       "k": "chain",
+       "o": "chain",
+       "q": "chain",
+       "up": "chain",
+       "v": "chain"
+      },
+      "dump_sha256": "37ead28431a05899c9e68db380ec44b773e3a9672833e23009e89ed2faef17f5",
+      "fold_rem_bits": 0,
+      "kmax": 19,
+      "log_table": 24
+     },
+     "8": {
+      "ao_acc_hi_bits": 5,
+      "ao_acc_lo_bits": 16,
+      "ao_acc_mag": false,
+      "ao_jo_max": -6,
+      "ao_jo_min": -8,
+      "ao_jv_max": -4,
+      "ao_jv_min": -7,
+      "ao_q_bits": 7,
+      "ao_rem_bits": 17,
+      "deq_variants": {
+       "down": "chain",
+       "gate": "chain",
+       "k": "chain",
+       "o": "chain",
+       "q": "chain",
+       "up": "chain",
+       "v": "chain"
+      },
+      "dump_sha256": "0fdb4f5a9a84d17ab055a29748180d2aae81b341db4cfdb4f37bda722bf392fd",
+      "fold_rem_bits": 0,
+      "kmax": 19,
+      "log_table": 25
+     },
+     "9": {
+      "ao_acc_hi_bits": 5,
+      "ao_acc_lo_bits": 16,
+      "ao_acc_mag": false,
+      "ao_jo_max": -5,
+      "ao_jo_min": -8,
+      "ao_jv_max": -4,
+      "ao_jv_min": -7,
+      "ao_q_bits": 7,
+      "ao_rem_bits": 16,
+      "deq_variants": {
+       "down": "chain",
+       "gate": "chain",
+       "k": "chain",
+       "o": "chain",
+       "q": "chain",
+       "up": "chain",
+       "v": "chain"
+      },
+      "dump_sha256": "b2de4e200898519f3a8029a78bf0384df225a7c8bf040fb2413984e164d4a3fb",
+      "fold_rem_bits": 0,
+      "kmax": 19,
+      "log_table": 24
+     }
+    },
+    "note": "every field here is a property of the dump and exists before any proof of it does. The rule for each one, and the line of the prover it comes from, is in `harness/eval/predict/witness_fields.py`",
+    "read_by": "harness/eval/predict/witness_fields.py",
+    "schema": "witness-fields/1",
+    "summary": {
+     "ao_acc_hi_bits": {
+      "histogram": {
+       "4": 4,
+       "5": 18,
+       "6": 14,
+       "7": 3
+      },
+      "max": 7,
+      "min": 4,
+      "values": [
+       4,
+       5,
+       6,
+       7
+      ]
+     },
+     "ao_acc_lo_bits": {
+      "histogram": {
+       "16": 39
+      },
+      "max": 16,
+      "min": 16,
+      "values": [
+       16
+      ]
+     },
+     "ao_jo_max": {
+      "histogram": {
+       "-4": 16,
+       "-5": 17,
+       "-6": 5,
+       "-7": 1
+      },
+      "max": -4,
+      "min": -7,
+      "values": [
+       -7,
+       -6,
+       -5,
+       -4
+      ]
+     },
+     "ao_jo_min": {
+      "histogram": {
+       "-6": 1,
+       "-7": 12,
+       "-8": 23,
+       "-9": 3
+      },
+      "max": -6,
+      "min": -9,
+      "values": [
+       -9,
+       -8,
+       -7,
+       -6
+      ]
+     },
+     "ao_jv_max": {
+      "histogram": {
+       "-3": 4,
+       "-4": 33,
+       "-5": 2
+      },
+      "max": -3,
+      "min": -5,
+      "values": [
+       -5,
+       -4,
+       -3
+      ]
+     },
+     "ao_jv_min": {
+      "histogram": {
+       "-10": 1,
+       "-6": 26,
+       "-7": 8,
+       "-8": 2,
+       "-9": 2
+      },
+      "max": -6,
+      "min": -10,
+      "values": [
+       -10,
+       -9,
+       -8,
+       -7,
+       -6
+      ]
+     },
+     "ao_q_bits": {
+      "histogram": {
+       "7": 39
+      },
+      "max": 7,
+      "min": 7,
+      "values": [
+       7
+      ]
+     },
+     "ao_rem_bits": {
+      "histogram": {
+       "15": 1,
+       "16": 13,
+       "17": 17,
+       "18": 5,
+       "19": 3
+      },
+      "max": 19,
+      "min": 15,
+      "values": [
+       15,
+       16,
+       17,
+       18,
+       19
+      ]
+     },
+     "fold_rem_bits": {
+      "histogram": {
+       "0": 39
+      },
+      "max": 0,
+      "min": 0,
+      "values": [
+       0
+      ]
+     },
+     "kmax": {
+      "histogram": {
+       "19": 39
+      },
+      "max": 19,
+      "min": 19,
+      "values": [
+       19
+      ]
+     },
+     "log_table": {
+      "histogram": {
+       "24": 26,
+       "25": 7,
+       "26": 3,
+       "27": 1,
+       "28": 1,
+       "29": 1
+      },
+      "max": 29,
+      "min": 24,
+      "values": [
+       24,
+       25,
+       26,
+       27,
+       28,
+       29
+      ]
+     }
+    }
+   }
+  },
+  "implied_tok_s_secondary": {
+   "CodeLlama-13b-hf": {
+    "4096": {
+     "note": "this constants file does not name the H200 commit rate, so no tok/s is implied here",
+     "rate": null,
+     "rate_key": "rate.h200.c4096.commit_layers32",
+     "tok_s_commit_boundary": null
+    }
+   }
+  },
+  "integrator_notes": {
+   "card_footprint": {
+    "basis": "seq5's single 8B layer chunk peaked 76.8 GiB on the card at C=16384 (eval-plan.md section 8). E4's chunks scale roughly with fresh cells; the H200 has 141 GB and the C=16384 arm must run SERIAL, never pipelined two-ahead.",
+    "ratios": {
+     "CodeLlama-13b-hf": {
+      "4096": {
+       "chunk_over_8b_l16": 1.5305766706912
+      }
+     }
+    }
+   },
+   "frontier_rows_still_on_4p00": {
+    "finding": "Every `cells_per_token.27b.*` row in paper/constants.json reproduces EXACTLY when the cost model is re-run with the legacy alpha=4.00 path, and not otherwise. Re-running the same shape on the key tile model -- the composed-chunk value W0's freeze ruled the paper must use (eval-plan.md 7.5(e)) -- raises them as below. E4 reports this and does not patch it: `paper/constants.json` is owned elsewhere this session.",
+    "grades_still_wrong": [
+     {
+      "grade": "absent",
+      "key": "attention_grid.b5_standalone_alpha"
+     },
+     {
+      "grade": "measured",
+      "key": "model_constants.attention_cells_per_head_key_token"
+     }
+    ],
+    "rows": {
+     "16384": {
+      "frozen": null,
+      "key": "cells_per_token.27b.c16384.model",
+      "note": "this constants file does not name the frozen 27B row, so there is nothing to compare the re-run against",
+      "rerun_alpha_4p00": 376132984.25768715,
+      "rerun_key_tile_model": 291792328.9644314
+     },
+     "4096": {
+      "frozen": null,
+      "key": "cells_per_token.27b.c4096.model",
+      "note": "this constants file does not name the frozen 27B row, so there is nothing to compare the re-run against",
+      "rerun_alpha_4p00": 238998904.25768715,
+      "rerun_key_tile_model": 190465480.9644314
+     }
+    }
+   }
+  },
+  "key_tiles_selfcheck_8b": [
+   {
+    "ctx": 4096,
+    "exact": true,
+    "key_tiles_base": 207683584,
+    "key_tiles_interaction": 31268864,
+    "saturated": false,
+    "statement": {
+     "bind": true,
+     "chan_target": 128,
+     "diagonal_block": true,
+     "gkr": true,
+     "grid_target": 64,
+     "kv_boundary": true,
+     "rw": 16
+    }
+   },
+   {
+    "ctx": 16384,
+    "exact": true,
+    "key_tiles_base": 761331712,
+    "key_tiles_interaction": 113057792,
+    "saturated": false,
+    "statement": {
+     "bind": true,
+     "chan_target": 128,
+     "diagonal_block": true,
+     "gkr": true,
+     "grid_target": 64,
+     "kv_boundary": true,
+     "rw": 16
+    }
+   }
+  ],
+  "layer_spread": {
+   "16384": {
+    "layers": 32,
+    "mean_fresh_per_chunk": 2242287979.0,
+    "narrowest_layer": "B32L3",
+    "note": "the widest layer is the embedding one: it carries the embedding lookup, the largest master exponent table of the 32 and one more cell per attention-output accumulator. Without it the spread is the row above.",
+    "run": "2026-09-08-headline-c16384-h100",
+    "single_layer_pct": [
+     -1.4907435312973227,
+     5.996188458360363
+    ],
+    "single_layer_pct_without_the_embedding_layer": [
+     -1.4907435312973227,
+     5.056169326232651
+    ],
+    "widest_layer": "B32L0",
+    "worst_even_8_subsample_pct": 0.5554666981515299
+   },
+   "4096": {
+    "layers": 32,
+    "mean_fresh_per_chunk": 1392417118.5,
+    "narrowest_layer": "B8L13",
+    "note": "the widest layer is the embedding one: it carries the embedding lookup, the largest master exponent table of the 32 and one more cell per attention-output accumulator. Without it the spread is the row above.",
+    "run": "2026-09-09-headline-c4096-h100",
+    "single_layer_pct": [
+     -1.4593062832989,
+     10.597329172379034
+    ],
+    "single_layer_pct_without_the_embedding_layer": [
+     -1.4593062832989,
+     3.0590753973124274
+    ],
+    "widest_layer": "B8L0",
+    "worst_even_8_subsample_pct": 0.9891088896434086
+   }
+  },
+  "prediction_block_sha256": "56811be8e58799b65c2f1207bbb5240ebb760854a6a4a4b13a83591e0fb75e0a",
+  "prediction_sha256": "b2298d76800830e98d101a29a5bce9a165d39ad67357c9c9f5094e90260e9029",
+  "provenance": {
+   "inputs_sha256": {
+    "constants.json": "841dcd6ebda5bbb0a082f28c1bcba5df474e78c0d9be21d7f5569d0353e59f5b",
+    "harness/costmodel/composed_rungs.json": "cc0c303f00d6f22c506a29333c6ce235db97039d6413846edabdb3d52f0386f8",
+    "harness/costmodel/cost_model.py": "bb72cfb5528414e7791e72ef25ac5d585dc2577df6b0ba19b15cf272860276da",
+    "harness/costmodel/exact_cells.py": "b47650ac66cd5ebf876e6a01c2729fcf3f71b10435836bcfec665fe5459086f0",
+    "harness/costmodel/exact_chunks.json": "a8024152a0c2b5d44c8f1d4ce13f187ca07dcd98b92a3ab8a94b9fd657830e8e",
+    "harness/costmodel/key_tile.py": "22ce6580bef922d69966a81f7b02d42782650a821493ef7b3604d90aca312ab1",
+    "harness/costmodel/layer_chunks.json": "aec3d7b6fbd9107e509606527af96a78bfe6bc87d76450868b57813eba4a2092",
+    "harness/eval/predict/predict.py": "51b1f29d213d0925d29e72ac5b8923b38aed6f91fc942b1c14dfca956d42f499",
+    "harness/eval/predict/witness_fields.py": "89cd63309506f1cade8c0b072babd7c3854b8424537d05a92ccd95660b4a81be"
+   },
+   "no_measurement_exists": "NO accepted proof and NO measured cell count of codellama/CodeLlama-13b-hf exists in either repository or on any host. What does exist, and what this registration is made from, is the extracted witness set: 39 layer dumps of one token block at C=4,096, spec b10-final, whose per-layer digests are in `frozen_inputs.witness_fields`. A dump is not a measurement: every field read off it is a property of the forward pass and is fixed before any proof is built. The stack has 40 layers and this counts 39: layer 0 is NOT in it, because the harness refused to write that dump, so no witness of it exists and no proof of it will. Every per-token figure here is over the segments this file names and not over the stack. Layer 0 of this model cannot be proved and is not in this registration: the harness refuses to write its dump, because the attention output's quotient term is 7 + 26 = 33 bits against the field's 31 in the widest form there is, and the divisor range is the layer's own, which a driver may only widen. So what is registered and what will be measured is layers 1 to 39, with the embedding segment in neither. One of those 39 layers is NOT blind, and this document says so rather than letting a reader assume otherwise: before this registration was made, layer 16 of this model was extracted and proved once as a probe of whether a bias-free model of this class proves at all, after the 14B's rejection left E4's third scale with no measurement. That proof accepted and reported `cells.fresh` 2,290,115,312, at C=4,096, S=512, spec b10-final, head groups 16,16,8 and the same statement. It made no run record and the dump it proved is not one of the dumps this registration is counted from. Layers 1 to 15 and 17 to 39 are blind. The counted total for layer 16 landing on that integer is the expected result of counting a layout, not evidence of a fit: nothing here is fitted to it, and the same code reproduces all 84 recorded 8B segments to the cell without ever having seen this shape.",
+   "predictor": {
+    "attention_term": "the KEY_TILE MODEL (alpha=None). The legacy single-slope alpha=4.00 path is NOT used -- section 7.5(e)'s ruling is that the paper uses the composed-chunk value.",
+    "cells": "exact",
+    "counted_by": "harness/costmodel/exact_cells.py, which rebuilds the prover's trace layout component by component and reproduces every recorded chunk in zk-results to the cell",
+    "counted_entry_points": [
+     "exact_cells.segment_params",
+     "exact_cells",
+     "exact_cells.bound_cells",
+     "witness_fields.fields_of"
+    ],
+    "engine": "experiments/b2/cost_model.py",
+    "entry_points": [
+     "cells_per_token(cfg, ctx, batch, seq, head=False, gkr=...)",
+     "residual_stream_cells(cfg, 'tree', gkr=...)",
+     "key_tile_family",
+     "key_tile_cells",
+     "key_tile_fresh",
+     "boundary_cells",
+     "lookup_table_cells",
+     "lm_head_chunk"
+    ],
+    "fields_read_from": "the witness dumps themselves, before any proof of them exists",
+    "lookup_batch": 2,
+    "not_the_engine": "experiments/budget.py is an early one-shape proxy (eval-plan.md section 3) and is not used here",
+    "reductions_priced": [
+     "key_tiles",
+     "dequant",
+     "residual_stream",
+     "freivalds",
+     "attnout"
+    ],
+    "seq_per_chunk": 512
+   },
+   "registered_by": "stream E4 (desk lane), the counted registration",
+   "registered_utc_date": "2026-09-11",
+   "registers": [
+    "CodeLlama-13b-hf"
+   ]
+  },
+  "reference_8b_chunk": {
+   "cells": {
+    "16384": 2229832816,
+    "4096": 1393069168
+   },
+   "source": "<--artifacts>/seq5/seq_c{4096,16384}_L16.json (result.point.cells.fresh)"
+  },
+  "schema": "e4-registration/1",
+  "shapes": {
+   "CodeLlama-13b-hf": {
+    "cfg": [
+     40,
+     5120,
+     40,
+     40,
+     128,
+     13824,
+     32016
+    ],
+    "contexts": {
+     "4096": {
+      "bound_shift_pct": -2.740468566166998,
+      "cells": "exact",
+      "cells_per_token_layers": 166578060.09375,
+      "cells_per_token_layers_bound": 162013040.71875,
+      "cells_per_token_layers_key_tiles": 22751820.0,
+      "cells_per_token_layers_rest": 143826240.09375,
+      "chunk_over_8b_l16_chunk": 1.5305766706912,
+      "components_per_token": {
+       "argmax": 0.0,
+       "attnout": 3314688.0,
+       "dequant": 32727552.0,
+       "embed": 0.0,
+       "freivalds": 5111808.0,
+       "gkrlink": 2551848.0,
+       "key_tiles": 22751820.0,
+       "quant": 16773120.0,
+       "requant": 16713216.0,
+       "requant_tables": 65325.0,
+       "residual_stream": 41033772.0,
+       "tables": 18346431.09375
+      },
+      "head_segment": {
+       "fields": {
+        "ao_acc_hi_bits": 5,
+        "ao_acc_lo_bits": 16,
+        "ao_jo_max": -10,
+        "ao_jo_min": -12,
+        "ao_jv_max": -5,
+        "ao_jv_min": -7,
+        "ao_q_bits": 11,
+        "ao_rem_bits": 15,
+        "fold_rem_bits": 15,
+        "kmax": 19,
+        "log_table": 23
+       },
+       "fields_source": "ASSUMED: the modal block of the recorded 8B output head segments. This campaign extracts no head dump at the registered shape, so the head's fields are the only ones in this document that are not read off a witness",
+       "fresh": 1288163440,
+       "per_token": 2515944.21875,
+       "preprocessed_note": "the weight trace the Freivalds check reads is committed offline and is no committed cell of this segment, so the count says nothing about it"
+      },
+      "key_tile_layout_saturated": false,
+      "key_tiles_closed_form_per_chunk": {
+       "base": 259604480,
+       "interaction": 39086080,
+       "saturated": false
+      },
+      "key_tiles_family_base_per_chunk": 259604480,
+      "key_tiles_family_fresh_per_chunk": 298690560,
+      "key_tiles_family_interaction_per_chunk": 39086080,
+      "layers": [
+       {
+        "base": 1986052640,
+        "bound_fresh": 2126940432,
+        "boundary": 94371840,
+        "components": {
+         "argmax": 0,
+         "attnout": 43515904,
+         "dequant": 429654016,
+         "embed": 0,
+         "freivalds": 67108864,
+         "gkrlink": 33501184,
+         "key_tiles": 298690560,
+         "quant": 220200960,
+         "requant": 219414528,
+         "requant_tables": 857600,
+         "residual_stream": 538699776,
+         "tables": 2692910240
+        },
+        "deq_variants": {
+         "down": "chain",
+         "gate": "chain",
+         "k": "chain",
+         "o": "chain",
+         "q": "chain",
+         "up": "chain",
+         "v": "chain"
+        },
+        "dump_sha256": "a5cff4b1f6effc3b8b73e47084fe5dae178b17916c21f4317717eeafb307aebf",
+        "fields": {
+         "ao_acc_hi_bits": 4,
+         "ao_acc_lo_bits": 16,
+         "ao_acc_mag": false,
+         "ao_jo_max": -7,
+         "ao_jo_min": -9,
+         "ao_jv_max": -5,
+         "ao_jv_min": -10,
+         "ao_q_bits": 7,
+         "ao_rem_bits": 17,
+         "fold_rem_bits": 0,
+         "kmax": 19,
+         "log_table": 29
+        },
+        "fresh": 4638925472,
+        "interaction": 2558500992,
+        "kind": "layer",
+        "layer": 1,
+        "table_rows": 538582048
+       },
+       {
+        "base": 1482605088,
+        "bound_fresh": 2126940432,
+        "boundary": 94371840,
+        "components": {
+         "argmax": 0,
+         "attnout": 43515904,
+         "dequant": 429654016,
+         "embed": 0,
+         "freivalds": 67108864,
+         "gkrlink": 33501184,
+         "key_tiles": 298690560,
+         "quant": 220200960,
+         "requant": 219414528,
+         "requant_tables": 857600,
+         "residual_stream": 538699776,
+         "tables": 175672480
+        },
+        "deq_variants": {
+         "down": "chain",
+         "gate": "chain",
+         "k": "chain",
+         "o": "chain",
+         "q": "chain",
+         "up": "chain",
+         "v": "chain"
+        },
+        "dump_sha256": "8be08d4f0260a03e28de90f4dd244e6a97f17d6f7f1b5e5d8aa215bdbf09c60b",
+        "fields": {
+         "ao_acc_hi_bits": 4,
+         "ao_acc_lo_bits": 16,
+         "ao_acc_mag": false,
+         "ao_jo_max": -6,
+         "ao_jo_min": -8,
+         "ao_jv_max": -4,
+         "ao_jv_min": -9,
+         "ao_q_bits": 7,
+         "ao_rem_bits": 16,
+         "fold_rem_bits": 0,
+         "kmax": 19,
+         "log_table": 25
+        },
+        "fresh": 2121687712,
+        "interaction": 544710784,
+        "kind": "layer",
+        "layer": 2,
+        "table_rows": 35134496
+       },
+       {
+        "base": 1465827872,
+        "bound_fresh": 2126940432,
+        "boundary": 94371840,
+        "components": {
+         "argmax": 0,
+         "attnout": 43515904,
+         "dequant": 429654016,
+         "embed": 0,
+         "freivalds": 67108864,
+         "gkrlink": 33501184,
+         "key_tiles": 298690560,
+         "quant": 220200960,
+         "requant": 219414528,
+         "requant_tables": 857600,
+         "residual_stream": 538699776,
+         "tables": 91786400
+        },
+        "deq_variants": {
+         "down": "chain",
+         "gate": "chain",
+         "k": "chain",
+         "o": "chain",
+         "q": "chain",
+         "up": "chain",
+         "v": "chain"
+        },
+        "dump_sha256": "4f63635c033e44ba0ff430d3cdea0995bf67b7c913020e7f597b7c4d6d8f2612",
+        "fields": {
+         "ao_acc_hi_bits": 4,
+         "ao_acc_lo_bits": 16,
+         "ao_acc_mag": false,
+         "ao_jo_max": -6,
+         "ao_jo_min": -9,
+         "ao_jv_max": -4,
+         "ao_jv_min": -8,
+         "ao_q_bits": 7,
+         "ao_rem_bits": 15,
+         "fold_rem_bits": 0,
+         "kmax": 19,
+         "log_table": 24
+        },
+        "fresh": 2037801632,
+        "interaction": 477601920,
+        "kind": "layer",
+        "layer": 3,
+        "table_rows": 18357280
+       },
+       {
+        "base": 1718010448,
+        "bound_fresh": 2126940432,
+        "boundary": 94371840,
+        "components": {
+         "argmax": 0,
+         "attnout": 43515904,
+         "dequant": 429654016,
+         "embed": 0,
+         "freivalds": 67108864,
+         "gkrlink": 33501184,
+         "key_tiles": 298690560,
+         "quant": 220200960,
+         "requant": 219414528,
+         "requant_tables": 857600,
+         "residual_stream": 538699776,
+         "tables": 1352699280
+        },
+        "deq_variants": {
+         "down": "chain",
+         "gate": "chain",
+         "k": "chain",
+         "o": "chain",
+         "q": "chain",
+         "up": "chain",
+         "v": "chain"
+        },
+        "dump_sha256": "da3c758c6650121553ded149f8c1ab6bae7a7b19884cf39d2989a31f7fcbb3c2",
+        "fields": {
+         "ao_acc_hi_bits": 6,
+         "ao_acc_lo_bits": 16,
+         "ao_acc_mag": false,
+         "ao_jo_max": -5,
+         "ao_jo_min": -8,
+         "ao_jv_max": -5,
+         "ao_jv_min": -9,
+         "ao_q_bits": 7,
+         "ao_rem_bits": 19,
+         "fold_rem_bits": 0,
+         "kmax": 19,
+         "log_table": 28
+        },
+        "fresh": 3298714512,
+        "interaction": 1486332224,
+        "kind": "layer",
+        "layer": 4,
+        "table_rows": 270539856
+       },
+       {
+        "base": 1516159536,
+        "bound_fresh": 2126940432,
+        "boundary": 94371840,
+        "components": {
+         "argmax": 0,
+         "attnout": 43515904,
+         "dequant": 429654016,
+         "embed": 0,
+         "freivalds": 67108864,
+         "gkrlink": 33501184,
+         "key_tiles": 298690560,
+         "quant": 220200960,
+         "requant": 219414528,
+         "requant_tables": 857600,
+         "residual_stream": 538699776,
+         "tables": 343444720
+        },
+        "deq_variants": {
+         "down": "chain",
+         "gate": "chain",
+         "k": "chain",
+         "o": "chain",
+         "q": "chain",
+         "up": "chain",
+         "v": "chain"
+        },
+        "dump_sha256": "dc333bab7ae792f2a6ad1e177abee71196d398944dc96072627c733397c3d252",
+        "fields": {
+         "ao_acc_hi_bits": 5,
+         "ao_acc_lo_bits": 16,
+         "ao_acc_mag": false,
+         "ao_jo_max": -6,
+         "ao_jo_min": -9,
+         "ao_jv_max": -3,
+         "ao_jv_min": -7,
+         "ao_q_bits": 7,
+         "ao_rem_bits": 16,
+         "fold_rem_bits": 0,
+         "kmax": 19,
+         "log_table": 26
+        },
+        "fresh": 2289459952,
+        "interaction": 678928576,
+        "kind": "layer",
+        "layer": 5,
+        "table_rows": 68688944
+       },
+       {
+        "base": 1583268400,
+        "bound_fresh": 2126940432,
+        "boundary": 94371840,
+        "components": {
+         "argmax": 0,
+         "attnout": 43515904,
+         "dequant": 429654016,
+         "embed": 0,
+         "freivalds": 67108864,
+         "gkrlink": 33501184,
+         "key_tiles": 298690560,
+         "quant": 220200960,
+         "requant": 219414528,
+         "requant_tables": 857600,
+         "residual_stream": 538699776,
+         "tables": 678989040
+        },
+        "deq_variants": {
+         "down": "chain",
+         "gate": "chain",
+         "k": "chain",
+         "o": "chain",
+         "q": "chain",
+         "up": "chain",
+         "v": "chain"
+        },
+        "dump_sha256": "5505d3478b65d3365bd1c26d07242f075635244891d731320b1f20b08636fd50",
+        "fields": {
+         "ao_acc_hi_bits": 5,
+         "ao_acc_lo_bits": 16,
+         "ao_acc_mag": false,
+         "ao_jo_max": -6,
+         "ao_jo_min": -8,
+         "ao_jv_max": -4,
+         "ao_jv_min": -8,
+         "ao_q_bits": 7,
+         "ao_rem_bits": 16,
+         "fold_rem_bits": 0,
+         "kmax": 19,
+         "log_table": 27
+        },
+        "fresh": 2625004272,
+        "interaction": 947364032,
+        "kind": "layer",
+        "layer": 6,
+        "table_rows": 135797808
+       },
+       {
+        "base": 1465827872,
+        "bound_fresh": 2126940432,
+        "boundary": 94371840,
+        "components": {
+         "argmax": 0,
+         "attnout": 43515904,
+         "dequant": 429654016,
+         "embed": 0,
+         "freivalds": 67108864,
+         "gkrlink": 33501184,
+         "key_tiles": 298690560,
+         "quant": 220200960,
+         "requant": 219414528,
+         "requant_tables": 857600,
+         "residual_stream": 538699776,
+         "tables": 91786400
+        },
+        "deq_variants": {
+         "down": "chain",
+         "gate": "chain",
+         "k": "chain",
+         "o": "chain",
+         "q": "chain",
+         "up": "chain",
+         "v": "chain"
+        },
+        "dump_sha256": "37ead28431a05899c9e68db380ec44b773e3a9672833e23009e89ed2faef17f5",
+        "fields": {
+         "ao_acc_hi_bits": 4,
+         "ao_acc_lo_bits": 16,
+         "ao_acc_mag": false,
+         "ao_jo_max": -5,
+         "ao_jo_min": -8,
+         "ao_jv_max": -4,
+         "ao_jv_min": -7,
+         "ao_q_bits": 7,
+         "ao_rem_bits": 16,
+         "fold_rem_bits": 0,
+         "kmax": 19,
+         "log_table": 24
+        },
+        "fresh": 2037801632,
+        "interaction": 477601920,
+        "kind": "layer",
+        "layer": 7,
+        "table_rows": 18357280
+       },
+       {
+        "base": 1482736176,
+        "bound_fresh": 2126940432,
+        "boundary": 94371840,
+        "components": {
+         "argmax": 0,
+         "attnout": 43515904,
+         "dequant": 429654016,
+         "embed": 0,
+         "freivalds": 67108864,
+         "gkrlink": 33501184,
+         "key_tiles": 298690560,
+         "quant": 220200960,
+         "requant": 219414528,
+         "requant_tables": 857600,
+         "residual_stream": 538699776,
+         "tables": 176327920
+        },
+        "deq_variants": {
+         "down": "chain",
+         "gate": "chain",
+         "k": "chain",
+         "o": "chain",
+         "q": "chain",
+         "up": "chain",
+         "v": "chain"
+        },
+        "dump_sha256": "0fdb4f5a9a84d17ab055a29748180d2aae81b341db4cfdb4f37bda722bf392fd",
+        "fields": {
+         "ao_acc_hi_bits": 5,
+         "ao_acc_lo_bits": 16,
+         "ao_acc_mag": false,
+         "ao_jo_max": -6,
+         "ao_jo_min": -8,
+         "ao_jv_max": -4,
+         "ao_jv_min": -7,
+         "ao_q_bits": 7,
+         "ao_rem_bits": 17,
+         "fold_rem_bits": 0,
+         "kmax": 19,
+         "log_table": 25
+        },
+        "fresh": 2122343152,
+        "interaction": 545235136,
+        "kind": "layer",
+        "layer": 8,
+        "table_rows": 35265584
+       },
+       {
+        "base": 1465827888,
+        "bound_fresh": 2126940432,
+        "boundary": 94371840,
+        "components": {
+         "argmax": 0,
+         "attnout": 43515904,
+         "dequant": 429654016,
+         "embed": 0,
+         "freivalds": 67108864,
+         "gkrlink": 33501184,
+         "key_tiles": 298690560,
+         "quant": 220200960,
+         "requant": 219414528,
+         "requant_tables": 857600,
+         "residual_stream": 538699776,
+         "tables": 91786480
+        },
+        "deq_variants": {
+         "down": "chain",
+         "gate": "chain",
+         "k": "chain",
+         "o": "chain",
+         "q": "chain",
+         "up": "chain",
+         "v": "chain"
+        },
+        "dump_sha256": "b2de4e200898519f3a8029a78bf0384df225a7c8bf040fb2413984e164d4a3fb",
+        "fields": {
+         "ao_acc_hi_bits": 5,
+         "ao_acc_lo_bits": 16,
+         "ao_acc_mag": false,
+         "ao_jo_max": -5,
+         "ao_jo_min": -8,
+         "ao_jv_max": -4,
+         "ao_jv_min": -7,
+         "ao_q_bits": 7,
+         "ao_rem_bits": 16,
+         "fold_rem_bits": 0,
+         "kmax": 19,
+         "log_table": 24
+        },
+        "fresh": 2037801712,
+        "interaction": 477601984,
+        "kind": "layer",
+        "layer": 9,
+        "table_rows": 18357296
+       },
+       {
+        "base": 1466090064,
+        "bound_fresh": 2126940432,
+        "boundary": 94371840,
+        "components": {
+         "argmax": 0,
+         "attnout": 43515904,
+         "dequant": 429654016,
+         "embed": 0,
+         "freivalds": 67108864,
+         "gkrlink": 33501184,
+         "key_tiles": 298690560,
+         "quant": 220200960,
+         "requant": 219414528,
+         "requant_tables": 857600,
+         "residual_stream": 538699776,
+         "tables": 93097360
+        },
+        "deq_variants": {
+         "down": "chain",
+         "gate": "chain",
+         "k": "chain",
+         "o": "chain",
+         "q": "chain",
+         "up": "chain",
+         "v": "chain"
+        },
+        "dump_sha256": "9655343aa754bdc5f5d09981e2e2f308dd423d8b5adcaa79e0eb1efe746de7d7",
+        "fields": {
+         "ao_acc_hi_bits": 6,
+         "ao_acc_lo_bits": 16,
+         "ao_acc_mag": false,
+         "ao_jo_max": -5,
+         "ao_jo_min": -8,
+         "ao_jv_max": -4,
+         "ao_jv_min": -7,
+         "ao_q_bits": 7,
+         "ao_rem_bits": 18,
+         "fold_rem_bits": 0,
+         "kmax": 19,
+         "log_table": 24
+        },
+        "fresh": 2039112592,
+        "interaction": 478650688,
+        "kind": "layer",
+        "layer": 10,
+        "table_rows": 18619472
+       },
+       {
+        "base": 1482736208,
+        "bound_fresh": 2126940432,
+        "boundary": 94371840,
+        "components": {
+         "argmax": 0,
+         "attnout": 43515904,
+         "dequant": 429654016,
+         "embed": 0,
+         "freivalds": 67108864,
+         "gkrlink": 33501184,
+         "key_tiles": 298690560,
+         "quant": 220200960,
+         "requant": 219414528,
+         "requant_tables": 857600,
+         "residual_stream": 538699776,
+         "tables": 176328080
+        },
+        "deq_variants": {
+         "down": "chain",
+         "gate": "chain",
+         "k": "chain",
+         "o": "chain",
+         "q": "chain",
+         "up": "chain",
+         "v": "chain"
+        },
+        "dump_sha256": "62994ff6fb86d2d467e85b530efa2c42d33f86d146aace184f421478c2f4c7e7",
+        "fields": {
+         "ao_acc_hi_bits": 6,
+         "ao_acc_lo_bits": 16,
+         "ao_acc_mag": false,
+         "ao_jo_max": -5,
+         "ao_jo_min": -8,
+         "ao_jv_max": -4,
+         "ao_jv_min": -7,
+         "ao_q_bits": 7,
+         "ao_rem_bits": 17,
+         "fold_rem_bits": 0,
+         "kmax": 19,
+         "log_table": 25
+        },
+        "fresh": 2122343312,
+        "interaction": 545235264,
+        "kind": "layer",
+        "layer": 11,
+        "table_rows": 35265616
+       },
+       {
+        "base": 1482867280,
+        "bound_fresh": 2126940432,
+        "boundary": 94371840,
+        "components": {
+         "argmax": 0,
+         "attnout": 43515904,
+         "dequant": 429654016,
+         "embed": 0,
+         "freivalds": 67108864,
+         "gkrlink": 33501184,
+         "key_tiles": 298690560,
+         "quant": 220200960,
+         "requant": 219414528,
+         "requant_tables": 857600,
+         "residual_stream": 538699776,
+         "tables": 176983440
+        },
+        "deq_variants": {
+         "down": "chain",
+         "gate": "chain",
+         "k": "chain",
+         "o": "chain",
+         "q": "chain",
+         "up": "chain",
+         "v": "chain"
+        },
+        "dump_sha256": "8a4786aa54b4fd36f2752576faf07c8f302e1128215fba37f6fd60019542bca7",
+        "fields": {
+         "ao_acc_hi_bits": 6,
+         "ao_acc_lo_bits": 16,
+         "ao_acc_mag": false,
+         "ao_jo_max": -5,
+         "ao_jo_min": -7,
+         "ao_jv_max": -4,
+         "ao_jv_min": -6,
+         "ao_q_bits": 7,
+         "ao_rem_bits": 18,
+         "fold_rem_bits": 0,
+         "kmax": 19,
+         "log_table": 25
+        },
+        "fresh": 2122998672,
+        "interaction": 545759552,
+        "kind": "layer",
+        "layer": 12,
+        "table_rows": 35396688
+       },
+       {
+        "base": 1466090064,
+        "bound_fresh": 2126940432,
+        "boundary": 94371840,
+        "components": {
+         "argmax": 0,
+         "attnout": 43515904,
+         "dequant": 429654016,
+         "embed": 0,
+         "freivalds": 67108864,
+         "gkrlink": 33501184,
+         "key_tiles": 298690560,
+         "quant": 220200960,
+         "requant": 219414528,
+         "requant_tables": 857600,
+         "residual_stream": 538699776,
+         "tables": 93097360
+        },
+        "deq_variants": {
+         "down": "chain",
+         "gate": "chain",
+         "k": "chain",
+         "o": "chain",
+         "q": "chain",
+         "up": "chain",
+         "v": "chain"
+        },
+        "dump_sha256": "adda86654aced8ba4a754e1731b6ae0762cfa96191d6f024251ef526178eef59",
+        "fields": {
+         "ao_acc_hi_bits": 6,
+         "ao_acc_lo_bits": 16,
+         "ao_acc_mag": false,
+         "ao_jo_max": -5,
+         "ao_jo_min": -8,
+         "ao_jv_max": -4,
+         "ao_jv_min": -6,
+         "ao_q_bits": 7,
+         "ao_rem_bits": 18,
+         "fold_rem_bits": 0,
+         "kmax": 19,
+         "log_table": 24
+        },
+        "fresh": 2039112592,
+        "interaction": 478650688,
+        "kind": "layer",
+        "layer": 13,
+        "table_rows": 18619472
+       },
+       {
+        "base": 1465958960,
+        "bound_fresh": 2126940432,
+        "boundary": 94371840,
+        "components": {
+         "argmax": 0,
+         "attnout": 43515904,
+         "dequant": 429654016,
+         "embed": 0,
+         "freivalds": 67108864,
+         "gkrlink": 33501184,
+         "key_tiles": 298690560,
+         "quant": 220200960,
+         "requant": 219414528,
+         "requant_tables": 857600,
+         "residual_stream": 538699776,
+         "tables": 92441840
+        },
+        "deq_variants": {
+         "down": "chain",
+         "gate": "chain",
+         "k": "chain",
+         "o": "chain",
+         "q": "chain",
+         "up": "chain",
+         "v": "chain"
+        },
+        "dump_sha256": "9b4cf27934ab21ef8482260ec0e1f265550dbe36878e6b58537a60320d2ae1ef",
+        "fields": {
+         "ao_acc_hi_bits": 5,
+         "ao_acc_lo_bits": 16,
+         "ao_acc_mag": false,
+         "ao_jo_max": -5,
+         "ao_jo_min": -7,
+         "ao_jv_max": -4,
+         "ao_jv_min": -6,
+         "ao_q_bits": 7,
+         "ao_rem_bits": 17,
+         "fold_rem_bits": 0,
+         "kmax": 19,
+         "log_table": 24
+        },
+        "fresh": 2038457072,
+        "interaction": 478126272,
+        "kind": "layer",
+        "layer": 14,
+        "table_rows": 18488368
+       },
+       {
+        "base": 1482736176,
+        "bound_fresh": 2126940432,
+        "boundary": 94371840,
+        "components": {
+         "argmax": 0,
+         "attnout": 43515904,
+         "dequant": 429654016,
+         "embed": 0,
+         "freivalds": 67108864,
+         "gkrlink": 33501184,
+         "key_tiles": 298690560,
+         "quant": 220200960,
+         "requant": 219414528,
+         "requant_tables": 857600,
+         "residual_stream": 538699776,
+         "tables": 176327920
+        },
+        "deq_variants": {
+         "down": "chain",
+         "gate": "chain",
+         "k": "chain",
+         "o": "chain",
+         "q": "chain",
+         "up": "chain",
+         "v": "chain"
+        },
+        "dump_sha256": "d519275f74be949693c7c9d27a14f9116da48d0eba91fc5ff9f58a30959d3665",
+        "fields": {
+         "ao_acc_hi_bits": 5,
+         "ao_acc_lo_bits": 16,
+         "ao_acc_mag": false,
+         "ao_jo_max": -5,
+         "ao_jo_min": -8,
+         "ao_jv_max": -4,
+         "ao_jv_min": -7,
+         "ao_q_bits": 7,
+         "ao_rem_bits": 17,
+         "fold_rem_bits": 0,
+         "kmax": 19,
+         "log_table": 25
+        },
+        "fresh": 2122343152,
+        "interaction": 545235136,
+        "kind": "layer",
+        "layer": 15,
+        "table_rows": 35265584
+       },
+       {
+        "base": 1516290608,
+        "bound_fresh": 2126940432,
+        "boundary": 94371840,
+        "components": {
+         "argmax": 0,
+         "attnout": 43515904,
+         "dequant": 429654016,
+         "embed": 0,
+         "freivalds": 67108864,
+         "gkrlink": 33501184,
+         "key_tiles": 298690560,
+         "quant": 220200960,
+         "requant": 219414528,
+         "requant_tables": 857600,
+         "residual_stream": 538699776,
+         "tables": 344100080
+        },
+        "deq_variants": {
+         "down": "chain",
+         "gate": "chain",
+         "k": "chain",
+         "o": "chain",
+         "q": "chain",
+         "up": "chain",
+         "v": "chain"
+        },
+        "dump_sha256": "2e03a8120b2d424f30d8cc8a6af62a2df7c2db939efa69194fb21e797a1834ed",
+        "fields": {
+         "ao_acc_hi_bits": 5,
+         "ao_acc_lo_bits": 16,
+         "ao_acc_mag": false,
+         "ao_jo_max": -5,
+         "ao_jo_min": -7,
+         "ao_jv_max": -4,
+         "ao_jv_min": -6,
+         "ao_q_bits": 7,
+         "ao_rem_bits": 17,
+         "fold_rem_bits": 0,
+         "kmax": 19,
+         "log_table": 26
+        },
+        "fresh": 2290115312,
+        "interaction": 679452864,
+        "kind": "layer",
+        "layer": 16,
+        "table_rows": 68820016
+       },
+       {
+        "base": 1466352208,
+        "bound_fresh": 2126940432,
+        "boundary": 94371840,
+        "components": {
+         "argmax": 0,
+         "attnout": 43515904,
+         "dequant": 429654016,
+         "embed": 0,
+         "freivalds": 67108864,
+         "gkrlink": 33501184,
+         "key_tiles": 298690560,
+         "quant": 220200960,
+         "requant": 219414528,
+         "requant_tables": 857600,
+         "residual_stream": 538699776,
+         "tables": 94408080
+        },
+        "deq_variants": {
+         "down": "chain",
+         "gate": "chain",
+         "k": "chain",
+         "o": "chain",
+         "q": "chain",
+         "up": "chain",
+         "v": "chain"
+        },
+        "dump_sha256": "3b45d9518759cf617cbef051fbc6b141b0098df106df802e060e5d3d4766f504",
+        "fields": {
+         "ao_acc_hi_bits": 6,
+         "ao_acc_lo_bits": 16,
+         "ao_acc_mag": false,
+         "ao_jo_max": -5,
+         "ao_jo_min": -7,
+         "ao_jv_max": -4,
+         "ao_jv_min": -6,
+         "ao_q_bits": 7,
+         "ao_rem_bits": 19,
+         "fold_rem_bits": 0,
+         "kmax": 19,
+         "log_table": 24
+        },
+        "fresh": 2040423312,
+        "interaction": 479699264,
+        "kind": "layer",
+        "layer": 17,
+        "table_rows": 18881616
+       },
+       {
+        "base": 1465958992,
+        "bound_fresh": 2126940432,
+        "boundary": 94371840,
+        "components": {
+         "argmax": 0,
+         "attnout": 43515904,
+         "dequant": 429654016,
+         "embed": 0,
+         "freivalds": 67108864,
+         "gkrlink": 33501184,
+         "key_tiles": 298690560,
+         "quant": 220200960,
+         "requant": 219414528,
+         "requant_tables": 857600,
+         "residual_stream": 538699776,
+         "tables": 92442000
+        },
+        "deq_variants": {
+         "down": "chain",
+         "gate": "chain",
+         "k": "chain",
+         "o": "chain",
+         "q": "chain",
+         "up": "chain",
+         "v": "chain"
+        },
+        "dump_sha256": "cec1760bbac3a7d245020a7022511d06f5e7085207e4ac44f447850ab1d267fc",
+        "fields": {
+         "ao_acc_hi_bits": 6,
+         "ao_acc_lo_bits": 16,
+         "ao_acc_mag": false,
+         "ao_jo_max": -5,
+         "ao_jo_min": -7,
+         "ao_jv_max": -4,
+         "ao_jv_min": -6,
+         "ao_q_bits": 7,
+         "ao_rem_bits": 17,
+         "fold_rem_bits": 0,
+         "kmax": 19,
+         "log_table": 24
+        },
+        "fresh": 2038457232,
+        "interaction": 478126400,
+        "kind": "layer",
+        "layer": 18,
+        "table_rows": 18488400
+       },
+       {
+        "base": 1465958992,
+        "bound_fresh": 2126940432,
+        "boundary": 94371840,
+        "components": {
+         "argmax": 0,
+         "attnout": 43515904,
+         "dequant": 429654016,
+         "embed": 0,
+         "freivalds": 67108864,
+         "gkrlink": 33501184,
+         "key_tiles": 298690560,
+         "quant": 220200960,
+         "requant": 219414528,
+         "requant_tables": 857600,
+         "residual_stream": 538699776,
+         "tables": 92442000
+        },
+        "deq_variants": {
+         "down": "chain",
+         "gate": "chain",
+         "k": "chain",
+         "o": "chain",
+         "q": "chain",
+         "up": "chain",
+         "v": "chain"
+        },
+        "dump_sha256": "565e6c8743b2a5392bc4a7a0ef7ae655eff8f975f066e24e9116ea364c27444a",
+        "fields": {
+         "ao_acc_hi_bits": 6,
+         "ao_acc_lo_bits": 16,
+         "ao_acc_mag": false,
+         "ao_jo_max": -4,
+         "ao_jo_min": -8,
+         "ao_jv_max": -4,
+         "ao_jv_min": -6,
+         "ao_q_bits": 7,
+         "ao_rem_bits": 17,
+         "fold_rem_bits": 0,
+         "kmax": 19,
+         "log_table": 24
+        },
+        "fresh": 2038457232,
+        "interaction": 478126400,
+        "kind": "layer",
+        "layer": 19,
+        "table_rows": 18488400
+       },
+       {
+        "base": 1482736208,
+        "bound_fresh": 2126940432,
+        "boundary": 94371840,
+        "components": {
+         "argmax": 0,
+         "attnout": 43515904,
+         "dequant": 429654016,
+         "embed": 0,
+         "freivalds": 67108864,
+         "gkrlink": 33501184,
+         "key_tiles": 298690560,
+         "quant": 220200960,
+         "requant": 219414528,
+         "requant_tables": 857600,
+         "residual_stream": 538699776,
+         "tables": 176328080
+        },
+        "deq_variants": {
+         "down": "chain",
+         "gate": "chain",
+         "k": "chain",
+         "o": "chain",
+         "q": "chain",
+         "up": "chain",
+         "v": "chain"
+        },
+        "dump_sha256": "57c902ef15cb6a463bfb5b01384e66dad7043f368665ec2bde9d1b4533b08cba",
+        "fields": {
+         "ao_acc_hi_bits": 6,
+         "ao_acc_lo_bits": 16,
+         "ao_acc_mag": false,
+         "ao_jo_max": -5,
+         "ao_jo_min": -7,
+         "ao_jv_max": -4,
+         "ao_jv_min": -7,
+         "ao_q_bits": 7,
+         "ao_rem_bits": 17,
+         "fold_rem_bits": 0,
+         "kmax": 19,
+         "log_table": 25
+        },
+        "fresh": 2122343312,
+        "interaction": 545235264,
+        "kind": "layer",
+        "layer": 20,
+        "table_rows": 35265616
+       },
+       {
+        "base": 1465958928,
+        "bound_fresh": 2126940432,
+        "boundary": 94371840,
+        "components": {
+         "argmax": 0,
+         "attnout": 43515904,
+         "dequant": 429654016,
+         "embed": 0,
+         "freivalds": 67108864,
+         "gkrlink": 33501184,
+         "key_tiles": 298690560,
+         "quant": 220200960,
+         "requant": 219414528,
+         "requant_tables": 857600,
+         "residual_stream": 538699776,
+         "tables": 92441680
+        },
+        "deq_variants": {
+         "down": "chain",
+         "gate": "chain",
+         "k": "chain",
+         "o": "chain",
+         "q": "chain",
+         "up": "chain",
+         "v": "chain"
+        },
+        "dump_sha256": "ae018fda6710e00c1a5e1a5c39b3eb5407a3e54adfe919bf54dadbf98f11dcf1",
+        "fields": {
+         "ao_acc_hi_bits": 7,
+         "ao_acc_lo_bits": 16,
+         "ao_acc_mag": false,
+         "ao_jo_max": -4,
+         "ao_jo_min": -7,
+         "ao_jv_max": -4,
+         "ao_jv_min": -6,
+         "ao_q_bits": 7,
+         "ao_rem_bits": 17,
+         "fold_rem_bits": 0,
+         "kmax": 19,
+         "log_table": 24
+        },
+        "fresh": 2038456912,
+        "interaction": 478126144,
+        "kind": "layer",
+        "layer": 21,
+        "table_rows": 18488336
+       },
+       {
+        "base": 1465958960,
+        "bound_fresh": 2126940432,
+        "boundary": 94371840,
+        "components": {
+         "argmax": 0,
+         "attnout": 43515904,
+         "dequant": 429654016,
+         "embed": 0,
+         "freivalds": 67108864,
+         "gkrlink": 33501184,
+         "key_tiles": 298690560,
+         "quant": 220200960,
+         "requant": 219414528,
+         "requant_tables": 857600,
+         "residual_stream": 538699776,
+         "tables": 92441840
+        },
+        "deq_variants": {
+         "down": "chain",
+         "gate": "chain",
+         "k": "chain",
+         "o": "chain",
+         "q": "chain",
+         "up": "chain",
+         "v": "chain"
+        },
+        "dump_sha256": "87a55d6e0598e1827142082a8a38b36c0e6d901bce7f58878e34837dc3ae5d4b",
+        "fields": {
+         "ao_acc_hi_bits": 5,
+         "ao_acc_lo_bits": 16,
+         "ao_acc_mag": false,
+         "ao_jo_max": -5,
+         "ao_jo_min": -7,
+         "ao_jv_max": -4,
+         "ao_jv_min": -6,
+         "ao_q_bits": 7,
+         "ao_rem_bits": 17,
+         "fold_rem_bits": 0,
+         "kmax": 19,
+         "log_table": 24
+        },
+        "fresh": 2038457072,
+        "interaction": 478126272,
+        "kind": "layer",
+        "layer": 22,
+        "table_rows": 18488368
+       },
+       {
+        "base": 1465958960,
+        "bound_fresh": 2126940432,
+        "boundary": 94371840,
+        "components": {
+         "argmax": 0,
+         "attnout": 43515904,
+         "dequant": 429654016,
+         "embed": 0,
+         "freivalds": 67108864,
+         "gkrlink": 33501184,
+         "key_tiles": 298690560,
+         "quant": 220200960,
+         "requant": 219414528,
+         "requant_tables": 857600,
+         "residual_stream": 538699776,
+         "tables": 92441840
+        },
+        "deq_variants": {
+         "down": "chain",
+         "gate": "chain",
+         "k": "chain",
+         "o": "chain",
+         "q": "chain",
+         "up": "chain",
+         "v": "chain"
+        },
+        "dump_sha256": "e75e8a4ae4a8fbdc1ab74be42a5d8037bda6288d431bcab0c8e0bed032fb7e98",
+        "fields": {
+         "ao_acc_hi_bits": 5,
+         "ao_acc_lo_bits": 16,
+         "ao_acc_mag": false,
+         "ao_jo_max": -4,
+         "ao_jo_min": -8,
+         "ao_jv_max": -4,
+         "ao_jv_min": -6,
+         "ao_q_bits": 7,
+         "ao_rem_bits": 17,
+         "fold_rem_bits": 0,
+         "kmax": 19,
+         "log_table": 24
+        },
+        "fresh": 2038457072,
+        "interaction": 478126272,
+        "kind": "layer",
+        "layer": 23,
+        "table_rows": 18488368
+       },
+       {
+        "base": 1465958960,
+        "bound_fresh": 2126940432,
+        "boundary": 94371840,
+        "components": {
+         "argmax": 0,
+         "attnout": 43515904,
+         "dequant": 429654016,
+         "embed": 0,
+         "freivalds": 67108864,
+         "gkrlink": 33501184,
+         "key_tiles": 298690560,
+         "quant": 220200960,
+         "requant": 219414528,
+         "requant_tables": 857600,
+         "residual_stream": 538699776,
+         "tables": 92441840
+        },
+        "deq_variants": {
+         "down": "chain",
+         "gate": "chain",
+         "k": "chain",
+         "o": "chain",
+         "q": "chain",
+         "up": "chain",
+         "v": "chain"
+        },
+        "dump_sha256": "bf0b702199cf5f827baa3594849aa4a0bc4ac60a1593b7c85997e1a7700b9755",
+        "fields": {
+         "ao_acc_hi_bits": 5,
+         "ao_acc_lo_bits": 16,
+         "ao_acc_mag": false,
+         "ao_jo_max": -5,
+         "ao_jo_min": -8,
+         "ao_jv_max": -4,
+         "ao_jv_min": -6,
+         "ao_q_bits": 7,
+         "ao_rem_bits": 17,
+         "fold_rem_bits": 0,
+         "kmax": 19,
+         "log_table": 24
+        },
+        "fresh": 2038457072,
+        "interaction": 478126272,
+        "kind": "layer",
+        "layer": 24,
+        "table_rows": 18488368
+       },
+       {
+        "base": 1465827888,
+        "bound_fresh": 2126940432,
+        "boundary": 94371840,
+        "components": {
+         "argmax": 0,
+         "attnout": 43515904,
+         "dequant": 429654016,
+         "embed": 0,
+         "freivalds": 67108864,
+         "gkrlink": 33501184,
+         "key_tiles": 298690560,
+         "quant": 220200960,
+         "requant": 219414528,
+         "requant_tables": 857600,
+         "residual_stream": 538699776,
+         "tables": 91786480
+        },
+        "deq_variants": {
+         "down": "chain",
+         "gate": "chain",
+         "k": "chain",
+         "o": "chain",
+         "q": "chain",
+         "up": "chain",
+         "v": "chain"
+        },
+        "dump_sha256": "0ff66232e9bebc521b5f371445e23022b2e9828d6751daff4845fb4c240b01eb",
+        "fields": {
+         "ao_acc_hi_bits": 5,
+         "ao_acc_lo_bits": 16,
+         "ao_acc_mag": false,
+         "ao_jo_max": -4,
+         "ao_jo_min": -8,
+         "ao_jv_max": -4,
+         "ao_jv_min": -6,
+         "ao_q_bits": 7,
+         "ao_rem_bits": 16,
+         "fold_rem_bits": 0,
+         "kmax": 19,
+         "log_table": 24
+        },
+        "fresh": 2037801712,
+        "interaction": 477601984,
+        "kind": "layer",
+        "layer": 25,
+        "table_rows": 18357296
+       },
+       {
+        "base": 1465827888,
+        "bound_fresh": 2126940432,
+        "boundary": 94371840,
+        "components": {
+         "argmax": 0,
+         "attnout": 43515904,
+         "dequant": 429654016,
+         "embed": 0,
+         "freivalds": 67108864,
+         "gkrlink": 33501184,
+         "key_tiles": 298690560,
+         "quant": 220200960,
+         "requant": 219414528,
+         "requant_tables": 857600,
+         "residual_stream": 538699776,
+         "tables": 91786480
+        },
+        "deq_variants": {
+         "down": "chain",
+         "gate": "chain",
+         "k": "chain",
+         "o": "chain",
+         "q": "chain",
+         "up": "chain",
+         "v": "chain"
+        },
+        "dump_sha256": "16b3b68e47c20baa24db7327f716a647866f61f0568d2dda127056a44036bbe7",
+        "fields": {
+         "ao_acc_hi_bits": 5,
+         "ao_acc_lo_bits": 16,
+         "ao_acc_mag": false,
+         "ao_jo_max": -4,
+         "ao_jo_min": -8,
+         "ao_jv_max": -4,
+         "ao_jv_min": -6,
+         "ao_q_bits": 7,
+         "ao_rem_bits": 16,
+         "fold_rem_bits": 0,
+         "kmax": 19,
+         "log_table": 24
+        },
+        "fresh": 2037801712,
+        "interaction": 477601984,
+        "kind": "layer",
+        "layer": 26,
+        "table_rows": 18357296
+       },
+       {
+        "base": 1465958992,
+        "bound_fresh": 2126940432,
+        "boundary": 94371840,
+        "components": {
+         "argmax": 0,
+         "attnout": 43515904,
+         "dequant": 429654016,
+         "embed": 0,
+         "freivalds": 67108864,
+         "gkrlink": 33501184,
+         "key_tiles": 298690560,
+         "quant": 220200960,
+         "requant": 219414528,
+         "requant_tables": 857600,
+         "residual_stream": 538699776,
+         "tables": 92442000
+        },
+        "deq_variants": {
+         "down": "chain",
+         "gate": "chain",
+         "k": "chain",
+         "o": "chain",
+         "q": "chain",
+         "up": "chain",
+         "v": "chain"
+        },
+        "dump_sha256": "e07948ebf06fc9872ea4e665ea08f6cbc8b4979a15ab7cd4923c80457756ea95",
+        "fields": {
+         "ao_acc_hi_bits": 6,
+         "ao_acc_lo_bits": 16,
+         "ao_acc_mag": false,
+         "ao_jo_max": -5,
+         "ao_jo_min": -8,
+         "ao_jv_max": -3,
+         "ao_jv_min": -6,
+         "ao_q_bits": 7,
+         "ao_rem_bits": 17,
+         "fold_rem_bits": 0,
+         "kmax": 19,
+         "log_table": 24
+        },
+        "fresh": 2038457232,
+        "interaction": 478126400,
+        "kind": "layer",
+        "layer": 27,
+        "table_rows": 18488400
+       },
+       {
+        "base": 1465827920,
+        "bound_fresh": 2126940432,
+        "boundary": 94371840,
+        "components": {
+         "argmax": 0,
+         "attnout": 43515904,
+         "dequant": 429654016,
+         "embed": 0,
+         "freivalds": 67108864,
+         "gkrlink": 33501184,
+         "key_tiles": 298690560,
+         "quant": 220200960,
+         "requant": 219414528,
+         "requant_tables": 857600,
+         "residual_stream": 538699776,
+         "tables": 91786640
+        },
+        "deq_variants": {
+         "down": "chain",
+         "gate": "chain",
+         "k": "chain",
+         "o": "chain",
+         "q": "chain",
+         "up": "chain",
+         "v": "chain"
+        },
+        "dump_sha256": "11e1753cd2aed7181ed9bb3756c55b629008a9a242e78e119abeb0f9a73c6e9f",
+        "fields": {
+         "ao_acc_hi_bits": 6,
+         "ao_acc_lo_bits": 16,
+         "ao_acc_mag": false,
+         "ao_jo_max": -4,
+         "ao_jo_min": -8,
+         "ao_jv_max": -4,
+         "ao_jv_min": -6,
+         "ao_q_bits": 7,
+         "ao_rem_bits": 16,
+         "fold_rem_bits": 0,
+         "kmax": 19,
+         "log_table": 24
+        },
+        "fresh": 2037801872,
+        "interaction": 477602112,
+        "kind": "layer",
+        "layer": 28,
+        "table_rows": 18357328
+       },
+       {
+        "base": 1465958960,
+        "bound_fresh": 2126940432,
+        "boundary": 94371840,
+        "components": {
+         "argmax": 0,
+         "attnout": 43515904,
+         "dequant": 429654016,
+         "embed": 0,
+         "freivalds": 67108864,
+         "gkrlink": 33501184,
+         "key_tiles": 298690560,
+         "quant": 220200960,
+         "requant": 219414528,
+         "requant_tables": 857600,
+         "residual_stream": 538699776,
+         "tables": 92441840
+        },
+        "deq_variants": {
+         "down": "chain",
+         "gate": "chain",
+         "k": "chain",
+         "o": "chain",
+         "q": "chain",
+         "up": "chain",
+         "v": "chain"
+        },
+        "dump_sha256": "8b9cd05b074c0612616fe64b16fd1decf6578bcd970f9df8ebb64057a9bc8281",
+        "fields": {
+         "ao_acc_hi_bits": 5,
+         "ao_acc_lo_bits": 16,
+         "ao_acc_mag": false,
+         "ao_jo_max": -4,
+         "ao_jo_min": -8,
+         "ao_jv_max": -4,
+         "ao_jv_min": -6,
+         "ao_q_bits": 7,
+         "ao_rem_bits": 17,
+         "fold_rem_bits": 0,
+         "kmax": 19,
+         "log_table": 24
+        },
+        "fresh": 2038457072,
+        "interaction": 478126272,
+        "kind": "layer",
+        "layer": 29,
+        "table_rows": 18488368
+       },
+       {
+        "base": 1465827888,
+        "bound_fresh": 2126940432,
+        "boundary": 94371840,
+        "components": {
+         "argmax": 0,
+         "attnout": 43515904,
+         "dequant": 429654016,
+         "embed": 0,
+         "freivalds": 67108864,
+         "gkrlink": 33501184,
+         "key_tiles": 298690560,
+         "quant": 220200960,
+         "requant": 219414528,
+         "requant_tables": 857600,
+         "residual_stream": 538699776,
+         "tables": 91786480
+        },
+        "deq_variants": {
+         "down": "chain",
+         "gate": "chain",
+         "k": "chain",
+         "o": "chain",
+         "q": "chain",
+         "up": "chain",
+         "v": "chain"
+        },
+        "dump_sha256": "8e9f68f92370a339c666c6dbb7db3781900f944eec9eeecfccd50ecba23fdc22",
+        "fields": {
+         "ao_acc_hi_bits": 5,
+         "ao_acc_lo_bits": 16,
+         "ao_acc_mag": false,
+         "ao_jo_max": -4,
+         "ao_jo_min": -8,
+         "ao_jv_max": -4,
+         "ao_jv_min": -6,
+         "ao_q_bits": 7,
+         "ao_rem_bits": 16,
+         "fold_rem_bits": 0,
+         "kmax": 19,
+         "log_table": 24
+        },
+        "fresh": 2037801712,
+        "interaction": 477601984,
+        "kind": "layer",
+        "layer": 30,
+        "table_rows": 18357296
+       },
+       {
+        "base": 1465958960,
+        "bound_fresh": 2126940432,
+        "boundary": 94371840,
+        "components": {
+         "argmax": 0,
+         "attnout": 43515904,
+         "dequant": 429654016,
+         "embed": 0,
+         "freivalds": 67108864,
+         "gkrlink": 33501184,
+         "key_tiles": 298690560,
+         "quant": 220200960,
+         "requant": 219414528,
+         "requant_tables": 857600,
+         "residual_stream": 538699776,
+         "tables": 92441840
+        },
+        "deq_variants": {
+         "down": "chain",
+         "gate": "chain",
+         "k": "chain",
+         "o": "chain",
+         "q": "chain",
+         "up": "chain",
+         "v": "chain"
+        },
+        "dump_sha256": "e79b90301c4060639feb67ee819aaef7af1563c9f65f77b1e0c5628018852932",
+        "fields": {
+         "ao_acc_hi_bits": 5,
+         "ao_acc_lo_bits": 16,
+         "ao_acc_mag": false,
+         "ao_jo_max": -4,
+         "ao_jo_min": -8,
+         "ao_jv_max": -4,
+         "ao_jv_min": -6,
+         "ao_q_bits": 7,
+         "ao_rem_bits": 17,
+         "fold_rem_bits": 0,
+         "kmax": 19,
+         "log_table": 24
+        },
+        "fresh": 2038457072,
+        "interaction": 478126272,
+        "kind": "layer",
+        "layer": 31,
+        "table_rows": 18488368
+       },
+       {
+        "base": 1465827920,
+        "bound_fresh": 2126940432,
+        "boundary": 94371840,
+        "components": {
+         "argmax": 0,
+         "attnout": 43515904,
+         "dequant": 429654016,
+         "embed": 0,
+         "freivalds": 67108864,
+         "gkrlink": 33501184,
+         "key_tiles": 298690560,
+         "quant": 220200960,
+         "requant": 219414528,
+         "requant_tables": 857600,
+         "residual_stream": 538699776,
+         "tables": 91786640
+        },
+        "deq_variants": {
+         "down": "chain",
+         "gate": "chain",
+         "k": "chain",
+         "o": "chain",
+         "q": "chain",
+         "up": "chain",
+         "v": "chain"
+        },
+        "dump_sha256": "d36af342bf68a44b3e51c765c1daedeb1b238911a3544be3dde3f2165a373c81",
+        "fields": {
+         "ao_acc_hi_bits": 6,
+         "ao_acc_lo_bits": 16,
+         "ao_acc_mag": false,
+         "ao_jo_max": -5,
+         "ao_jo_min": -8,
+         "ao_jv_max": -4,
+         "ao_jv_min": -6,
+         "ao_q_bits": 7,
+         "ao_rem_bits": 16,
+         "fold_rem_bits": 0,
+         "kmax": 19,
+         "log_table": 24
+        },
+        "fresh": 2037801872,
+        "interaction": 477602112,
+        "kind": "layer",
+        "layer": 32,
+        "table_rows": 18357328
+       },
+       {
+        "base": 1482605104,
+        "bound_fresh": 2126940432,
+        "boundary": 94371840,
+        "components": {
+         "argmax": 0,
+         "attnout": 43515904,
+         "dequant": 429654016,
+         "embed": 0,
+         "freivalds": 67108864,
+         "gkrlink": 33501184,
+         "key_tiles": 298690560,
+         "quant": 220200960,
+         "requant": 219414528,
+         "requant_tables": 857600,
+         "residual_stream": 538699776,
+         "tables": 175672560
+        },
+        "deq_variants": {
+         "down": "chain",
+         "gate": "chain",
+         "k": "chain",
+         "o": "chain",
+         "q": "chain",
+         "up": "chain",
+         "v": "chain"
+        },
+        "dump_sha256": "0c7c07d45ebedf7c0339c3912b83067d078880001156676d01082b6a0805579b",
+        "fields": {
+         "ao_acc_hi_bits": 5,
+         "ao_acc_lo_bits": 16,
+         "ao_acc_mag": false,
+         "ao_jo_max": -4,
+         "ao_jo_min": -7,
+         "ao_jv_max": -3,
+         "ao_jv_min": -6,
+         "ao_q_bits": 7,
+         "ao_rem_bits": 16,
+         "fold_rem_bits": 0,
+         "kmax": 19,
+         "log_table": 25
+        },
+        "fresh": 2121687792,
+        "interaction": 544710848,
+        "kind": "layer",
+        "layer": 33,
+        "table_rows": 35134512
+       },
+       {
+        "base": 1465958960,
+        "bound_fresh": 2126940432,
+        "boundary": 94371840,
+        "components": {
+         "argmax": 0,
+         "attnout": 43515904,
+         "dequant": 429654016,
+         "embed": 0,
+         "freivalds": 67108864,
+         "gkrlink": 33501184,
+         "key_tiles": 298690560,
+         "quant": 220200960,
+         "requant": 219414528,
+         "requant_tables": 857600,
+         "residual_stream": 538699776,
+         "tables": 92441840
+        },
+        "deq_variants": {
+         "down": "chain",
+         "gate": "chain",
+         "k": "chain",
+         "o": "chain",
+         "q": "chain",
+         "up": "chain",
+         "v": "chain"
+        },
+        "dump_sha256": "a73aae39701a45f784a7bf9a90ab9f951e2870ae3aa1cd314e84f715e11197d3",
+        "fields": {
+         "ao_acc_hi_bits": 5,
+         "ao_acc_lo_bits": 16,
+         "ao_acc_mag": false,
+         "ao_jo_max": -4,
+         "ao_jo_min": -8,
+         "ao_jv_max": -4,
+         "ao_jv_min": -6,
+         "ao_q_bits": 7,
+         "ao_rem_bits": 17,
+         "fold_rem_bits": 0,
+         "kmax": 19,
+         "log_table": 24
+        },
+        "fresh": 2038457072,
+        "interaction": 478126272,
+        "kind": "layer",
+        "layer": 34,
+        "table_rows": 18488368
+       },
+       {
+        "base": 1466090064,
+        "bound_fresh": 2126940432,
+        "boundary": 94371840,
+        "components": {
+         "argmax": 0,
+         "attnout": 43515904,
+         "dequant": 429654016,
+         "embed": 0,
+         "freivalds": 67108864,
+         "gkrlink": 33501184,
+         "key_tiles": 298690560,
+         "quant": 220200960,
+         "requant": 219414528,
+         "requant_tables": 857600,
+         "residual_stream": 538699776,
+         "tables": 93097360
+        },
+        "deq_variants": {
+         "down": "chain",
+         "gate": "chain",
+         "k": "chain",
+         "o": "chain",
+         "q": "chain",
+         "up": "chain",
+         "v": "chain"
+        },
+        "dump_sha256": "5a26ed1df4663216e39fb76e247bbac99ce0a4cf170e0142b468ef3c1f1c75e7",
+        "fields": {
+         "ao_acc_hi_bits": 6,
+         "ao_acc_lo_bits": 16,
+         "ao_acc_mag": false,
+         "ao_jo_max": -4,
+         "ao_jo_min": -7,
+         "ao_jv_max": -4,
+         "ao_jv_min": -6,
+         "ao_q_bits": 7,
+         "ao_rem_bits": 18,
+         "fold_rem_bits": 0,
+         "kmax": 19,
+         "log_table": 24
+        },
+        "fresh": 2039112592,
+        "interaction": 478650688,
+        "kind": "layer",
+        "layer": 35,
+        "table_rows": 18619472
+       },
+       {
+        "base": 1465827920,
+        "bound_fresh": 2126940432,
+        "boundary": 94371840,
+        "components": {
+         "argmax": 0,
+         "attnout": 43515904,
+         "dequant": 429654016,
+         "embed": 0,
+         "freivalds": 67108864,
+         "gkrlink": 33501184,
+         "key_tiles": 298690560,
+         "quant": 220200960,
+         "requant": 219414528,
+         "requant_tables": 857600,
+         "residual_stream": 538699776,
+         "tables": 91786640
+        },
+        "deq_variants": {
+         "down": "chain",
+         "gate": "chain",
+         "k": "chain",
+         "o": "chain",
+         "q": "chain",
+         "up": "chain",
+         "v": "chain"
+        },
+        "dump_sha256": "39850891cf358e572a677f20d856b316f95988cafc5611e2b7c3f164b959ac81",
+        "fields": {
+         "ao_acc_hi_bits": 6,
+         "ao_acc_lo_bits": 16,
+         "ao_acc_mag": false,
+         "ao_jo_max": -4,
+         "ao_jo_min": -7,
+         "ao_jv_max": -4,
+         "ao_jv_min": -6,
+         "ao_q_bits": 7,
+         "ao_rem_bits": 16,
+         "fold_rem_bits": 0,
+         "kmax": 19,
+         "log_table": 24
+        },
+        "fresh": 2037801872,
+        "interaction": 477602112,
+        "kind": "layer",
+        "layer": 36,
+        "table_rows": 18357328
+       },
+       {
+        "base": 1465827888,
+        "bound_fresh": 2126940432,
+        "boundary": 94371840,
+        "components": {
+         "argmax": 0,
+         "attnout": 43515904,
+         "dequant": 429654016,
+         "embed": 0,
+         "freivalds": 67108864,
+         "gkrlink": 33501184,
+         "key_tiles": 298690560,
+         "quant": 220200960,
+         "requant": 219414528,
+         "requant_tables": 857600,
+         "residual_stream": 538699776,
+         "tables": 91786480
+        },
+        "deq_variants": {
+         "down": "chain",
+         "gate": "chain",
+         "k": "chain",
+         "o": "chain",
+         "q": "chain",
+         "up": "chain",
+         "v": "chain"
+        },
+        "dump_sha256": "5f301e5f4e5ef0ab7b5976169bc64c34f6f5e44d00f3a33858289a93bb79c92c",
+        "fields": {
+         "ao_acc_hi_bits": 5,
+         "ao_acc_lo_bits": 16,
+         "ao_acc_mag": false,
+         "ao_jo_max": -4,
+         "ao_jo_min": -8,
+         "ao_jv_max": -4,
+         "ao_jv_min": -6,
+         "ao_q_bits": 7,
+         "ao_rem_bits": 16,
+         "fold_rem_bits": 0,
+         "kmax": 19,
+         "log_table": 24
+        },
+        "fresh": 2037801712,
+        "interaction": 477601984,
+        "kind": "layer",
+        "layer": 37,
+        "table_rows": 18357296
+       },
+       {
+        "base": 1466090000,
+        "bound_fresh": 2126940432,
+        "boundary": 94371840,
+        "components": {
+         "argmax": 0,
+         "attnout": 43515904,
+         "dequant": 429654016,
+         "embed": 0,
+         "freivalds": 67108864,
+         "gkrlink": 33501184,
+         "key_tiles": 298690560,
+         "quant": 220200960,
+         "requant": 219414528,
+         "requant_tables": 857600,
+         "residual_stream": 538699776,
+         "tables": 93097040
+        },
+        "deq_variants": {
+         "down": "chain",
+         "gate": "chain",
+         "k": "chain",
+         "o": "chain",
+         "q": "chain",
+         "up": "chain",
+         "v": "chain"
+        },
+        "dump_sha256": "26ad12799d6225b8b877337094e3f87267e8ef6de047bd586fc3fa20e2a604a3",
+        "fields": {
+         "ao_acc_hi_bits": 7,
+         "ao_acc_lo_bits": 16,
+         "ao_acc_mag": false,
+         "ao_jo_max": -4,
+         "ao_jo_min": -7,
+         "ao_jv_max": -4,
+         "ao_jv_min": -6,
+         "ao_q_bits": 7,
+         "ao_rem_bits": 18,
+         "fold_rem_bits": 0,
+         "kmax": 19,
+         "log_table": 24
+        },
+        "fresh": 2039112272,
+        "interaction": 478650432,
+        "kind": "layer",
+        "layer": 38,
+        "table_rows": 18619408
+       },
+       {
+        "base": 1516683792,
+        "bound_fresh": 2126940432,
+        "boundary": 94371840,
+        "components": {
+         "argmax": 0,
+         "attnout": 43515904,
+         "dequant": 429654016,
+         "embed": 0,
+         "freivalds": 67108864,
+         "gkrlink": 33501184,
+         "key_tiles": 298690560,
+         "quant": 220200960,
+         "requant": 219414528,
+         "requant_tables": 857600,
+         "residual_stream": 538699776,
+         "tables": 346066000
+        },
+        "deq_variants": {
+         "down": "chain",
+         "gate": "chain",
+         "k": "chain",
+         "o": "chain",
+         "q": "chain",
+         "up": "chain",
+         "v": "chain"
+        },
+        "dump_sha256": "e1134dfd38de4717295a5021b2ec9fbd7f536005e7df502d0896637b8aa064d3",
+        "fields": {
+         "ao_acc_hi_bits": 7,
+         "ao_acc_lo_bits": 16,
+         "ao_acc_mag": false,
+         "ao_jo_max": -4,
+         "ao_jo_min": -6,
+         "ao_jv_max": -3,
+         "ao_jv_min": -6,
+         "ao_q_bits": 7,
+         "ao_rem_bits": 19,
+         "fold_rem_bits": 0,
+         "kmax": 19,
+         "log_table": 26
+        },
+        "fresh": 2292081232,
+        "interaction": 681025600,
+        "kind": "layer",
+        "layer": 39,
+        "table_rows": 69213200
+       }
+      ],
+      "layers_fresh_sum": 85287966768,
+      "per_layer_chunk_fresh": 2132199169.2
+     }
+    },
+    "contexts_not_registered": {
+     "16384": "the fields these segments are counted at were read off dumps at C=4,096, and this document registers only the context its witnesses were extracted at"
+    },
+    "head_chunk": {
+     "fresh": 311316050.8235294,
+     "per_token": 608039.1617647059,
+     "preprocessed": 168743152.94117644
+    },
+    "hf": "codellama/CodeLlama-13b-hf",
+    "params_b": 13.016,
+    "params_total": 13015613440,
+    "role": "stand-in",
+    "tied_embeddings": false,
+    "weights_gib_bf16": 24.24,
+    "why": "above both fitted scales and provable, which the 14B is not: no bias on any matmul, a head dimension that is a power of two, and a 16,384-token trained window, so the 4,608-token sequence the measurement proves is inside it.  Llama-2-13B is the same seven numbers and was not taken: its window is 4,096 and its published weights are fp16, which the harness would round on the way in"
+   }
+  },
+  "statement": {
+   "bind": true,
+   "diagonal_block": true,
+   "driver": "tools/drivers/register-13b.sh (zk-results), which passes `--cells exact` and the fields file, and tools/drivers/predict-13b.sh, which proves every layer of the target shape with these flags",
+   "driver_flags": "--diagonal-block --gkr-key-tiles --gkr-dequant --gkr-residual-stream --gkr-freivalds --gkr-attnout",
+   "flags": {
+    "bind": "not a flag: `Params::rope`, which every layer segment has and no output head does",
+    "diagonal_block": "--diagonal-block",
+    "gkr": "--gkr-key-tiles",
+    "kv_boundary": "not a flag: `kv_boundary = diagonal_block && !head` (`main.rs`), so every layer segment of the run has it"
+   },
+   "gkr": true,
+   "key_tiles_half": "priced at exactly this statement: `key_tile_family(nh, hd, S, C, **STATEMENT)`",
+   "kv_boundary": true,
+   "rest_half": {
+    "effect": "each proves the LogUp running sums of the family it names instead of committing them, and moves what it does commit into `gkrlink`. `cells_per_token(gkr=...)` prices all four; `gkrlink` itself is the one family the model does not price, and `cost_model.PROVENANCE['gkrlink_cells_per_chunk']` says so",
+    "flags": "--gkr-dequant --gkr-residual-stream --gkr-freivalds --gkr-attnout"
+   }
+  }
+ }
+}
