@@ -1865,6 +1865,175 @@ so an edit to any of them re-registers the prediction under a new identity. That
 is why the registration is made once, from one commit, and recorded before
 anything measures.
 
+## `register-13b`
+
+```
+tools/drivers/register-13b.sh <witness fields file>
+```
+
+runs: `2026-09-11-register-13b-none`
+prover commit: none   harness commit: 5638f0f
+digests: none; the run's own outputs are the registration and its configuration
+binding: none; this run proves nothing
+unsound skips: none
+constants backed: none by the index's reckoning, which attributes a constant to
+  the run named on it, and a projection names its inputs instead. The number
+  this run produced is
+  `e4.codellama_13b.c4096.registered_cells_per_token_layers`, whose note names
+  this run id and the prediction digest below.
+
+What the run is. The prediction `predict-13b` is measured against, written
+before any proof of that model existed. It takes no host and no card: it is a
+computation over this repository's `constants.json`, the two measured 8B layer
+chunks the two headline runs already proved, and the witness fields file the
+extraction wrote.
+
+    prediction_sha256        1f72abda113efc9d21a2645173a0164b9155ceb6fcb4113ae8f0c9fb712f1d68
+    prediction_block_sha256  e18f9d8483ab804c47badd889a56bd05ac5808f32024de12fe9e388624efc391
+    constants.json frozen    841dcd6ebda5bbb0a082f28c1bcba5df474e78c0d9be21d7f5569d0353e59f5b
+    zk_results_commit        b455227
+    counted                  39 segments; layer 0 absent
+
+Counted and not priced. On this path the model charges no per-unit cell cost on
+the committed side. Every cell of every layer segment is counted from the
+prover's trace layout at the witness fields that segment's own dump carries --
+the master exponent table, the accumulator widths, the fold's pins -- and those
+are properties of the forward pass, fixed the moment the witness is written and
+before any proof of it exists. At a new model they are not the 8B's modal
+values: over these 39 dumps the table runs 2^22 to 2^26 where the 8B's modal
+value is 2^23, and a single assumed table would be wrong on most of them.
+
+Why 39 and not 40. Layer 0 of this model is in no dump. The harness refuses to
+write it, because the attention output's quotient term at that layer is
+7 + 26 = 33 bits against the field's 31 in the widest form there is: the first
+number is the int8 fold's target width minus one and the second is the layer's
+own divisor range, which a driver may only widen. So the registration counts the
+39 segments that exist and states in its own provenance which layer it does not
+carry and that every per-token figure it holds is over the segments it counts.
+Nothing at this quantization recovers that layer.
+
+Why the frozen constants digest is not this repository's current one. A
+registration freezes the constants file as it stood when the prediction was
+made, which was before the measurement and therefore before the measured
+constants below were added. That is the point of freezing it, and re-running
+this driver now is refused for the same reason: a registration is made once, and
+replacing one means removing the run that holds it, deliberately.
+
+The registration this one replaced. An earlier registration was recorded on the
+same day and removed before any proof existed. It counted a master exponent
+table nobody proves at: the driver had inherited `predict-14b.sh`'s missing
+`--tight-table` flag, which at this shape is not a small difference -- layer 1
+asks for 2^29 rows without it and the prover's own circle domain is at most
+2^31, so the column is refused outright, where with the flag that layer proves
+at 2^26. Nothing was measured against either document (zk-results #111).
+
+## `predict-13b`
+
+```
+tools/drivers/predict-13b.sh <host> <prover-commit> <harness-commit>
+```
+
+runs: `2026-09-11-predict-13b-h100`
+prover commit: b08870a   harness commit: 1a6ed26
+digests: 39, one per layer segment, in the manifest's `digests` map under the
+  output that proved it; the first is `0f1cd29432390b50` and the last
+  `a7c43e98e8c931d0`
+binding (from the manifest, folded over the 39 proofs): 1 to 14 bound; 15 and 16
+  absent, which is a segment that is neither the first nor the head, on every
+  one of them
+unsound skips: none
+constants backed: `e4.codellama_13b.c4096.layers`,
+  `e4.codellama_13b.c4096.cells_fresh_by_layer`,
+  `e4.codellama_13b.c4096.cells_fresh`,
+  `e4.codellama_13b.c4096.cells_per_token_layers`,
+  `e4.codellama_13b.c4096.key_tiles_cells`,
+  `e4.codellama_13b.c4096.peak_rss_bytes`, and the derived
+  `e4.codellama_13b.c4096.rho` and `e4.codellama_13b.c4096.residual_pct`
+
+What the run measures. E4's third scale: a model shape the cost model was never
+fitted on, proved one layer segment per process, at S=512 against a 4,096-token
+prefix on the reference backend, spec `b10-final`, head groups 16,16,8, every
+binding gadget on and no skip flag anywhere. 39 segments of CodeLlama-13b-hf --
+40 attention heads of 128, hidden 5,120, inner 13,824, one key/value head per
+attention head -- against the 8B the model was fitted at, which is 32 heads,
+hidden 4,096, inner 14,336 and one key/value head per four.
+
+Why this model. Qwen2.5-14B, the shape E4 registered, cannot be proved at all:
+it biases the q, k and v projections, the statement has no site for a projection
+bias, and the honest segment is rejected on the one equality that compares the
+derived integer with the key tile's (zk-prover #172, and #174 for the component
+that would be needed). The extractor refuses a biased matmul by name now, so
+those witnesses cannot be rebuilt either. What E4 predicts is a shape and not a
+checkpoint, so the measurement moved to the nearest bias-free model of that
+class. Whether this becomes E4's third-scale row rather than the 14B is the
+owner's decision (zk-prover PR 173, decision 3) and is not taken here.
+
+Why 39 layers and not 40. Layer 0 is in no dump and in no proof: the harness
+refuses to write it, because its attention output's quotient term is
+7 + 26 = 33 bits against the field's 31 in the widest form there is, and the
+divisor range is the layer's own, which a driver may only widen. The prover
+would not have said so -- it takes the wider form and proves on, and there is no
+cap check on that side -- so the harness's refusal is what catches it, and the
+run records the refusal and proves the other 39. No other layer is near that limit:
+their divisor ranges run 15 to 19 bits. Every figure in this
+entry and every constant it backs is a 39-segment figure and not the stack's.
+
+What the run says. 78,094,735,408 fresh committed cells over the 39 segments of
+one 512-token block, which is 152,528,780 cells per decoded token in the layers
+this run proves. The key tiles committed 259,604,480 base cells and 39,086,080
+interaction cells on every one of the 39, the same integers on all of them. The master exponent table is the one thing that moves: 2^22 on nineteen
+segments, 2^23 on thirteen, 2^24 on five, 2^25 on one and 2^26 on one, and the
+spread between the cheapest and dearest segment is 16 per cent for that reason
+alone. `kmax` is 19 on every segment and the attention output's remainder width
+runs 15 to 19 bits.
+
+What the comparison says. The registered prediction and the measurement agree on
+every one of the 39 segments, to the cell, and therefore on the total:
+
+    predicted cells/token (layers)  152,528,780.09375
+    measured  cells/token (layers)  152,528,780.09375
+    rho                             1.00000   (+0.000 per cent)
+
+The comparison is protocol A with no widening, because the run proved every
+segment the registration counts and nothing is extrapolated from a sample. The
+key tiles' two integers are the registered ones on every chunk; the
+boundary trees are 94,371,840 on every chunk, which is the closed form at this
+shape; and the fields the registration counted each segment at are the fields
+the prover derived for it, checked one segment at a time. The ratio is inside the
+narrowest of E4's three pre-registered thresholds, and that range is E4's,
+applied to a shape E4 did not register: whether this run is graded that way is the owner's
+decision and not settled here.
+
+Read the residual for what it is. It is not a fit within three per cent; it is
+zero. The count is of a layout, and a layout counted correctly reproduces the
+number a proof of it reports exactly, which is what the 84 recorded 8B segments
+already showed and what this shape shows again without the counting code having
+ever seen it. What the run tests is whether the layout is the one the prover
+builds at a shape nothing was fitted at, and the answer is that it is.
+
+One of the 39 layers was not blind. Layer 16 of this model was extracted and
+proved once before the registration was made, as a probe of whether a bias-free
+model of this class proves at all, and that proof reported `cells.fresh`
+2,290,115,312 at these flags. The registration's own provenance says so. It made
+no run record, the dump it proved is not one of the dumps this run proves, and
+the other 38 were blind.
+
+How the run is made. Two phases with the registration between them, because a
+counted registration is read off the dumps and a prediction written after a
+proof is not a prediction. The first call extracts, writes the witness fields
+file and stops before the first proof; the fields file is fetched, the
+registration recorded, the status file cleared, and the same call made again
+proves. The weights are 26,034,525,679 bytes of safetensors -- this checkpoint
+publishes a second complete copy of itself in the older pickle format and the
+driver does not fetch it -- and the 39 dumps are 24,292,170,179 bytes.
+
+Host time. 5,331 seconds of proving over 39 processes, one per segment, 20 rayon
+threads each: 190 seconds the dearest segment and 128 the cheapest. The largest
+process held 231,041,085,440 bytes, which is layer 1, the one segment whose
+master exponent table is 2^26, against 235 GB on the machine; every other
+segment stayed under 128 GB. The serialized statements and proofs are
+1,350,216,784 bytes of proof over the 39 chunks and 3,520,037,495 serialized.
+
 ## Entry template
 
 ```
