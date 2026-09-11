@@ -1,0 +1,9 @@
+{"driver": "predict-13b", "label": "prediction",
+ "model": "codellama/CodeLlama-13b-hf", "spec": "b10-final",
+ "context": 4096, "s": 512, "layers": 40, "segments": 39,
+ "layers_absent": "0",
+ "shared_flags": "--round even --numbits 9 --z-hi-bits 7 --variants intexp --head-groups 16,16,8 --tight-table", "layer_flags": "--diagonal-block --gkr-key-tiles --gkr-dequant --gkr-residual-stream --gkr-freivalds --gkr-attnout",
+ "backend": "simd", "threads": 20, "weights": {"bytes": 26034525679, "seconds": 0.4},
+ "registered_prediction_sha256": "1f72abda113efc9d21a2645173a0164b9155ceb6fcb4113ae8f0c9fb712f1d68",
+ "replaces": "Qwen2.5-14B-Instruct, whose layers cannot be proved: zk-prover #172, #174",
+ "comparison": "not made here: harness/eval/predict/compare.py reads the registration"}

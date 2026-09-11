@@ -1,0 +1,1 @@
+AssertionError: block 8 layer 0: the attention output's quotient term does not fit: 7 + 26 = 33 > 31 (over by 2, denp2 form). `q_bits` is the fold's target width minus one and `rem_bits` is the divisor range this chunk is proved at, and the one bit the `denp2` form is worth is already taken.
