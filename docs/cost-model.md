@@ -321,6 +321,86 @@ refuse today: their q and kv sides are low-rank pairs and the cache is one
 latent, so the layer has five matmuls and not four and the key grids read a
 width the prover has no layout for.
 
+## What the loop would cost once the rest moves to the card
+
+The post draws one bar for the c4096 conversation's segment loop as it would
+stand once the witness generation still done on the host moves to the device
+(zk-prover #12). Two rows price that bar, they do not agree, and the figure has
+to say which of them it draws.
+
+`secs.projected.c4096.loop_host_8x` is the bar as it was drawn: the proof
+system's own `secs.headline.c4096.stwo_total` at its measured seconds, and the
+rest of `secs.headline.c4096.loop` divided by
+`assumption.loop_port.host_speedup`. That factor is the whole of the
+assumption, and no run has measured it.
+
+`secs.projected.c4096.loop_ported_rates` divides each host phase by the factor
+the port has already measured for that phase. The reference segment is proved
+twice, on the host backend and on the device backend, to the same digest, so
+what separates the two sets of seconds is the port and nothing else:
+`port.reference.c16384.trace_speedup` for base-trace generation and
+`port.reference.c16384.interaction_speedup` for interaction generation. The
+proof system, the dump read and the share of the loop the split does not name
+are carried at their own seconds. It rests on more assumptions than the row
+above and it is the larger number.
+
+The split it applies those factors to is the second of them:
+`assumption.loop_split.c4096.interaction_frac`, `.trace_frac`, `.stwo_frac` and
+`.read_frac`, which zk-prover #12 quotes off a serial loop on another card. The
+headline run's own slice outputs cannot supply it. They carry a per-phase span
+for every segment, but that loop is pipelined and the spans overlap one another
+as well, so the four of them add to more than the loop's own wall-clock time
+and are not a split of it. A split that adds to the loop is the first thing to
+add to the prover's output; until it exists, this row stands on a share
+measured elsewhere. The third assumption is shared by both rows and is the
+smallest: the port's factors were measured on one segment at context 16,384 and
+are applied to a whole sequence at 4,096.
+
+## Where one card runs out of context
+
+Two measured peaks say where one 80 GB card gives out:
+`mem.headline.c4096.peak_mib` and `mem.headline.c16384.peak_mib`, against
+`hardware.h100.memory_total_mib`, which is what the card reports having and not
+the vendor's 80 GB. Read as a line in the context, the pair gives
+`mem.projected.c32768.peak_mib`, `mem.projected.c131072.peak_mib` and
+`mem.projected.context_at_card_limit`, the context at which the line reaches
+the card.
+
+All three are `projected` and all three rest on one assumption: that the peak
+is linear in the context at S = 512 with the five reductions on. Two points
+cannot show that. Proving one decode segment at context 24,576 or 32,768 with
+`--tight-table` and recording `mem.probe.c<ctx>.peak_mib` is what would turn
+the line into a measurement, and `tools/drivers/memory-probe-c16384.sh` is the
+precedent for it. No such probe has run, so these rows say where the limit
+falls under an assumption and not where it is.
+
+Three candidate optimisations move that limit, in the order of what is known
+about each.
+
+- **Fewer positions a segment (`S`).** What grows with the context is the
+  prefix a segment reads, so a smaller `S` lowers the peak. It is not free: the
+  Freivalds check is charged per weight, a sequence pays `N_weights / S` of
+  those cells a position, and halving `S` both doubles that term and doubles
+  the number of segments, each with its own shape and model trees to commit.
+  `model_constants.weight_freivalds_composed_cells_per_weight` is what the
+  composed prover builds that check at. The trade itself has been measured at
+  no second `S`: every recorded sequence run in this repository is at 512.
+- **Keys and values committed once for each key/value head.** The prover
+  commits them once for each attention head, which at the 8B is four times
+  over. zk-prover #178 is the issue and its pull request 182 puts a number on
+  it: 3.5 per cent of a proved position's cells at context 4,096 and 9.4 per
+  cent at 16,384, counted from the layout. That pull request is not merged, so
+  the figure is a projection off an unmerged branch and is in no row of
+  `constants.json`, and it is a floor, because the interaction columns those
+  same key and value columns carry are not in it. It is also a saving in
+  committed cells and not in memory: the cells it removes are the ones the
+  prefix grows, so it should move the line above, and nothing has measured by
+  how much.
+- **Streaming the key tiles.** The key tiles are the other term that grows with
+  the prefix, and holding fewer of them at once trades memory for passes over
+  the witness. Nothing here puts a number on it: no layout for it exists and no
+  run has tried it.
+
 ## Where the measured quantities come from
 
 Every `projected` constant lists its inputs; `check.py` recomputes the
