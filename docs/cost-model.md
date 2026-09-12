@@ -256,22 +256,48 @@ chunks in this repository to the cell; the ruling is zk-prover's
 `docs/decisions/2026-09-11-cells-are-counted-from-the-layout-wherever-a-shape-can-be-stated.md`.
 The per-operation cell costs above are therefore what the older fitted path
 charged, and a counted row reads none of them. What a counted row reads beyond
-the shape itself is one block of witness-calibrated fields, the fields a
-`params` block carries and a published config does not: the exponential table's
-height, the attention output's ranges, the fold's remainder width, the
-rounding, the head grouping and the attention variant. Each is the mode over the
-64 layer and first segments of the two recorded headline runs, each is named in
-every projected row's `inputs` as `assumption.cost_model.<field>`, and until
-this file holds them the driver refuses and records nothing.
+the shape itself is the block of sixteen fields below, the fields a `params`
+block carries and a published config does not. Every projected row names all
+sixteen in its `inputs` as `assumption.cost_model.<field>`.
 
-Three things of the older path still enter a counted row. The preprocessed
-weight trace is charged at
-`model_constants.weight_freivalds_preprocessed_cells_per_weight`, which is the
-whole of the `preprocessed_over_fresh` ratio below. The router's selection is
-built by no AIR in this project, so a mixture row states it as an upper bound at
+| key | what it fixes | grade |
+|---|---|---|
+| `assumption.cost_model.log_table` | the master exponent table, `5 x 2^log_table` cells | measured |
+| `assumption.cost_model.kmax` | the normalisation table's binades, and the fraction table's rows | measured |
+| `assumption.cost_model.ao_acc_hi_bits` | the attention output accumulator's high exponent range | measured |
+| `assumption.cost_model.ao_acc_lo_bits` | the same accumulator's low range, its own table | measured |
+| `assumption.cost_model.ao_rem_bits` | the attention output's remainder range table | measured |
+| `assumption.cost_model.ao_q_bits` | the attention output's quotient range table | measured |
+| `assumption.cost_model.ao_jo_min`, `_jo_max`, `_jv_min`, `_jv_max` | the exponent window the fold's range tables cover | measured |
+| `assumption.cost_model.fold_rem_bits` | the fold's own remainder range table | measured |
+| `assumption.cost_model.head_groups` | the three key grids' heights | asserted |
+| `assumption.cost_model.variant` | the softmax, an auxiliary column a score and a table | asserted |
+| `assumption.cost_model.round` | the sticky bit of every rounding | asserted |
+| `assumption.cost_model.moe_routing` | how many tokens a routed matmul covers | asserted |
+| `assumption.cost_model.moe_router` | the router's matmul, counted, and the selection on its logits, bounded | asserted |
+
+The eleven `measured` ones are each the mode of that field over the 64 layer and
+first segments of the two recorded headline runs, and `audit.py` re-derives every
+one of them from the same two slice outputs the composed prices are read off; a
+mode that moves fails the audit. The five `asserted` ones are not in any run:
+three are the statement a shape would be proved at and the operator's own knob,
+and two are what a mixture layer assumes about routing, which no run of any of
+these models has measured. `assumption.cost_model.moe_router` is an upper bound
+and its note says so, because no AIR in this project builds a selection
+argument: the router's own matmul of expert logits is counted like any other
+matmul, and the selection on top of it is stated beside the row at
 `model_constants.argmax_marginal_cells_per_comparison`, the marginal of the
-argmax gadget that is built. And the measured rates and the two reference rental
-rates turn a cell count into seconds and dollars, as they always did.
+argmax gadget that is built, rather than charged in it. What the eleven are worth together: one token block's 32 layer
+segments counted at them come to 0.09 per cent above what the c4096 run measured
+and 0.53 per cent below the c16384 run's, and counted at the widest value each
+field takes over the two runs, 9.1 and 5.1 per cent above.
+
+Two things of the older path still enter a counted row. The preprocessed weight
+trace is charged at
+`model_constants.weight_freivalds_preprocessed_cells_per_weight`, which is the
+whole of the `preprocessed_over_fresh` ratio below and which a row counting it
+names in its `inputs`. And the measured rates and the two reference rental rates
+turn a cell count into seconds and dollars, as they always did.
 
 - Cards needed for a target throughput, per model shape, card, context and
   timing scope (`frontier.<model>.<card>.c<ctx>.<scope>.cards_for_20`), and
