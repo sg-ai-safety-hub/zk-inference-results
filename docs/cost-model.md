@@ -249,14 +249,51 @@ position.
 
 ## What it projects
 
-- Cards needed for a target throughput per model shape and context
-  (`frontier.<model>.c<ctx>.<scope>.cards_for_20`), and dollars per million
-  tokens (`frontier.<model>.c<ctx>.<scope>.usd_per_mtok`).
-- Mixture-of-experts shapes: committed cells against a dense model of the
-  same active size (`moe.<model>.preprocessed_over_fresh`).
+The projection is a count and not a fit. Every shape the table prices is built
+as a `params` block per segment and its committed cells are counted from the
+prover's own trace layout, the arithmetic that reproduces all 1,872 recorded
+chunks in this repository to the cell; the ruling is zk-prover's
+`docs/decisions/2026-09-11-cells-are-counted-from-the-layout-wherever-a-shape-can-be-stated.md`.
+The per-operation cell costs above are therefore what the older fitted path
+charged, and a counted row reads none of them. What a counted row reads beyond
+the shape itself is one block of witness-calibrated fields, the fields a
+`params` block carries and a published config does not: the exponential table's
+height, the attention output's ranges, the fold's remainder width, the
+rounding, the head grouping and the attention variant. Each is the mode over the
+64 layer and first segments of the two recorded headline runs, each is named in
+every projected row's `inputs` as `assumption.cost_model.<field>`, and until
+this file holds them the driver refuses and records nothing.
+
+Three things of the older path still enter a counted row. The preprocessed
+weight trace is charged at
+`model_constants.weight_freivalds_preprocessed_cells_per_weight`, which is the
+whole of the `preprocessed_over_fresh` ratio below. The router's selection is
+built by no AIR in this project, so a mixture row states it as an upper bound at
+`model_constants.argmax_marginal_cells_per_comparison`, the marginal of the
+argmax gadget that is built. And the measured rates and the two reference rental
+rates turn a cell count into seconds and dollars, as they always did.
+
+- Cards needed for a target throughput, per model shape, card, context and
+  timing scope (`frontier.<model>.<card>.c<ctx>.<scope>.cards_for_20`), and
+  dollars per million proved positions
+  (`frontier.<model>.<card>.c<ctx>.<scope>.usd_per_mposition`).
+- Mixture-of-experts shapes at one sequence a proof: committed cells against a
+  dense model with the same active parameters (`moe.<model>.fresh_over_dense`),
+  and the same comparison counting the preprocessed weight trace, which the
+  measured rates do not count (`moe.<model>.preprocessed_over_fresh`).
+- The calibration residual, which is what the counted statement misses the
+  headline run's measurement by, per proved position: one key per context
+  (`frontier.calibration.c<ctx>.residual_pct`) and the worse of the two, which
+  is what the whole table stands on (`frontier.calibration.residual_pct`).
 - The price of proving a whole evaluation suite, from the suite's token
   counts (`suite.decode_positions`, `suite.e11_positions`) and the measured
   per-position rate: `harness.costmodel.suite_cost`.
+
+A shape whose layout the count cannot state is refused and not quietly priced
+the old way under the same heading. The three multi-head latent attention rows
+refuse today: their q and kv sides are low-rank pairs and the cache is one
+latent, so the layer has five matmuls and not four and the key grids read a
+width the prover has no layout for.
 
 ## Where the measured quantities come from
 

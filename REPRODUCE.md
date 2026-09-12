@@ -49,6 +49,39 @@ Written, not yet run:
   the one-line fix for the statement key the prover renamed (zk-prover #171),
   without which the comparison stops on the first chunk it opens.
 
+- `tools/drivers/cost-model.sh`: the frontier price table, projected from this
+  repository's own constants and from nothing else. The first driver that needs
+  no host. It archives the pinned harness commit, synchronizes its environment,
+  runs `harness.costmodel.frontier` against `constants.json` with the two
+  micro-benchmark directory variables unset, and reads the model's own
+  provenance block to decide whether it may record anything:
+  `tools/drivers/cost-model.sh <prover-commit> <harness-commit>`, with
+  `ZK_PROVER_DIR` naming a local `zk-prover` clone where the driver's default
+  is not one. `--dry-run` prints the same rows, lets the model fall back to the
+  micro-benchmark directory and writes nothing.
+
+  It ran at zk-prover `80dd8ee` on 2026-09-12 and refused, so there is no run
+  directory and no `projected` constant here yet. What it printed: 103 rows,
+  none of them recordable, over the six of nine shapes the count can state --
+  the three multi-head latent attention shapes are refused by the model itself,
+  with the reason in each row. Every cell cost the model charges is a key of
+  this file, the statement it prices is the sound one read from this file, and
+  the rate it divides by is this repository's own headline measurement, so none
+  of the older refusals applies any more.
+
+  Why it refused, and it is the only reason left: the counted path reads no cell
+  cost for a segment and assumes a block of sixteen witness-calibrated fields
+  instead, which every projected row names in its `inputs` as
+  `assumption.cost_model.<field>`, and this file holds none of the sixteen.
+  Eleven of them are the mode of a field over the 64 layer and first segments of
+  the two recorded headline runs, three are the prover's own command line, and
+  two are the mixture rows' routing assumptions. Recording them is a naming and
+  a grading question first -- zk-prover #169 proposes the names and one of the
+  sixteen is graded `bound`, which is not a grade this file has -- and a driver
+  question second, because no driver here measures a mode over two runs yet.
+  Once they are entries the same command records the table without further
+  change.
+
 
 ## synthetic-digests
 
