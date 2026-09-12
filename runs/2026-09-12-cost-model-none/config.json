@@ -1,0 +1,8 @@
+{"driver": "cost-model", "label": "projection",
+ "prover_commit": "d6df89d81ba5a1d72e440ed8d6087e9560fb6822", "harness_commit": "d6df89d81ba5a1d72e440ed8d6087e9560fb6822",
+ "module": "harness.costmodel.frontier", "seq": 512, "target_positions_per_s": 20,
+ "constants": "constants.json",
+ "artifacts": null,
+ "recordable": true,
+ "card": "none: the model reads a recorded rate and touches no card",
+ "witness": "none: no proof is made and nothing is measured"}
