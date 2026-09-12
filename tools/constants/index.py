@@ -24,7 +24,11 @@ def render():
     for m in sorted(ROOT.glob("runs/*/manifest.json")):
         d = json.loads(m.read_text())
         keys = backed.pop(d["run_id"], [])
-        rows.append(f"| `{d['run_id']}` | `{d['driver']}` | {d.get('gpu')} | {len(d.get('unsound_skips', []))} | "
+        # A run that touched no card reports no GPU, and `none` is the word this
+        # repository uses for that, in the run id and under `card`; a manifest
+        # that carries null there means the same thing and must not read `None`.
+        rows.append(f"| `{d['run_id']}` | `{d['driver']}` | {d.get('gpu') or 'none'} | "
+                    f"{len(d.get('unsound_skips', []))} | "
                     + (", ".join(f"`{k}`" for k in sorted(keys)) or "none yet") + " |")
     for run, keys in sorted(backed.items()):
         rows.append(f"| `{run}` | **no manifest** | | | {', '.join(f'`{k}`' for k in sorted(keys))} |")
