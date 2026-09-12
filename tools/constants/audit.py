@@ -1771,6 +1771,65 @@ def composed_statement(a, keys):
             a.claim(key, vals[key])
 
 
+# -- the cost model's witness assumption block ---------------------------------
+# The eleven fields of a `params` block that a model shape and a context do not
+# give: the exponent table's height, the attention output's measured ranges and
+# the fold's remainder width.  A caller who has a model and a context but no
+# witness cannot read them, so the counted cost model assumes them, and every
+# projected row names them in its `inputs` as `assumption.cost_model.<field>`.
+# Each is the MODE over the 64 layer and first segments of the two headline
+# runs -- the same two artifacts the composed prices are read off -- and that is
+# what this re-derives.  It is the whole of the assumption: a mode that has moved
+# is a different projection, and this section fails rather than letting the rows
+# stand on a number the runs no longer say.
+_ASSUMPTION_KEY = "assumption.cost_model."
+_WITNESS_FIELDS = ("log_table", "kmax", "ao_acc_hi_bits", "ao_acc_lo_bits",
+                   "ao_rem_bits", "ao_q_bits", "ao_jo_min", "ao_jo_max",
+                   "ao_jv_min", "ao_jv_max", "fold_rem_bits")
+# A layer segment or the first segment of a stack, by its `ser_tag`; the output
+# head's tag carries no `L` and its plan agrees on a narrower remainder, so it is
+# not one of the 64.
+_LAYER_OR_FIRST = re.compile(r"B\d+L\d+")
+
+
+def witness_assumptions(a, keys):
+    """The eleven witness-calibrated fields, as the mode over the two runs."""
+    mine = {k for k in keys if k.startswith(_ASSUMPTION_KEY)}
+    if not mine:
+        return
+    c = load()["constants"]
+    pts = []
+    for ctx in (4096, 16384):
+        e = c[_PER_TOKEN_KEY.format(ctx)]
+        for ch in artifact(e["run"], e["artifact"])["result"]["chunks"]:
+            if _LAYER_OR_FIRST.fullmatch(ch["ser_tag"] or ""):
+                pts.append((e["run"], ch["ser_tag"], ch["params"]))
+    if len(pts) != 64:
+        a.fails.append(f"audit: the assumption block is the mode over the two headline "
+                       f"runs' 64 layer and first segments and their artifacts hold "
+                       f"{len(pts)}")
+        return
+    print(f"  the witness assumption block, over {len(pts)} layer and first segments of "
+          f"the two headline runs")
+    for f in _WITNESS_FIELDS:
+        key = _ASSUMPTION_KEY + f
+        if key not in mine:
+            continue
+        counts = {}
+        for run, tag, p in pts:
+            if f not in p:
+                a.fails.append(f"audit: {run} segment {tag} carries no {f}")
+                return
+            counts[p[f]] = counts.get(p[f], 0) + 1
+        # `modal_witness` in the cost model breaks a draw the same way: the most
+        # common value, and the smallest of them where two are as common.
+        a.exact(key, max(sorted(counts), key=lambda v: counts[v]))
+    left = sorted(mine - {_ASSUMPTION_KEY + f for f in _WITNESS_FIELDS})
+    if left:
+        a.fails.append(f"audit: {left} is measured and no run reads it; the fields the "
+                       f"runs do not carry are asserted")
+
+
 # -- sections: (driver name, function(audit, keys)) ----------------------------
 # Added when a driver's first run lands; each function re-derives the constants
 # whose `run` was made by that driver.
@@ -1804,6 +1863,9 @@ SECTIONS = [
     # the two runs; one section, because a price is only a price if the two
     # agree
     ("headline-c4096", composed_statement),
+    # the cost model's witness assumption block, the mode over the same two
+    # artifacts' layer and first segments
+    ("headline-c4096", witness_assumptions),
 ]
 
 
