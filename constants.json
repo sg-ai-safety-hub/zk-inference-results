@@ -16,7 +16,7 @@
  "_grades": {
   "measured": "made by a driver in this repository; audit.py re-derives it from `artifact` in `run`",
   "derived": "arithmetic over other entries; check.py recomputes it from the entries it names",
-  "projected": "the cost model, with the model's inputs named; never presented as a measurement",
+  "projected": "the cost model or another projection, with its inputs named; never presented as a measurement",
   "external": "read from a public source, with its URL in the note",
   "asserted": "an assumption the owner made, with the reason in the note"
  },
@@ -32,7 +32,9 @@
   "unproved end to end": "the full call on its own: the prompt prefilled and every generated position decoded, as one wall-clock time, with the weights already resident. Nothing is proved in it.",
   "extraction": "the witness extraction: the forward passes that write the dumps the proofs read, on the card, timed by the driver around each pass. It is outside the prover, so it is in none of the four proving scopes; it does not include emitting the device kernels, installing them or rebuilding.",
   "cold whole wall": "the extraction the proofs read plus whole wall: what the sequence costs on a host that holds no witness dump yet. Kernel emission, the install and the rebuild are not in it.",
-  "cold loop": "the extraction the proofs read plus loop: what the sequence costs on a host that holds no witness dump yet. Kernel emission, the install and the rebuild are not in it."
+  "cold loop": "the extraction the proofs read plus loop: what the sequence costs on a host that holds no witness dump yet. Kernel emission, the install and the rebuild are not in it.",
+  "trace generation": "generating one segment's base trace, the prover's own `trace_secs`. It is inside whole wall and is not one of the four whole-proof scopes; on the device backend it overlaps interaction generation, so the two are not a split of anything.",
+  "interaction generation": "generating one segment's LogUp interaction columns and running the GKR reductions over them, the prover's own `interaction_secs`. Inside whole wall, like trace generation, and overlapping it on the device backend."
  },
  "constants": {
   "cost.h100_reference_usd_per_hour": {
@@ -8135,6 +8137,196 @@
    "note": "The calibration residual the whole table stands on: the worst of the two contexts, which is C=4,096. The per-context rows beside it carry both.",
    "run": "2026-09-12-cost-model-none",
    "artifact": "frontier.json"
+  },
+  "hardware.h100.memory_total_mib": {
+   "value": 81559,
+   "unit": "MiB",
+   "card": "H100",
+   "context": "n/a",
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-09-headline-c4096-h100",
+   "artifact": "manifest.json",
+   "note": "What the card reports having, in the GPU string every manifest of a run on it carries. It is not the vendor's 80 GB, which would be 81,920 MiB: this is what the driver leaves a process to allocate. The audit reads it off the manifests and refuses if two runs on this card disagree."
+  },
+  "secs.reference.c16384.simd_trace": {
+   "value": 30.13882695,
+   "unit": "s",
+   "card": "H100",
+   "context": 16384,
+   "timing_scope": "trace generation",
+   "grade": "measured",
+   "run": "2026-09-08-reference-digest-plain-h100",
+   "artifact": "full-simd.json",
+   "note": "Generating one segment's base trace on the host backend. The reference segment: layer 16 of the 8B at context 16,384, S = 512, the five reductions on, proved on both backends to the same digest, which is what makes the pair a factor of the port and not of two different proofs."
+  },
+  "secs.reference.c16384.simd_interaction": {
+   "value": 125.302780331,
+   "unit": "s",
+   "card": "H100",
+   "context": 16384,
+   "timing_scope": "interaction generation",
+   "grade": "measured",
+   "run": "2026-09-08-reference-digest-plain-h100",
+   "artifact": "full-simd.json",
+   "note": "Generating the same segment's LogUp interaction columns, and running the GKR reductions over them, on the host backend."
+  },
+  "secs.reference.c16384.cuda_trace": {
+   "value": 21.570202394,
+   "unit": "s",
+   "card": "H100",
+   "context": 16384,
+   "timing_scope": "trace generation",
+   "grade": "measured",
+   "run": "2026-09-08-reference-digest-plain-h100",
+   "artifact": "full-cuda.json",
+   "note": "Generating one segment's base trace on the device backend. The reference segment: layer 16 of the 8B at context 16,384, S = 512, the five reductions on, proved on both backends to the same digest, which is what makes the pair a factor of the port and not of two different proofs. Part of that trace is still built on the host, which is why the factor is 1.4 and not what a finished port would give (zk-prover #12)."
+  },
+  "secs.reference.c16384.cuda_interaction": {
+   "value": 18.083594848,
+   "unit": "s",
+   "card": "H100",
+   "context": 16384,
+   "timing_scope": "interaction generation",
+   "grade": "measured",
+   "run": "2026-09-08-reference-digest-plain-h100",
+   "artifact": "full-cuda.json",
+   "note": "Generating the same segment's LogUp interaction columns, and running the GKR reductions over them, on the device backend."
+  },
+  "port.reference.c16384.trace_speedup": {
+   "value": 1.397244,
+   "unit": "factor",
+   "card": "H100",
+   "context": 16384,
+   "timing_scope": "trace generation",
+   "grade": "derived",
+   "note": "secs.reference.c16384.simd_trace / secs.reference.c16384.cuda_trace: what the port is worth on base-trace generation today, on one segment. Part of that trace is still built on the host, so this is the port as it stands and not what finishing it would give."
+  },
+  "port.reference.c16384.interaction_speedup": {
+   "value": 6.929086,
+   "unit": "factor",
+   "card": "H100",
+   "context": 16384,
+   "timing_scope": "interaction generation",
+   "grade": "derived",
+   "note": "secs.reference.c16384.simd_interaction / secs.reference.c16384.cuda_interaction: what the port is worth on interaction generation, on the same segment and the same proof."
+  },
+  "assumption.loop_port.host_speedup": {
+   "value": 8,
+   "unit": "factor",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "loop",
+   "grade": "asserted",
+   "note": "The one factor the post's projection assumes: every host-side second of the c4096 segment loop runs 8 times faster once the rest of the witness generation moves to the card. Asserted because no port has measured it. The two phases that have moved measured 1.40 and 6.93 on the reference segment (port.reference.c16384.trace_speedup and .interaction_speedup), so 8 is a bet on finishing zk-prover #12 and not a reading of it."
+  },
+  "assumption.loop_split.c4096.interaction_frac": {
+   "value": 0.49,
+   "unit": "fraction",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "loop",
+   "grade": "asserted",
+   "note": "The share of the c4096 segment loop that is LogUp interaction generation, as zk-prover #12 quotes it off a serial loop on the archive's last H200 day. Asserted and not measured here: the slice outputs of runs/2026-09-09-headline-c4096-h100 carry a per-phase span for every segment, but that loop is pipelined and the spans overlap, so they add to 144 per cent of the loop's own wall-clock time and are not a split of it. The four shares name 93 per cent of the loop; the remaining 7 per cent is carried at its own seconds."
+  },
+  "assumption.loop_split.c4096.trace_frac": {
+   "value": 0.3,
+   "unit": "fraction",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "loop",
+   "grade": "asserted",
+   "note": "The share of the c4096 segment loop that is base-trace generation, as zk-prover #12 quotes it off a serial loop on the archive's last H200 day. Asserted and not measured here: the slice outputs of runs/2026-09-09-headline-c4096-h100 carry a per-phase span for every segment, but that loop is pipelined and the spans overlap, so they add to 144 per cent of the loop's own wall-clock time and are not a split of it. The four shares name 93 per cent of the loop; the remaining 7 per cent is carried at its own seconds."
+  },
+  "assumption.loop_split.c4096.stwo_frac": {
+   "value": 0.09,
+   "unit": "fraction",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "loop",
+   "grade": "asserted",
+   "note": "The share of the c4096 segment loop that is the proof system, as zk-prover #12 quotes it off a serial loop on the archive's last H200 day. Asserted and not measured here: the slice outputs of runs/2026-09-09-headline-c4096-h100 carry a per-phase span for every segment, but that loop is pipelined and the spans overlap, so they add to 144 per cent of the loop's own wall-clock time and are not a split of it. The four shares name 93 per cent of the loop; the remaining 7 per cent is carried at its own seconds."
+  },
+  "assumption.loop_split.c4096.read_frac": {
+   "value": 0.05,
+   "unit": "fraction",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "loop",
+   "grade": "asserted",
+   "note": "The share of the c4096 segment loop that is reading the witness dump, as zk-prover #12 quotes it off a serial loop on the archive's last H200 day. Asserted and not measured here: the slice outputs of runs/2026-09-09-headline-c4096-h100 carry a per-phase span for every segment, but that loop is pipelined and the spans overlap, so they add to 144 per cent of the loop's own wall-clock time and are not a split of it. The four shares name 93 per cent of the loop; the remaining 7 per cent is carried at its own seconds."
+  },
+  "secs.projected.c4096.loop_host_8x": {
+   "value": 709.933,
+   "unit": "s",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "loop",
+   "grade": "projected",
+   "inputs": [
+    "assumption.loop_port.host_speedup",
+    "secs.headline.c4096.loop",
+    "secs.headline.c4096.stwo_total"
+   ],
+   "note": "The post's number as drawn: the proof system's own 285.166 s as measured, plus the other 3,398.132 s of the loop divided by 8. 709.933 s, 11.8 minutes, against the 3,683.298 s the loop measured, 61.4 minutes. The assumption is the single factor in assumption.loop_port.host_speedup and nothing has measured it; secs.projected.c4096.loop_ported_rates is the same loop at the factors the port has measured."
+  },
+  "secs.projected.c4096.loop_ported_rates": {
+   "value": 1824.797,
+   "unit": "s",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "loop",
+   "grade": "projected",
+   "inputs": [
+    "assumption.loop_split.c4096.interaction_frac",
+    "assumption.loop_split.c4096.read_frac",
+    "assumption.loop_split.c4096.stwo_frac",
+    "assumption.loop_split.c4096.trace_frac",
+    "port.reference.c16384.interaction_speedup",
+    "port.reference.c16384.trace_speedup",
+    "secs.headline.c4096.loop"
+   ],
+   "note": "The same loop with each host phase divided by the factor the reference segment already measured for that phase: interaction generation by 6.93, base-trace generation by 1.40, and the proof system, the dump read and the 7 per cent the split does not name carried at their own seconds. 1,824.797 s, 30.4 minutes, just under half the measured loop. Two assumptions, both named in inputs: the phase split, which zk-prover #12 quotes off a serial loop and which this run's own slice outputs cannot supply because their per-phase spans overlap; and that a factor measured on one segment at context 16,384 carries to a whole sequence at 4,096. Fewer assumptions than secs.projected.c4096.loop_host_8x and a larger number."
+  },
+  "mem.projected.c32768.peak_mib": {
+   "value": 85567,
+   "unit": "MiB",
+   "card": "H100",
+   "context": 32768,
+   "timing_scope": "loop",
+   "grade": "projected",
+   "inputs": [
+    "mem.headline.c4096.peak_mib",
+    "mem.headline.c16384.peak_mib"
+   ],
+   "note": "The line through the two measured peaks, read at context 32,768: 0.4130859375 MiB a position of prefix, 72,031 MiB at context 0, 85,567 MiB here. 4,008 MiB above the card's 81,559, so one card does not hold it. The assumption is that the peak is linear in the context at S = 512 with the five reductions on, which two points cannot show. Proving one decode segment at context 24,576 or 32,768 with --tight-table and recording mem.probe.c<ctx>.peak_mib is what would turn the line into a measurement; no such probe has run."
+  },
+  "mem.projected.c131072.peak_mib": {
+   "value": 126175,
+   "unit": "MiB",
+   "card": "H100",
+   "context": 131072,
+   "timing_scope": "loop",
+   "grade": "projected",
+   "inputs": [
+    "mem.headline.c4096.peak_mib",
+    "mem.headline.c16384.peak_mib"
+   ],
+   "note": "The line through the two measured peaks, read at context 131,072: 0.4130859375 MiB a position of prefix, 72,031 MiB at context 0, 126,175 MiB here. 1.55 times the card's 81,559, and eight times the far measured context out from the pair the line is drawn through. The assumption is that the peak is linear in the context at S = 512 with the five reductions on, which two points cannot show. Proving one decode segment at context 24,576 or 32,768 with --tight-table and recording mem.probe.c<ctx>.peak_mib is what would turn the line into a measurement; no such probe has run."
+  },
+  "mem.projected.context_at_card_limit": {
+   "value": 23065.4184,
+   "unit": "positions of context",
+   "card": "H100",
+   "context": "4,096 and 16,384",
+   "timing_scope": "loop",
+   "grade": "projected",
+   "inputs": [
+    "hardware.h100.memory_total_mib",
+    "mem.headline.c4096.peak_mib",
+    "mem.headline.c16384.peak_mib"
+   ],
+   "note": "Where the same line reaches the card's 81,559 MiB: a context of about 23,065, half again the larger of the two contexts it is drawn through and short of the 32,768 the row above prices. Projected and not derived: the arithmetic is three entries of this file, but the same linearity assumption carries it and two points cannot show that the line is straight."
   }
  },
  "discrepancies": []
