@@ -179,6 +179,7 @@ constants backed: `cells.headline.c4096.fresh`, `mem.headline.c4096.peak_mib`,
   `usd_per_1k_positions.headline.c4096.loop`,
   `usd_per_1k_positions.headline.c4096.whole_wall`,
   `proof.headline.c4096.bytes_per_position`,
+  `proof.headline.c4096.bytes_per_segment_mean_last_block`,
   `proof.headline.c4096.bytes_per_segment_median`,
   `proof.headline.c4096.in_memory_bytes_per_segment_median`,
   `proof.headline.c4096.total_bytes`,
@@ -1947,8 +1948,13 @@ constants backed: `e4.codellama_13b.c4096.layers`,
   `e4.codellama_13b.c4096.cells_fresh`,
   `e4.codellama_13b.c4096.cells_per_token_layers`,
   `e4.codellama_13b.c4096.key_tiles_cells`,
-  `e4.codellama_13b.c4096.peak_rss_bytes`, and the derived
-  `e4.codellama_13b.c4096.rho` and `e4.codellama_13b.c4096.residual_pct`
+  `e4.codellama_13b.c4096.peak_rss_bytes`, `positions.predict13b.c4096`,
+  `proof.predict13b.c4096.bytes_per_segment_median`,
+  `proof.predict13b.c4096.total_bytes`, and the derived
+  `e4.codellama_13b.c4096.rho`, `e4.codellama_13b.c4096.residual_pct`,
+  `proof.predict13b.c4096.bytes_per_position`,
+  `proof.predict13b.c4096.bytes_per_segment_mean` and
+  `proof.predict13b.c4096.bytes_per_segment_over_8b`
 
 What the run measures. E4's third scale: a model shape the cost model was never
 fitted on, proved one layer segment per process, at S=512 against a 4,096-token

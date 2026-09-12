@@ -321,6 +321,32 @@ refuse today: their q and kv sides are low-rank pairs and the cache is one
 latent, so the layer has five matmuls and not four and the key grids read a
 width the prover has no layout for.
 
+## What it does not project: the size of the proof
+
+The model prices seconds and dollars and says nothing about how many bytes a
+proof is. Two readings of that were in circulation and they disagree by a factor
+of thirteen at the 405B shape: charging proof bytes by the model's parameter
+count, and charging them by the segment count, which holds one segment's proof
+fixed and multiplies by the layers. Nothing above the 8B had been measured.
+
+Two shapes are measured now, at the same block length, against the same
+4,096-token prefix, at the same five reductions and the same quantization:
+`proof.headline.c4096.bytes_per_segment_mean_last_block` for the 8B and
+`proof.predict13b.c4096.bytes_per_segment_mean` for the 13B, with
+`proof.predict13b.c4096.bytes_per_segment_over_8b` dividing them. The pair
+refutes both readings, in opposite directions: the parameter count over-predicts
+that ratio and the segment count under-predicts it, and the row's note says by
+how much. Two points fix one number and not a curve, so no rule for a wider
+shape is written here and no `projected` row for one exists; the four
+`frontier.*` rows per shape and context are seconds and dollars, and none of
+them is a proof size.
+
+What would settle it is a third measured shape, or a count of a segment's
+committed columns for the shapes this table prices. The two points agree far
+more closely on bytes per committed column than on bytes per committed cell, and
+what the count states for a shape is cells: a column count from the same layout
+is what would turn that agreement into a rule.
+
 ## What the loop would cost once the rest moves to the card
 
 The post draws one bar for the c4096 conversation's segment loop as it would
