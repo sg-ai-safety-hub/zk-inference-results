@@ -100,8 +100,15 @@ def fold_binding(tables):
 
 
 def gpu_slug(name):
-    m = re.search(r"\b([A-Z]\d{3,4})\b", name or "")
-    return (m.group(1) if m else re.sub(r"[^a-z0-9]+", "-", (name or "gpu").lower()).strip("-")).lower()
+    # A run whose outputs report no GPU touched no card, and `none` is the word
+    # this repository already uses for that: it is what such a run's entries
+    # carry under `card` and what `register-13b` and `register-14b` are named
+    # after.  A run id that said `gpu` instead would name a card that was never
+    # there.
+    if not name:
+        return "none"
+    m = re.search(r"\b([A-Z]\d{3,4})\b", name)
+    return (m.group(1) if m else re.sub(r"[^a-z0-9]+", "-", name.lower()).strip("-")).lower()
 
 
 def main():
