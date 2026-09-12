@@ -27,6 +27,18 @@
 # unset, so an environment that happens to name one cannot leak into a recorded
 # run.
 #
+# The counted path moves what has to be in this repository rather than removing
+# it. It reads no cell cost for a segment -- it builds the segment's trace layout
+# and multiplies columns by rows -- and it charges nothing that is priced by
+# analogy, because it builds the router's matmul like any other matmul and states
+# the selection on top of it as a bound. What it assumes instead is the block of
+# witness-calibrated fields a `params` block carries and a model shape does not:
+# the exponential table's height, the attention output's ranges, the rounding.
+# Every projected row names those keys in its `inputs`, so this driver refuses on
+# one that is not an entry here for the same reason it refuses a cell cost from a
+# directory outside this repository: the row would stand on a number nothing here
+# holds.
+#
 # The dry run does the opposite on purpose: it lets the model fall back to the
 # micro-benchmark directory (`ZK_ARTIFACTS` and `ZK_COSTMODEL_INPUTS` are passed
 # through when they are set), prints the same rows, marks them not recordable and
@@ -82,7 +94,7 @@ if [ "$DRY" = no ] && [ -e "$ROOT/runs/$RUN_ID" ]; then
 fi
 
 # ---- the pinned sources, unpacked here rather than pushed --------------------
-TMP=$(mktemp -d /tmp/zk-cost-model.XXXXXX)
+TMP=$(mktemp -d "${TMPDIR:-/tmp}/zk-cost-model.XXXXXX")
 trap 'rm -rf "$TMP"' EXIT INT TERM
 SRC=$TMP/src
 OUT=$TMP/out
@@ -125,9 +137,10 @@ fi
 # The refusal is made here and not taken on trust: this reads the model's own
 # provenance block, input by input, and a charged input that did not come from
 # the constants file ends the run before anything is written under runs/.
-python3 - "$OUT" "$RUN_ID" "$DRY" "$HARNESS" <<'PY'
+python3 - "$OUT" "$RUN_ID" "$DRY" "$HARNESS" "$ROOT" <<'PY'
 import json, pathlib, sys
 out, run_id, dry, harness = pathlib.Path(sys.argv[1]), sys.argv[2], sys.argv[3] == "yes", sys.argv[4]
+root = pathlib.Path(sys.argv[5])
 doc = json.loads((out / "frontier.json").read_text())
 prov, res = doc["provenance"], doc["result"]
 bad = []
@@ -136,13 +149,35 @@ if not c or not (c.startswith(harness) or harness.startswith(c)):
     bad.append(f"the model ran at {c or 'no commit'}, not at the pinned {harness}")
 if prov.get("dirty"):
     bad.append("the pinned tree was dirty")
+# How the cell side was counted decides which of the model's inputs a row read.
+# The counted path charges no number priced by analogy: it builds the router's
+# matmul like any other matmul and bounds the selection on top of it, so the two
+# routing inputs are read by the fitted path alone and a counted row that names
+# them names nothing.  Every other input is judged the same way in both.
+exact = res.get("cells") == "exact"
 for name, e in sorted(res["provenance"]["cost_model"].items()):
-    if e.get("charged", True) and e.get("source") != "constants":
+    if not e.get("charged", True) or (exact and e.get("source") == "analogy"):
+        continue
+    if e.get("source") != "constants":
         bad.append(f"{name} came from {e['source']}"
                    + (f", and {e['key']} would back it" if e.get("key") else
                       ", and no key names it"))
 if res["statement"]["source"] != "constants":
     bad.append("the statement's own layout is not read from the constants file")
+# What the counted path assumes in place of the cell costs it no longer reads:
+# the witness-calibrated fields of a `params` block, which every projected row
+# names in its `inputs`.  A name that is not an entry of this file is a row
+# standing on a number this repository does not hold, so it refuses here and the
+# missing keys are named one by one.
+asm = res.get("assumptions") or {}
+if asm.get("rows"):
+    held = json.loads((root / "constants.json").read_text())["constants"]
+    for r in asm["rows"]:
+        key = asm["key"].format(field=r["field"])
+        if key not in held:
+            bad.append(f"{key} is what the count assumes for `{r['field']}` "
+                       f"({r['value']}, graded {r['grade']}), and this file does "
+                       f"not hold it")
 for name, seq in sorted(res["provenance"]["sequence"].items()):
     if seq.get("read_from") != "constants":
         bad.append(f"the measured rate for {name} came from {seq.get('read_from')}")
@@ -158,6 +193,12 @@ for r in rows:
 cal = {r["key"]: r["entry"]["value"] for r in rows if "calibration" in r["key"]}
 print("  calibration: " + ", ".join(f"{k.split('.')[-2]} {v:+.2f} per cent"
                                     for k, v in sorted(cal.items())))
+# The model makes the same judgement on its own rows.  The two must agree: a
+# table the model marks not recordable is never recorded here, whatever this
+# gate found, and a reason only the model knows is still a reason to refuse.
+if not res.get("recordable") and not bad:
+    bad.append("the model marks its own table not recordable and this gate found "
+               "no reason of its own; the run's printed output says which")
 if bad:
     print("\nnot recordable:")
     for b in bad:
