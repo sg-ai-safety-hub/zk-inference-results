@@ -8,8 +8,8 @@
   "context": "the context length C the number was measured at; 'n/a' where it does not apply",
   "timing_scope": "one of _timing_scopes, or 'n/a' for a number that is not a time or a rate",
   "grade": "one of _grades",
-  "run": "measured only: the runs/<run-id> directory whose artifact the audit re-derives the value from",
-  "artifact": "measured only: the file in that run directory",
+  "run": "required on measured: the runs/<run-id> directory whose artifact the audit re-derives the value from",
+  "artifact": "required on measured: the file in that run directory",
   "inputs": "projected only: the constants keys the cost model read",
   "note": "one or two sentences; for external, the URL"
  },
@@ -359,6 +359,51 @@
    "grade": "derived",
    "note": "secs.headline.c4096.loop / 32, the model's layers. What proving every position of the sequence at one layer cost, so a claim that samples k of the 32 layers prices its sampled part at k times this. The two output head segments sit in the loop seconds and are not a layer, which puts about 0.7 per cent of this row on the head and not on a layer."
   },
+  "secs_per_layer_segment.headline.c4096.whole_wall": {
+   "value": 19.045326,
+   "unit": "s/segment",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "whole wall",
+   "grade": "derived",
+   "note": "secs.headline.c4096.whole_wall / the same 288 layer segments. The whole-wall scope does not count reading the witness or building the segment, which is what the loop row beside it adds. A head segment sits at the layer coordinate past the last layer, proves no attention and commits no boundary tree for the keys and values, so it is not a layer segment; both recorded plans carry two of them, one over the last prompt block and one over the generated block."
+  },
+  "secs_per_layer_segment.headline.c4096.loop": {
+   "value": 12.789229,
+   "unit": "s/segment",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "loop",
+   "grade": "derived",
+   "note": "secs.headline.c4096.loop / the sequence's 288 layer segments, which is segments.headline.c4096 less its two output head segments. What one layer segment cost on average at the scope that counts reading the witness and building the segment, so a claim that checks a fraction of the layers is priced on this row and a claim that checks a fraction of the proofs is priced on secs_per_segment.headline.c4096.loop, which counts the heads as well. A head segment sits at the layer coordinate past the last layer, proves no attention and commits no boundary tree for the keys and values, so it is not a layer segment; both recorded plans carry two of them, one over the last prompt block and one over the generated block."
+  },
+  "share.headline.c4096.commit_of_stwo_total": {
+   "value": 0.598799,
+   "unit": "ratio",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "n/a",
+   "grade": "derived",
+   "note": "secs.headline.c4096.commit / secs.headline.c4096.stwo_total: the commitment path's share of the proof system's own call, over the whole sequence. The commitment path is inside that call, so this is a share and lies between 0 and 1."
+  },
+  "share.headline.c4096.stwo_total_of_whole_wall": {
+   "value": 0.05199,
+   "unit": "ratio",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "n/a",
+   "grade": "derived",
+   "note": "secs.headline.c4096.stwo_total / secs.headline.c4096.whole_wall: the proof system's own share of the per-segment wall-clock time summed over the sequence, 5.20 per cent. The rest is trace generation, interaction generation and serialization, which the whole-wall scope also counts."
+  },
+  "share.headline.c4096.commit_of_loop": {
+   "value": 0.04636,
+   "unit": "ratio",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "n/a",
+   "grade": "derived",
+   "note": "secs.headline.c4096.commit / secs.headline.c4096.loop: the commitment path's share of the segment loop, 4.64 per cent. The loop is the scope that also reads the witness and builds the segment, which is why this is below the share of the proof system's own call above it. The gkr-ablation-c4096 entry says the commitment path is 5 per cent of the loop; that is that run's own 32-segment sample of one token block and not this sequence."
+  },
   "proof.headline.c4096.total_bytes": {
    "value": 19826058033,
    "unit": "bytes",
@@ -400,6 +445,17 @@
    "timing_scope": "n/a",
    "grade": "derived",
    "note": "proof.headline.c4096.total_bytes / segments.headline.c4096, which is 65.20 MiB: what one segment of this sequence cost in serialized bytes on average. The median row beside it is 0.35 per cent lower and is a segment the run actually proved. Both are kept because they answer different questions: a segment's proof grows with the prefix its token block reads, so the median is the segment a reader would meet and the mean is the per-segment figure that multiplies back to the sequence's total."
+  },
+  "proof.headline.c4096.bytes_per_segment_mean_last_block": {
+   "value": 81879915.13,
+   "unit": "bytes/segment",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-09-headline-c4096-h100",
+   "artifact": "grid.json",
+   "note": "The mean serialized proof over the 32 layer segments of the last token block, the block whose prefix is the whole 4,096-token context: 78.1 MiB, against 65.20 MiB over all 290 segments of the sequence. It is the like-for-like point against a run that proves one token block at one prefix, which is what runs/2026-09-11-predict-13b-h100 does, and it exists so that comparison is a ratio of two recorded rows and not arithmetic done in prose. The output head segment over that block is not a layer segment and is not in it."
   },
   "proof.headline.c4096.in_memory_bytes_per_segment_median": {
    "value": 26561984,
@@ -851,6 +907,51 @@
    "timing_scope": "loop",
    "grade": "derived",
    "note": "secs.headline.c16384.loop / 32, the model's layers. What proving every position of the sequence at one layer cost, so a claim that samples k of the 32 layers prices its sampled part at k times this. The two output head segments sit in the loop seconds and are not a layer, which puts about 0.2 per cent of this row on the head and not on a layer."
+  },
+  "secs_per_layer_segment.headline.c16384.whole_wall": {
+   "value": 28.33585,
+   "unit": "s/segment",
+   "card": "H100",
+   "context": 16384,
+   "timing_scope": "whole wall",
+   "grade": "derived",
+   "note": "secs.headline.c16384.whole_wall / the same 1,056 layer segments. The whole-wall scope does not count reading the witness or building the segment, which is what the loop row beside it adds. A head segment sits at the layer coordinate past the last layer, proves no attention and commits no boundary tree for the keys and values, so it is not a layer segment; both recorded plans carry two of them, one over the last prompt block and one over the generated block."
+  },
+  "secs_per_layer_segment.headline.c16384.loop": {
+   "value": 20.441147,
+   "unit": "s/segment",
+   "card": "H100",
+   "context": 16384,
+   "timing_scope": "loop",
+   "grade": "derived",
+   "note": "secs.headline.c16384.loop / the sequence's 1,056 layer segments, which is segments.headline.c16384 less its two output head segments. The same per-layer-segment figure one campaign up: 0.19 per cent above secs_per_segment.headline.c16384.loop, where at context 4,096 the gap is 0.69 per cent, because two heads are a smaller part of 1,058 segments than of 290. A head segment sits at the layer coordinate past the last layer, proves no attention and commits no boundary tree for the keys and values, so it is not a layer segment; both recorded plans carry two of them, one over the last prompt block and one over the generated block."
+  },
+  "share.headline.c16384.commit_of_stwo_total": {
+   "value": 0.599894,
+   "unit": "ratio",
+   "card": "H100",
+   "context": 16384,
+   "timing_scope": "n/a",
+   "grade": "derived",
+   "note": "secs.headline.c16384.commit / secs.headline.c16384.stwo_total: the same share one campaign up. It is 0.18 per cent above the share at context 4,096, so what the commitment path is worth inside the proof system's own call does not move with the context."
+  },
+  "share.headline.c16384.stwo_total_of_whole_wall": {
+   "value": 0.049977,
+   "unit": "ratio",
+   "card": "H100",
+   "context": 16384,
+   "timing_scope": "n/a",
+   "grade": "derived",
+   "note": "secs.headline.c16384.stwo_total / secs.headline.c16384.whole_wall: the same share one campaign up, 5.00 per cent against 5.20 at context 4,096. Trace and interaction generation grow with the prefix faster than the proof system's own call does."
+  },
+  "share.headline.c16384.commit_of_loop": {
+   "value": 0.04156,
+   "unit": "ratio",
+   "card": "H100",
+   "context": 16384,
+   "timing_scope": "n/a",
+   "grade": "derived",
+   "note": "secs.headline.c16384.commit / secs.headline.c16384.loop: the same share one campaign up, 4.16 per cent against 4.64 at context 4,096. The loop grows with the prefix faster than the commitment path does."
   },
   "verify.headline.c16384.secs_total": {
    "value": 832.08,
@@ -3652,6 +3753,15 @@
    "grade": "derived",
    "note": "secs.headline.c4096.extract + secs.headline.c4096.whole_wall. What the sequence costs on a host that holds no witness dump yet: the extraction the proofs read and the proving scope, one after the other. Emitting the device kernels, installing them and rebuilding are not in it, and no artifact of this run times them."
   },
+  "secs_per_position.headline.c4096.cold_whole_wall": {
+   "value": 1.357651,
+   "unit": "s/position",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "cold whole wall",
+   "grade": "derived",
+   "note": "secs.headline.c4096.cold_whole_wall / positions.headline.c4096. The same position with the extraction counted in at the whole-wall scope: 14 per cent above secs_per_position.headline.c4096.whole_wall."
+  },
   "usd_per_1k_positions.headline.c4096.cold_whole_wall": {
    "value": 1.240742,
    "unit": "USD/1000 positions",
@@ -3669,6 +3779,15 @@
    "timing_scope": "cold loop",
    "grade": "derived",
    "note": "secs.headline.c4096.extract + secs.headline.c4096.loop. What the sequence costs on a host that holds no witness dump yet: the extraction the proofs read and the proving scope, one after the other. Emitting the device kernels, installing them and rebuilding are not in it, and no artifact of this run times them."
+  },
+  "secs_per_position.headline.c4096.cold_loop": {
+   "value": 0.966645,
+   "unit": "s/position",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "cold loop",
+   "grade": "derived",
+   "note": "secs.headline.c4096.cold_loop / positions.headline.c4096. What one proved position cost on a host that holds no witness dump yet: the extraction the proofs read and the segment loop, one after the other. It is 21 per cent above secs_per_position.headline.c4096.loop, which prices the proving alone."
   },
   "usd_per_1k_positions.headline.c4096.cold_loop": {
    "value": 0.883406,
@@ -3688,6 +3807,15 @@
    "grade": "derived",
    "note": "secs.headline.c16384.extract_prove + secs.headline.c16384.whole_wall. What the sequence costs on a host that holds no witness dump yet: the extraction the proofs read and the proving scope, one after the other. Emitting the device kernels, installing them and rebuilding are not in it; timing.json keeps them in kernel_seconds, 1,204 s, and the survey sweep's extraction in a phase of its own."
   },
+  "secs_per_position.headline.c16384.cold_whole_wall": {
+   "value": 2.347163,
+   "unit": "s/position",
+   "card": "H100",
+   "context": 16384,
+   "timing_scope": "cold whole wall",
+   "grade": "derived",
+   "note": "secs.headline.c16384.cold_whole_wall / positions.headline.c16384. The same position at the whole-wall scope, 33 per cent above secs_per_position.headline.c16384.whole_wall. The extraction in it is the prove sweep's alone, for the reason the loop row beside it gives."
+  },
   "usd_per_1k_positions.headline.c16384.cold_whole_wall": {
    "value": 2.145046,
    "unit": "USD/1000 positions",
@@ -3705,6 +3833,15 @@
    "timing_scope": "cold loop",
    "grade": "derived",
    "note": "secs.headline.c16384.extract_prove + secs.headline.c16384.loop. What the sequence costs on a host that holds no witness dump yet: the extraction the proofs read and the proving scope, one after the other. Emitting the device kernels, installing them and rebuilding are not in it; timing.json keeps them in kernel_seconds, 1,204 s, and the survey sweep's extraction in a phase of its own."
+  },
+  "secs_per_position.headline.c16384.cold_loop": {
+   "value": 1.853744,
+   "unit": "s/position",
+   "card": "H100",
+   "context": 16384,
+   "timing_scope": "cold loop",
+   "grade": "derived",
+   "note": "secs.headline.c16384.cold_loop / positions.headline.c16384. What one proved position cost on a host that holds no witness dump yet, 45 per cent above secs_per_position.headline.c16384.loop. The extraction in it is the prove sweep's alone (secs.headline.c16384.extract_prove): no proof reads the survey sweep's dumps, and emitting the device kernels, installing them and rebuilding are in neither row."
   },
   "usd_per_1k_positions.headline.c16384.cold_loop": {
    "value": 1.694116,
@@ -4479,6 +4616,66 @@
    "timing_scope": "n/a",
    "grade": "derived",
    "note": "(e4.codellama_13b.c4096.rho - 1) x 100. The cost model's error at a model shape it was never fitted on, at the scale E4 registered it for. Layers 1 to 39 of 40: layer 0 is in no dump and in no proof, because the harness refuses to write it (its attention output's quotient term is 7 + 26 = 33 bits against the field's 31 in the widest form there is), so this is a 39-segment row and not the stack."
+  },
+  "positions.predict13b.c4096": {
+   "value": 512,
+   "unit": "positions",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-11-predict-13b-h100",
+   "artifact": "measured.json",
+   "note": "The decoded positions of the one token block this run proves, against a 4,096-token prefix. It is the divisor of that block's per-position rows and is not comparable with positions.headline.c4096, which counts a whole conversation's prompt and output over nine token blocks; this run proves one block, at 39 layer segments and no output head."
+  },
+  "proof.predict13b.c4096.total_bytes": {
+   "value": 3520037495,
+   "unit": "bytes",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-11-predict-13b-h100",
+   "artifact": "L1.json",
+   "note": "The serialized proofs of the run's 39 layer segments as the prover wrote them, added up: 3.28 GiB, one segment 83.0 to 89.1 MiB. Each layer output reports both sizes, `proof_bytes` for the proof structure the prover held and `proof_ser_bytes` for the document a verifier is given, and this is the sum of the serialized one; the in-memory sum beside it is 38.4 per cent of this, against 38.9 and 38.6 per cent in the two headline runs. The proofs of this run were made on the SIMD backend and the headline proofs on CUDA; a proof's size is the statement's and not the backend's, which runs/2026-09-08-reference-digest-plain-h100 shows by proving one segment on both to the same digest. Layers 1 to 39 of 40: layer 0 is in no dump and in no proof, because the harness refuses to write it (its attention output's quotient term is 7 + 26 = 33 bits against the field's 31 in the widest form there is), so this is a 39-segment row and not the stack."
+  },
+  "proof.predict13b.c4096.bytes_per_segment_median": {
+   "value": 90335679,
+   "unit": "bytes",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-11-predict-13b-h100",
+   "artifact": "L1.json",
+   "note": "The median segment's serialized proof, over the run's 39: 86.1 MiB, against 83.0 MiB for the smallest and 89.1 MiB for the largest. Every one of the 39 reads the same 4,096-token prefix and proves the same 512 positions, so the spread here is the layer's own shape and nothing else; the headline sequence's segments spread over a factor of two and a half, and that is the prefix growing block by block. Layers 1 to 39 of 40: layer 0 is in no dump and in no proof, because the harness refuses to write it (its attention output's quotient term is 7 + 26 = 33 bits against the field's 31 in the widest form there is), so this is a 39-segment row and not the stack."
+  },
+  "proof.predict13b.c4096.bytes_per_segment_mean": {
+   "value": 90257371.67,
+   "unit": "bytes/segment",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "n/a",
+   "grade": "derived",
+   "note": "proof.predict13b.c4096.total_bytes / e4.codellama_13b.c4096.layers: what one layer segment of this shape cost in serialized bytes on average, 86.1 MiB. The median beside it is 0.09 per cent higher, because every segment of this run reads the same prefix; where the prefix grows block by block, as it does over a headline sequence, the two sit further apart. Layers 1 to 39 of 40: layer 0 is in no dump and in no proof, because the harness refuses to write it (its attention output's quotient term is 7 + 26 = 33 bits against the field's 31 in the widest form there is), so this is a 39-segment row and not the stack."
+  },
+  "proof.predict13b.c4096.bytes_per_position": {
+   "value": 6875073.23,
+   "unit": "bytes/position",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "n/a",
+   "grade": "derived",
+   "note": "proof.predict13b.c4096.total_bytes / positions.predict13b.c4096, which is 6.56 MiB: what 39 layer segments of this shape cost in serialized bytes per position of the block they prove. It is not the same figure as proof.headline.c4096.bytes_per_position, which is a whole sequence's 290 segments over nine token blocks whose prefixes run from nothing to the full context; dividing the two prices the prefix as if it were the model's width. Layers 1 to 39 of 40: layer 0 is in no dump and in no proof, because the harness refuses to write it (its attention output's quotient term is 7 + 26 = 33 bits against the field's 31 in the widest form there is), so this is a 39-segment row and not the stack."
+  },
+  "proof.predict13b.c4096.bytes_per_segment_over_8b": {
+   "value": 1.102314,
+   "unit": "ratio",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "n/a",
+   "grade": "derived",
+   "note": "proof.predict13b.c4096.bytes_per_segment_mean / proof.headline.c4096.bytes_per_segment_mean_last_block: what one layer segment of the 13B shape costs in serialized bytes against one of the 8B shape, both at S=512, both against a 4,096-token prefix, both at the paper's five reductions and its quantization. It is what the two measured shapes say about proof size against model width, and it refutes both readings the post had. Charging proof bytes by parameter count predicts 1.4543, which is what the two models' parameters per layer divide to, and over-predicts this by 32 per cent. Charging them by segment count predicts 1.0000, because that reading holds a segment's proof fixed and multiplies by the layers, and under-predicts this by 10 per cent. Two points fix one number and not a curve, so no rule for a wider shape is recorded from them: at the 405B shape the two readings are a factor of 13 apart and this pair says only that the answer is neither of them."
   },
   "frontier.llama-3-1-8b.h100.c4096.commit.cards_for_20": {
    "value": 1,
