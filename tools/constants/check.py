@@ -9,7 +9,9 @@ artifact in it; an `external` entry's note carries a URL; an `asserted` entry's
 note gives the reason; a `derived` entry is recomputed below from the entries
 it names.  Then `audit.py` re-derives every `measured` entry from its artifact.
 `--strict` also fails on a non-empty `discrepancies` list, which a release tag
-requires.  A `derived` entry whose two sides are counts in a run artifact rather
+requires.  A `projected` entry is recomputed where PROJECTED holds a line for it,
+which is where the projection's whole arithmetic is entries of this file; the
+cost model's own rows are priced in its run and only their `inputs` are checked.  A `derived` entry whose two sides are counts in a run artifact rather
 than entries of this file is recomputed through `audit.py`'s reader for it.
 This file reads no prose.
 """
@@ -279,7 +281,91 @@ DERIVED = {
             "c4096 one block's layer segments, per position"),
            ("cells_per_position.headline.c16384.fresh_layers_block",
             "c16384 one block's layer segments, per position"))},
+    # What the port is worth on one segment, per phase: the host backend's
+    # seconds over the device backend's, on the one proof both backends made.
+    # Both sides of each division are `measured` rows of the same run.
+    "port.reference.c16384.trace_speedup": lambda: chk(
+        "reference segment, trace generation, host over device",
+        _speedups()[0], "port.reference.c16384.trace_speedup", 1e-6),
+    "port.reference.c16384.interaction_speedup": lambda: chk(
+        "reference segment, interaction generation, host over device",
+        _speedups()[1], "port.reference.c16384.interaction_speedup", 1e-6),
 }
+
+# -- the two projections' own arithmetic ---------------------------------------
+# A `projected` row is not recomputed here in general: the cost model's rows are
+# priced inside its own run and this file holds only their inputs.  The rows
+# below are projections whose whole arithmetic is entries of this file -- an
+# assumption is one of the entries -- so they are recomputed exactly as a
+# `derived` row is, and PROJECTED holds one line each.  A projected row with no
+# line there is left alone; only its `inputs` are checked.
+def _speedups():
+    """What the port already did to one segment, per phase: the host backend's
+    seconds over the device backend's, on the same proof."""
+    return (v("secs.reference.c16384.simd_trace") / v("secs.reference.c16384.cuda_trace"),
+            v("secs.reference.c16384.simd_interaction")
+            / v("secs.reference.c16384.cuda_interaction"))
+
+
+def _loop_host_8x():
+    """The figure's own number: the proof system as measured, the rest of the
+    loop divided by the one factor the figure assumes."""
+    stwo = v("secs.headline.c4096.stwo_total")
+    return stwo + (v("secs.headline.c4096.loop") - stwo) / v("assumption.loop_port.host_speedup")
+
+
+def _loop_ported_rates():
+    """The same loop with each phase divided by the factor the reference segment
+    measured for that phase.  The proof system and the dump read have no factor
+    and are carried at their own seconds, and so is the share of the loop the
+    assumed split does not name."""
+    trace = v("port.reference.c16384.trace_speedup")
+    interaction = v("port.reference.c16384.interaction_speedup")
+    f = {p: v(f"assumption.loop_split.c4096.{p}_frac")
+         for p in ("interaction", "trace", "stwo", "read")}
+    return v("secs.headline.c4096.loop") * (
+        f["interaction"] / interaction + f["trace"] / trace
+        + f["stwo"] + f["read"] + (1 - sum(f.values())))
+
+
+def _mem_line():
+    """The two headline peaks as a line in the context: MiB a position of prefix,
+    and the peak the line puts at context 0.  The contexts are the two entries'
+    own `context` fields."""
+    c = load()["constants"]
+    lo, hi = c["mem.headline.c4096.peak_mib"], c["mem.headline.c16384.peak_mib"]
+    slope = (hi["value"] - lo["value"]) / (hi["context"] - lo["context"])
+    return slope, lo["value"] - slope * lo["context"]
+
+
+def _mem_at(ctx):
+    slope, at_zero = _mem_line()
+    return at_zero + slope * ctx
+
+
+def _context_at(mib):
+    slope, at_zero = _mem_line()
+    return (mib - at_zero) / slope
+
+
+PROJECTED = {
+    "secs.projected.c4096.loop_host_8x": lambda: chk(
+        "c4096 loop, every host second 8x faster", _loop_host_8x(),
+        "secs.projected.c4096.loop_host_8x", 1e-5),
+    "secs.projected.c4096.loop_ported_rates": lambda: chk(
+        "c4096 loop at the ported phases' measured factors", _loop_ported_rates(),
+        "secs.projected.c4096.loop_ported_rates", 1e-5),
+    **{f"mem.projected.c{ctx}.peak_mib": (lambda ctx=ctx: chk(
+        f"peak MiB at context {ctx:,}, on the two headline peaks' line",
+        _mem_at(load()["constants"][f"mem.projected.c{ctx}.peak_mib"]["context"]),
+        f"mem.projected.c{ctx}.peak_mib", 1e-6))
+       for ctx in (32768, 131072)},
+    "mem.projected.context_at_card_limit": lambda: chk(
+        "context where the line reaches the card's memory",
+        _context_at(v("hardware.h100.memory_total_mib")),
+        "mem.projected.context_at_card_limit", 1e-6),
+}
+
 
 URL = re.compile(r"https?://\S+")
 
@@ -346,6 +432,9 @@ def main(argv):
     for k in sorted(DERIVED):
         if k in load()["constants"]:
             DERIVED[k]()
+    for k in sorted(PROJECTED):
+        if k in load()["constants"]:
+            PROJECTED[k]()
     import audit  # noqa: E402
     audit.run(fails)
     if "--strict" in argv and load()["discrepancies"]:

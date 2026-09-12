@@ -1830,6 +1830,72 @@ def witness_assumptions(a, keys):
                        f"runs do not carry are asserted")
 
 
+# -- reference-digest-plain ----------------------------------------------------
+def reference_digest_plain(a, keys):
+    """One segment proved on both backends: what generating its trace cost, and
+    what generating its LogUp interaction columns cost, on each.
+
+    The same witness, the same flags and the same proof on both sides -- the
+    driver proves the segment twice and records that the two agree -- so what
+    separates the two backends' seconds is the port and nothing else.
+    `full-simd.json` is the host backend and `full-cuda.json` the device one,
+    and each carries the segment's own `trace_secs` and `interaction_secs`.
+    The ratio of the two is `derived` and `check.py` recomputes it; this
+    section reads the four seconds and refuses if the two proofs did not agree,
+    because a ratio between two different proofs is not a port.
+    """
+    if not keys:
+        return
+    run = sorted({e["run"] for e in keys.values()})[0]
+    cfg = artifact(run, "config.json")["reference"]
+    if not artifact(run, "full-digest.json").get("both_backends_agree"):
+        a.fails.append(f"audit: {run}: the two backends do not prove the same segment, so "
+                       f"their seconds are not a ratio of the port")
+        return
+    print(f"  runs/{run}: one segment at context {cfg['context']:,}, S={cfg['s']}, the five "
+          f"reductions on, proved on both backends to the same digest")
+    for backend in ("simd", "cuda"):
+        point = artifact(run, f"full-{backend}.json")["result"]["point"]
+        for phase in ("trace", "interaction"):
+            key = f"secs.reference.c{cfg['context']}.{backend}_{phase}"
+            if key in keys:
+                a.claim(key, point[f"{phase}_secs"])
+
+
+# -- the card's own memory -----------------------------------------------------
+# Every manifest records the GPU as the machine reported it, its memory
+# included, and that string is where the card's capacity comes from: not the
+# vendor's 80 GB, which would be 81,920 MiB, but what the driver leaves a
+# process to allocate.  The row is re-derived off the manifests and required to
+# agree across every run on the same card, because a capacity that moves run to
+# run is a different card and the memory projections rest on it.
+_GPU_MIB = re.compile(r"(\d+)\s*MiB")
+
+
+def card_memory(a, keys):
+    """The H100's memory, as the manifests report it."""
+    key = "hardware.h100.memory_total_mib"
+    if key not in keys:
+        return
+    seen = {}
+    for m in sorted((ROOT / "runs").glob("*/manifest.json")):
+        gpu = json.loads(m.read_text()).get("gpu") or ""
+        if "H100" not in gpu:
+            continue
+        found = _GPU_MIB.search(gpu)
+        if not found:
+            a.fails.append(f"audit: runs/{m.parent.name}: the manifest reports {gpu!r} and "
+                           f"no memory, and the card's capacity is read off that string")
+            continue
+        seen.setdefault(int(found.group(1)), []).append(m.parent.name)
+    if len(seen) != 1:
+        a.fails.append(f"audit: the H100 runs report {sorted(seen)} MiB between them; the "
+                       f"card's capacity is one number or it is not a constant")
+        return
+    print(f"  the H100's memory, agreeing over {sum(len(r) for r in seen.values())} manifests")
+    a.exact(key, next(iter(seen)))
+
+
 # -- sections: (driver name, function(audit, keys)) ----------------------------
 # Added when a driver's first run lands; each function re-derives the constants
 # whose `run` was made by that driver.
@@ -1866,6 +1932,12 @@ SECTIONS = [
     # the cost model's witness assumption block, the mode over the same two
     # artifacts' layer and first segments
     ("headline-c4096", witness_assumptions),
+    # one segment on both backends, which is where the ported phases' factors
+    # come from
+    ("reference-digest-plain", reference_digest_plain),
+    # the card's memory, off the manifests; registered under one driver because
+    # the reader crosses them all
+    ("headline-c4096", card_memory),
 ]
 
 
