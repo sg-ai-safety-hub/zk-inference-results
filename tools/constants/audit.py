@@ -181,6 +181,20 @@ def headline_c4096(a, keys):
         a.exact("proof.headline.c4096.total_bytes", sum(ser.values()))
         a.exact("proof.headline.c4096.bytes_per_segment_median",
                 statistics.median(ser.values()))
+    if "proof.headline.c4096.bytes_per_segment_mean_last_block" in keys:
+        # The like-for-like point against a run that proves one token block at
+        # one prefix: the last block's layer segments, whose prefix is the whole
+        # context.  The head segment over that block is not a layer segment and
+        # is left out, and the count has to be the model's own layers or the row
+        # is not that block.
+        last = max(c["block"] for c in grid["chunks"])
+        block = [c["proof_bytes"] for c in grid["chunks"]
+                 if c["block"] == last and not c["head"]]
+        if len(block) != cfg["layers"]:
+            a.fails.append(f"audit: {run}: block {last} has {len(block)} layer segments "
+                           f"and the model has {cfg['layers']}")
+        a.claim("proof.headline.c4096.bytes_per_segment_mean_last_block",
+                sum(block) / len(block))
     if "proof.headline.c4096.total_in_memory_bytes" in keys:
         mem = [m for m, _ in sizes.values()]
         a.exact("proof.headline.c4096.total_in_memory_bytes", sum(mem))
@@ -1008,6 +1022,11 @@ def predict_13b(a, keys):
     there is, and the divisor range is the layer's own, which a driver may only
     widen. So the layer set is read off the run rather than counted from the
     model, and a gap anywhere but layer 0 is a failure here.
+
+    Each layer output reports its proof twice, `proof_bytes` for the structure
+    the prover held and `proof_ser_bytes` for the document a verifier is given,
+    and the size rows here are the serialized one summed and its median over the
+    39.
     """
     if not keys:
         return
@@ -1019,7 +1038,7 @@ def predict_13b(a, keys):
         a.fails.append(f"audit: runs/{run} proves layers {layers}, and the layer this "
                        f"driver expects to be absent is layer 0 alone, not {absent}")
     fresh = tiles = 0.0
-    by_layer, rss = {}, 0
+    by_layer, rss, ser, mem = {}, 0, [], 0
     for k in layers:
         doc = artifact(run, f"L{k}.json")
         p, prov = doc["result"]["point"], doc["provenance"]
@@ -1036,6 +1055,8 @@ def predict_13b(a, keys):
         fresh += p["cells"]["fresh"]
         tiles += p["family_cells"]["key_tiles"]
         rss = max(rss, p["peak_rss_bytes"])
+        ser.append(p["proof_ser_bytes"])
+        mem += p["proof_bytes"]
     # the job's own summary, against the same sums taken here
     summary = artifact(run, "measured.json")["summary"]
     for field, got in (("layers", len(layers)), ("fresh_sum", fresh),
@@ -1045,13 +1066,18 @@ def predict_13b(a, keys):
                            f"and its layer outputs say {got}")
     print(f"  runs/{run}: {len(layers)} of {cfg['layers']} layers (layer 0 is in no dump), "
           f"{fresh:,.0f} fresh cells, largest process {rss / 2 ** 30:.1f} GiB")
+    print(f"  runs/{run}: {sum(ser):,} serialized proof bytes over {len(ser)} segments, "
+          f"{mem / sum(ser):.3f} of that in memory")
     for key, value in (
             ("e4.codellama_13b.c4096.layers", len(layers)),
             ("e4.codellama_13b.c4096.cells_fresh_by_layer", by_layer),
             ("e4.codellama_13b.c4096.cells_fresh", fresh),
             ("e4.codellama_13b.c4096.cells_per_token_layers", fresh / cfg["s"]),
             ("e4.codellama_13b.c4096.key_tiles_cells", tiles),
-            ("e4.codellama_13b.c4096.peak_rss_bytes", rss)):
+            ("e4.codellama_13b.c4096.peak_rss_bytes", rss),
+            ("positions.predict13b.c4096", cfg["s"]),
+            ("proof.predict13b.c4096.total_bytes", sum(ser)),
+            ("proof.predict13b.c4096.bytes_per_segment_median", statistics.median(ser))):
         if key in keys:
             if isinstance(value, (int, dict)):
                 a.exact(key, value)

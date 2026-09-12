@@ -142,6 +142,43 @@ DERIVED = {
         f"proof.headline.c{c}.{p}bytes_per_segment_mean", 0.001))
        for c in (4096, 16384)
        for p, t in (("", "total_bytes"), ("in_memory_", "total_in_memory_bytes"))},
+    # The same two divisions on the 13B run, whose plan is one token block of
+    # layer segments and no output head: the block's positions and the segments
+    # the run proved, which is 39 of the model's 40 and is a row of this file.
+    "proof.predict13b.c4096.bytes_per_position": lambda: chk(
+        "13B proof bytes per proved position",
+        v("proof.predict13b.c4096.total_bytes") / v("positions.predict13b.c4096"),
+        "proof.predict13b.c4096.bytes_per_position", 0.001),
+    "proof.predict13b.c4096.bytes_per_segment_mean": lambda: chk(
+        "13B proof bytes per layer segment, mean",
+        v("proof.predict13b.c4096.total_bytes") / v("e4.codellama_13b.c4096.layers"),
+        "proof.predict13b.c4096.bytes_per_segment_mean", 0.001),
+    # What the two measured shapes say about proof size against model width.
+    # Both sides are one layer segment's serialized proof at S=512 against a
+    # 4,096-token prefix, at the same five reductions and the same quantization;
+    # the 8B side is the last token block's mean, because that is the block
+    # whose prefix is the whole context and the only like-for-like one.
+    "proof.predict13b.c4096.bytes_per_segment_over_8b": lambda: chk(
+        "13B over 8B, serialized bytes per layer segment",
+        v("proof.predict13b.c4096.bytes_per_segment_mean")
+        / v("proof.headline.c4096.bytes_per_segment_mean_last_block"),
+        "proof.predict13b.c4096.bytes_per_segment_over_8b", 0.001),
+    # The three shares of the sequence's seconds, each of a scope that contains
+    # the one above it: the commitment path inside the proof system's own call,
+    # that call inside the summed per-segment wall-clock time, and the
+    # commitment path inside the segment loop.  Every side is a `measured` row
+    # of the same run, so none of these is a second measurement.  The fourth
+    # ratio the item proposed, whole wall over loop, is not one of these: it is
+    # above 1 because the loop pipelines, so it is no scope's share of another
+    # and this file carries no row for it.
+    **{f"share.headline.c{c}.{name}": (lambda c=c, name=name, a=a, b=b: chk(
+        f"c{c} headline {name.replace('_', ' ')}",
+        v(f"secs.headline.c{c}.{a}") / v(f"secs.headline.c{c}.{b}"),
+        f"share.headline.c{c}.{name}", 0.001))
+       for c in (4096, 16384)
+       for name, a, b in (("commit_of_stwo_total", "commit", "stwo_total"),
+                          ("stwo_total_of_whole_wall", "stwo_total", "whole_wall"),
+                          ("commit_of_loop", "commit", "loop"))},
     # The verifier's side over the same two divisors.  Its seconds are the
     # host's cores and the proving seconds beside them are the card's, which is
     # why no row here is a ratio of the two.
@@ -217,6 +254,19 @@ DERIVED = {
         v(f"secs.headline.c{c}.loop") / 32,
         f"secs_per_layer.headline.c{c}.loop", 0.001))
        for c in (4096, 16384)},
+    # The same seconds over the layer segments alone, which is the plan's
+    # segments less its two output head segments.  A head segment sits at the
+    # layer coordinate past the last layer, proves no attention and commits no
+    # boundary tree for the keys and values, so a claim priced on a fraction of
+    # the layers divides by this and a claim priced on a fraction of the proofs
+    # divides by secs_per_segment.  Both recorded plans have two heads, one over
+    # the last prompt block and one over the generated block, and the audit
+    # counts them off each run's own plan.
+    **{f"secs_per_layer_segment.headline.c{c}.{s}": (lambda c=c, s=s: chk(
+        f"c{c} headline seconds per layer segment, {s.replace('_', ' ')}",
+        v(f"secs.headline.c{c}.{s}") / (v(f"segments.headline.c{c}") - 2),
+        f"secs_per_layer_segment.headline.c{c}.{s}", 0.001))
+       for c in (4096, 16384) for s in ("whole_wall", "loop")},
     # The two cell inputs that are exact counts on top of one LogUp lookup, not
     # measurements of their own: the range check on a committed int8 activation,
     # which is half an arity-2 lookup into the byte-pair table, and one bf16
@@ -249,6 +299,11 @@ DERIVED = {
        for ctx, ex in ((4096, "secs.headline.c4096.extract"),
                        (16384, "secs.headline.c16384.extract_prove"))
        for s in ("whole_wall", "loop")},
+    **{f"secs_per_position.headline.c{ctx}.cold_{s}": (lambda ctx=ctx, s=s: chk(
+        f"c{ctx} headline seconds per proved position, cold {s.replace('_', ' ')}",
+        v(f"secs.headline.c{ctx}.cold_{s}") / v(f"positions.headline.c{ctx}"),
+        f"secs_per_position.headline.c{ctx}.cold_{s}", 0.001))
+       for ctx in (4096, 16384) for s in ("whole_wall", "loop")},
     **{f"usd_per_1k_positions.headline.c{ctx}.cold_{s}": (lambda ctx=ctx, s=s: chk(
         f"c{ctx} headline USD per 1,000 proved positions, cold {s.replace('_', ' ')}",
         v(f"secs.headline.c{ctx}.cold_{s}") / v(f"positions.headline.c{ctx}")
