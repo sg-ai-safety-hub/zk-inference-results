@@ -1,0 +1,36 @@
+{
+ "argv": [
+  "python -m harness.costmodel.frontier",
+  "--constants",
+  "constants.json",
+  "--seq",
+  "512",
+  "--target",
+  "20",
+  "--json",
+  "/var/tmp/zk-cost-model.HDeN4H/out/frontier.json"
+ ],
+ "backend": "harness",
+ "binding": null,
+ "cuda_version": null,
+ "date": "2026-09-13",
+ "derived": null,
+ "digests": {},
+ "driver": "tools/drivers/cost-model.sh",
+ "driver_version": null,
+ "gpu": null,
+ "harness_commit": "a8586d205b87d7019af5b5005d0a46680a74242e",
+ "harness_dirty": false,
+ "imported": false,
+ "kind": "harness",
+ "outputs": [
+  "config.json",
+  "constants.json",
+  "frontier.json",
+  "frontier.txt"
+ ],
+ "prover_commit": null,
+ "prover_dirty": null,
+ "run_id": "2026-09-13-cost-model-none",
+ "unsound_skips": []
+}
