@@ -1,0 +1,265 @@
+{
+  "bench": "boundary-grid",
+  "env": {
+    "arch": "x86_64",
+    "gpu": "NVIDIA H100 80GB HBM3, 81559 MiB",
+    "mem_total_bytes": 1623329615872,
+    "os": "linux",
+    "simd_n_lanes": 16,
+    "threads": 4
+  },
+  "modes": {
+    "COMMIT_BY_REFERENCE": {
+      "source": "default",
+      "value": 1
+    },
+    "DEVICE_ACCUMULATORS": {
+      "source": "default",
+      "value": 0
+    },
+    "DEVICE_PREPROCESSED": {
+      "source": "default",
+      "value": 0
+    },
+    "DEVICE_RESIDUAL_STREAM_BINDING": {
+      "source": "default",
+      "value": 0
+    },
+    "DEVICE_STAGING_POOL": {
+      "source": "default",
+      "value": 0
+    },
+    "DEVICE_TABLES": {
+      "source": "default",
+      "value": 0
+    },
+    "DEVICE_WITNESS_GEN_ATTENTION_FREIVALDS": {
+      "source": "default",
+      "value": 0
+    },
+    "DEVICE_WITNESS_GEN_DEQUANT": {
+      "source": "default",
+      "value": 0
+    },
+    "DEVICE_WITNESS_GEN_DIAGONAL_BLOCK": {
+      "source": "default",
+      "value": 0
+    },
+    "DEVICE_WITNESS_GEN_KEY_TILE": {
+      "source": "default",
+      "value": 0
+    },
+    "DEVICE_WITNESS_GEN_RESIDUAL_STREAM": {
+      "source": "default",
+      "value": 0
+    },
+    "GENERATED_LOGUP": {
+      "source": "default",
+      "value": 0
+    },
+    "KERNEL_REFERENCE_CHECK": {
+      "source": "default",
+      "value": 1
+    },
+    "LDE_ONLY": {
+      "source": "default",
+      "value": 0
+    },
+    "LOWERING_CACHE": {
+      "source": "default",
+      "value": 0
+    },
+    "PARALLEL_GATHER": {
+      "source": "default",
+      "value": 1
+    },
+    "PARALLEL_SCAN": {
+      "source": "default",
+      "value": 1
+    },
+    "PIPELINE": {
+      "source": "default",
+      "value": 0
+    },
+    "PREPROCESSED_TREE_CACHE": {
+      "source": "default",
+      "value": 0
+    }
+  },
+  "provenance": {
+    "args": [
+      "boundary-grid",
+      "--dir",
+      "ser",
+      "--tags",
+      "llama31-8b-l16-s512-c16384",
+      "--allow-gaps",
+      "--verify",
+      "--prompt",
+      "prompt.json",
+      "--verify-calibration",
+      "calibration.json"
+    ],
+    "backend": "simd",
+    "binary": "zk-prover",
+    "binding": null,
+    "commit": "a8586d205b87d7019af5b5005d0a46680a74242e",
+    "cuda_version": "13.0",
+    "dirty": false,
+    "driver_version": "580.126.09",
+    "dump_sha256": null,
+    "dumps": [],
+    "gpu": "NVIDIA H100 80GB HBM3, 81559 MiB",
+    "proof_sha256": null,
+    "proof_sha256s": null,
+    "unsound_skips": []
+  },
+  "result": {
+    "all_chain": true,
+    "allow_gaps": true,
+    "blocks": [
+      32
+    ],
+    "chunks": [
+      {
+        "block": 32,
+        "block_from_prefix": 32,
+        "block_tag_ok": true,
+        "block_tagged": null,
+        "block_unchecked": 32,
+        "c": 16384,
+        "emits": 0,
+        "head": false,
+        "ids": 0,
+        "kv_boundary": true,
+        "layer": 16,
+        "layer_boundary": true,
+        "layer_unchecked": 16,
+        "proof_bytes": 169277485,
+        "s": 512,
+        "statement_bytes": 314233,
+        "tag": "llama31-8b-l16-s512-c16384",
+        "trees": 12
+      }
+    ],
+    "dir": "ser",
+    "failures": [],
+    "gaps": [],
+    "layer": {
+      "all_chain": true,
+      "expected": 0,
+      "passed": 0,
+      "pinned": null,
+      "run": 0
+    },
+    "layers": {
+      "32": [
+        16
+      ]
+    },
+    "links": [],
+    "links_expected": 0,
+    "links_passed": 0,
+    "links_run": 0,
+    "missing": [],
+    "model_roots": {
+      "chunks": [],
+      "manifest": null
+    },
+    "models": {
+      "distinct": 1,
+      "missing": [],
+      "per_layer": [
+        {
+          "layer": 16,
+          "model": "cc1bade95d6138a9e5a3ba8d7e988c20d687f1e4e65a7949aaa1eb8f600f2907"
+        }
+      ]
+    },
+    "not_implied": [],
+    "off_grid": [],
+    "pre_roots": {
+      "chunks": [],
+      "table": null
+    },
+    "shape_roots": {
+      "calibration": "calibration.json",
+      "derivations": {
+        "derived": 1,
+        "reused": 0
+      },
+      "matched": 1,
+      "of": 1,
+      "secs": 42.249579059
+    },
+    "source": {
+      "tags": "llama31-8b-l16-s512-c16384"
+    },
+    "tags": [
+      "llama31-8b-l16-s512-c16384"
+    ],
+    "token": {
+      "all_chain": true,
+      "expected": 0,
+      "passed": 0,
+      "pinned": null,
+      "run": 0
+    },
+    "tokens": {
+      "all": true,
+      "blocks_with_emits": 0,
+      "blocks_with_ids": 0,
+      "generated_positions": 0,
+      "mismatches": [],
+      "prompt_file": "prompt.json",
+      "prompt_len": 16384,
+      "prompt_positions": 0,
+      "unbacked": []
+    },
+    "unchecked_ends": [
+      {
+        "what": "which model each chunk's shape root is",
+        "why": "no --expect-pre-roots table was given, so every chunk's pre_root is compared only against its own proof; `zk-prover model-roots --plan PLAN` derives the table from the model"
+      },
+      {
+        "chunks": 1,
+        "what": "the model each chunk proves against",
+        "why": "no --expect-model-roots manifest was given, so every chunk's model_root is compared only against its own proof; `zk-prover model-roots --plan PLAN` publishes the manifest from the weights"
+      }
+    ],
+    "verified": {
+      "accepted": 1,
+      "all": true,
+      "chunks": [
+        {
+          "accepts": true,
+          "tag": "llama31-8b-l16-s512-c16384",
+          "verify_secs": 43.166453805,
+          "wall_secs": 43.265023033,
+          "why": null
+        }
+      ],
+      "run": 1
+    },
+    "verify": true
+  },
+  "security": {
+    "blowup_factor": 2,
+    "fold_step": 1,
+    "hash": "Blake2s (Blake2sM31MerkleChannel)",
+    "log_blowup_factor": 1,
+    "log_last_layer_degree_bound": 0,
+    "m3": {
+      "device_merkle_reduce": true,
+      "fri_gather": true,
+      "launch_sync": false,
+      "lde_only": false,
+      "merkle_mode": "1",
+      "prewarm": true,
+      "store_coeffs": true
+    },
+    "n_queries": 100,
+    "pow_bits": 0,
+    "security_bits_conjectured": 100
+  }
+}

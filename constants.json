@@ -1004,6 +1004,37 @@
    "artifact": "timing.json",
    "note": "The final grid over all 1,058 segments: every link between segments the plan implies, checked over the serialized statements and proofs, and every published id checked against the prompt or against the argmax a head proved for the position before it. It replayed no proof, because the proofs had been shrunk (REPRODUCE.md, 'Which check ran where'), so this is the link check on its own; the c4096 grid did both in one pass and recorded no time of its own."
   },
+  "verify.consumer.c16384.secs_per_segment_median": {
+   "value": 43.166454,
+   "unit": "s",
+   "card": "none",
+   "context": 16384,
+   "timing_scope": "verify",
+   "grade": "measured",
+   "run": "2026-09-13-verify-consumer-h100",
+   "artifact": "measurement.json",
+   "note": "One segment of the reference proof -- Llama-3.1-8B layer 16, S = 512, C = 16,384, the five reductions on -- replayed three times on four cores of an Intel Xeon Platinum 8468 under a 128 GiB memory cap and with no card: the median of the verifier's own seconds, over 42.91, 43.17 and 44.76. The process took 44.09 s of wall-clock time for it, the 161 MiB proof read off disk and parsed included. 42.25 s of the median is the one shape root the verifier derives from the published calibration and compares with the one the statement carries; the proof's own check is the 0.92 s left over, against 0.757 s for the median segment of the sequence on sixteen cores of the same machine."
+  },
+  "verify.consumer.c16384.peak_rss_bytes": {
+   "value": 30588841984,
+   "unit": "bytes",
+   "card": "none",
+   "context": 16384,
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-13-verify-consumer-h100",
+   "artifact": "measurement.json",
+   "note": "The median peak resident set size of the three replay processes, each read from its own /usr/bin/time report: 28.5 GiB to check one segment at this context, against a serialized proof of 161 MiB. It is the working set the verifier builds and not the proof, and it is what a machine has to hold: four cores and 32 GB of memory are enough for this segment. No smaller segment has been measured on a machine of this size."
+  },
+  "verify.consumer.c16384.secs_total_sequence": {
+   "value": 45670.108126,
+   "unit": "s",
+   "card": "none",
+   "context": 16384,
+   "timing_scope": "verify",
+   "grade": "derived",
+   "note": "verify.consumer.c16384.secs_per_segment_median times segments.headline.c16384: what the sequence's 1,058 segment proofs would cost to check on four cores, one segment at a time, at the median segment's seconds. It charges each segment a shape-root derivation of its own, which is 42.25 s of the 43.17: that derivation is made once per distinct layer and prefix width, and the plan's 33 token blocks read 33 prefix widths at 32 layers, so nearly every segment is a cell of its own. verify.headline.c16384.secs_total is the same sequence checked on the run host's sixteen cores and is not comparable with this: that pass was given no calibration and derived no shape root, so it is the proof checks alone."
+  },
   "segments.ablation.c4096": {
    "value": 32,
    "unit": "segments",

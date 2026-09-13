@@ -1,0 +1,30 @@
+{
+ "artifact": {
+  "from_run": "2026-09-13-reference-digest-plain-h100",
+  "note": "the proof that run made, kept beside it; its digest is that run's own, in full-digest.json",
+  "segment": "Llama-3.1-8B layer 16, S = 512, C = 16,384, b10-final",
+  "sha256": {
+   "calibration.json": "92d767b39c166fff9be7d726beba9d51a0d7f7db092b49a5bfaab4eb670ffde3",
+   "compose-simd.json": "ddf273ec13fe177f3a2581cd85b17eb69fe8e022a2c7e42024dfec8af6b09bfe",
+   "prompt.json": "1ab07e7b72256d3580f6e8267b9bcbb589522f0833c93a3f6d639e806aa3552f",
+   "ser/llama31-8b-l16-s512-c16384.claims.json": "f4d5d5f60ca07b27e29bfad3afade4d6d1db3c0343b1a3bdd838a27e1588d08f",
+   "ser/llama31-8b-l16-s512-c16384.fixed.json": "38827f5bec298f22100955fc317cdc45157d2bc9d7149d5c1021adfb45a00a06",
+   "ser/llama31-8b-l16-s512-c16384.proof.json": "c5c75572ca078b6c551edd62d72ed96d7f0357958e1bbc805f803328ee270054",
+   "verify.json": "c04e32997e28d888537b7d05479c95633df1a07679dc2af7f4d31284a5494714"
+  }
+ },
+ "command": "boundary-grid --dir ser --tags llama31-8b-l16-s512-c16384 --allow-gaps --verify --prompt prompt.json --verify-calibration calibration.json",
+ "driver": "verify-consumer",
+ "harness": "none: this run reads no weight, no dump and no corpus",
+ "label": "verifier",
+ "machine": {
+  "cores_used": 4,
+  "cpu_model": "Intel(R) Xeon(R) Platinum 8468",
+  "cpus_in_cpuset": 16,
+  "cpus_pinned": "64,65,66,67",
+  "memory_max_bytes": 137438953472,
+  "note": "the cores are the first of the cpuset the run is confined to; the cap is the cgroup's, which is what the replay has to fit, and is not the memory the machine has"
+ },
+ "note": "one segment's proof replayed on a few cores with no card, and a corrupted copy of it refused. The run makes no proof and commits nothing.",
+ "repetitions": 3
+}

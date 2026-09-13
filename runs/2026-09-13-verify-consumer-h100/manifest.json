@@ -1,0 +1,42 @@
+{
+ "argv": [
+  "zk-prover",
+  "boundary-grid",
+  "--dir",
+  "ser",
+  "--tags",
+  "llama31-8b-l16-s512-c16384",
+  "--allow-gaps",
+  "--verify",
+  "--prompt",
+  "prompt.json",
+  "--verify-calibration",
+  "calibration.json"
+ ],
+ "backend": "simd",
+ "binding": null,
+ "cuda_version": "13.0",
+ "date": "2026-09-13",
+ "derived": null,
+ "digests": {},
+ "driver": "tools/drivers/verify-consumer.sh",
+ "driver_version": "580.126.09",
+ "gpu": "NVIDIA H100 80GB HBM3, 81559 MiB",
+ "harness_commit": "a8586d205b87d7019af5b5005d0a46680a74242e",
+ "harness_dirty": null,
+ "imported": false,
+ "kind": "verifier",
+ "outputs": [
+  "config.json",
+  "measurement.json",
+  "negative-control.json",
+  "verify-1.json",
+  "verify-2.json",
+  "verify-3.json",
+  "verify-control.json"
+ ],
+ "prover_commit": "a8586d205b87d7019af5b5005d0a46680a74242e",
+ "prover_dirty": false,
+ "run_id": "2026-09-13-verify-consumer-h100",
+ "unsound_skips": []
+}

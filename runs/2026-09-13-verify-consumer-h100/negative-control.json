@@ -1,0 +1,37 @@
+{
+ "bend": {
+  "byte_after": "0",
+  "byte_before": "9",
+  "bytes": 169277485,
+  "number_after": "120",
+  "number_before": "129",
+  "offset": 84699131,
+  "sha256_after": "4172cbea24c3d99e7b4d43fe720ae30affc995c5e9f866a7754d7505fa901a74",
+  "sha256_before": "c5c75572ca078b6c551edd62d72ed96d7f0357958e1bbc805f803328ee270054",
+  "what": "one digit of one number in the proof body, changed in place; the file keeps its length and every other byte"
+ },
+ "exit_code": 1,
+ "note": "the same command over a copy of the same three documents with one byte of the proof changed; the verifier's report of it is verify-control.json",
+ "refusal": [
+  "grid verify llama31-8b-l16-s512-c16384: REJECTED (42.53 s)",
+  "grid: 1 block(s), 1 chunk(s) on the grid, 0 off it; layer 0/0 of 0 implied, token 0/0 of 0 implied; verified 0/1; ids prompt 0 + generated 0 (0 bad, 0 unbacked) -- FAILED",
+  "grid: FAIL llama31-8b-l16-s512-c16384: the chunk proof does not verify: {\"derived\":\"79b66a4c8c9bb4573b0f706b114c860e8039061956ee2b634281951ecf366b3e\",\"embed\":true,\"embed_tok\":true,\"error\":\"Merkle(RootMismatch)\",\"head_binding\":true,\"head_tok\":true,\"root\":true,\"shape_root\":true,\"stark\":false,\"sums\":true}"
+ ],
+ "refused": true,
+ "time": {
+  "cpu_pct": "183%",
+  "peak_rss_bytes": 30621777920,
+  "sys_secs": 14.98,
+  "user_secs": 64.82,
+  "wall_secs": 43.47
+ },
+ "verdict": {
+  "accepts": false,
+  "all_chain": false,
+  "failures": [
+   "llama31-8b-l16-s512-c16384: the chunk proof does not verify: {\"derived\":\"79b66a4c8c9bb4573b0f706b114c860e8039061956ee2b634281951ecf366b3e\",\"embed\":true,\"embed_tok\":true,\"error\":\"Merkle(RootMismatch)\",\"head_binding\":true,\"head_tok\":true,\"root\":true,\"shape_root\":true,\"stark\":false,\"sums\":true}"
+  ],
+  "verify_secs": 42.532293156,
+  "why": "{\"derived\":\"79b66a4c8c9bb4573b0f706b114c860e8039061956ee2b634281951ecf366b3e\",\"embed\":true,\"embed_tok\":true,\"error\":\"Merkle(RootMismatch)\",\"head_binding\":true,\"head_tok\":true,\"root\":true,\"shape_root\":true,\"stark\":false,\"sums\":true}"
+ }
+}
