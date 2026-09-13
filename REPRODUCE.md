@@ -2047,18 +2047,25 @@ tools/drivers/cost-model.sh <prover-commit> <harness-commit>
 tools/drivers/cost-model.sh --dry-run <prover-commit> <harness-commit>
 ```
 
-runs: `2026-09-12-cost-model-none`
-prover commit: none   harness commit: d9f891d
+runs: `2026-09-13-cost-model-none`, which supersedes
+  `2026-09-12-cost-model-none`
+prover commit: none   harness commit: 6589471
 digests: none; the run makes no proof and commits nothing
 binding: none; this run proves nothing
 unsound skips: none
-constants backed: the 103 rows the index lists against this run --
+constants backed: the 247 rows the index lists against this run --
   `frontier.<model>.h100.c<ctx>.<scope>.cards_for_20` and its
-  `usd_per_mposition` twin for six shapes at two contexts and four scopes, the
-  four `moe.<model>.*` ratios and the three `frontier.calibration.*` residuals,
-  all grade `projected`. The sixteen `assumption.cost_model.*` keys each of them
-  names in its `inputs` are not this run's: eleven are `measured` off the two
-  headline runs and five are `asserted`.
+  `usd_per_mposition` twin for all nine shapes at two contexts and four scopes,
+  the same dollars under the two layouts nobody has built
+  (`usd_per_mposition_kv_shared` on the six grouped-query shapes and
+  `usd_per_mposition_mla_absorbed` on the three latent ones), the eighteen
+  ratios that say what each of those two is worth
+  (`frontier.<model>.c<ctx>.kv_shared_saving_pct` and
+  `frontier.<model>.c<ctx>.mla_absorbed_pct`), the ten `moe.<model>.*` ratios
+  and the three `frontier.calibration.*` residuals, all grade `projected`. The
+  twenty-one `assumption.cost_model.*` keys each of them names in its `inputs`
+  are not this run's: eleven are `measured` off the two headline runs and ten
+  are `asserted`.
 
 What the run is. The frontier price table, projected from this repository's own
 constants and from nothing else, and the first driver that needs no host. It
@@ -2069,37 +2076,47 @@ block to decide whether it may record anything. `ZK_PROVER_DIR` names a local
 `zk-prover` clone where the driver's default is not one. `--dry-run` prints the
 same rows, lets the model fall back to the micro-benchmark directory and writes
 nothing. The sources are unpacked under `$TMPDIR`, which needs about 2 GB for
-the unpacked tree and the harness's pinned environment.
+the unpacked tree and the harness's pinned environment; both runs of this entry
+were made with `TMPDIR=/var/tmp`.
 
-The pin, and it is not on main. The run is pinned at zk-prover `d9f891d`, the
-head of `fix-180`, which is zk-prover PR 181 against main and is unmerged on
-purpose -- exactly as `2026-09-11-register-14b-none` is pinned at the head of
-the unmerged #175. That one Python-only commit on `80dd8ee` is the whole of
-zk-prover #180: `cells_inputs()` matched the preprocessed weight cost by its
-provenance name instead of its constants key, so it never matched and the one
-per-unit cell cost a counted row charges was in no projected row's `inputs`.
-With it, every `preprocessed_over_fresh` row names
-`model_constants.weight_freivalds_preprocessed_cells_per_weight` and the
-recorded `inputs` are complete. It changes no number: every row of this run is
-the row `80dd8ee` printed, to the digit.
+The pin, and this time it is on main. `6589471` is the head of zk-prover's main
+and carries all three of the pull requests the superseded entry was waiting on.
+zk-prover #181 named the one per-unit cell cost a counted row charges by its
+constants key, so every `preprocessed_over_fresh` row names
+`model_constants.weight_freivalds_preprocessed_cells_per_weight` and no recorded
+`inputs` list is short. #182 counts the keys and values per key/value head
+beside the per-head count the prover builds, and adds the key `kv_per_head`.
+#186 counts the three multi-head latent attention shapes from the five widths
+their own configs publish, both ways, and adds `mla_form`,
+`mla_cache_per_tile`, `mla_latent_norm` and `mla_seams`. The 2026-09-12 run was
+pinned at `d9f891d`, the head of the then unmerged #181.
 
-This run is made again once that lands, and once one more does. zk-prover PR
-182, `gqa-count`, is also unmerged and adds a seventeenth assumption key,
-`kv_per_head`, which this run's rows do not name and this file does not hold.
-Neither pull request changes a price; both change what a recorded row says it
-read. So the entry to repeat is this one, at the first commit of main that
-carries both, and the rows it writes then replace the rows below rather than
-sitting beside them.
+Why this run replaces the older one rather than sitting beside it. A projected
+row is not a measurement, so two runs of the same model at two commits are not
+two observations of anything: the newer commit is simply what the model says
+now, and the older rows would only be a second answer to the same question. The
+run directory stays under `runs/` and its manifest with it; it backs no entry.
+Nothing it priced moved: all 103 rows of 2026-09-12 come back here to the digit,
+card, context, timing scope, unit and note included, and the only change on them
+is that their `inputs` name the five new assumption keys.
 
-What it printed. 103 rows, all of them recordable, over the six of the nine
-shapes the count can state. The three multi-head latent attention shapes --
-DeepSeek-V3, Kimi K2, Kimi K3 -- are refused by the model itself: their q and kv
-sides are low-rank pairs and the cache is one latent, so the layer's matmuls are
-five and not four and the key grids read a width the prover has no layout for. No
-H200 row is printed at all: the H200 rate this repository holds is the private
-archive's decode-only sequence, and the driver runs with the archive variables
-unset. The calibration residual is
-`frontier.calibration.c4096.residual_pct` at one context and
+What it printed. 247 rows, all of them recordable, over all nine shapes. The
+three multi-head latent attention shapes -- DeepSeek-V3, Kimi K2, Kimi K3 --
+are priced for the first time. They are counted both ways: the rows record the
+materialised layout, which expands the keys and the values per head before the
+attention, and the absorbed layout, which folds the low-rank pair into the query
+side and caches the latent itself, is recorded beside them under
+`usd_per_mposition_mla_absorbed`. The absorbed one is the dearer of the two at
+every shape and both contexts, by 5.4 to 18.9 per cent, so the recorded number
+is also the cheaper one. The six grouped-query shapes carry a second column of
+the same kind, for a prover that shared its keys and values across a group: 2.2
+to 5.3 per cent of a proved position at C=4,096 and 6.4 to 13.4 per cent at
+C=16,384. No AIR in this project builds either layout, and the sharing figure is
+a floor, because the interaction columns those same key and value columns carry
+are not in it. No H200 row is printed at all: the H200 rate this repository
+holds is the private archive's decode-only sequence, and the driver runs with
+the archive variables unset. The calibration is the run's own check and has not
+moved: `frontier.calibration.c4096.residual_pct` at one context and
 `frontier.calibration.c16384.residual_pct` at the other, and the worse of the
 two is what the whole table stands on.
 
@@ -2112,22 +2129,26 @@ at another commit or in a dirty tree, and on an `assumption.cost_model.<field>`
 that is not an entry of `constants.json`. It also refuses when the model marks
 its own table not recordable and the gate found no reason of its own, so the two
 verdicts can never disagree silently. The run that made this entry passed all of
-them; the run at `80dd8ee` a day earlier failed the last one on all sixteen
-assumption keys and recorded nothing, which is the contract working.
+them. The same commit run against this file before the five new assumption keys
+were recorded refuses on exactly those five and records nothing, which is the
+contract working, and it is the same refusal `80dd8ee` met on all sixteen a day
+before the superseded run.
 
-Where the sixteen come from. Eleven are the mode of one field over the 64 layer
-and first segments of the two recorded headline runs, `slice_0256.json` of
+Where the twenty-one come from. Eleven are the mode of one field over the 64
+layer and first segments of the two recorded headline runs, `slice_0256.json` of
 `2026-09-09-headline-c4096-h100` and `slice_1024.json` of
 `2026-09-08-headline-c16384-h100`, which are the same two artifacts the composed
 prices are read off. `audit.py`'s `witness_assumptions` section re-derives each
 mode from those two artifacts and fails if one has moved, and it breaks a draw
 the way the cost model's own `modal_witness` does: the most common value, and
-the smallest of them where two are as common. The other five are in no run --
-the head grouping and the softmax and rounding a run of another shape would be
-proved at, and the two a mixture row assumes about routing -- so they are
-`asserted` with the reason in the note. `assumption.cost_model.moe_router` is an
-upper bound and not a point estimate; this file has no `bound` grade, so it is
-`asserted` and its note carries the bound.
+the smallest of them where two are as common. The other ten are in no run -- the
+head grouping, the head a key and a value are committed once for, the softmax
+and the rounding a run of another shape would be proved at, the two a mixture
+row assumes about routing, and the four a latent attention row assumes about its
+layout -- so they are `asserted` with the reason in the note.
+`assumption.cost_model.moe_router` is an upper bound and not a point estimate;
+this file has no `bound` grade, so it is `asserted` and its note carries the
+bound.
 
 ## Entry template
 

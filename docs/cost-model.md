@@ -256,9 +256,9 @@ chunks in this repository to the cell; the ruling is zk-prover's
 `docs/decisions/2026-09-11-cells-are-counted-from-the-layout-wherever-a-shape-can-be-stated.md`.
 The per-operation cell costs above are therefore what the older fitted path
 charged, and a counted row reads none of them. What a counted row reads beyond
-the shape itself is the block of sixteen fields below, the fields a `params`
-block carries and a published config does not. Every projected row names all
-sixteen in its `inputs` as `assumption.cost_model.<field>`.
+the shape itself is the block of twenty-one fields below, the fields a
+`params` block carries and a published config does not. Every projected row
+names all twenty-one in its `inputs` as `assumption.cost_model.<field>`.
 
 | key | what it fixes | grade |
 |---|---|---|
@@ -271,20 +271,24 @@ sixteen in its `inputs` as `assumption.cost_model.<field>`.
 | `assumption.cost_model.ao_jo_min`, `_jo_max`, `_jv_min`, `_jv_max` | the exponent window the fold's range tables cover | measured |
 | `assumption.cost_model.fold_rem_bits` | the fold's own remainder range table | measured |
 | `assumption.cost_model.head_groups` | the three key grids' heights | asserted |
+| `assumption.cost_model.kv_per_head` | the head a key and a value are committed once for | asserted |
 | `assumption.cost_model.variant` | the softmax, an auxiliary column a score and a table | asserted |
 | `assumption.cost_model.round` | the sticky bit of every rounding | asserted |
 | `assumption.cost_model.moe_routing` | how many tokens a routed matmul covers | asserted |
 | `assumption.cost_model.moe_router` | the router's matmul, counted, and the selection on its logits, bounded | asserted |
+| `assumption.cost_model.mla_form` | which of the two latent attention layouts a row counts | asserted |
+| `assumption.cost_model.mla_cache_per_tile`, `_latent_norm`, `_seams` | the copies of a shared cache a segment holds, the program the two low-rank norms build, and where the low-rank chain is requantized | asserted |
 
 The eleven `measured` ones are each the mode of that field over the 64 layer and
 first segments of the two recorded headline runs, and `audit.py` re-derives every
 one of them from the same two slice outputs the composed prices are read off; a
-mode that moves fails the audit. The five `asserted` ones are not in any run:
-three are the statement a shape would be proved at and the operator's own knob,
-and two are what a mixture layer assumes about routing, which no run of any of
-these models has measured. `assumption.cost_model.moe_router` is an upper bound
-and its note says so, because no AIR in this project builds a selection
-argument: the router's own matmul of expert logits is counted like any other
+mode that moves fails the audit. The ten `asserted` ones are in no run: three
+are the statement a shape would be proved at and the operator's own knob, two
+are what a mixture layer assumes about routing, which no run of any of these
+models has measured, one is the head the prover commits a key and a value once
+for, and four are how a latent attention is laid out.
+`assumption.cost_model.moe_router` is an upper bound and its note says so,
+because no AIR in this project builds a selection argument: the router's own matmul of expert logits is counted like any other
 matmul, and the selection on top of it is stated beside the row at
 `model_constants.argmax_marginal_cells_per_comparison`, the marginal of the
 argmax gadget that is built, rather than charged in it. What the eleven are worth together: one token block's 32 layer
@@ -302,7 +306,12 @@ turn a cell count into seconds and dollars, as they always did.
 - Cards needed for a target throughput, per model shape, card, context and
   timing scope (`frontier.<model>.<card>.c<ctx>.<scope>.cards_for_20`), and
   dollars per million proved positions
-  (`frontier.<model>.<card>.c<ctx>.<scope>.usd_per_mposition`).
+  (`frontier.<model>.<card>.c<ctx>.<scope>.usd_per_mposition`), and the same
+  dollars under two layouts nobody has built: `..._kv_shared`, keys and values
+  shared across a group, and `..._mla_absorbed`, the absorbed latent attention.
+  What each is worth is a ratio of two cell counts and names no card and no
+  timing scope: `frontier.<model>.c<ctx>.kv_shared_saving_pct` and
+  `frontier.<model>.c<ctx>.mla_absorbed_pct`.
 - Mixture-of-experts shapes at one sequence a proof: committed cells against a
   dense model with the same active parameters (`moe.<model>.fresh_over_dense`),
   and the same comparison counting the preprocessed weight trace, which the
@@ -316,10 +325,10 @@ turn a cell count into seconds and dollars, as they always did.
   per-position rate: `harness.costmodel.suite_cost`.
 
 A shape whose layout the count cannot state is refused and not quietly priced
-the old way under the same heading. The three multi-head latent attention rows
-refuse today: their q and kv sides are low-rank pairs and the cache is one
-latent, so the layer has five matmuls and not four and the key grids read a
-width the prover has no layout for.
+the old way under the same heading. Nothing refuses today: the three multi-head
+latent attention shapes are counted from the five widths their own configs
+publish, and counted both ways, the materialised layout recorded and the
+absorbed one beside it.
 
 ## What it does not project: the size of the proof
 
@@ -413,15 +422,13 @@ about each.
   no second `S`: every recorded sequence run in this repository is at 512.
 - **Keys and values committed once for each key/value head.** The prover
   commits them once for each attention head, which at the 8B is four times
-  over. zk-prover #178 is the issue and its pull request 182 puts a number on
-  it: 3.5 per cent of a proved position's cells at context 4,096 and 9.4 per
-  cent at 16,384, counted from the layout. That pull request is not merged, so
-  the figure is a projection off an unmerged branch and is in no row of
-  `constants.json`, and it is a floor, because the interaction columns those
-  same key and value columns carry are not in it. It is also a saving in
-  committed cells and not in memory: the cells it removes are the ones the
-  prefix grows, so it should move the line above, and nothing has measured by
-  how much.
+  over. `frontier.<model>.c<ctx>.kv_shared_saving_pct` is what sharing them
+  would be worth, counted from the layout: 2.2 to 5.3 per cent of a proved
+  position's cells at context 4,096 and 6.4 to 13.4 per cent at 16,384. It is a
+  floor, because the interaction columns those same key and value columns carry
+  are not in it, and it is a saving in committed cells and not in memory: the
+  cells it removes are the ones the prefix grows, so it should move the line
+  above, and nothing has measured by how much.
 - **Streaming the key tiles.** The key tiles are the other term that grows with
   the prefix, and holding fewer of them at once trades memory for passes over
   the witness. Nothing here puts a number on it: no layout for it exists and no
