@@ -55,7 +55,15 @@ drv_finish() {
         # DRV_KIND, when the driver sets it, is what the run's outputs cannot say
         # for themselves: `verifier` for a run that makes no proof and checks
         # proofs another run made.  Unset is the prover's own answer.
-        python3 "$HERE/lib/manifest.py" --driver "tools/drivers/$NAME.sh" --fetched "$TMP" \
+        # The run name and the driver's file name are the same thing for every
+        # driver but one.  `memory-probe-context.sh` takes the context as an
+        # argument and names its runs after it, so that two contexts are two
+        # status files, two host directories and two run ids; `DRV_DRIVER` is
+        # then the file it lives in, because a manifest has to name a driver
+        # that exists, and `--run-name` keeps the run id the run's own name.
+        # Unset, both are `$NAME`, which is what every other driver has.
+        python3 "$HERE/lib/manifest.py" --driver "tools/drivers/${DRV_DRIVER:-$NAME}.sh" \
+            --run-name "$NAME" --fetched "$TMP" \
             --runs "$ROOT/runs" --prover-commit "$PROVER" --harness-commit "$HARNESS" \
             ${DRV_KIND:+--kind "$DRV_KIND"} ${DERIVED:+--derived "$DERIVED"} \
             --date "$(printf '%s\n' "$ST" | awk '/^done/ {print substr($3, 1, 10)}')"

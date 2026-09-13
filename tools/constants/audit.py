@@ -520,6 +520,76 @@ def memory_probe_c16384(a, keys):
                 artifact(run, "serial.json")["result"]["summary"]["fresh_sum"])
 
 
+# -- memory-probe-context ------------------------------------------------------
+def memory_probe_context(a, keys):
+    """Two segments of one token block, at a context above the recorded ones.
+
+    Each is proved in a process of its own: layer 16, whose shape almost every
+    segment of a plan has, and layer 0, which carries the embedding gadget and is
+    the segment a headline loop's peak is.  A segment's peak is the largest
+    sample the card returned while its process ran, and the prover's own
+    `mem_after_prove_max` is in that segment's output beside it, so the two are
+    checked against each other rather than one of them being chosen.
+
+    A segment the card could not hold writes its sampler file and no output, so
+    it has no loop and no cells and the prover says nothing about its memory.
+    What it backs is a row of its own -- `<tag>_oom_peak_mib`, the most the card
+    reported holding before the allocation it could not serve -- and the audit
+    refuses that row for a segment that fit and the `<tag>_peak_mib` row for one
+    that did not.  A segment proved through a kernel fallback evaluated
+    constraints on the host and its peak is not a card measurement; the run
+    counts those lines and the audit refuses the row if there were any.
+    """
+    if not keys:
+        return
+    for run in sorted({e["run"] for e in keys.values()}):
+        cfg = artifact(run, "config.json")
+        p = artifact(run, "probe.json")
+        ctx = cfg["context"]
+        emit = artifact(run, "emit.json")
+        print(f"  runs/{run}: block {cfg['probe_block']} of {cfg['blocks']}, layers "
+              f"{cfg['probe_layer']} and 0, one process each, pipeline {cfg['pipeline']}, "
+              f"card {p['card_total_mib']} MiB; master tables emitted "
+              f"{emit['emitted']} of {sorted(r['table_bits'] for r in emit['shapes_in_plan'])}")
+        for tag, k in (("decode", cfg["probe_layer"]), ("layer0", 0)):
+            m = artifact(run, f"mem_{tag}.json")
+            row = next(r for r in p["probes"] if r["probe"] == tag)
+            peak, oom = f"mem.probe.c{ctx}.{tag}_peak_mib", f"mem.probe.c{ctx}.{tag}_oom_peak_mib"
+            if row["layer"] != k:
+                a.fails.append(f"audit: {run}: {tag} reports layer {row['layer']} where "
+                               f"config.json asks for layer {k}")
+            if bool(m["pipeline"]) != bool(cfg["pipeline"]):
+                a.fails.append(f"audit: {run}: {tag} ran at pipeline {m['pipeline']} where "
+                               f"the driver asked for {cfg['pipeline']}")
+            if row["kernel_fallbacks"] and (peak in keys or oom in keys):
+                a.fails.append(f"audit: {run}: {tag} announced {row['kernel_fallbacks']} kernel "
+                               "fallback line(s), so its peak is not a card measurement")
+            if row["fits"]:
+                if oom in keys:
+                    a.fails.append(f"audit: {oom} is recorded for a segment that fit")
+                d = artifact(run, f"{tag}.json")["result"]["summary"]
+                sampled, reported = m["max_mib"], round(d["mem_after_prove_max"] / 2 ** 20)
+                if sampled != reported:
+                    a.fails.append(f"audit: {run}: {tag}: the card sampler says {sampled} MiB "
+                                   f"and the prover says {reported} MiB for the same segment")
+                if d["n"] != 1:
+                    a.fails.append(f"audit: {run}: {tag}: {d['n']} segments proved, one asked for")
+                if peak in keys:
+                    a.exact(peak, sampled)
+                if f"secs.probe.c{ctx}.{tag}_loop" in keys:
+                    a.claim(f"secs.probe.c{ctx}.{tag}_loop", d["loop_secs"])
+            else:
+                if peak in keys:
+                    a.fails.append(f"audit: {peak} is recorded for a segment that did not fit; "
+                                   "a process the card killed has no peak of its own")
+                if not (m["out_of_memory"] and m["exit_code"]):
+                    a.fails.append(f"audit: {run}: {tag} is recorded as not fitting, but its "
+                                   f"exit code is {m['exit_code']} and out_of_memory is "
+                                   f"{m['out_of_memory']}")
+                if oom in keys:
+                    a.exact(oom, m["max_mib"])
+
+
 # -- model-commitment ----------------------------------------------------------
 def model_commitment(a, keys):
     """The published model commitment, and the digest a paper would cite.
@@ -2038,6 +2108,7 @@ SECTIONS = [
     ("control-flags-off-c4096", control_flags_off_c4096),
     ("negative-controls", negative_controls),
     ("memory-probe-c16384", memory_probe_c16384),
+    ("memory-probe-context", memory_probe_context),
     ("microbench", microbench),
     ("quality-0p5b", _quality("quality.0p5b")),
     ("quality-gemma270m", _quality("quality.gemma270m")),
