@@ -557,6 +557,69 @@ def model_commitment(a, keys):
     a.exact("commitment.c4096.sha256", digest)
 
 
+# -- moe-routing ---------------------------------------------------------------
+# What a mixture model's router actually did, against what a counted mixture row
+# assumes it does.  One key per (model, context, block size), and the reader
+# parses the key rather than holding a table of them: the driver takes the model
+# on its command line, so a second model is a second run of the same driver and
+# not a second reader here.  Written with the driver and inert until its first
+# run lands, because a `measured` constant no section re-derives is a failure and
+# the recording is then a merge and nothing else.
+MOE_KEY = re.compile(
+    r"^moe\.routing\.(?P<model>[a-z0-9_]+)\.c(?P<ctx>\d+)\.s(?P<s>\d+)\.(?P<field>\w+)$")
+
+
+def _moe_block(run, key):
+    """The (result, block, field) a `moe.routing.*` key names, out of the run's
+    artifact, or (None, None, None) where that run measured no such block."""
+    m = MOE_KEY.match(key)
+    if not m:
+        return None, None, None
+    res = artifact(run, "routing.json")["result"]
+    if res.get("key_slug") != m["model"]:
+        return None, None, None
+    b = res.get("contexts", {}).get(m["ctx"], {}).get("blocks", {}).get(m["s"])
+    return res, b, m["field"]
+
+
+def moe_routing(a, keys):
+    """Every figure here is a mean over the mixture layers and the blocks each
+    prompt divides into, and the file carries the per-layer means: so the mean is
+    re-derived from them rather than read back.  Each layer measured the same
+    number of blocks, which is what makes the mean of the per-layer means the
+    figure and not an average of averages over unequal sets."""
+    for key, e in sorted(keys.items()):
+        _res, b, field = _moe_block(e["run"], key)
+        if b is None:
+            a.fails.append(f"audit: {key}: runs/{e['run']}/routing.json holds no block "
+                           f"of this model at this context and block size")
+            continue
+        rows = b["layers"]
+        if field in ("distinct_experts_mean", "tokens_per_expert_max_mean"):
+            a.claim(key, sum(r[field] for r in rows) / len(rows))
+        else:
+            a.fails.append(f"audit: {key}: this section re-derives no field named "
+                           f"{field!r}")
+
+
+def moe_routing_uniform(key):
+    """`E (1 - (1 - k/E)^S)`: what the routing assumption gives for the same
+    block, out of the experts and the top-k the run recorded.  Those are counts
+    in an artifact and not entries of the constants file, which is why the entry
+    is `derived` and why `check.py`'s derived table calls this reader."""
+    e = load()["constants"][key]
+    res, _b, field = _moe_block(e["run"], key)
+    if res is None:
+        raise SystemExit(f"audit: {key}: runs/{e['run']}/routing.json is not this "
+                         f"model's routing")
+    if field != "distinct_experts_uniform":
+        raise SystemExit(f"audit: {key}: this reader is the routing assumption's own "
+                         f"answer and nothing else")
+    experts, topk = res["experts"], res["topk"]
+    s = int(MOE_KEY.match(key)["s"])
+    return experts * (1.0 - (1.0 - topk / experts) ** s)
+
+
 # -- sections: (driver name, function(audit, keys)) ----------------------------
 # Added when a driver's first run lands; each function re-derives the constants
 # whose `run` was made by that driver.
@@ -1943,6 +2006,7 @@ SECTIONS = [
     ("predict-13b", predict_13b),
     ("unproved-baseline", unproved_baseline),
     ("model-commitment", model_commitment),
+    ("moe-routing", moe_routing),
     ("microbench-cells", microbench_cells),
     # the extraction and the per-component cell counts of the two headline
     # runs: separate readers over separate artifacts of the same runs

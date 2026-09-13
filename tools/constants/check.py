@@ -49,6 +49,17 @@ def registered_14b():
     return audit.registered_14b()
 
 
+def moe_uniform(key):
+    """The routing assumption's own answer for one `moe.routing.*` key.
+
+    The same reason `composed` and `registered_14b` are readers: its two sides
+    are the experts and the top-k the run recorded in its artifact, not entries
+    of this file.
+    """
+    import audit  # noqa: E402
+    return audit.moe_routing_uniform(key)
+
+
 def chk(name, got, key, tol=0.005):
     """A `derived` entry recomputed: relative tolerance, absolute when the stored value is 0."""
     exp = v(key)
@@ -57,6 +68,10 @@ def chk(name, got, key, tol=0.005):
     if not ok:
         fails.append(f"derived: {key}")
 
+
+# The models `tools/drivers/moe-routing.sh` has measured the routing of. One
+# name per model, because the derived lines below are keys and a key names one.
+MOE_ROUTING_MODELS = ("qwen3_30b_a3b",)
 
 # -- every `derived` entry this file knows how to recompute --------------------
 # One line per derived constant; a derived entry with no line here fails below.
@@ -91,6 +106,14 @@ DERIVED = {
         v("e4.qwen2p5_14b.c4096.cells_per_token_layers")
         / v("e4.qwen2p5_14b.c4096.predicted_cells_per_token_layers"),
         "e4.qwen2p5_14b.c4096.rho", 0.001),
+    # The mixture routing campaign: beside every measured distinct-expert count,
+    # what `assumption.cost_model.moe_routing` gives for the same block. A model
+    # this repository holds no run for has no entry and no line of this runs.
+    **{f"moe.routing.{m}.c{c}.s{s}.distinct_experts_uniform": (lambda m=m, c=c, s=s: chk(
+        f"{m} c{c:,} S={s} distinct experts, under the routing assumption",
+        moe_uniform(f"moe.routing.{m}.c{c}.s{s}.distinct_experts_uniform"),
+        f"moe.routing.{m}.c{c}.s{s}.distinct_experts_uniform", 1e-9))
+       for m in MOE_ROUTING_MODELS for c in (4096, 16384) for s in (128, 256, 512, 1024)},
     "verinf.gb10_vs_h200_bandwidth_ratio": lambda: chk(
         "GB10 measured / H200 spec bandwidth",
         v("verinf.gb10_measured_bandwidth_gbps") / v("hardware.h200.hbm_gbps_spec"),
