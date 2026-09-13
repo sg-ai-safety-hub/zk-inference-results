@@ -1,0 +1,469 @@
+{
+ "argv": [
+  "python -m harness.costmodel.frontier",
+  "--constants",
+  "constants.json",
+  "--seq",
+  "512",
+  "--target",
+  "20",
+  "--json",
+  "/var/tmp/zk-cost-model.7wvM2S/out/frontier.json"
+ ],
+ "backend": "harness",
+ "binding": null,
+ "cuda_version": null,
+ "date": "2026-09-13",
+ "derived": {
+  "artifact": "routing.json",
+  "contexts": {
+   "c16384": {
+    "block": {
+     "block": 12,
+     "distinct_experts": 72,
+     "layer": 44,
+     "prompt": 0,
+     "which": "the median block by distinct experts over every mixture layer and every prompt, which is the block the run's table carries; a row priced at it is priced at that one block's routing for every block of every layer"
+    },
+    "busiest": 452,
+    "distribution": [
+     [
+      452,
+      1
+     ],
+     [
+      381,
+      1
+     ],
+     [
+      258,
+      1
+     ],
+     [
+      254,
+      1
+     ],
+     [
+      195,
+      1
+     ],
+     [
+      186,
+      1
+     ],
+     [
+      137,
+      2
+     ],
+     [
+      135,
+      1
+     ],
+     [
+      118,
+      1
+     ],
+     [
+      116,
+      1
+     ],
+     [
+      109,
+      1
+     ],
+     [
+      108,
+      1
+     ],
+     [
+      104,
+      1
+     ],
+     [
+      103,
+      1
+     ],
+     [
+      91,
+      1
+     ],
+     [
+      86,
+      1
+     ],
+     [
+      82,
+      1
+     ],
+     [
+      75,
+      1
+     ],
+     [
+      70,
+      1
+     ],
+     [
+      54,
+      2
+     ],
+     [
+      53,
+      1
+     ],
+     [
+      52,
+      1
+     ],
+     [
+      48,
+      1
+     ],
+     [
+      45,
+      1
+     ],
+     [
+      39,
+      1
+     ],
+     [
+      38,
+      2
+     ],
+     [
+      34,
+      1
+     ],
+     [
+      31,
+      1
+     ],
+     [
+      26,
+      1
+     ],
+     [
+      25,
+      1
+     ],
+     [
+      22,
+      2
+     ],
+     [
+      21,
+      1
+     ],
+     [
+      20,
+      1
+     ],
+     [
+      17,
+      1
+     ],
+     [
+      15,
+      1
+     ],
+     [
+      14,
+      3
+     ],
+     [
+      13,
+      1
+     ],
+     [
+      12,
+      4
+     ],
+     [
+      11,
+      3
+     ],
+     [
+      10,
+      2
+     ],
+     [
+      9,
+      2
+     ],
+     [
+      8,
+      2
+     ],
+     [
+      7,
+      2
+     ],
+     [
+      6,
+      2
+     ],
+     [
+      5,
+      2
+     ],
+     [
+      4,
+      1
+     ],
+     [
+      3,
+      1
+     ],
+     [
+      2,
+      4
+     ],
+     [
+      1,
+      4
+     ]
+    ],
+    "experts": 72,
+    "experts_uniform": 128,
+    "quietest": 1,
+    "token_slots": 4096,
+    "topk": 8
+   },
+   "c4096": {
+    "block": {
+     "block": 3,
+     "distinct_experts": 73,
+     "layer": 10,
+     "prompt": 4,
+     "which": "the median block by distinct experts over every mixture layer and every prompt, which is the block the run's table carries; a row priced at it is priced at that one block's routing for every block of every layer"
+    },
+    "busiest": 510,
+    "distribution": [
+     [
+      510,
+      1
+     ],
+     [
+      420,
+      1
+     ],
+     [
+      268,
+      1
+     ],
+     [
+      247,
+      1
+     ],
+     [
+      225,
+      1
+     ],
+     [
+      220,
+      1
+     ],
+     [
+      186,
+      1
+     ],
+     [
+      172,
+      1
+     ],
+     [
+      145,
+      1
+     ],
+     [
+      106,
+      1
+     ],
+     [
+      105,
+      1
+     ],
+     [
+      91,
+      1
+     ],
+     [
+      83,
+      1
+     ],
+     [
+      79,
+      1
+     ],
+     [
+      75,
+      1
+     ],
+     [
+      67,
+      1
+     ],
+     [
+      65,
+      1
+     ],
+     [
+      62,
+      2
+     ],
+     [
+      59,
+      1
+     ],
+     [
+      56,
+      1
+     ],
+     [
+      50,
+      2
+     ],
+     [
+      48,
+      1
+     ],
+     [
+      47,
+      1
+     ],
+     [
+      42,
+      1
+     ],
+     [
+      41,
+      2
+     ],
+     [
+      40,
+      1
+     ],
+     [
+      35,
+      1
+     ],
+     [
+      32,
+      1
+     ],
+     [
+      31,
+      1
+     ],
+     [
+      30,
+      1
+     ],
+     [
+      21,
+      2
+     ],
+     [
+      20,
+      2
+     ],
+     [
+      19,
+      1
+     ],
+     [
+      18,
+      1
+     ],
+     [
+      15,
+      2
+     ],
+     [
+      14,
+      2
+     ],
+     [
+      13,
+      1
+     ],
+     [
+      12,
+      1
+     ],
+     [
+      9,
+      1
+     ],
+     [
+      8,
+      1
+     ],
+     [
+      7,
+      2
+     ],
+     [
+      6,
+      3
+     ],
+     [
+      5,
+      4
+     ],
+     [
+      4,
+      3
+     ],
+     [
+      3,
+      3
+     ],
+     [
+      2,
+      3
+     ],
+     [
+      1,
+      8
+     ]
+    ],
+    "experts": 73,
+    "experts_uniform": 128,
+    "quietest": 1,
+    "token_slots": 4096,
+    "topk": 8
+   }
+  },
+  "measured": "Qwen/Qwen3-30B-A3B",
+  "measured_key_slug": "qwen3_30b_a3b",
+  "measured_slug": "qwen-qwen3-30b-a3b",
+  "note": "the per-expert token counts of runs/2026-09-13-moe-routing-h100, measured on Qwen/Qwen3-30B-A3B at S=512, re-keyed to the qwen3-235b-a22b row: the two shapes route alike (128 experts, top-8, no shared expert, every layer a mixture layer) and the weights are not the same weights. Every row this run records at them says so in its name and carries the assumption in its note.",
+  "row": "qwen3-235b-a22b",
+  "run": "2026-09-13-moe-routing-h100",
+  "seq": 512
+ },
+ "digests": {},
+ "driver": "tools/drivers/cost-model.sh",
+ "driver_version": null,
+ "gpu": null,
+ "harness_commit": "7ef4122",
+ "harness_dirty": false,
+ "imported": false,
+ "kind": "harness",
+ "outputs": [
+  "config.json",
+  "constants.json",
+  "frontier-routing-c16384.json",
+  "frontier-routing-c16384.txt",
+  "frontier-routing-c4096.json",
+  "frontier-routing-c4096.txt",
+  "frontier.json",
+  "frontier.txt"
+ ],
+ "prover_commit": null,
+ "prover_dirty": null,
+ "run_id": "2026-09-13-cost-model-routing-none",
+ "unsound_skips": []
+}

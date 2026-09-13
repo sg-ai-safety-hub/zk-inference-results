@@ -1,0 +1,852 @@
+====================================================================================================
+E1 -- the frontier price table
+====================================================================================================
+
+the constants this table stands on (nothing below is typed in twice)
+  W0's freeze: constants.json
+    cost.h100_reference_usd_per_hour                         3.29  [external]
+    cost.h200_reference_usd_per_hour                         4.59  [external]
+    attention_grid.base_cell_coeffs                      [64.0, 12288.0, 128.0]  [measured]
+    attention_grid.e1_composed_solve                         None  [not recorded]
+    attention_grid.b5_standalone_alpha                       None  [not recorded]
+    design.e11_cells_multiple_c4096                          None  [not recorded]
+    design.e11_chunking_net_pct                              None  [not recorded]
+    design.e11_chunking_overhead_pct                         None  [not recorded]
+    attention_grid.chunk_model_fixed_composed                None  [not recorded]
+    cells_per_position.headline.c4096.fresh_layers_block 87026069.90625  [derived]
+    cells_per_position.headline.c16384.fresh_layers_block 140142998.6875  [derived]
+
+  how the cells are counted: exact
+    Every segment below is counted from its own `params` block (`exact_cells.py`),
+    which reproduces all 1,872 recorded chunks in zk-results to the cell.  No cell
+    cost is read for it and none is fitted.  The list below is what the FITTED
+    count would charge, printed so a reader can see what the exact count replaced;
+    the only entries a row here still reads are the preprocessed weight trace's
+    and the two routing inputs, which the prover does not build at all.
+
+  the cell costs the model charges, and where each one came from
+    input                                             value  source
+    logup_marginal_cells_per_lookup          {'1': 4.0, '2': 2.0}  model_constants.logup_marginal_cells_per_lookup
+    weight_freivalds_cells_per_weight        0.08823529411764706  model_constants.weight_freivalds_cells_per_weight
+    preprocessed_cells_per_weight            1.0294117647058822  model_constants.weight_freivalds_preprocessed_cells_per_weight
+    limb_cells_per_acc                                 None  absent: b4/limbs.json
+    int8_range_cells_per_activation                     1.0  model_constants.int8_range_cells_per_activation
+    requant_cells_per_value                            11.5  model_constants.requant_cells_per_value
+    argmax_marginal_cells_per_comparison           4.046875  model_constants.argmax_marginal_cells_per_comparison
+    route_selection_cells                               3.0  analogy: no file and no key
+    route_topk_cells                                   3.36  analogy: no file and no key
+    dequant_chain_cells_per_acc                      26.125  model_constants.dequant_chain_cells_per_acc
+    dequant_chain_away_cells_per_acc                 25.125  model_constants.dequant_chain_away_cells_per_acc
+    dequant_pow2_cells_per_acc                      15.0625  model_constants.dequant_pow2_cells_per_acc
+    dequant_pow2_away_cells_per_acc                 14.0625  model_constants.dequant_pow2_away_cells_per_acc
+    attnout_int8_cells_per_acc                      10.0625  model_constants.attnout_int8_cells_per_acc
+    dequant_chain_away_base_cells_per_acc            14.375  model_constants.dequant_chain_away_base_cells_per_acc
+    dequant_pow2_away_base_cells_per_acc               9.25  model_constants.dequant_pow2_away_base_cells_per_acc
+    residual_stream_mul_cells_per_op                   8.75  model_constants.residual_stream_mul_cells_per_op
+    unary_cells_per_application                         4.0  model_constants.residual_stream_unary_cells_per_op
+    residual_stream_add_cells_per_op         24.322580645161292  model_constants.residual_stream_add_cells_per_op
+    attention_cells_per_head_key_token                  4.0  model_constants.attention_cells_per_head_key_token
+    composed_attnout                                 10.375  model_constants.attnout_composed_cells_per_acc
+    composed_dequant                         16.05952380952381  model_constants.dequant_chain_composed_cells_per_acc
+    composed_freivalds                       0.20192307692307693  model_constants.weight_freivalds_composed_cells_per_weight
+    composed_quant                                     17.5  model_constants.quant_composed_cells_per_value
+    composed_requant                         18.437544389204547  model_constants.requant_composed_cells_per_value
+    composed_residual_stream_add                       18.0  model_constants.residual_stream_composed_add_cells_per_op
+    composed_residual_stream_mul                        5.0  model_constants.residual_stream_composed_mul_cells_per_op
+    composed_residual_stream_unary_plus_mul            10.0  model_constants.residual_stream_composed_swiglu_cells_per_op
+    gkrlink_cells_per_chunk                            None  absent: no file and no key
+    25 of 29 are backed by a key in the constants file.  Every other one the model
+    charges is named here with where it came from, because a row that reads any of them
+    is a row this repository cannot record:
+      none: every input the model charges is a key of the constants file.
+
+  the assumption, and it is the whole of what an exact count still assumes
+    A `params` block is not an architecture: some of its fields are the calibration
+    a run took off its own witness, and a caller with a model and a context but no
+    witness has to assume them.  Each one below is the modal value of the 64 layer
+    and first segments of the two recorded 8B headline runs, and the bound beside it
+    is the widest value those runs carry -- which is what the `bound` columns price.
+    field                         assumed   bound           recorded   sizes, cells  of a segment  read off
+    log_table                          23      25     22, 23, 24, 25     41,943,040      3.0108%  2026-09-09 B8_L4
+    kmax                               19      19                 19      5,324,800      0.3822%  2026-09-09 B8_L0
+    ao_acc_hi_bits                      5       6         4, 5, 6, 7      5,243,120      0.3764%  2026-09-09 B8_L4
+    ao_acc_lo_bits                     16      16                 16        327,680      0.0235%  2026-09-09 B8_L0
+    ao_rem_bits                        20      20             15, 20      5,243,120      0.3764%  2026-09-09 B8_L0
+    ao_q_bits                          11      11                 11         30,720      0.0022%  2026-09-09 B8_L0
+    ao_jo_min                         -12     -14 -14, -13, -12, -11      5,243,120      0.3764%  2026-09-09 B8_L5
+    ao_jo_max                         -10     -12  -12, -11, -10, -9      5,243,120      0.3764%  2026-09-09 B8_L4
+    ao_jv_min                          -7     -11   -11, -10, -9, -8      5,243,120      0.3764%  2026-09-09 B8_L7
+    ao_jv_max                          -5      -8     -8, -6, -5, -4      5,243,120      0.3764%  2026-09-09 B8_L1
+    fold_rem_bits                      15      15                 15        163,840      0.0118%  2026-09-09 B8_L0
+    head_groups      half-quarter-quarter       - 16,8,8 at 32 heads              -     -0.0838%  2026-09-09 every segment
+    kv_per_head        per attention head       - 32 heads over 8 kv     81,788,928      5.8711%  2026-09-09 every segment
+    variant                        intexp       -             intexp              -            -  2026-09-09 every segment
+    round                            even       -               even              -            -  2026-09-09 every segment
+
+    and the two a counted MIXTURE row adds, on Qwen3-235B-A22B, one layer segment:
+      moe_routing  uniform                                [asserted]     322,437,120 cells    13.63%
+        every token's top-k is taken uniform over the 128 experts, so a segment of 512 tokens
+        touches 128.0 of them and each routed matmul covers 32 tokens. `cells` is what the
+        assumption is worth: the same token slots concentrated on 8 experts of 512 tokens each
+        cost 2,042,494,064 against 2,364,931,184. Routing statistics from an actual run of the
+        model remove the assumption: pass them as --routing FILE and the row is counted at them
+      moe_router   gate matmul counted, top-k bounded     [bound]       5,341,184 cells     0.23%
+        the gate logits are a matmul of 128 outputs over every token and are COUNTED like any
+        other (3,219,456 cells a segment). The top-k selection on them is not: no AIR here
+        builds one, so it is an upper bound, 8 argmax passes over 128 logits a token at the
+        built gadget's measured marginal (4.046875 cells a comparison,
+        `model_constants.argmax_marginal_cells_per_comparison`), 2,121,728 cells a segment
+
+    and the four a counted LATENT-ATTENTION row adds, on DeepSeek-V3, one layer segment:
+      mla_form            materialised                    [asserted]     883,749,888 cells    21.53%
+        the row counts the materialised layout, which expands the keys and the values per head
+        before the attention, as a prover with no latent layout builds it: the cache is 40,960
+        cells a key and the score grid runs over 192 channels a head. The absorbed layout folds
+        `kv_b` into the query and the output projection and caches the latent itself, as the
+        published implementations decode, and the same segment counted that way is 4,988,734,576
+        cells against 4,104,984,688. The model's weights are the same either way -- `W_UK` and
+        `W_UV` together ARE `kv_b` -- so this is a choice of layout and not of architecture, and
+        section (2d) prices the whole statement both ways
+      mla_cache_per_tile  once per key tile               [asserted]               0 cells     0.00%
+        under the absorbed layout a key tile is a component and commits the columns it reads, so
+        the 3 head groups each hold the latent of every key in that tile: 3 copies. One channel
+        component and one grid shared between the 3 grids would commit 131,334,144 cells fewer,
+        and the split cache component also carries the accumulator set of the component it
+        splits from -- 12 and 24 columns over its own rows, the one column group here no
+        recorded segment shows. The row records the materialised layout, which holds a K and a V
+        per head and shares nothing, so on the recorded row this assumption costs no cells at
+        all.
+      mla_latent_norm     the output head's plain norm at the rank's width [asserted]      30,205,952 cells     0.74%
+        each low-rank read is normed before the matmul that follows it. The program counted here
+        is the one the OUTPUT HEAD's final norm already builds -- a squares tree, its
+        second-level reduction and a scale -- at 1536 and 512 channels instead of the model's
+        width, so no new program is assumed, only that these two norms are that one
+      mla_seams           one requantize seam per rank the chain passes [asserted]      27,852,800 cells     0.68%
+        a low-rank pair is two matmuls, and the second reads what the first wrote, so the rank
+        is requantized between them exactly as the residual is requantized before the
+        projections. The seams counted here are `qkv` at 7,168, `q_lat` at 1,536, `kv_lat` at
+        512; a layout that carried the rank in the dequantized form instead would not build them
+    the five `ao_*` range fields size ONE group of tables together, so their cells
+    column is that group's and is not added up.  A driver in zk-results records
+    each row as a named constant (assumption.cost_model.<field>) and every
+    projected row names them in its `inputs`.
+    H100 $3.29/GPU-h  [external]  RunPod published on-demand list price, Secure Cloud tier, H100 SXM 80 GB, https://www.runpod.io/gpu-models/h100-sxm (page updated 2026-08-27, retrieved 2026-08-31). Paired with the H200 rate from the same provider, tier and date.
+    H200 $4.59/GPU-h  [external]  RunPod published on-demand list price, Secure Cloud tier, H200 141 GB, https://www.runpod.io/gpu-models/h200 (page updated 2026-08-27, retrieved 2026-08-31). The higher tier is the conservative choice for a cost claim.
+  Both rates are published list prices from ONE provider, ONE tier and ONE page
+  date, so the H100/H200 ratio is not a cross-provider artifact.  Secure Cloud
+  is deliberate: Community Cloud is cheaper ($2.69 / $3.59) and using the higher
+  tier is the conservative choice for a cost claim -- it makes proving look more
+  expensive, not less.  The H100 figure is the SXM page, matching our box
+  (H100 80GB HBM3 SXM, 81,559 MiB); RunPod's PCIe page is $2.89 Secure and is a
+  different part.  Sanity check, not used in any column: our actual Novita cost
+  is $3.39/h, within 3% of the list price, so the reference is realistic rather
+  than cherry-picked.  The H200's `*_actual_*` key is 0.00 (sponsored access) and
+  this module never reads an `*_actual_*` key.  Grade both $ columns [web].
+
+  the measured side, and the statement it was measured on
+    H100   sound        from the constants file
+      C=4096   cells.headline.c4096.fresh, positions.headline.c4096, segments.headline.c4096, rate.headline.c4096.commit, rate.headline.c4096.stwo_total, rate.headline.c4096.whole_wall, rate.headline.c4096.loop, proof.headline.c4096.bytes_per_position, proof.headline.c4096.bytes_per_segment_median, mem.headline.c4096.peak_mib
+      C=16384  cells.headline.c16384.fresh, positions.headline.c16384, segments.headline.c16384, rate.headline.c16384.commit, rate.headline.c16384.stwo_total, rate.headline.c16384.whole_wall, rate.headline.c16384.loop, proof.headline.c16384.bytes_per_position, proof.headline.c16384.bytes_per_segment_median, mem.headline.c16384.peak_mib
+    the statement's own layout (512-position blocks, 512 output positions,
+    2 output head segments) is read from positions.headline.c4096, segments.headline.c4096, positions.headline.c16384, segments.headline.c16384
+
+the four boundaries, kept apart (W0's freeze names all four)
+  commit      interpolate + LDE + Merkle over the committed trees
+  stwo total  commit + prove_ex (constraint eval, quotients, OODS, FRI)
+  whole wall  trace gen + interaction gen + stwo + serialize, summed per
+              chunk.  Has NEVER counted the witness read or the layer build.
+  loop        the chunk loop's own wall, which DOES count them.  A FOURTH
+              boundary, not a superset and not a subset of `whole wall`: it
+              counts more work and, where the loop is pipelined, still
+              finishes sooner.  `rate.headline.*.loop` is this one, and the
+              archive's sequence calls it `loop_secs`.
+    H100 C=4096    290 segments    78.97 M cells/position   commit 2.131 G/s  stwo total 1.276 G/s  whole wall 0.066 G/s  loop 0.099 G/s
+                   constants.json
+    H100 C=16384  1058 segments   105.08 M cells/position   commit 1.979 G/s  stwo total 1.187 G/s  whole wall 0.059 G/s  loop 0.082 G/s
+                   constants.json
+                   the prompt and the output proved as one statement, per proved position, the five reductions on; read from the constants file and from nothing else, so a row priced on it is recordable
+
+the check: the attention term now has ZERO fitted parameters
+  The model used to charge one slope, `alpha`, solved from the two measured
+  contexts -- one parameter, two points, one residual dof.  Stream DD's key tile
+  model and this module's symbolic re-derivation of it replace that slope with
+  a closed form in (S, C) whose every coefficient is an identity of the layout,
+  so both measured levels are now predicted with nothing solved: two points,
+  zero fitted parameters, TWO residual degrees of freedom.
+
+  What is compared, and it is the whole of the campaign's ruling: the model's own
+  price for the SOUND STATEMENT -- the prompt and the output proved as one statement,
+  in blocks of 512, each block's layer segments attending over the blocks before
+  it, 2 output head segments beside them, the five reductions on -- against what
+  the two headline runs measured, per proved position.  The statement's own numbers
+  are read from positions.headline.c4096, segments.headline.c4096, positions.headline.c16384, segments.headline.c16384 and the layer count is the shape's.
+  The archive's sequences prove a DIFFERENT statement (512 decoded tokens, each
+  against a full C-key prefix, before the tiled prefix and the reductions existed), and
+  a rate measured on one statement over cells modelled on another does not divide.
+
+   context  positions  measured M/position key tile model   residual   single slope     B5 alpha
+      4096      4,608                78.97          79.19    +0.28%   not recorded not recorded
+     16384     16,896               105.08         104.83    -0.23%   not recorded not recorded
+  key tile model residual -0.23% to +0.28%, on no fitted attention parameter at all.
+  recorded as `frontier.calibration.residual_pct` (worst of the two) and per context beside it.
+  The two superseded columns are the same model with the key tile term replaced
+  by a single slope, each read from the key named beside it; where the constants
+  file does not name one the column says so.
+
+  the calibration the exact count is answerable to, and it compares the same
+  segments on both sides: the 32 layer segments of the block whose prefix is the
+  whole context, over the 512 positions that block proves, with no output head
+  segment on either side.
+   context  recorded /position          counted  residual     at the bound             at each segment's own recorded fields
+      4096          87,026,070       87,107,991    +0.09%       94,972,321    +9.13%   +0.0000%
+     16384         140,142,999      139,405,719    -0.53%      147,270,049    +5.09%   +0.0000%
+  The last column is the whole point: give the count each segment's own recorded
+  witness fields and it is EXACT, to the cell, on both blocks.  The residual beside
+  it is what the assumption costs and nothing else -- it is not a modelling error.
+
+  the coefficients, derived here and measured by `prefill-sweep-8b` -- they
+  must agree exactly, because both claim to be identities of the same layout:
+                    S*C            C            S
+  base             64.0      12288.0        128.0   derived symbolically here
+                   64.0      12288.0        128.0   attention_grid.base_cell_coeffs
+  fresh           140.0      37376.0     256016.0   derived symbolically here, as a plain trilinear
+  There is no measured fresh triple to check it against, and there will not be
+  one at this configuration: with the five reductions on, most of the key tiles'
+  interaction sits in the reduction rather than in their own columns, so solving
+  for it over the measured points returns a negative per-token cost.  What checks
+  the interaction side instead is the family below, to the cell.
+  and `family_cells.key_tiles` reproduced EXACTLY, to the cell, on 45/45 recorded points
+  (`key_tile_segments.json`: every 8B layer segment of the two recorded
+  sequences, at both contexts and with the five reductions on and off, plus
+  whatever the artifacts directory adds).  Nothing is fitted, so a miss would
+  be a disagreement, not a residual, and this module exits on one.
+
+  the closed form, general in (nh, hd, S, C).  DD froze the coefficients at
+  Llama-8B's geometry; these are the same numbers re-derived from the column
+  accounting so they can be evaluated at a shape that is not Llama-8B:
+      base  = 2*nh*S*C  +  2*nh*hd*C  +  nh*hd*S  +  4*nh*S
+      inter = (2 + 24/gt)*nh*S*C  +  (4*nh*hd + 12*nh*hd/ct)*C
+              +  2*nh*hd*S  +  (8*nh + 8*nh/rw)*S
+  with gt = grid_target (64), ct = chan_target (128), rw = row width (16).
+  At nh=32, hd=128 the derived triples are (140.0, 37376.0, 256016.0) fresh and (64.0, 12288.0, 128.0) base.
+  Read off `prover/src/attn_trace.rs:1167-1181` with `prover/src/layout.rs`:
+    lc.g.rows = hd*insts*C/pk (pk -> ct), lk.g.rows = C*insts*S/q (q -> gt),
+    rrows*rw = nh*S, and `insts` sums to nh over the key tiles -- every term is
+    linear in `insts`, so grouping the heads 16/8/8 costs exactly what 32 would.
+
+  Three things this derivation does NOT settle, and they are the extrapolation
+  risk the frontier rows carry:
+   1. **K and V are committed per ATTENTION head, not per KV group.**
+      `LayoutChan`/`LayoutKey` are built from `Shape::chans()`/`keys()`, both
+      carrying `insts` = attention heads, so the `C` term is 2*nh*hd and `nkv`
+      does not appear, and the boundary trees hand on a cache of the same
+      width.  At 8B nh/nkv is 4; at Llama-405B and Qwen3 it is 16.  The three
+      latent-attention shapes hold no K and no V per key/value head at all --
+      what a key costs their cache, both ways, is section (2d).
+      What that is worth is now COUNTED and not named: on one 8B layer segment
+      the two caches and the boundary trees that hand them on are 7.8% of the
+      segment at C=4,096 and 18.4% at C=16,384, and committing them once per key/value
+      head instead would leave 5.9% and 13.8% of the segment uncommitted.  Per proved
+      position over the whole statement, shape by shape, that is section (2c).
+      Not built: no AIR in this project shares a key tile's K and V columns
+      between two heads' score grids, and what this table prices is what the
+      prover commits today.
+   2. **gt / ct / rw are run knobs, not constants.**  The composed sequence used
+      64 / 128 / 16 and this model keeps them.  They tile exactly only when S,
+      C, hd and `insts` are powers of two and the target divides; `Grid::new`
+      also caps q at min(S, hd) and pk at min(C, S).  Where a shape saturates a
+      cap the table says so.
+   3. **The out (A.V) component is not in the key tile family.**  It is the `attnout`
+      family and `cells_per_token` charges it separately, so there is no double
+      count -- but it is also the one attention component whose price here is a
+      measured per-element constant rather than a derived column count.
+  Under the exact count this is not a question the table asks: the grids are
+  built rather than closed-form, so a layout that does not tile is counted as it
+  tiles and nothing is reported as saturated.
+
+(1) the shapes, and each one's own parameter check
+  the check: the model's own arithmetic over the fetched config, plus the input
+  embedding (which the proof never covers), against the vendor's published counts.
+  model                 L      d   nh     dff     E   k  sh  total (model)  published       d  active (model)  published       d
+  Llama-3.1-8B         32   4096   32   14336     0   0   0         8.03 G     8.03 G  -0.0%          8.03 G     8.03 G  -0.0%
+  Llama-3.1-70B        80   8192   64   28672     0   0   0        70.55 G    70.55 G  +0.0%         70.55 G    70.55 G  +0.0%
+  Llama-3.1-405B      126  16384  128   53248     0   0   0       405.85 G   405.85 G  -0.0%        405.85 G   405.85 G  -0.0%
+  1T dense            160  20480  160   86016     0   0   0       998.46 G     1.00 T  -0.2%        998.46 G     1.00 T  -0.2%
+  DeepSeek-V3          61   7168  128    2048   256   8   1       670.92 G   671.00 G  -0.0%         37.44 G    37.00 G  +1.2%
+  Kimi K2              61   7168   64    2048   384   8   1         1.03 T     1.04 T  -1.3%         32.70 G    32.00 G  +2.2%
+  Kimi K3              93   7168   96    3072   896  16   2         2.75 T     2.80 T  -1.7%         77.25 G   104.00 G -25.7%  [check]
+  Qwen3-235B-A22B      94   4096   64    1536   128   8   0       235.04 G   235.00 G  +0.0%         22.14 G    22.00 G  +0.6%
+  Llama-4 Maverick     48   5120   40    8192   128   1   1       400.70 G   400.00 G  +0.2%         17.17 G    17.00 G  +1.0%
+  E is the ROUTED expert count, k the experts a token routes to and sh the shared experts,
+  each as its own published field; `dff` is the expert width on a mixture row and the
+  feed-forward width on a dense one.  Every one of them is a key of the model's own
+  config.json, named in the source line below, and none is solved -- except the
+  hypothetical row, which says so.
+  [check] Kimi K3: total -2%, active -26% -- the fetched config does not reproduce the published counts,
+          so every number in this row's line is a shape the vendor has not confirmed.
+
+  where each shape comes from:
+    Llama-3.1-8B       config.json, meta-llama/Meta-Llama-3.1-8B, fetched 2026-09-11 from the ungated mirror unsloth/Meta-Llama-3.1-8B, which agrees: L=32 d=4096 nh=32 nkv=8 head_dim=128 dff=14336 vocab=128256, untied embeddings; the shape every measured number in this repository was taken on
+    Llama-3.1-70B      [web] config.json, nvidia/Llama-3.1-70B-Instruct-FP8 and unsloth/Meta-Llama-3.1-70B, which agree, fetched 2026-09-10: L=80 d=8192 nh=64 nkv=8 dff=28672 vocab=128256, untied embeddings; head_dim=128. The published count is 70,553,706,496
+    Llama-3.1-405B     [web] config.json, NousResearch/Hermes-3-Llama-3.1-405B, which is the 405B architecture and is not gated, fetched 2026-09-11: L=126 d=16384 nh=128 nkv=8 dff=53248 vocab=128256, untied embeddings. A 4-bit repack of the same model (hugging-quants/Meta-Llama-3.1-405B-Instruct-AWQ-INT4) states num_key_value_heads 16; the base config and the model card both say 8 and that is what is used
+    1T dense           [hypothetical] defined here, not a real model, and the ONE row in this table with no published config: Llama-405B's aspect ratio scaled to 1.0 T parameters with the feed-forward width solved for that target
+    DeepSeek-V3        [web] config.json, deepseek-ai/DeepSeek-V3, fetched 2026-09-11: num_hidden_layers 61, hidden_size 7168, num_attention_heads 128, vocab_size 129280, MLA q_lora_rank 1536 kv_lora_rank 512 qk_nope_head_dim 128 qk_rope_head_dim 64 v_head_dim 128, first_k_dense_replace 3 at intermediate_size 18432, moe_intermediate_size 2048, n_routed_experts 256, n_shared_experts 1, num_experts_per_tok 8, moe_layer_freq 1, untied embeddings
+    Kimi K2            [web] config.json, moonshotai/Kimi-K2-Instruct, fetched 2026-09-11: num_hidden_layers 61, hidden_size 7168, num_attention_heads 64, vocab_size 163840, MLA q_lora_rank 1536 kv_lora_rank 512 qk_nope_head_dim 128 qk_rope_head_dim 64 v_head_dim 128, first_k_dense_replace 1 at intermediate_size 18432, moe_intermediate_size 2048, n_routed_experts 384, n_shared_experts 1, num_experts_per_tok 8, untied embeddings
+    Kimi K3            [web] config.json, moonshotai/Kimi-K3 (text_config), fetched 2026-09-11: num_hidden_layers 93, hidden_size 7168, num_attention_heads 96, vocab_size 163840, MLA q_lora_rank 1536 kv_lora_rank 512 qk_nope_head_dim 128 qk_rope_head_dim 64 v_head_dim 128 -- K2's attention exactly -- and mla_use_nope true, so the widths are there and the rotation is not: the counted row builds no rotation for this shape and the position is the linear layers' business.  first_k_dense_replace 1 at intermediate_size 33792, moe_intermediate_size 3072, num_experts 896, num_shared_experts 2, num_experts_per_token 16, routed_expert_hidden_size 3584 -- the routed experts read a projection of the residual and not the model's own width, which is what makes the published 2.8 T come out. linear_attn_config names 24 full-attention layers and the rest Kimi Delta Attention, whose proving cost is priced at a zero attention grid here: a floor and not a model.  The active count below is short because those layers' own projections are not in the config in a form this table reads, and the latent-attention form is charged for them instead
+    Qwen3-235B-A22B    [web] config.json, Qwen/Qwen3-235B-A22B, fetched 2026-09-11: num_hidden_layers 94, hidden_size 4096, num_attention_heads 64, num_key_value_heads 4, head_dim 128, vocab_size 151936, moe_intermediate_size 1536, num_experts 128, num_experts_per_tok 8, decoder_sparse_step 1 and mlp_only_layers empty (so every layer is a mixture), no shared-expert key at all, untied embeddings
+    Llama-4 Maverick   [web] config.json (text_config), unsloth/Llama-4-Maverick-17B-128E-Instruct, an ungated mirror of meta-llama/Llama-4-Maverick-17B-128E-Instruct, fetched 2026-09-11: num_hidden_layers 48, hidden_size 5120, num_attention_heads 40, num_key_value_heads 8, head_dim 128, vocab_size 202048, moe_layers the 24 odd indices at intermediate_size 8192 and the 24 even ones at intermediate_size_mlp 16384, num_local_experts 128, num_experts_per_tok 1, untied embeddings. The config names no shared-expert key; `Llama4TextMoe` carries one at intermediate_size, and that is where the shared expert here comes from
+
+(2) committed cells, S=512 positions/block, B=1 sequence(s)/proof, at both statements
+  per PROVED POSITION is the sound statement and is what every priced row below divides;
+  per DECODED TOKEN is one token against a full C-key prefix, which is what the archive's
+  sequences prove and what sections (2a) and (6) compare against.
+  model                C=4K /pos      bound  C=16K /pos      bound  C=4K /token C=16K /token   C=4K pre freivalds %  grid %  segments
+  Llama-3.1-8B           79.19 M    87.11 M    104.83 M   112.71 M     145.45 M     244.11 M    15.09 M        3.6%   22.2%       290
+  Llama-3.1-70B         393.46 M   413.18 M    523.48 M   543.16 M     699.46 M       1.19 G   139.74 M        5.1%   22.7%       722
+  Llama-3.1-405B          1.25 G     1.28 G      1.66 G     1.69 G       2.18 G       3.70 G   811.76 M        8.0%   22.9%     1,136
+  1T dense                2.50 G     2.54 G      3.33 G     3.36 G       4.35 G       7.62 G     2.00 G        9.1%   25.5%     1,442
+  DeepSeek-V3           628.79 M   643.83 M    855.50 M   870.50 M       1.08 G       1.94 G     1.35 G       19.3%   25.6%       551
+  Kimi K2               671.64 M   686.69 M    784.34 M   799.35 M       1.02 G       1.44 G     2.06 G       40.0%   13.7%       551
+  Kimi K3                 1.83 G     1.85 G      1.90 G     1.93 G       2.50 G       2.81 G     5.53 G       49.3%    5.3%       839
+  Qwen3-235B-A22B       384.36 M   407.52 M    537.46 M   560.58 M     704.22 M       1.27 G   471.32 M       13.6%   26.5%       848
+  Llama-4 Maverick      290.79 M   302.64 M    352.10 M   363.91 M     461.02 M     709.06 M   791.40 M       36.7%   18.3%       434
+  `bound` is the same statement with every witness-calibrated field of the `params`
+  block at the widest value the two recorded runs carry.  It is a bound over the
+  evidence and not a theorem: the prover's automatic path caps the exponent table
+  at 2^22 and every value above that is the per-layer calibration a model manifest
+  publishes, so the ceiling a projection can state is the widest one a run has
+  published.
+  `pre` is the preprocessed weight trace, committed offline but read once per
+  proof.  It is NOT in the fresh count the measured rates divide, and it is
+  where MoE's x E lands hardest -- see (4).
+  A proved position costs LESS than a decoded token at the same context because most
+  of the sequence's positions are in earlier blocks, which attend over a shorter prefix.
+
+(2a) what the superseded attention terms cost.  Section 6.3's dense table
+     was produced at B5's standalone block AIR; the version this work item
+     committed at 3ec240c used a single composed slope solved to hit the two
+     measured points.  Both are here against the key tile model.
+  attention_grid.b5_standalone_alpha                   not recorded
+  attention_grid.e1_composed_solve                     not recorded
+  What a superseded slope cost is exactly those two numbers and there is
+  nothing to substitute for one, so the table is not printed.  No priced
+  row depends on them.
+
+      alpha_composite(hd, S) = (4 + 24/gt)  +  hd*(6 + 12/ct)/S
+                             = 4.375          +  780/S   at hd=128
+        S=128   -> 10.469
+        S=512   ->  5.898
+        S=1024  ->  5.137
+        S=4096  ->  4.565
+
+  It does not depend on `nh` at all, and every shape in this table has hd=128
+  and is priced at S=512 -- so the aliased constant happens to be the SAME
+  number for all eight rows, which is exactly why the residual spread is small.
+  Two things follow, and they are the reason the key tile model is still required:
+   * The composite moves 13% between S=512 and S=1024 and doubles by S=128.  A
+     'constant' that is a function of the chunk length is not extrapolable to
+     the two regimes this table cares most about -- E11's S=1024 prompt chunks
+     (section 6) and any shape forced off S=512 by memory (section 7).
+   * Most of the residual above is NOT aliasing.  It is that the old model
+     charged the committed K/V at `nkv` while the AIR charges it at `nh`, so the
+     correction tracks nh/nkv: +4.3% at Qwen3 (nh/nkv=16) and +4.0% at
+     DeepSeek-V3, against +2.0% at Maverick (5) and +1.5% at Kimi K3, whose
+     69 linear-attention layers have no grid to correct.  Those three ratios
+     are the old model's own reading of an attention it describes as GQA.
+     What their attention actually holds is section (2d).
+
+(2b) proof bytes: two estimates that disagree, and neither is measured above 8B
+  model               by chunk count   by 0.15 MiB/B-active    ratio
+  Llama-3.1-8B                  4.19                   1.20     0.3x
+  Llama-3.1-70B                10.28                  10.58     1.0x
+  Llama-3.1-405B               16.12                  60.88     3.8x
+  1T dense                     20.43                 149.77     7.3x
+  DeepSeek-V3                   7.87                   5.62     0.7x
+  Kimi K2                       7.87                   4.90     0.6x
+  Kimi K3                      11.93                  11.59     1.0x
+  Qwen3-235B-A22B              12.06                   3.32     0.3x
+  Llama-4 Maverick              6.22                   2.58     0.4x
+  Left: (L+1) segments x the measured 8B per-segment proof size (64.97 MiB a segment).
+  Right: section 6.3's rule of thumb, 0.15 MiB per token per B active params,
+  which is the same 8B measurement divided by 8.03 B and then scaled linearly.
+  They cannot both be right.  Proof size is queries x columns x log(rows), and
+  B6's packing measured columns *flat* from 1 to 512 instances -- a bigger model
+  puts its extra work in rows, which the proof pays for logarithmically.  So the
+  left column is the better structural argument and section 6.3's ~61 MiB/token
+  at 405B is very likely an order of magnitude too high.  Neither is measured at
+  frontier scale; the left column also holds the per-chunk size fixed, so it is
+  a floor.  **Open: this needs one measured point at a wider shape.**
+
+(2c) the keys and values, counted per attention head and per key/value head
+  The AIR commits one K and one V column set per ATTENTION head: `LayoutChan` and
+  `LayoutKey` are built from `Shape::chans()` and `Shape::keys()`, both carrying
+  `insts` = attention heads, and the boundary trees hand on a cache of that same
+  width.  Every shape below shares its keys and values across heads, so each one is
+  committed `nh/nkv` times over.  The right-hand columns count the same three terms
+  at the key/value head count instead -- the layout is BUILT at that instance count,
+  not divided by anything.  No AIR in this project builds it: this prices it.
+  A latent attention holds neither a K nor a V per key/value head, so the three
+  latent rows are not here: what their cache costs, both ways, is section (2d).
+  model                nh  nkv  nh/nkv   C=4K /pos   kv-shared   saving  C=16K /pos   kv-shared   saving
+  Llama-3.1-8B         32    8      4x     79.19 M     76.42 M    -3.5%    104.83 M     94.99 M    -9.4%
+  Llama-3.1-70B        64    8      8x    393.46 M    377.38 M    -4.1%    523.48 M    466.11 M   -11.0%
+  Llama-3.1-405B      128    8     16x      1.25 G      1.20 G    -4.3%      1.66 G      1.47 G   -11.6%
+  1T dense            160   16     10x      2.50 G      2.41 G    -3.7%      3.33 G      2.99 G   -10.0%
+  Qwen3-235B-A22B      64    4     16x    384.36 M    364.12 M    -5.3%    537.46 M    465.24 M   -13.4%
+  Llama-4 Maverick     40    8      5x    290.79 M    284.43 M    -2.2%    352.10 M    329.59 M    -6.4%
+
+  the term itself, on ONE layer segment at the full prefix: the key cache in the
+  channel component, the value cache in the key grid, and the boundary trees that
+  hand both on.  `of segment` is their share of that segment's committed cells.
+  model                    C       keys     values   boundary   as built  of segment     shared     saving  of segment
+  Llama-3.1-8B         4,096    18.87 M    18.87 M    71.30 M   109.05 M      7.83%    27.26 M    81.79 M      5.87%
+  Llama-3.1-8B        16,384    69.21 M    69.21 M   272.63 M   411.04 M     18.43%   102.76 M   308.28 M     13.83%
+  Llama-3.1-70B        4,096    37.75 M    37.75 M   142.61 M   218.10 M      7.82%    27.26 M   190.84 M      6.84%
+  Llama-3.1-70B       16,384   138.41 M   138.41 M   545.26 M   822.08 M     18.42%   102.76 M   719.32 M     16.12%
+  Llama-3.1-405B       4,096    75.50 M    75.50 M   285.21 M   436.21 M      7.74%    27.26 M   408.94 M      7.25%
+  Llama-3.1-405B      16,384   276.82 M   276.82 M     1.09 G     1.64 G     18.30%   102.76 M     1.54 G     17.16%
+  1T dense             4,096   101.45 M   150.99 M   356.52 M   608.96 M      6.87%    54.53 M   554.43 M      6.25%
+  1T dense            16,384   371.98 M   553.65 M     1.36 G     2.29 G     16.15%   205.52 M     2.08 G     14.70%
+  Qwen3-235B-A22B      4,096    37.75 M    37.75 M   142.61 M   218.10 M      9.22%    13.63 M   204.47 M      8.65%
+  Qwen3-235B-A22B     16,384   138.41 M   138.41 M   545.26 M   822.08 M     20.36%    51.38 M   770.70 M     19.08%
+  Llama-4 Maverick     4,096    25.36 M    37.75 M    89.13 M   152.24 M      8.02%    27.26 M   124.98 M      6.58%
+  Llama-4 Maverick    16,384    93.00 M   138.41 M   340.79 M   572.19 M     17.76%   102.76 M   469.43 M     14.57%
+
+  what that is worth on the priced card, at the loop boundary and $3.29/GPU-h:
+  model               C=4K $/Mpos    kv-shared     cards@20    kv-shared C=16K $/Mpos    kv-shared     cards@20    kv-shared
+  Llama-3.1-8B                733          707           17           16        1,165        1,055           26           24
+  Llama-3.1-70B             3,640        3,491           80           77        5,817        5,179          128          114
+  Llama-3.1-405B           11,586       11,084          254          243       18,479       16,328          405          358
+  1T dense                 23,122       22,255          507          488       36,950       33,254          809          728
+  Qwen3-235B-A22B           3,556        3,368           78           74        5,972        5,169          131          114
+  Llama-4 Maverick          2,690        2,631           59           58        3,912        3,662           86           81
+  Every dollar column moves by exactly the cells' own fraction, so the other three
+  timing scopes move by the same per cent.  What is NOT in the saving: the interaction
+  columns those same key and value columns carry.  With the five reductions on -- the
+  statement both headline runs prove -- their LogUp running sums are in the batched
+  reduction, and what the link pays is one price per distinct trace height, which a
+  layout nobody has built decides.  So each saving above is a floor.
+  The projections the q, k and v matmuls pay are already per key/value head, at the
+  narrower output width the shape gives them; this term is the attention grid's own
+  cache and the boundary trees, and it is the whole of what the sharing would move.
+
+(2d) multi-head latent attention, counted both ways
+  These three shapes project no key and no value per head.  Both sides of the
+  attention go through a low rank -- the queries through `q_lora_rank`, the keys and
+  values through `kv_lora_rank` -- and the position is carried by a decoupled key of
+  `qk_rope_head_dim` computed once per KEY rather than once per head.  So what is
+  committed per key is the latent plus that key, not `2 nh hd`, and the layer's
+  matmuls are five and not four.  Every width below is one of the five fields of the
+  model's own config.json, named in its source line above.
+  The two ways are where the low-rank pair `kv_b` is applied, and the model's
+  weights are the SAME either way -- `W_UK` and `W_UV` together ARE `kv_b`:
+    materialised  the keys and values are expanded per head before the attention,
+                  which is what a prover with no latent layout builds;
+    absorbed      `kv_b` is folded into the query and the output projection, and the
+                  cache IS the latent, one for every head at once.
+  NEITHER is built: no AIR in this project proves a latent attention.  The row
+  records the materialised one (`assumption.cost_model.mla_form`) and prints both.
+  model               n_h  hd_qk  hd_v  cache/key   C=4K /pos   other way     move  C=16K /pos   other way     move
+  DeepSeek-V3         128    192   128     40,960    628.79 M    747.55 M   +18.9%    855.50 M    934.54 M    +9.2%
+  Kimi K2              64    192   128     20,480    671.64 M    731.91 M    +9.0%    784.34 M    826.75 M    +5.4%
+  Kimi K3              96    192   128     30,720      1.83 G      1.95 G    +6.8%      1.90 G      2.01 G    +5.8%
+
+  the cache itself, on ONE layer segment at the full prefix: the key side in the
+  channel component, the value side in the key grid, and the boundary trees that
+  hand both on.  `of segment` is their share of that segment's committed cells.
+  model                    C form                keys     values    boundary       total  of segment     segment
+  DeepSeek-V3          4,096 absorbed          9.46 M     7.08 M      5.01 M     21.55 M      0.43%      4.99 G
+  DeepSeek-V3          4,096 materialised*   121.50 M    75.50 M    356.52 M    553.52 M     13.48%      4.10 G
+  DeepSeek-V3         16,384 absorbed         34.67 M    25.95 M     19.17 M     79.79 M      0.98%      8.14 G
+  DeepSeek-V3         16,384 materialised*   445.51 M   276.82 M      1.36 G      2.09 G     26.32%      7.92 G
+  Kimi K2              4,096 absorbed          9.46 M     7.08 M      5.01 M     21.55 M      0.68%      3.18 G
+  Kimi K2              4,096 materialised*    60.75 M    37.75 M    178.26 M    276.76 M     10.10%      2.74 G
+  Kimi K2             16,384 absorbed         34.67 M    25.95 M     19.17 M     79.79 M      1.67%      4.79 G
+  Kimi K2             16,384 materialised*   222.76 M   138.41 M    681.57 M      1.04 G     22.42%      4.65 G
+  Kimi K3              4,096 absorbed          9.46 M     7.08 M      5.01 M     21.55 M      0.19%     11.55 G
+  Kimi K3              4,096 materialised*   100.86 M    75.50 M    267.39 M    443.74 M      4.02%     11.03 G
+  Kimi K3             16,384 absorbed         34.67 M    25.95 M     19.17 M     79.79 M      0.56%     14.18 G
+  Kimi K3             16,384 materialised*   369.82 M   276.82 M      1.02 G      1.67 G     11.73%     14.23 G
+  * the form the row records.
+
+  what that is worth on the priced card, at the loop boundary and $3.29/GPU-h:
+  model               C=4K $/Mpos    other way     cards@20    other way C=16K $/Mpos    other way     cards@20    other way
+  DeepSeek-V3               5,817        6,915          128          152        9,506       10,384          209          228
+  Kimi K2                   6,213        6,771          136          149        8,715        9,186          191          202
+  Kimi K3                  16,920       18,065          371          396       21,142       22,368          463          490
+  What is NOT counted either way: a selection over the cache, a paged cache, and
+  the top-k the mixture side needs, which section (2b)'s assumption block states.
+  What the two forms do not move at all is the weight trace: the preprocessed
+  column is the same number in both, because the two are the same weights applied
+  in a different order.
+
+(3a) H100: per-card PROVED POSITIONS/s at every boundary, cards for 20 positions/s, $/M positions at $3.29/GPU-h
+  the statement is the sound one and the unit is a proved position, not a decoded token.
+  C=4096
+  model                        commit       stwo total       whole wall             loop      MiB/pos       $/Mpos @ loop    at the bound
+  Llama-3.1-8B         26.910/1         16.114/2          0.838/24         1.248/17              4.19                 733             806
+  Llama-3.1-70B         5.416/4          3.243/7          0.169/119        0.251/80             10.28               3,640           3,822
+  Llama-3.1-405B        1.701/12         1.019/20         0.053/378        0.079/254            16.12              11,586          11,873
+  1T dense              0.853/24         0.511/40         0.027/754        0.040/507            20.43              23,122          23,487
+  DeepSeek-V3           3.389/6          2.029/10         0.106/190        0.157/128             7.87               5,817           5,956
+  Kimi K2               3.173/7          1.900/11         0.099/203        0.147/136             7.87               6,213           6,352
+  Kimi K3               1.165/18         0.698/29         0.036/552        0.054/371            11.93              16,920          17,132
+  Qwen3-235B-A22B       5.544/4          3.320/7          0.173/116        0.257/78             12.06               3,556           3,770
+  Llama-4 Maverick      7.328/3          4.388/5          0.228/88         0.340/59              6.22               2,690           2,800
+   (each cell is proved positions/s on one card / cards needed for the target)
+  C=16384
+  model                        commit       stwo total       whole wall             loop      MiB/pos       $/Mpos @ loop    at the bound
+  Llama-3.1-8B         18.878/2         11.325/2          0.566/36         0.785/26              4.19               1,165           1,252
+  Llama-3.1-70B         3.780/6          2.268/9          0.113/177        0.157/128            10.28               5,817           6,035
+  Llama-3.1-405B        1.190/17         0.714/29         0.036/561        0.049/405            16.12              18,479          18,823
+  1T dense              0.595/34         0.357/57         0.018/1121       0.025/809            20.43              36,950          37,387
+  DeepSeek-V3           2.313/9          1.388/15         0.069/289        0.096/209             7.87               9,506           9,673
+  Kimi K2               2.523/8          1.514/14         0.076/265        0.105/191             7.87               8,715           8,882
+  Kimi K3               1.040/20         0.624/33         0.031/642        0.043/463            11.93              21,142          21,396
+  Qwen3-235B-A22B       3.682/6          2.209/10         0.110/182        0.153/131            12.06               5,972           6,229
+  Llama-4 Maverick      5.621/4          3.372/6          0.169/119        0.234/86              6.22               3,912           4,044
+   (each cell is proved positions/s on one card / cards needed for the target)
+
+(4) MoE against a dense model with the same *active* parameters, C=4K
+  the mechanism, counted rather than asserted: a proof covers every expert the
+  segment touches, and what it COMMITS for each is that expert's own matmul over
+  the few tokens routed to it -- which pads -- and the activations its Freivalds
+  check reads.  The expert count lands on the preprocessed weight trace, which the
+  measured rates do not count and which the second table below carries.
+  the reference is the dense twin at B=1, held fixed, so the column reads
+  'what the MoE proof costs against the dense proof the paper already prices'.
+  model                 E/k        B=1       B=4      B=16      B=64     B=256     B=E/k
+  DeepSeek-V3          28.6     1.431x    1.244x    1.129x    1.100x    1.093x    1.112x
+  Kimi K2              42.8     2.140x    1.482x    1.228x    1.165x    1.149x    1.175x
+  Kimi K3              49.9     2.351x    1.991x    1.393x    1.244x    1.206x    1.258x
+  Qwen3-235B-A22B      16.0     1.317x    1.175x    1.123x    1.110x    1.106x    1.123x
+  Llama-4 Maverick     64.5     1.720x    1.215x    1.034x    0.988x    0.977x    0.988x
+
+  WHAT A COUNTED MIXTURE SEGMENT IS, and it is not a twin of a dense one:
+   * the shared experts are a matmul over every token of the block;
+   * each ROUTED expert is a matmul over the tokens routed to it alone, laid out
+     the way `MatLayout::choose` and `FreivaldsLayout::choose` lay out that many
+     tokens -- so the row padding a block of a few tokens pays is in the number, and
+     it is most of why the counted column is above 1.00 at B = 1;
+   * the router's own matmul of `experts` logits is counted like any other matmul,
+     and only the top-k selection on top of it is a bound;
+   * the preprocessed trace holds the weights of every expert the segment TOUCHES,
+     which under uniform routing is `E * (1 - (1 - k/E)^S)` and is not always E.
+  The B = 1 column is counted; every column beside it is the fitted model, because
+  a proof over B sequences commits B key caches and is not one `params` block, so
+  the step from the first column to the second is a change of method as well.
+    DeepSeek-V3        58x256/8: touches 256.0 of 256 experts a block, uniform routing, 1 shared, expert width 2,048 read at 7,168
+    Kimi K2            60x384/8: touches 384.0 of 384 experts a block, uniform routing, 1 shared, expert width 2,048 read at 7,168
+    Kimi K3            24x896/16: touches 895.9 of 896 experts a block, uniform routing, 2 shared, expert width 3,072 read at 3,584
+    Kimi K3            68x896/16: touches 895.9 of 896 experts a block, uniform routing, 2 shared, expert width 3,072 read at 3,584
+    Llama-4 Maverick   24x128/1: touches 125.7 of 128 experts a block, uniform routing, 1 shared, expert width 8,192 read at 5,120
+    Qwen3-235B-A22B    94x128/8: touches 128.0 of 128 experts a block, uniform routing, 0 shared, expert width 1,536 read at 4,096
+  It crosses 1.00 at B ~ E/k, which is the whole of section 6.4's counter, and
+  keeps going: past B = E/k a batched MoE proof is *cheaper* than the unbatched
+  dense proof the paper prices today, because the Freivalds check it inflated has gone.
+
+  the same rows counting the preprocessed weight trace, which the measured
+  boundary rates do NOT count:
+  DeepSeek-V3          28.6     3.613x    1.732x    1.132x    0.982x    0.944x    1.042x
+  Kimi K2              42.8     6.983x    2.646x    1.369x    1.050x    0.970x    1.102x
+  Kimi K3              49.9     7.090x    4.419x    1.758x    1.093x    0.927x    1.155x
+  Qwen3-235B-A22B      16.0     2.417x    1.354x    1.072x    1.001x    0.983x    1.072x
+  Llama-4 Maverick     64.5     5.126x    2.040x    1.119x    0.889x    0.831x    0.889x
+
+  and against the dense twin at the *same* B -- the structural penalty, which
+  batching shrinks but never removes:
+  DeepSeek-V3          28.6     1.431x    1.276x    1.166x    1.138x    1.131x
+  Kimi K2              42.8     2.140x    1.530x    1.278x    1.215x    1.199x
+  Kimi K3              49.9     2.351x    2.106x    1.495x    1.339x    1.300x
+  Qwen3-235B-A22B      16.0     1.317x    1.198x    1.150x    1.138x    1.135x
+  Llama-4 Maverick     64.5     1.720x    1.251x    1.073x    1.028x    1.016x
+
+(5) what B buys in absolute terms, C=4K, whole-wall boundary on the H100
+  model                         B=1           B=4          B=16          B=64         B=256
+  Llama-3.1-8B               0.838        0.852        0.858        0.860        0.860
+  Llama-3.1-70B              0.169        0.177        0.179        0.180        0.180
+  Llama-3.1-405B             0.053        0.058        0.060        0.060        0.060
+  1T dense                   0.027        0.032        0.034        0.034        0.034
+  DeepSeek-V3                0.106        0.142        0.159        0.164        0.165
+  Kimi K2                    0.099        0.163        0.200        0.212        0.216
+  Kimi K3                    0.036        0.050        0.072        0.081        0.084
+  Qwen3-235B-A22B            0.173        0.198        0.208        0.211        0.212
+  Llama-4 Maverick           0.228        0.370        0.443        0.466        0.473
+  proved positions/s per card; B sequences are proven at once, so this is
+  throughput, not latency, and the wall per proof grows with B.
+  B = 1 is counted and every column beside it is the fitted model, so the step from
+  the first column to the second is a change of method and not what batching buys.
+
+(6) the full prompt+output statement (E11, decided 2026-08-31)
+  Re-priced by stream E7 on DD's key tile model.  The old numbers in this section
+  came from B9's `326 M + 1.37 M*S + 72.1*S^2` fit, whose S^2 coefficient was
+  +12.6% against the true 64 because a two-point marginal in S alone absorbs the
+  key tile family's linear term into its quadratic one.  A model in S alone also
+  cannot express the term that turns out to matter most: a chunked prompt
+  re-commits the growing K/V prefix, which is a function of C, not S.
+
+  not recorded.  This section is three numbers and the table that rides on
+  them, and the constants file names none of the three:
+    design.e11_cells_multiple_c4096              not recorded
+    design.e11_chunking_net_pct                  not recorded
+    design.e11_chunking_overhead_pct             not recorded
+  No priced row depends on them: section (3)'s rows carry no E11 block and
+  their cards-at-target and dollars-per-token columns are unchanged.
+
+  the composed layer chunk's shared-table floor: not recorded (`attention_grid.chunk_model_fixed_composed`).
+
+(7) does a layer chunk still fit?  not answered here: it needs one chunk's own peak
+  beside that same chunk's own fresh cells, and the constants file carries a sequence's
+  cells and a run's peak but not one segment's of each.  Pass --artifacts DIR, or read (7b).
+
+(9) what this run may record: 247 of 247 rows
+  key                                                                 value  unit
+  frontier.llama-3-1-8b.h100.c4096.commit.cards_for_20                    1  cards
+  frontier.llama-3-1-8b.h100.c4096.commit.usd_per_mposition         33.9605  USD/1000000 positions
+  frontier.llama-3-1-8b.h100.c4096.commit.usd_per_mposition_kv_shared        32.7749  USD/1000000 positions
+  frontier.llama-3-1-8b.h100.c4096.stwo_total.cards_for_20                2  cards
+  frontier.llama-3-1-8b.h100.c4096.stwo_total.usd_per_mposition        56.7144  USD/1000000 positions
+  frontier.llama-3-1-8b.h100.c4096.stwo_total.usd_per_mposition_kv_shared        54.7345  USD/1000000 positions
+  frontier.llama-3-1-8b.h100.c4096.whole_wall.cards_for_20               24  cards
+  frontier.llama-3-1-8b.h100.c4096.whole_wall.usd_per_mposition     1,090.8787  USD/1000000 positions
+  frontier.llama-3-1-8b.h100.c4096.whole_wall.usd_per_mposition_kv_shared     1,052.7959  USD/1000000 positions
+  frontier.llama-3-1-8b.h100.c4096.loop.cards_for_20                     17  cards
+  frontier.llama-3-1-8b.h100.c4096.loop.usd_per_mposition          732.5417  USD/1000000 positions
+  frontier.llama-3-1-8b.h100.c4096.loop.usd_per_mposition_kv_shared       706.9685  USD/1000000 positions
+  frontier.llama-3-1-8b.h100.c16384.commit.cards_for_20                   2  cards
+  frontier.llama-3-1-8b.h100.c16384.commit.usd_per_mposition        48.4112  USD/1000000 positions
+  frontier.llama-3-1-8b.h100.c16384.commit.usd_per_mposition_kv_shared        43.8660  USD/1000000 positions
+  frontier.llama-3-1-8b.h100.c16384.stwo_total.cards_for_20               2  cards
+  frontier.llama-3-1-8b.h100.c16384.stwo_total.usd_per_mposition        80.6996  USD/1000000 positions
+  frontier.llama-3-1-8b.h100.c16384.stwo_total.usd_per_mposition_kv_shared        73.1229  USD/1000000 positions
+  frontier.llama-3-1-8b.h100.c16384.whole_wall.cards_for_20              36  cards
+  frontier.llama-3-1-8b.h100.c16384.whole_wall.usd_per_mposition     1,614.7276  USD/1000000 positions
+  frontier.llama-3-1-8b.h100.c16384.whole_wall.usd_per_mposition_kv_shared     1,463.1242  USD/1000000 positions
+  frontier.llama-3-1-8b.h100.c16384.loop.cards_for_20                    26  cards
+  frontier.llama-3-1-8b.h100.c16384.loop.usd_per_mposition       1,164.8461  USD/1000000 positions
+  frontier.llama-3-1-8b.h100.c16384.loop.usd_per_mposition_kv_shared     1,055.4811  USD/1000000 positions
+  frontier.llama-3-1-70b.h100.c4096.commit.cards_for_20                   4  cards
+  frontier.llama-3-1-70b.h100.c4096.commit.usd_per_mposition       168.7402  USD/1000000 positions
+  frontier.llama-3-1-70b.h100.c4096.commit.usd_per_mposition_kv_shared       161.8423  USD/1000000 positions
+  frontier.llama-3-1-70b.h100.c4096.stwo_total.cards_for_20               7  cards
+  frontier.llama-3-1-70b.h100.c4096.stwo_total.usd_per_mposition       281.7979  USD/1000000 positions
+  frontier.llama-3-1-70b.h100.c4096.stwo_total.usd_per_mposition_kv_shared       270.2784  USD/1000000 positions
+  frontier.llama-3-1-70b.h100.c4096.whole_wall.cards_for_20             119  cards
+  frontier.llama-3-1-70b.h100.c4096.whole_wall.usd_per_mposition     5,420.2678  USD/1000000 positions
+  frontier.llama-3-1-70b.h100.c4096.whole_wall.usd_per_mposition_kv_shared     5,198.6946  USD/1000000 positions
+  frontier.llama-3-1-70b.h100.c4096.loop.cards_for_20                    80  cards
+  frontier.llama-3-1-70b.h100.c4096.loop.usd_per_mposition       3,639.7926  USD/1000000 positions
+  frontier.llama-3-1-70b.h100.c4096.loop.usd_per_mposition_kv_shared     3,491.0028  USD/1000000 positions
+  frontier.llama-3-1-70b.h100.c16384.commit.cards_for_20                  6  cards
+  frontier.llama-3-1-70b.h100.c16384.commit.usd_per_mposition       241.7390  USD/1000000 positions
+  frontier.llama-3-1-70b.h100.c16384.commit.usd_per_mposition_kv_shared       215.2448  USD/1000000 positions
+  frontier.llama-3-1-70b.h100.c16384.stwo_total.cards_for_20              9  cards
+  frontier.llama-3-1-70b.h100.c16384.stwo_total.usd_per_mposition       402.9695  USD/1000000 positions
+  frontier.llama-3-1-70b.h100.c16384.stwo_total.usd_per_mposition_kv_shared       358.8049  USD/1000000 positions
+  frontier.llama-3-1-70b.h100.c16384.whole_wall.cards_for_20            177  cards
+  frontier.llama-3-1-70b.h100.c16384.whole_wall.usd_per_mposition     8,063.0609  USD/1000000 positions
+  frontier.llama-3-1-70b.h100.c16384.whole_wall.usd_per_mposition_kv_shared     7,179.3652  USD/1000000 positions
+  frontier.llama-3-1-70b.h100.c16384.loop.cards_for_20                  128  cards
+  frontier.llama-3-1-70b.h100.c16384.loop.usd_per_mposition      5,816.6004  USD/1000000 positions
+  frontier.llama-3-1-70b.h100.c16384.loop.usd_per_mposition_kv_shared     5,179.1125  USD/1000000 positions
+  frontier.llama-3-1-405b.h100.c4096.commit.cards_for_20                 12  cards
+  frontier.llama-3-1-405b.h100.c4096.commit.usd_per_mposition       537.1249  USD/1000000 positions
+  frontier.llama-3-1-405b.h100.c4096.commit.usd_per_mposition_kv_shared       513.8593  USD/1000000 positions
+  frontier.llama-3-1-405b.h100.c4096.stwo_total.cards_for_20             20  cards
+  frontier.llama-3-1-405b.h100.c4096.stwo_total.usd_per_mposition       897.0043  USD/1000000 positions
+  frontier.llama-3-1-405b.h100.c4096.stwo_total.usd_per_mposition_kv_shared       858.1506  USD/1000000 positions
+  frontier.llama-3-1-405b.h100.c4096.whole_wall.cards_for_20            378  cards
+  frontier.llama-3-1-405b.h100.c4096.whole_wall.usd_per_mposition    17,253.5134  USD/1000000 positions
+  frontier.llama-3-1-405b.h100.c4096.whole_wall.usd_per_mposition_kv_shared    16,506.1769  USD/1000000 positions
+  frontier.llama-3-1-405b.h100.c4096.loop.cards_for_20                  254  cards
+  frontier.llama-3-1-405b.h100.c4096.loop.usd_per_mposition     11,585.9976  USD/1000000 positions
+  frontier.llama-3-1-405b.h100.c4096.loop.usd_per_mposition_kv_shared    11,084.1497  USD/1000000 positions
+  frontier.llama-3-1-405b.h100.c16384.commit.cards_for_20                17  cards
+  frontier.llama-3-1-405b.h100.c16384.commit.usd_per_mposition       767.9906  USD/1000000 positions
+  frontier.llama-3-1-405b.h100.c16384.commit.usd_per_mposition_kv_shared       678.5891  USD/1000000 positions
+  frontier.llama-3-1-405b.h100.c16384.stwo_total.cards_for_20             29  cards
+  frontier.llama-3-1-405b.h100.c16384.stwo_total.usd_per_mposition     1,280.2107  USD/1000000 positions
+  frontier.llama-3-1-405b.h100.c16384.stwo_total.usd_per_mposition_kv_shared     1,131.1819  USD/1000000 positions
+  frontier.llama-3-1-405b.h100.c16384.whole_wall.cards_for_20            561  cards
+  frontier.llama-3-1-405b.h100.c16384.whole_wall.usd_per_mposition    25,615.8736  USD/1000000 positions
+  frontier.llama-3-1-405b.h100.c16384.whole_wall.usd_per_mposition_kv_shared    22,633.9408  USD/1000000 positions
+  frontier.llama-3-1-405b.h100.c16384.loop.cards_for_20                 405  cards
+  frontier.llama-3-1-405b.h100.c16384.loop.usd_per_mposition    18,479.0000  USD/1000000 positions
+  frontier.llama-3-1-405b.h100.c16384.loop.usd_per_mposition_kv_shared    16,327.8676  USD/1000000 positions
+  frontier.1t-dense.h100.c4096.commit.cards_for_20                       24  cards
+  frontier.1t-dense.h100.c4096.commit.usd_per_mposition          1,071.9540  USD/1000000 positions
+  frontier.1t-dense.h100.c4096.commit.usd_per_mposition_kv_shared     1,031.7561  USD/1000000 positions
+  frontier.1t-dense.h100.c4096.stwo_total.cards_for_20                   40  cards
+  frontier.1t-dense.h100.c4096.stwo_total.usd_per_mposition      1,790.1746  USD/1000000 positions
+  frontier.1t-dense.h100.c4096.stwo_total.usd_per_mposition_kv_shared     1,723.0436  USD/1000000 positions
+  frontier.1t-dense.h100.c4096.whole_wall.cards_for_20                  754  cards
+  frontier.1t-dense.h100.c4096.whole_wall.usd_per_mposition     34,433.2795  USD/1000000 positions
+  frontier.1t-dense.h100.c4096.whole_wall.usd_per_mposition_kv_shared    33,142.0420  USD/1000000 positions
+  frontier.1t-dense.h100.c4096.loop.cards_for_20                        507  cards
+  frontier.1t-dense.h100.c4096.loop.usd_per_mposition           23,122.4727  USD/1000000 positions
+  frontier.1t-dense.h100.c4096.loop.usd_per_mposition_kv_shared    22,255.3870  USD/1000000 positions
+  frontier.1t-dense.h100.c16384.commit.cards_for_20                      34  cards
+  frontier.1t-dense.h100.c16384.commit.usd_per_mposition         1,535.6374  USD/1000000 positions
+  frontier.1t-dense.h100.c16384.commit.usd_per_mposition_kv_shared     1,382.0403  USD/1000000 positions
+  frontier.1t-dense.h100.c16384.stwo_total.cards_for_20                  57  cards
+  frontier.1t-dense.h100.c16384.stwo_total.usd_per_mposition     2,559.8484  USD/1000000 positions
+  frontier.1t-dense.h100.c16384.stwo_total.usd_per_mposition_kv_shared     2,303.8079  USD/1000000 positions
+  frontier.1t-dense.h100.c16384.whole_wall.cards_for_20                1121  cards
+  frontier.1t-dense.h100.c16384.whole_wall.usd_per_mposition    51,220.2832  USD/1000000 positions
+  frontier.1t-dense.h100.c16384.whole_wall.usd_per_mposition_kv_shared    46,097.1414  USD/1000000 positions
+  frontier.1t-dense.h100.c16384.loop.cards_for_20                       809  cards
+  frontier.1t-dense.h100.c16384.loop.usd_per_mposition          36,949.7300  USD/1000000 positions
+  frontier.1t-dense.h100.c16384.loop.usd_per_mposition_kv_shared    33,253.9538  USD/1000000 positions
+  frontier.deepseek-v3.h100.c4096.commit.cards_for_20                     6  cards
+  frontier.deepseek-v3.h100.c4096.commit.usd_per_mposition         269.6611  USD/1000000 positions
+  frontier.deepseek-v3.h100.c4096.commit.usd_per_mposition_mla_absorbed       320.5926  USD/1000000 positions
+  frontier.deepseek-v3.h100.c4096.stwo_total.cards_for_20                10  cards
+  frontier.deepseek-v3.h100.c4096.stwo_total.usd_per_mposition       450.3369  USD/1000000 positions
+  frontier.deepseek-v3.h100.c4096.stwo_total.usd_per_mposition_mla_absorbed       535.3931  USD/1000000 positions
+  frontier.deepseek-v3.h100.c4096.whole_wall.cards_for_20               190  cards
+  frontier.deepseek-v3.h100.c4096.whole_wall.usd_per_mposition     8,662.0460  USD/1000000 positions
+  frontier.deepseek-v3.h100.c4096.whole_wall.usd_per_mposition_mla_absorbed    10,298.0680  USD/1000000 positions
+  frontier.deepseek-v3.h100.c4096.loop.cards_for_20                     128  cards
+  frontier.deepseek-v3.h100.c4096.loop.usd_per_mposition         5,816.6961  USD/1000000 positions
+  frontier.deepseek-v3.h100.c4096.loop.usd_per_mposition_mla_absorbed     6,915.3098  USD/1000000 positions
+  frontier.deepseek-v3.h100.c16384.commit.cards_for_20                    9  cards
+  frontier.deepseek-v3.h100.c16384.commit.usd_per_mposition        395.0616  USD/1000000 positions
+  frontier.deepseek-v3.h100.c16384.commit.usd_per_mposition_mla_absorbed       431.5619  USD/1000000 positions
+  frontier.deepseek-v3.h100.c16384.stwo_total.cards_for_20               15  cards
+  frontier.deepseek-v3.h100.c16384.stwo_total.usd_per_mposition       658.5525  USD/1000000 positions
+  frontier.deepseek-v3.h100.c16384.stwo_total.usd_per_mposition_mla_absorbed       719.3970  USD/1000000 positions
+  frontier.deepseek-v3.h100.c16384.whole_wall.cards_for_20              289  cards
+  frontier.deepseek-v3.h100.c16384.whole_wall.usd_per_mposition    13,177.0480  USD/1000000 positions
+  frontier.deepseek-v3.h100.c16384.whole_wall.usd_per_mposition_mla_absorbed    14,394.4918  USD/1000000 positions
+  frontier.deepseek-v3.h100.c16384.loop.cards_for_20                    209  cards
+  frontier.deepseek-v3.h100.c16384.loop.usd_per_mposition        9,505.7726  USD/1000000 positions
+  frontier.deepseek-v3.h100.c16384.loop.usd_per_mposition_mla_absorbed    10,384.0228  USD/1000000 positions
+  frontier.kimi-k2.h100.c4096.commit.cards_for_20                         7  cards
+  frontier.kimi-k2.h100.c4096.commit.usd_per_mposition             288.0411  USD/1000000 positions
+  frontier.kimi-k2.h100.c4096.commit.usd_per_mposition_mla_absorbed       313.8865  USD/1000000 positions
+  frontier.kimi-k2.h100.c4096.stwo_total.cards_for_20                    11  cards
+  frontier.kimi-k2.h100.c4096.stwo_total.usd_per_mposition         481.0317  USD/1000000 positions
+  frontier.kimi-k2.h100.c4096.stwo_total.usd_per_mposition_mla_absorbed       524.1937  USD/1000000 positions
+  frontier.kimi-k2.h100.c4096.whole_wall.cards_for_20                   203  cards
+  frontier.kimi-k2.h100.c4096.whole_wall.usd_per_mposition       9,252.4487  USD/1000000 positions
+  frontier.kimi-k2.h100.c4096.whole_wall.usd_per_mposition_mla_absorbed    10,082.6528  USD/1000000 positions
+  frontier.kimi-k2.h100.c4096.loop.cards_for_20                         136  cards
+  frontier.kimi-k2.h100.c4096.loop.usd_per_mposition             6,213.1605  USD/1000000 positions
+  frontier.kimi-k2.h100.c4096.loop.usd_per_mposition_mla_absorbed     6,770.6553  USD/1000000 positions
+  frontier.kimi-k2.h100.c16384.commit.cards_for_20                        8  cards
+  frontier.kimi-k2.h100.c16384.commit.usd_per_mposition            362.2028  USD/1000000 positions
+  frontier.kimi-k2.h100.c16384.commit.usd_per_mposition_mla_absorbed       381.7885  USD/1000000 positions
+  frontier.kimi-k2.h100.c16384.stwo_total.cards_for_20                   14  cards
+  frontier.kimi-k2.h100.c16384.stwo_total.usd_per_mposition        603.7781  USD/1000000 positions
+  frontier.kimi-k2.h100.c16384.stwo_total.usd_per_mposition_mla_absorbed       636.4267  USD/1000000 positions
+  frontier.kimi-k2.h100.c16384.whole_wall.cards_for_20                  265  cards
+  frontier.kimi-k2.h100.c16384.whole_wall.usd_per_mposition     12,081.0621  USD/1000000 positions
+  frontier.kimi-k2.h100.c16384.whole_wall.usd_per_mposition_mla_absorbed    12,734.3301  USD/1000000 positions
+  frontier.kimi-k2.h100.c16384.loop.cards_for_20                        191  cards
+  frontier.kimi-k2.h100.c16384.loop.usd_per_mposition            8,715.1408  USD/1000000 positions
+  frontier.kimi-k2.h100.c16384.loop.usd_per_mposition_mla_absorbed     9,186.4010  USD/1000000 positions
+  frontier.kimi-k3.h100.c4096.commit.cards_for_20                        18  cards
+  frontier.kimi-k3.h100.c4096.commit.usd_per_mposition             784.4002  USD/1000000 positions
+  frontier.kimi-k3.h100.c4096.commit.usd_per_mposition_mla_absorbed       837.4962  USD/1000000 positions
+  frontier.kimi-k3.h100.c4096.stwo_total.cards_for_20                    29  cards
+  frontier.kimi-k3.h100.c4096.stwo_total.usd_per_mposition       1,309.9567  USD/1000000 positions
+  frontier.kimi-k3.h100.c4096.stwo_total.usd_per_mposition_mla_absorbed     1,398.6275  USD/1000000 positions
+  frontier.kimi-k3.h100.c4096.whole_wall.cards_for_20                   552  cards
+  frontier.kimi-k3.h100.c4096.whole_wall.usd_per_mposition      25,196.4831  USD/1000000 positions
+  frontier.kimi-k3.h100.c4096.whole_wall.usd_per_mposition_mla_absorbed    26,902.0316  USD/1000000 positions
+  frontier.kimi-k3.h100.c4096.loop.cards_for_20                         371  cards
+  frontier.kimi-k3.h100.c4096.loop.usd_per_mposition            16,919.8230  USD/1000000 positions
+  frontier.kimi-k3.h100.c4096.loop.usd_per_mposition_mla_absorbed    18,065.1248  USD/1000000 positions
+  frontier.kimi-k3.h100.c16384.commit.cards_for_20                       20  cards
+  frontier.kimi-k3.h100.c16384.commit.usd_per_mposition            878.6737  USD/1000000 positions
+  frontier.kimi-k3.h100.c16384.commit.usd_per_mposition_mla_absorbed       929.6350  USD/1000000 positions
+  frontier.kimi-k3.h100.c16384.stwo_total.cards_for_20                   33  cards
+  frontier.kimi-k3.h100.c16384.stwo_total.usd_per_mposition      1,464.7151  USD/1000000 positions
+  frontier.kimi-k3.h100.c16384.stwo_total.usd_per_mposition_mla_absorbed     1,549.6656  USD/1000000 positions
+  frontier.kimi-k3.h100.c16384.whole_wall.cards_for_20                  642  cards
+  frontier.kimi-k3.h100.c16384.whole_wall.usd_per_mposition     29,307.6432  USD/1000000 positions
+  frontier.kimi-k3.h100.c16384.whole_wall.usd_per_mposition_mla_absorbed    31,007.4271  USD/1000000 positions
+  frontier.kimi-k3.h100.c16384.loop.cards_for_20                        463  cards
+  frontier.kimi-k3.h100.c16384.loop.usd_per_mposition           21,142.2006  USD/1000000 positions
+  frontier.kimi-k3.h100.c16384.loop.usd_per_mposition_mla_absorbed    22,368.4054  USD/1000000 positions
+  frontier.qwen3-235b-a22b.h100.c4096.commit.cards_for_20                 4  cards
+  frontier.qwen3-235b-a22b.h100.c4096.commit.usd_per_mposition       164.8367  USD/1000000 positions
+  frontier.qwen3-235b-a22b.h100.c4096.commit.usd_per_mposition_kv_shared       156.1551  USD/1000000 positions
+  frontier.qwen3-235b-a22b.h100.c4096.stwo_total.cards_for_20              7  cards
+  frontier.qwen3-235b-a22b.h100.c4096.stwo_total.usd_per_mposition       275.2791  USD/1000000 positions
+  frontier.qwen3-235b-a22b.h100.c4096.stwo_total.usd_per_mposition_kv_shared       260.7806  USD/1000000 positions
+  frontier.qwen3-235b-a22b.h100.c4096.whole_wall.cards_for_20            116  cards
+  frontier.qwen3-235b-a22b.h100.c4096.whole_wall.usd_per_mposition     5,294.8819  USD/1000000 positions
+  frontier.qwen3-235b-a22b.h100.c4096.whole_wall.usd_per_mposition_kv_shared     5,016.0090  USD/1000000 positions
+  frontier.qwen3-235b-a22b.h100.c4096.loop.cards_for_20                  78  cards
+  frontier.qwen3-235b-a22b.h100.c4096.loop.usd_per_mposition     3,555.5940  USD/1000000 positions
+  frontier.qwen3-235b-a22b.h100.c4096.loop.usd_per_mposition_kv_shared     3,368.3266  USD/1000000 positions
+  frontier.qwen3-235b-a22b.h100.c16384.commit.cards_for_20                6  cards
+  frontier.qwen3-235b-a22b.h100.c16384.commit.usd_per_mposition       248.1952  USD/1000000 positions
+  frontier.qwen3-235b-a22b.h100.c16384.commit.usd_per_mposition_kv_shared       214.8434  USD/1000000 positions
+  frontier.qwen3-235b-a22b.h100.c16384.stwo_total.cards_for_20             10  cards
+  frontier.qwen3-235b-a22b.h100.c16384.stwo_total.usd_per_mposition       413.7318  USD/1000000 positions
+  frontier.qwen3-235b-a22b.h100.c16384.stwo_total.usd_per_mposition_kv_shared       358.1357  USD/1000000 positions
+  frontier.qwen3-235b-a22b.h100.c16384.whole_wall.cards_for_20            182  cards
+  frontier.qwen3-235b-a22b.h100.c16384.whole_wall.usd_per_mposition     8,278.4043  USD/1000000 positions
+  frontier.qwen3-235b-a22b.h100.c16384.whole_wall.usd_per_mposition_kv_shared     7,165.9767  USD/1000000 positions
+  frontier.qwen3-235b-a22b.h100.c16384.loop.cards_for_20                131  cards
+  frontier.qwen3-235b-a22b.h100.c16384.loop.usd_per_mposition     5,971.9467  USD/1000000 positions
+  frontier.qwen3-235b-a22b.h100.c16384.loop.usd_per_mposition_kv_shared     5,169.4541  USD/1000000 positions
+  frontier.llama-4-maverick.h100.c4096.commit.cards_for_20                3  cards
+  frontier.llama-4-maverick.h100.c4096.commit.usd_per_mposition       124.7068  USD/1000000 positions
+  frontier.llama-4-maverick.h100.c4096.commit.usd_per_mposition_kv_shared       121.9806  USD/1000000 positions
+  frontier.llama-4-maverick.h100.c4096.stwo_total.cards_for_20              5  cards
+  frontier.llama-4-maverick.h100.c4096.stwo_total.usd_per_mposition       208.2617  USD/1000000 positions
+  frontier.llama-4-maverick.h100.c4096.stwo_total.usd_per_mposition_kv_shared       203.7089  USD/1000000 positions
+  frontier.llama-4-maverick.h100.c4096.whole_wall.cards_for_20             88  cards
+  frontier.llama-4-maverick.h100.c4096.whole_wall.usd_per_mposition     4,005.8293  USD/1000000 positions
+  frontier.llama-4-maverick.h100.c4096.whole_wall.usd_per_mposition_kv_shared     3,918.2584  USD/1000000 positions
+  frontier.llama-4-maverick.h100.c4096.loop.cards_for_20                 59  cards
+  frontier.llama-4-maverick.h100.c4096.loop.usd_per_mposition     2,689.9755  USD/1000000 positions
+  frontier.llama-4-maverick.h100.c4096.loop.usd_per_mposition_kv_shared     2,631.1703  USD/1000000 positions
+  frontier.llama-4-maverick.h100.c16384.commit.cards_for_20               4  cards
+  frontier.llama-4-maverick.h100.c16384.commit.usd_per_mposition       162.5959  USD/1000000 positions
+  frontier.llama-4-maverick.h100.c16384.commit.usd_per_mposition_kv_shared       152.2040  USD/1000000 positions
+  frontier.llama-4-maverick.h100.c16384.stwo_total.cards_for_20              6  cards
+  frontier.llama-4-maverick.h100.c16384.stwo_total.usd_per_mposition       271.0411  USD/1000000 positions
+  frontier.llama-4-maverick.h100.c16384.stwo_total.usd_per_mposition_kv_shared       253.7182  USD/1000000 positions
+  frontier.llama-4-maverick.h100.c16384.whole_wall.cards_for_20            119  cards
+  frontier.llama-4-maverick.h100.c16384.whole_wall.usd_per_mposition     5,423.2901  USD/1000000 positions
+  frontier.llama-4-maverick.h100.c16384.whole_wall.usd_per_mposition_kv_shared     5,076.6752  USD/1000000 positions
+  frontier.llama-4-maverick.h100.c16384.loop.cards_for_20                86  cards
+  frontier.llama-4-maverick.h100.c16384.loop.usd_per_mposition     3,912.2998  USD/1000000 positions
+  frontier.llama-4-maverick.h100.c16384.loop.usd_per_mposition_kv_shared     3,662.2558  USD/1000000 positions
+  frontier.llama-3-1-8b.c4096.kv_shared_saving_pct                  -3.4910  per cent
+  frontier.llama-3-1-8b.c16384.kv_shared_saving_pct                 -9.3888  per cent
+  frontier.llama-3-1-70b.c4096.kv_shared_saving_pct                 -4.0879  per cent
+  frontier.llama-3-1-70b.c16384.kv_shared_saving_pct               -10.9598  per cent
+  frontier.llama-3-1-405b.c4096.kv_shared_saving_pct                -4.3315  per cent
+  frontier.llama-3-1-405b.c16384.kv_shared_saving_pct              -11.6410  per cent
+  frontier.1t-dense.c4096.kv_shared_saving_pct                      -3.7500  per cent
+  frontier.1t-dense.c16384.kv_shared_saving_pct                    -10.0022  per cent
+  frontier.qwen3-235b-a22b.c4096.kv_shared_saving_pct               -5.2668  per cent
+  frontier.qwen3-235b-a22b.c16384.kv_shared_saving_pct             -13.4377  per cent
+  frontier.llama-4-maverick.c4096.kv_shared_saving_pct              -2.1861  per cent
+  frontier.llama-4-maverick.c16384.kv_shared_saving_pct             -6.3912  per cent
+  frontier.deepseek-v3.c4096.mla_absorbed_pct                       18.8872  per cent
+  frontier.deepseek-v3.c16384.mla_absorbed_pct                       9.2391  per cent
+  frontier.kimi-k2.c4096.mla_absorbed_pct                            8.9728  per cent
+  frontier.kimi-k2.c16384.mla_absorbed_pct                           5.4074  per cent
+  frontier.kimi-k3.c4096.mla_absorbed_pct                            6.7690  per cent
+  frontier.kimi-k3.c16384.mla_absorbed_pct                           5.7998  per cent
+  moe.deepseek-v3.fresh_over_dense                                   1.4314  fraction
+  moe.deepseek-v3.preprocessed_over_fresh                            3.6126  fraction
+  moe.kimi-k2.fresh_over_dense                                       2.1405  fraction
+  moe.kimi-k2.preprocessed_over_fresh                                6.9830  fraction
+  moe.kimi-k3.fresh_over_dense                                       2.3511  fraction
+  moe.kimi-k3.preprocessed_over_fresh                                7.0900  fraction
+  moe.llama-4-maverick.fresh_over_dense                              1.7203  fraction
+  moe.llama-4-maverick.preprocessed_over_fresh                       5.1261  fraction
+  moe.qwen3-235b-a22b.fresh_over_dense                               1.3167  fraction
+  moe.qwen3-235b-a22b.preprocessed_over_fresh                        2.4171  fraction
+  frontier.calibration.c4096.residual_pct                            0.2801  per cent
+  frontier.calibration.c16384.residual_pct                          -0.2323  per cent
+  frontier.calibration.residual_pct                                  0.2801  per cent
+
+wrote /var/tmp/zk-cost-model.7wvM2S/out/frontier.json

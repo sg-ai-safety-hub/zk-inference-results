@@ -1,0 +1,9 @@
+{"driver": "cost-model", "label": "projection",
+ "prover_commit": "7ef4122", "harness_commit": "7ef4122",
+ "module": "harness.costmodel.frontier", "seq": 512, "target_positions_per_s": 20,
+ "constants": "constants.json",
+ "artifacts": null,
+ "recordable": true,
+ "routing": "2026-09-13-moe-routing-h100 -> qwen3-235b-a22b",
+ "card": "none: the model reads a recorded rate and touches no card",
+ "witness": "none: no proof is made and nothing is measured"}
