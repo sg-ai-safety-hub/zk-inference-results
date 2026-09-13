@@ -2475,6 +2475,80 @@ replayed on a machine of this size. The run also says nothing about a machine
 with fewer than four cores or less memory, and nothing about how long the whole
 sequence takes in one process: every number here is one segment at a time.
 
+## memory-probe-context
+
+    tools/drivers/memory-probe-context.sh <host> <prover-commit> <harness-commit> <context>
+
+runs: `2026-09-13-memory-probe-c24576-h100`
+prover commit: 6589471   harness commit: 6589471
+digests: layer 16 of the last token block, `dc56b8482e172eeb`, the same from the
+  card (`decode.json`) and from the reference backend (`reference-simd.json`)
+binding: 1 to 15 bound; 16 absent   (from the manifest)
+unsound skips: none
+constants backed: `mem.probe.c24576.decode_peak_mib`,
+  `mem.probe.c24576.layer0_oom_peak_mib`, `secs.probe.c24576.decode_loop`
+
+What the run measures. Where one 80 GB card gives out as the context grows.
+Issue #115 records three memory rows off a straight line through two measured
+peaks, and the row that decides the most says one card is full at a context of
+about 23,065. Two points cannot show that a line is straight, so this driver
+proves segments at a context it is told and records what the card holds. The
+context is an argument and the run name carries it, so each context is its own
+status file, its own directory on the host and its own run id.
+
+What it proved, and what it did not. Two segments of the last token block, one
+process each, the pipeline off, the card sampled once a second. Layer 16, the
+reference layer, whose shape 12 of that block's 32 segments have, peaked at
+79,643 MiB of the card's 81,559 and proved. Layer 0, which carries the embedding
+gadget and is the largest segment of the plan, did not: it ran the card out of
+memory, and the most the card reported holding before the allocation it could
+not serve was 81,073 MiB, 486 short of the card. Layer 0 is the segment the
+headline loops' peaks are -- 78,843 MiB on its own at context 16,384 against
+that loop's 78,799 -- so it is the segment the projected rows are a line
+through, and its failure is the measurement those rows wanted. Between them the
+two contexts put the card's limit in the open range from 16,384 to 24,576, with
+the projected 23,065 inside it.
+
+Layer 16 is proved first and layer 0 last, and that order is the measurement.
+The projection puts layer 0 above the card at this context, so measured first a
+failure there would have cost the other segment; measured last it cost nothing,
+and the reference backend then proved layer 16 again in host memory. That proof
+is the run's provenance anchor: a segment the card cannot hold writes no output
+at all, and without an anchor the answer most worth recording could not have
+been recorded. It hashes to the digest the card's proof of the same segment
+hashed to.
+
+The shapes this host could not emit. `plan.py` writes one emit line per distinct
+shape of the block, keyed by the master exponent table's width, and at this
+context the block's widest is 2^28 rows -- one bit past anything the recorded
+campaigns have emitted, and layer 1's alone. Emitting it needs more memory than
+the host had: the job was killed twice by the container's out-of-memory killer
+at exactly that shape, after the extraction and before a segment was proved.
+`--tight-table` narrows the table to the keys the witness has, but only after
+the width the shape asks for is built, so it does not bound what emitting
+costs. So the
+driver emits the shapes its proved segments carry and no others -- 2^25 and
+2^27 here -- and `emit.json` records which shapes the block had and which were
+emitted. That narrowing is open to a probe and not to a loop that proves all 32
+layers: at this context such a loop could not be built on this host at all,
+whatever the card would have held. zk-prover #190 has that and the build
+script's hardcoded sixteen-way kernel compile.
+
+How the run is made. The prompt is the corpus's first 24,576 tokens and the
+model's own greedy continuation under the variant the paper reports, generated
+the way the 16,384-token campaign generates it; the pinned harness cuts its eval
+corpus at 20,480 tokens and refuses a prompt length that is not a power of two,
+so the job carries a shim that lifts both and checks that the wider slice begins
+with the tokens the recorded campaigns read (zk-prover #187). The forward pass
+runs the whole sequence, because a block reads the keys and values of every
+block before it, and only the last block's dumps are written: 32 layers, 15.2
+GiB in 1,434 seconds over five passes, beside 7.5 GiB of block-invariant files
+-- the same 7.5 GiB the 16,384-token probe measured, which is where the block
+dumps grow with the context and these do not. The pins the segments are proved
+at are that whole block's worst case and not the proved layers' own rows, so
+what is proved is the shape a headline loop at this context would prove; at
+24,576 those pins are the 16,384-token campaign's exactly.
+
 ## Entry template
 
 ```
