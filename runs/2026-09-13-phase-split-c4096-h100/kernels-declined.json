@@ -1,0 +1,22 @@
+{
+ "switch": "ZK_KERNEL_SKIP",
+ "groups": [
+  "zk_attn_out_eval",
+  "zk_chan_eval",
+  "zk_dequant_eval",
+  "zk_emb_table_eval",
+  "zk_embed_eval",
+  "zk_exp_table_eval",
+  "zk_freivalds_eval",
+  "zk_key_eval",
+  "zk_link_eval",
+  "zk_quant_eval",
+  "zk_requant_eval",
+  "zk_residual_stream_eval",
+  "zk_residual_stream_table_eval",
+  "zk_row_eval",
+  "zk_table_eval"
+ ],
+ "kernels_in_store": 47,
+ "note": "the kernel groups the nokernels loop declines to the host, read out of the constraint kernel store's own manifest. Each decline announces itself with a kernel fallback line and the host path evaluates the same AIR, so the two loops must produce the same proof."
+}

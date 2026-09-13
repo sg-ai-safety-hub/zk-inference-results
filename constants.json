@@ -34,7 +34,8 @@
   "cold whole wall": "the extraction the proofs read plus whole wall: what the sequence costs on a host that holds no witness dump yet. Kernel emission, the install and the rebuild are not in it.",
   "cold loop": "the extraction the proofs read plus loop: what the sequence costs on a host that holds no witness dump yet. Kernel emission, the install and the rebuild are not in it.",
   "trace generation": "generating one segment's base trace, the prover's own `trace_secs`. It is inside whole wall and is not one of the four whole-proof scopes; on the device backend it overlaps interaction generation, so the two are not a split of anything.",
-  "interaction generation": "generating one segment's LogUp interaction columns and running the GKR reductions over them, the prover's own `interaction_secs`. Inside whole wall, like trace generation, and overlapping it on the device backend."
+  "interaction generation": "generating one segment's LogUp interaction columns and running the GKR reductions over them, the prover's own `interaction_secs`. Inside whole wall, like trace generation, and overlapping it on the device backend.",
+  "loop phase": "one of the twelve terms the segment loop partitions into when one segment is in flight: the witness read, its decode, check, construct and alloc and what they leave of the build; base-trace generation; interaction generation; stwo total; serialization; what those leave of the proving half; and what the segments leave of the loop. Each is measured, none is inside another, and the twelve add to the loop scope exactly. A pipelined loop has no such split: two segments' phases overlap in time and the same fields add to more than the loop."
  },
  "constants": {
   "cost.h100_reference_usd_per_hour": {
@@ -1306,6 +1307,528 @@
    "timing_scope": "n/a",
    "grade": "derived",
    "note": "1 - cells.headline.c4096.fresh / cells.control.c4096.fresh: the fraction of the committed cells the five reductions remove over a whole sequence at this context. gkr.ablation.all_five.leave_frac_cells is the same fraction on 32 segments of the block with the longest prefix, where the reductions weigh most."
+  },
+  "segments.phase.c4096": {
+   "value": 32,
+   "unit": "segments",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-13-phase-split-c4096-h100",
+   "artifact": "phases.json",
+   "note": "The sample: the 32 layer segments of token block 8 of headline-c4096's plan, the block whose prefix is the whole context. Each loop below proves these and no others."
+  },
+  "secs.phase.c4096.kernels.loop": {
+   "value": 748.236242,
+   "unit": "s",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "loop",
+   "grade": "measured",
+   "run": "2026-09-13-phase-split-c4096-h100",
+   "artifact": "phases.json",
+   "note": "The segment loop over the sample, one segment in flight, with every generated constraint kernel in place, which is the paper's configuration. The twelve phase rows below it add to this number exactly, which is what the run refuses to publish otherwise. A serial loop's seconds are not a pipelined loop's and this does not belong beside secs.headline.c4096.loop."
+  },
+  "secs.phase.c4096.kernels.read": {
+   "value": 4.04926,
+   "unit": "s",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "loop phase",
+   "grade": "measured",
+   "run": "2026-09-13-phase-split-c4096-h100",
+   "artifact": "phases.json",
+   "note": "Of the sample's loop with every generated constraint kernel in place, which is the paper's configuration: reading the segment's witness dump off disk. Summed over the 32 segments."
+  },
+  "secs.phase.c4096.kernels.decode": {
+   "value": 4.635775,
+   "unit": "s",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "loop phase",
+   "grade": "measured",
+   "run": "2026-09-13-phase-split-c4096-h100",
+   "artifact": "phases.json",
+   "note": "Of the sample's loop with every generated constraint kernel in place, which is the paper's configuration: decoding what was read into the arrays the segment is built from. Summed over the 32 segments."
+  },
+  "secs.phase.c4096.kernels.check": {
+   "value": 13.213632,
+   "unit": "s",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "loop phase",
+   "grade": "measured",
+   "run": "2026-09-13-phase-split-c4096-h100",
+   "artifact": "phases.json",
+   "note": "Of the sample's loop with every generated constraint kernel in place, which is the paper's configuration: the loader's own checks over those arrays. Summed over the 32 segments."
+  },
+  "secs.phase.c4096.kernels.construct": {
+   "value": 58.404134,
+   "unit": "s",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "loop phase",
+   "grade": "measured",
+   "run": "2026-09-13-phase-split-c4096-h100",
+   "artifact": "phases.json",
+   "note": "Of the sample's loop with every generated constraint kernel in place, which is the paper's configuration: building the segment's own arrays out of them. Summed over the 32 segments."
+  },
+  "secs.phase.c4096.kernels.alloc": {
+   "value": 6.619724,
+   "unit": "s",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "loop phase",
+   "grade": "measured",
+   "run": "2026-09-13-phase-split-c4096-h100",
+   "artifact": "phases.json",
+   "note": "Of the sample's loop with every generated constraint kernel in place, which is the paper's configuration: getting and giving back the arrays the four kinds above run in. Summed over the 32 segments."
+  },
+  "secs.phase.c4096.kernels.build_rest": {
+   "value": 1.280688,
+   "unit": "s",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "loop phase",
+   "grade": "measured",
+   "run": "2026-09-13-phase-split-c4096-h100",
+   "artifact": "phases.json",
+   "note": "Of the sample's loop with every generated constraint kernel in place, which is the paper's configuration: what those five leave of the segment's build. Summed over the 32 segments."
+  },
+  "secs.phase.c4096.kernels.trace": {
+   "value": 264.896236,
+   "unit": "s",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "loop phase",
+   "grade": "measured",
+   "run": "2026-09-13-phase-split-c4096-h100",
+   "artifact": "phases.json",
+   "note": "Of the sample's loop with every generated constraint kernel in place, which is the paper's configuration: generating the segment's base trace, the prover's own generate_secs. Summed over the 32 segments."
+  },
+  "secs.phase.c4096.kernels.interaction": {
+   "value": 313.054787,
+   "unit": "s",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "loop phase",
+   "grade": "measured",
+   "run": "2026-09-13-phase-split-c4096-h100",
+   "artifact": "phases.json",
+   "note": "Of the sample's loop with every generated constraint kernel in place, which is the paper's configuration: generating the LogUp interaction columns and running the five GKR reductions over them, the prover's own interaction_secs. Summed over the 32 segments."
+  },
+  "secs.phase.c4096.kernels.stwo": {
+   "value": 34.145816,
+   "unit": "s",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "loop phase",
+   "grade": "measured",
+   "run": "2026-09-13-phase-split-c4096-h100",
+   "artifact": "phases.json",
+   "note": "Of the sample's loop with every generated constraint kernel in place, which is the paper's configuration: the proof system's own commitment path and prove call, the prover's own stwo_total. Summed over the 32 segments."
+  },
+  "secs.phase.c4096.kernels.serialize": {
+   "value": 3.738302,
+   "unit": "s",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "loop phase",
+   "grade": "measured",
+   "run": "2026-09-13-phase-split-c4096-h100",
+   "artifact": "phases.json",
+   "note": "Of the sample's loop with every generated constraint kernel in place, which is the paper's configuration: writing the statement and the proof out. Summed over the 32 segments."
+  },
+  "secs.phase.c4096.kernels.prove_rest": {
+   "value": 41.783234,
+   "unit": "s",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "loop phase",
+   "grade": "measured",
+   "run": "2026-09-13-phase-split-c4096-h100",
+   "artifact": "phases.json",
+   "note": "Of the sample's loop with every generated constraint kernel in place, which is the paper's configuration: what the interaction columns, the proof system and the serialization leave of the proving half: the session, the commit calls' host work and the part of the trace span that runs inside it. Summed over the 32 segments."
+  },
+  "secs.phase.c4096.kernels.loop_rest": {
+   "value": 2.414656,
+   "unit": "s",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "loop phase",
+   "grade": "measured",
+   "run": "2026-09-13-phase-split-c4096-h100",
+   "artifact": "phases.json",
+   "note": "Of the sample's loop with every generated constraint kernel in place, which is the paper's configuration: what the segments leave of the loop: the loop's own per-segment work outside any segment's own wall-clock time. Summed over the 32 segments."
+  },
+  "share.phase.c4096.kernels.read": {
+   "value": 0.00541174,
+   "unit": "ratio",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "n/a",
+   "grade": "derived",
+   "note": "secs.phase.c4096.kernels.read / secs.phase.c4096.kernels.loop: what reading the segment's witness dump off disk is of the loop it was measured in. The twelve shares of one loop add to 1 because the twelve seconds add to its own."
+  },
+  "share.phase.c4096.kernels.decode": {
+   "value": 0.006195603393,
+   "unit": "ratio",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "n/a",
+   "grade": "derived",
+   "note": "secs.phase.c4096.kernels.decode / secs.phase.c4096.kernels.loop: what decoding what was read into the arrays the segment is built from is of the loop it was measured in. The twelve shares of one loop add to 1 because the twelve seconds add to its own."
+  },
+  "share.phase.c4096.kernels.check": {
+   "value": 0.01765970593,
+   "unit": "ratio",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "n/a",
+   "grade": "derived",
+   "note": "secs.phase.c4096.kernels.check / secs.phase.c4096.kernels.loop: what the loader's own checks over those arrays is of the loop it was measured in. The twelve shares of one loop add to 1 because the twelve seconds add to its own."
+  },
+  "share.phase.c4096.kernels.construct": {
+   "value": 0.078055740583,
+   "unit": "ratio",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "n/a",
+   "grade": "derived",
+   "note": "secs.phase.c4096.kernels.construct / secs.phase.c4096.kernels.loop: what building the segment's own arrays out of them is of the loop it was measured in. The twelve shares of one loop add to 1 because the twelve seconds add to its own."
+  },
+  "share.phase.c4096.kernels.alloc": {
+   "value": 0.008847104201,
+   "unit": "ratio",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "n/a",
+   "grade": "derived",
+   "note": "secs.phase.c4096.kernels.alloc / secs.phase.c4096.kernels.loop: what getting and giving back the arrays the four kinds above run in is of the loop it was measured in. The twelve shares of one loop add to 1 because the twelve seconds add to its own."
+  },
+  "share.phase.c4096.kernels.build_rest": {
+   "value": 0.001711609152,
+   "unit": "ratio",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "n/a",
+   "grade": "derived",
+   "note": "secs.phase.c4096.kernels.build_rest / secs.phase.c4096.kernels.loop: what what those five leave of the segment's build is of the loop it was measured in. The twelve shares of one loop add to 1 because the twelve seconds add to its own."
+  },
+  "share.phase.c4096.kernels.trace": {
+   "value": 0.354027539874,
+   "unit": "ratio",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "n/a",
+   "grade": "derived",
+   "note": "secs.phase.c4096.kernels.trace / secs.phase.c4096.kernels.loop: what generating the segment's base trace is of the loop it was measured in. The twelve shares of one loop add to 1 because the twelve seconds add to its own."
+  },
+  "share.phase.c4096.kernels.interaction": {
+   "value": 0.418390301656,
+   "unit": "ratio",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "n/a",
+   "grade": "derived",
+   "note": "secs.phase.c4096.kernels.interaction / secs.phase.c4096.kernels.loop: what generating the LogUp interaction columns and running the five GKR reductions over them is of the loop it was measured in. The twelve shares of one loop add to 1 because the twelve seconds add to its own."
+  },
+  "share.phase.c4096.kernels.stwo": {
+   "value": 0.045635073635,
+   "unit": "ratio",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "n/a",
+   "grade": "derived",
+   "note": "secs.phase.c4096.kernels.stwo / secs.phase.c4096.kernels.loop: what the proof system's own commitment path and prove call is of the loop it was measured in. The twelve shares of one loop add to 1 because the twelve seconds add to its own."
+  },
+  "share.phase.c4096.kernels.serialize": {
+   "value": 0.004996152004,
+   "unit": "ratio",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "n/a",
+   "grade": "derived",
+   "note": "secs.phase.c4096.kernels.serialize / secs.phase.c4096.kernels.loop: what writing the statement and the proof out is of the loop it was measured in. The twelve shares of one loop add to 1 because the twelve seconds add to its own."
+  },
+  "share.phase.c4096.kernels.prove_rest": {
+   "value": 0.055842301742,
+   "unit": "ratio",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "n/a",
+   "grade": "derived",
+   "note": "secs.phase.c4096.kernels.prove_rest / secs.phase.c4096.kernels.loop: what what the interaction columns is of the loop it was measured in. The twelve shares of one loop add to 1 because the twelve seconds add to its own."
+  },
+  "share.phase.c4096.kernels.loop_rest": {
+   "value": 0.003227130503,
+   "unit": "ratio",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "n/a",
+   "grade": "derived",
+   "note": "secs.phase.c4096.kernels.loop_rest / secs.phase.c4096.kernels.loop: what what the segments leave of the loop: the loop's own per-segment work outside any segment's own wall-clock time is of the loop it was measured in. The twelve shares of one loop add to 1 because the twelve seconds add to its own."
+  },
+  "secs.phase.c4096.nokernels.loop": {
+   "value": 4737.035672,
+   "unit": "s",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "loop",
+   "grade": "measured",
+   "run": "2026-09-13-phase-split-c4096-h100",
+   "artifact": "phases.json",
+   "note": "The segment loop over the sample, one segment in flight, with every generated constraint kernel declining to the host (ZK_KERNEL_SKIP), which is the control. The twelve phase rows below it add to this number exactly, which is what the run refuses to publish otherwise. A serial loop's seconds are not a pipelined loop's and this does not belong beside secs.headline.c4096.loop."
+  },
+  "secs.phase.c4096.nokernels.read": {
+   "value": 5.554469,
+   "unit": "s",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "loop phase",
+   "grade": "measured",
+   "run": "2026-09-13-phase-split-c4096-h100",
+   "artifact": "phases.json",
+   "note": "Of the sample's loop with every generated constraint kernel declining to the host (ZK_KERNEL_SKIP), which is the control: reading the segment's witness dump off disk. Summed over the 32 segments."
+  },
+  "secs.phase.c4096.nokernels.decode": {
+   "value": 5.000448,
+   "unit": "s",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "loop phase",
+   "grade": "measured",
+   "run": "2026-09-13-phase-split-c4096-h100",
+   "artifact": "phases.json",
+   "note": "Of the sample's loop with every generated constraint kernel declining to the host (ZK_KERNEL_SKIP), which is the control: decoding what was read into the arrays the segment is built from. Summed over the 32 segments."
+  },
+  "secs.phase.c4096.nokernels.check": {
+   "value": 13.092727,
+   "unit": "s",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "loop phase",
+   "grade": "measured",
+   "run": "2026-09-13-phase-split-c4096-h100",
+   "artifact": "phases.json",
+   "note": "Of the sample's loop with every generated constraint kernel declining to the host (ZK_KERNEL_SKIP), which is the control: the loader's own checks over those arrays. Summed over the 32 segments."
+  },
+  "secs.phase.c4096.nokernels.construct": {
+   "value": 67.853464,
+   "unit": "s",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "loop phase",
+   "grade": "measured",
+   "run": "2026-09-13-phase-split-c4096-h100",
+   "artifact": "phases.json",
+   "note": "Of the sample's loop with every generated constraint kernel declining to the host (ZK_KERNEL_SKIP), which is the control: building the segment's own arrays out of them. Summed over the 32 segments."
+  },
+  "secs.phase.c4096.nokernels.alloc": {
+   "value": 13.58915,
+   "unit": "s",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "loop phase",
+   "grade": "measured",
+   "run": "2026-09-13-phase-split-c4096-h100",
+   "artifact": "phases.json",
+   "note": "Of the sample's loop with every generated constraint kernel declining to the host (ZK_KERNEL_SKIP), which is the control: getting and giving back the arrays the four kinds above run in. Summed over the 32 segments."
+  },
+  "secs.phase.c4096.nokernels.build_rest": {
+   "value": 1.339195,
+   "unit": "s",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "loop phase",
+   "grade": "measured",
+   "run": "2026-09-13-phase-split-c4096-h100",
+   "artifact": "phases.json",
+   "note": "Of the sample's loop with every generated constraint kernel declining to the host (ZK_KERNEL_SKIP), which is the control: what those five leave of the segment's build. Summed over the 32 segments."
+  },
+  "secs.phase.c4096.nokernels.trace": {
+   "value": 278.816787,
+   "unit": "s",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "loop phase",
+   "grade": "measured",
+   "run": "2026-09-13-phase-split-c4096-h100",
+   "artifact": "phases.json",
+   "note": "Of the sample's loop with every generated constraint kernel declining to the host (ZK_KERNEL_SKIP), which is the control: generating the segment's base trace, the prover's own generate_secs. Summed over the 32 segments."
+  },
+  "secs.phase.c4096.nokernels.interaction": {
+   "value": 313.783589,
+   "unit": "s",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "loop phase",
+   "grade": "measured",
+   "run": "2026-09-13-phase-split-c4096-h100",
+   "artifact": "phases.json",
+   "note": "Of the sample's loop with every generated constraint kernel declining to the host (ZK_KERNEL_SKIP), which is the control: generating the LogUp interaction columns and running the five GKR reductions over them, the prover's own interaction_secs. Summed over the 32 segments."
+  },
+  "secs.phase.c4096.nokernels.stwo": {
+   "value": 3983.748223,
+   "unit": "s",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "loop phase",
+   "grade": "measured",
+   "run": "2026-09-13-phase-split-c4096-h100",
+   "artifact": "phases.json",
+   "note": "Of the sample's loop with every generated constraint kernel declining to the host (ZK_KERNEL_SKIP), which is the control: the proof system's own commitment path and prove call, the prover's own stwo_total. Summed over the 32 segments."
+  },
+  "secs.phase.c4096.nokernels.serialize": {
+   "value": 4.37476,
+   "unit": "s",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "loop phase",
+   "grade": "measured",
+   "run": "2026-09-13-phase-split-c4096-h100",
+   "artifact": "phases.json",
+   "note": "Of the sample's loop with every generated constraint kernel declining to the host (ZK_KERNEL_SKIP), which is the control: writing the statement and the proof out. Summed over the 32 segments."
+  },
+  "secs.phase.c4096.nokernels.prove_rest": {
+   "value": 46.378697,
+   "unit": "s",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "loop phase",
+   "grade": "measured",
+   "run": "2026-09-13-phase-split-c4096-h100",
+   "artifact": "phases.json",
+   "note": "Of the sample's loop with every generated constraint kernel declining to the host (ZK_KERNEL_SKIP), which is the control: what the interaction columns, the proof system and the serialization leave of the proving half: the session, the commit calls' host work and the part of the trace span that runs inside it. Summed over the 32 segments."
+  },
+  "secs.phase.c4096.nokernels.loop_rest": {
+   "value": 3.504164,
+   "unit": "s",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "loop phase",
+   "grade": "measured",
+   "run": "2026-09-13-phase-split-c4096-h100",
+   "artifact": "phases.json",
+   "note": "Of the sample's loop with every generated constraint kernel declining to the host (ZK_KERNEL_SKIP), which is the control: what the segments leave of the loop: the loop's own per-segment work outside any segment's own wall-clock time. Summed over the 32 segments."
+  },
+  "share.phase.c4096.nokernels.read": {
+   "value": 0.001172562207,
+   "unit": "ratio",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "n/a",
+   "grade": "derived",
+   "note": "secs.phase.c4096.nokernels.read / secs.phase.c4096.nokernels.loop: what reading the segment's witness dump off disk is of the loop it was measured in. The twelve shares of one loop add to 1 because the twelve seconds add to its own."
+  },
+  "share.phase.c4096.nokernels.decode": {
+   "value": 0.001055606997,
+   "unit": "ratio",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "n/a",
+   "grade": "derived",
+   "note": "secs.phase.c4096.nokernels.decode / secs.phase.c4096.nokernels.loop: what decoding what was read into the arrays the segment is built from is of the loop it was measured in. The twelve shares of one loop add to 1 because the twelve seconds add to its own."
+  },
+  "share.phase.c4096.nokernels.check": {
+   "value": 0.0027639072,
+   "unit": "ratio",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "n/a",
+   "grade": "derived",
+   "note": "secs.phase.c4096.nokernels.check / secs.phase.c4096.nokernels.loop: what the loader's own checks over those arrays is of the loop it was measured in. The twelve shares of one loop add to 1 because the twelve seconds add to its own."
+  },
+  "share.phase.c4096.nokernels.construct": {
+   "value": 0.014324034839,
+   "unit": "ratio",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "n/a",
+   "grade": "derived",
+   "note": "secs.phase.c4096.nokernels.construct / secs.phase.c4096.nokernels.loop: what building the segment's own arrays out of them is of the loop it was measured in. The twelve shares of one loop add to 1 because the twelve seconds add to its own."
+  },
+  "share.phase.c4096.nokernels.alloc": {
+   "value": 0.002868703329,
+   "unit": "ratio",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "n/a",
+   "grade": "derived",
+   "note": "secs.phase.c4096.nokernels.alloc / secs.phase.c4096.nokernels.loop: what getting and giving back the arrays the four kinds above run in is of the loop it was measured in. The twelve shares of one loop add to 1 because the twelve seconds add to its own."
+  },
+  "share.phase.c4096.nokernels.build_rest": {
+   "value": 0.000282707392,
+   "unit": "ratio",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "n/a",
+   "grade": "derived",
+   "note": "secs.phase.c4096.nokernels.build_rest / secs.phase.c4096.nokernels.loop: what what those five leave of the segment's build is of the loop it was measured in. The twelve shares of one loop add to 1 because the twelve seconds add to its own."
+  },
+  "share.phase.c4096.nokernels.trace": {
+   "value": 0.058858916484,
+   "unit": "ratio",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "n/a",
+   "grade": "derived",
+   "note": "secs.phase.c4096.nokernels.trace / secs.phase.c4096.nokernels.loop: what generating the segment's base trace is of the loop it was measured in. The twelve shares of one loop add to 1 because the twelve seconds add to its own."
+  },
+  "share.phase.c4096.nokernels.interaction": {
+   "value": 0.066240495265,
+   "unit": "ratio",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "n/a",
+   "grade": "derived",
+   "note": "secs.phase.c4096.nokernels.interaction / secs.phase.c4096.nokernels.loop: what generating the LogUp interaction columns and running the five GKR reductions over them is of the loop it was measured in. The twelve shares of one loop add to 1 because the twelve seconds add to its own."
+  },
+  "share.phase.c4096.nokernels.stwo": {
+   "value": 0.840979147898,
+   "unit": "ratio",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "n/a",
+   "grade": "derived",
+   "note": "secs.phase.c4096.nokernels.stwo / secs.phase.c4096.nokernels.loop: what the proof system's own commitment path and prove call is of the loop it was measured in. The twelve shares of one loop add to 1 because the twelve seconds add to its own."
+  },
+  "share.phase.c4096.nokernels.serialize": {
+   "value": 0.000923522706,
+   "unit": "ratio",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "n/a",
+   "grade": "derived",
+   "note": "secs.phase.c4096.nokernels.serialize / secs.phase.c4096.nokernels.loop: what writing the statement and the proof out is of the loop it was measured in. The twelve shares of one loop add to 1 because the twelve seconds add to its own."
+  },
+  "share.phase.c4096.nokernels.prove_rest": {
+   "value": 0.009790658169,
+   "unit": "ratio",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "n/a",
+   "grade": "derived",
+   "note": "secs.phase.c4096.nokernels.prove_rest / secs.phase.c4096.nokernels.loop: what what the interaction columns is of the loop it was measured in. The twelve shares of one loop add to 1 because the twelve seconds add to its own."
+  },
+  "share.phase.c4096.nokernels.loop_rest": {
+   "value": 0.000739737727,
+   "unit": "ratio",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "n/a",
+   "grade": "derived",
+   "note": "secs.phase.c4096.nokernels.loop_rest / secs.phase.c4096.nokernels.loop: what what the segments leave of the loop: the loop's own per-segment work outside any segment's own wall-clock time is of the loop it was measured in. The twelve shares of one loop add to 1 because the twelve seconds add to its own."
+  },
+  "secs.phase.c4096.kernels_bought": {
+   "value": 3988.79943,
+   "unit": "s",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "loop",
+   "grade": "derived",
+   "note": "secs.phase.c4096.nokernels.loop - secs.phase.c4096.kernels.loop: what the generated constraint kernels are worth on this sample, as seconds of the segment loop. The two loops proved the same 32 segments to the same digests, so the difference is the kernels and nothing else. It does not price the generated witness-generation and LogUp builders, which the switch does not reach."
   },
   "segments.probe.c16384": {
    "value": 4,

@@ -1,0 +1,10 @@
+{"driver": "phase-split-c4096", "label": "control",
+ "model": "unsloth/Llama-3.1-8B-Instruct", "spec": "y-delay-vw12",
+ "context": 4096, "s": 512, "blocks": 9, "layers": 32,
+ "sample_block": 8, "sample_segments": 32,
+ "loops": ["kernels", "nokernels"], "pipeline": 0,
+ "shared_flags": "--round even --numbits 9 --z-hi-bits 7 --variants intexp --head-groups 16,8,8 --tight-table", "layer_flags": "--round even --diagonal-block --gkr-key-tiles --gkr-dequant --gkr-residual-stream --gkr-freivalds --gkr-attnout",
+ "phases": "read decode check construct alloc build_rest trace interaction stwo serialize prove_rest loop_rest",
+ "kernels_off_switch": "ZK_KERNEL_SKIP",
+ "kernels_off_scope": "the generated constraint kernels, every kernel group the store holds. The generated witness-generation and LogUp builders are not switched by it: with the device columns on there is no host builder to decline to, so turning those off would price the device residency as well.",
+ "note": "the 32 layer segments of token block 8 of headline-c4096's plan, proved twice with one segment in flight; the witnesses are headline-c4096's"}

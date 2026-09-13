@@ -1,0 +1,2290 @@
+{
+ "sample": {
+  "block": 8,
+  "segments": 32,
+  "context": 4096,
+  "pipeline": 0
+ },
+ "phases": [
+  "read",
+  "decode",
+  "check",
+  "construct",
+  "alloc",
+  "build_rest",
+  "trace",
+  "interaction",
+  "stwo",
+  "serialize",
+  "prove_rest",
+  "loop_rest"
+ ],
+ "loops": {
+  "kernels": {
+   "segments": 32,
+   "pipe": false,
+   "loop_secs": 748.236242457,
+   "secs": {
+    "read": 4.049260203999999,
+    "decode": 4.635775015000001,
+    "check": 13.21363203,
+    "construct": 58.40413354500001,
+    "alloc": 6.619724090999998,
+    "build_rest": 1.2806875180000046,
+    "trace": 264.896235852,
+    "interaction": 313.054787161,
+    "stwo": 34.14581608900001,
+    "serialize": 3.7383016250000005,
+    "prove_rest": 41.78323362899998,
+    "loop_rest": 2.414655698000047
+   },
+   "share": {
+    "read": 0.00541174026896018,
+    "decode": 0.006195603409662974,
+    "check": 0.01765970595945754,
+    "construct": 0.07805573992676038,
+    "alloc": 0.008847104317297787,
+    "build_rest": 0.00171160850722037,
+    "trace": 0.3540275394602036,
+    "interaction": 0.4183903016151891,
+    "stwo": 0.04563507372601283,
+    "serialize": 0.004996151499858462,
+    "prove_rest": 0.05584230121197477,
+    "loop_rest": 0.0032271300974021097
+   },
+   "fallback_lines": 0,
+   "constraint_eval": {
+    "gpu": {
+     "calls": 3872,
+     "secs": 0.138441741
+    },
+    "cpu_fallback": {
+     "calls": 0,
+     "secs": 0.0
+    },
+    "cpu_autofallback": {
+     "calls": 0,
+     "secs": 0.0
+    }
+   },
+   "trace_secs_field": 264.532664736,
+   "host_phases": {
+    "evalof/bitrev": {
+     "calls": 540396,
+     "secs": 16.470222796999995
+    },
+    "evalof/fused": {
+     "calls": 77203,
+     "secs": 22.327299816999982
+    },
+    "evalof/pack": {
+     "calls": 540396,
+     "secs": 6.2307644750000035
+    },
+    "freivalds/qw": {
+     "calls": 192,
+     "secs": 0.18297836599999998
+    },
+    "freivalds/qx": {
+     "calls": 96,
+     "secs": 0.022675088
+    },
+    "gen/argmax": {
+     "calls": 32,
+     "secs": 3.001e-06
+    },
+    "gen/attnout": {
+     "calls": 32,
+     "secs": 5.628598134
+    },
+    "gen/deq_dev_acc": {
+     "calls": 192,
+     "secs": 0.16135344300000004
+    },
+    "gen/deq_dev_alloc": {
+     "calls": 192,
+     "secs": 0.224560144
+    },
+    "gen/deq_dev_counters": {
+     "calls": 192,
+     "secs": 0.23210419700000004
+    },
+    "gen/deq_dev_h2d": {
+     "calls": 192,
+     "secs": 0.29885625300000007
+    },
+    "gen/deq_dev_kernel": {
+     "calls": 192,
+     "secs": 0.136254667
+    },
+    "gen/deq_dev_output_claim": {
+     "calls": 192,
+     "secs": 0.4908222550000001
+    },
+    "gen/deq_dev_up": {
+     "calls": 192,
+     "secs": 0.685314013
+    },
+    "gen/dequant": {
+     "calls": 32,
+     "secs": 3.1288689269999996
+    },
+    "gen/embed": {
+     "calls": 32,
+     "secs": 6.607942066000001
+    },
+    "gen/freivalds": {
+     "calls": 32,
+     "secs": 9.925541519
+    },
+    "gen/key_tiles": {
+     "calls": 32,
+     "secs": 120.41294350499999
+    },
+    "gen/pre_alloc": {
+     "calls": 32,
+     "secs": 0.003918578000000001
+    },
+    "gen/pre_diff": {
+     "calls": 32,
+     "secs": 0.030328179000000004
+    },
+    "gen/pre_flags": {
+     "calls": 768,
+     "secs": 0.025535461000000006
+    },
+    "gen/pre_kernel": {
+     "calls": 32,
+     "secs": 0.00596838
+    },
+    "gen/pre_key_tiles": {
+     "calls": 32,
+     "secs": 0.09404293199999998
+    },
+    "gen/pre_sel": {
+     "calls": 768,
+     "secs": 0.06739951999999999
+    },
+    "gen/pre_up": {
+     "calls": 32,
+     "secs": 0.002005806
+    },
+    "gen/quant": {
+     "calls": 32,
+     "secs": 7.826167735000002
+    },
+    "gen/refs": {
+     "calls": 32,
+     "secs": 0.19008874099999995
+    },
+    "gen/requant": {
+     "calls": 32,
+     "secs": 44.982504647999995
+    },
+    "gen/residual_stream": {
+     "calls": 32,
+     "secs": 63.564734642999994
+    },
+    "gen/residual_stream_b1": {
+     "calls": 96,
+     "secs": 2.9581258999999998
+    },
+    "gen/residual_stream_component": {
+     "calls": 224,
+     "secs": 33.91494654000001
+    },
+    "gen/residual_stream_deqref": {
+     "calls": 32,
+     "secs": 0.996937979
+    },
+    "gen/residual_stream_wblk": {
+     "calls": 64,
+     "secs": 0.040662018
+    },
+    "gen/residual_stream_witness_gen_alloc": {
+     "calls": 224,
+     "secs": 2.116422619
+    },
+    "gen/residual_stream_witness_gen_d2h": {
+     "calls": 224,
+     "secs": 9.420838347000004
+    },
+    "gen/residual_stream_witness_gen_kernel": {
+     "calls": 224,
+     "secs": 0.28623791800000004
+    },
+    "gen/residual_stream_witness_gen_pre": {
+     "calls": 224,
+     "secs": 0.034662306
+    },
+    "gen/residual_stream_witness_gen_up": {
+     "calls": 224,
+     "secs": 0.9859078420000001
+    },
+    "gen/rope_deqref": {
+     "calls": 64,
+     "secs": 0.19050419600000004
+    },
+    "gen/rope_invref": {
+     "calls": 32,
+     "secs": 0.015500014
+    },
+    "gen/tab_alloc": {
+     "calls": 32,
+     "secs": 0.0014468889999999996
+    },
+    "gen/tab_kernel": {
+     "calls": 32,
+     "secs": 0.002046334
+    },
+    "gen/tab_map": {
+     "calls": 32,
+     "secs": 0.17325178500000002
+    },
+    "gen/tab_up": {
+     "calls": 32,
+     "secs": 0.004627106999999999
+    },
+    "gen/tables": {
+     "calls": 32,
+     "secs": 1.2353172369999998
+    },
+    "gen/tables_up": {
+     "calls": 32,
+     "secs": 0.36958027000000004
+    },
+    "gen/witness_gen_alloc": {
+     "calls": 192,
+     "secs": 0.22014907500000006
+    },
+    "gen/witness_gen_counters": {
+     "calls": 192,
+     "secs": 0.9394233999999999
+    },
+    "gen/witness_gen_freivalds_h2d": {
+     "calls": 288,
+     "secs": 0.20565345399999999
+    },
+    "gen/witness_gen_freivalds_kernel": {
+     "calls": 96,
+     "secs": 0.09554352299999999
+    },
+    "gen/witness_gen_freivalds_pack": {
+     "calls": 288,
+     "secs": 0.554400647
+    },
+    "gen/witness_gen_freivalds_up": {
+     "calls": 96,
+     "secs": 0.7810250280000002
+    },
+    "gen/witness_gen_key_tile_h2d": {
+     "calls": 768,
+     "secs": 0.122190005
+    },
+    "gen/witness_gen_key_tile_kernel": {
+     "calls": 96,
+     "secs": 0.217380828
+    },
+    "gen/witness_gen_key_tile_pack": {
+     "calls": 768,
+     "secs": 0.29741605199999993
+    },
+    "gen/witness_gen_key_tile_up": {
+     "calls": 96,
+     "secs": 0.428805601
+    },
+    "int/acc_kernel": {
+     "calls": 800,
+     "secs": 0.9697912469999997
+    },
+    "int/air": {
+     "calls": 32,
+     "secs": 0.8870472490000001
+    },
+    "int/ao_gkr": {
+     "calls": 32,
+     "secs": 1.3131146500000002
+    },
+    "int/argmax": {
+     "calls": 32,
+     "secs": 1.2205999999999998e-05
+    },
+    "int/attnout": {
+     "calls": 32,
+     "secs": 2.1147306669999995
+    },
+    "int/deq_carry": {
+     "calls": 224,
+     "secs": 0.016784594000000003
+    },
+    "int/deq_cols": {
+     "calls": 224,
+     "secs": 0.323854084
+    },
+    "int/deq_gkr": {
+     "calls": 32,
+     "secs": 0.695400392
+    },
+    "int/deq_inner": {
+     "calls": 224,
+     "secs": 0.04562636400000001
+    },
+    "int/dequant": {
+     "calls": 32,
+     "secs": 49.15030770400001
+    },
+    "int/embed": {
+     "calls": 32,
+     "secs": 0.31798337000000004
+    },
+    "int/frac_kernel": {
+     "calls": 478,
+     "secs": 0.25536648799999995
+    },
+    "int/frac_lower": {
+     "calls": 478,
+     "secs": 0.005784250000000002
+    },
+    "int/frac_up": {
+     "calls": 478,
+     "secs": 0.00011378
+    },
+    "int/freivalds": {
+     "calls": 32,
+     "secs": 5.383848009000001
+    },
+    "int/freivalds_build": {
+     "calls": 128,
+     "secs": 5.381384838
+    },
+    "int/freivalds_gkr": {
+     "calls": 32,
+     "secs": 0.269728934
+    },
+    "int/gkr": {
+     "calls": 32,
+     "secs": 56.76477247699998
+    },
+    "int/key_tiles": {
+     "calls": 32,
+     "secs": 24.730193019
+    },
+    "int/key_tiles_build": {
+     "calls": 864,
+     "secs": 24.646019609000003
+    },
+    "int/link": {
+     "calls": 32,
+     "secs": 9.258871937000002
+    },
+    "int/link_cols": {
+     "calls": 288,
+     "secs": 0.07176135
+    },
+    "int/link_eq": {
+     "calls": 288,
+     "secs": 0.019239730000000003
+    },
+    "int/link_fold": {
+     "calls": 288,
+     "secs": 8.690617036999999
+    },
+    "int/link_prefix": {
+     "calls": 288,
+     "secs": 0.015546408
+    },
+    "int/link_q": {
+     "calls": 288,
+     "secs": 0.011508025
+    },
+    "int/link_split": {
+     "calls": 288,
+     "secs": 0.012480504
+    },
+    "int/link_terms": {
+     "calls": 288,
+     "secs": 0.012651687999999998
+    },
+    "int/requant": {
+     "calls": 32,
+     "secs": 45.591943381
+    },
+    "int/residual_stream": {
+     "calls": 32,
+     "secs": 23.610072363000004
+    },
+    "int/residual_stream_build": {
+     "calls": 352,
+     "secs": 23.542531529000005
+    },
+    "int/residual_stream_gkr": {
+     "calls": 32,
+     "secs": 8.869809265000002
+    },
+    "int/tables": {
+     "calls": 32,
+     "secs": 0.705628488
+    },
+    "key_tile/dd": {
+     "calls": 96,
+     "secs": 0.04171657399999999
+    },
+    "key_tile/delta": {
+     "calls": 96,
+     "secs": 0.0033519859999999995
+    },
+    "key_tile/kk": {
+     "calls": 96,
+     "secs": 0.020234155999999993
+    },
+    "key_tile/mm": {
+     "calls": 96,
+     "secs": 0.002533968999999999
+    },
+    "key_tile/num": {
+     "calls": 96,
+     "secs": 0.025982751999999998
+    },
+    "key_tile/qq": {
+     "calls": 96,
+     "secs": 0.014237221999999997
+    },
+    "key_tile/vv": {
+     "calls": 96,
+     "secs": 0.012633942000000002
+    },
+    "key_tile/zz": {
+     "calls": 96,
+     "secs": 0.0014994039999999998
+    },
+    "wall/build_components": {
+     "calls": 32,
+     "secs": 1.086623914
+    },
+    "wall/commit_base": {
+     "calls": 32,
+     "secs": 27.574473089000005
+    },
+    "wall/commit_boundary": {
+     "calls": 32,
+     "secs": 6.786530005000002
+    },
+    "wall/commit_inter": {
+     "calls": 32,
+     "secs": 6.5093836970000005
+    },
+    "wall/commit_pre": {
+     "calls": 32,
+     "secs": 5.455464415999998
+    },
+    "wall/commit_shape": {
+     "calls": 32,
+     "secs": 1.7938399809999994
+    },
+    "wall/cuda_init": {
+     "calls": 64,
+     "secs": 0.5334893290000001
+    },
+    "wall/prove_raw": {
+     "calls": 32,
+     "secs": 13.385658208
+    },
+    "wall/ser_proof": {
+     "calls": 32,
+     "secs": 3.4844599370000005
+    },
+    "wall/ser_statement": {
+     "calls": 32,
+     "secs": 0.253841688
+    },
+    "wall/session_new": {
+     "calls": 32,
+     "secs": 0.00031711799999999997
+    },
+    "wall/twiddles": {
+     "calls": 32,
+     "secs": 0.005227297
+    }
+   },
+   "verify_after_loop_secs": 15.730607926000001,
+   "digests": [
+    "59fff6b1f02326155e945687a139ddae7f09e82e17f9bd6273b71fa0f656a41c",
+    "35ba433d97a4adcf4b983350176504f14349f9c89a0e24afcce9e708416def81",
+    "0ac9c45e8bf6e45ae2539680ecebf246e1058c1ecbd858bf2cb40ef9e8d1f2be",
+    "b70534caa94424255c62283141a42ca71974279e8679f639d7ba7f54a74364d7",
+    "dc610ebb5dac9c32cca83398559af2cf63a2bf469e235466d0911c8fa87e5633",
+    "c9d2725b919cd7536d6613770be46cce008769dbf5a5d642be9c57c03510acca",
+    "1fa683773df8c68f8b103dd30dd5da3b65b1fabeb022c3da1f2567412fa8cf99",
+    "5ab5f2112da72e71f00e084173dd6164be37cc54d2ca648e580cb1c2d8ffe6e1",
+    "8cbe3c205a2e6b6a1e7620a80c343ee802a2a1eb58bb19448dddecdda4a06911",
+    "7b85668263dcb3e6f5f833f4dbd79a00254895d3d307232b9936a297671ff9ad",
+    "1712dc9a3364e851f1b746dedf07c85327e6301bc73dbd72669975e0f0aa8f51",
+    "5c5d75ea08b93c552902b4b4700769111e76074e4b490deb1f46367fa9c3d0b5",
+    "82f934d5926a36a16c30613299349ed5491d6d36d51fc110acb30c463db0e771",
+    "1d06dbed0b93cb083ddecd28b34845bd52e40a4eefc57e70f9b3edf9d7cda84c",
+    "9064aef7b624cb91409b7a9d92c110c7aa9ba5eb306d2dffdd0e3b6ff0806db3",
+    "7db6167054eaf2123db9d6d22b15c6e6aedf32a3ac7953b8a51526112ca73ad1",
+    "b9c6309b0fb73b764a89a9f59fb879e83827bdf53589ca91c89f2cf89b67cfec",
+    "73ad07cb316de2dc98068ebb47fd393c636b6d9c3514afbfdbf461e772f9beda",
+    "b4ce1f76f3eb52f881daecfd83121245d3588fbbb11dd0b23d59873d42e2637d",
+    "af0667bf0d250806608574e3666b200213054e6f33ade8c1af2510b1041b703f",
+    "cd1bcb618d2c140b9cdbd26872355a5ec93a792cdc3f001f328d30f80f764b94",
+    "d2bbb69b84280dc9a0af358e95d90e9bec339e14feb5572c7b09b1ddf11a5552",
+    "39299e308f857b252314e691361394dd89ce9d049eb52c2d1f040657a3b93ede",
+    "84e5f51e08042f79c40300fa33f2dbecdcfd16d50ca4b2e4bb0081b23ec6cb29",
+    "c9ef0ed818e044f2b11581046f2a974de86d153bb748c8fe1eff0dc43f13c36f",
+    "5ef64fc43e6cb845e0cbd2ce6c2fdf86b3e656cac6468037b595d14b6f25b386",
+    "11fdf64b86a9d8bb8c2ecf1a35448fd48175789928979f584746104fdc756ad3",
+    "1bbd46d258ad845d4fad3138bd3372f9ea76465c9146f1f6156bc5b37edae0dc",
+    "11c4d152038aed2f0665ce9ee36843e89671bc289cdfde72a6a7739ec51ba271",
+    "245623fdf7c5fae065edcc15ba037abb59567220be15496f3b9528ca60115edb",
+    "d991bbdb78494ca3ac60f96c1791231af3963a543e1e43593f8eddaf0149efce",
+    "b3956211cbac08e9edd6cb8467aa6855c4531f7bbd3191fdd45adaeea56153f2"
+   ],
+   "segment_rows": [
+    {
+     "ser_tag": "B8L0",
+     "plan_index": 0,
+     "chunk_secs": 46.729924857,
+     "secs": {
+      "read": 0.6459611190000001,
+      "decode": 0.229410526,
+      "check": 3.473252266,
+      "construct": 9.356059485000001,
+      "alloc": 0.001602191,
+      "build_rest": 0.06392604800000079,
+      "trace": 17.426979035,
+      "interaction": 10.886980523,
+      "stwo": 1.609483867,
+      "serialize": 0.127506151,
+      "prove_rest": 2.9087636459999993,
+      "loop_rest": 0.0
+     }
+    },
+    {
+     "ser_tag": "B8L1",
+     "plan_index": 1,
+     "chunk_secs": 32.089672713,
+     "secs": {
+      "read": 0.138527508,
+      "decode": 0.144486383,
+      "check": 2.006646558,
+      "construct": 8.245459403999998,
+      "alloc": 0.358923316,
+      "build_rest": 0.04125681800000258,
+      "trace": 9.175750911,
+      "interaction": 9.62119975,
+      "stwo": 1.165929248,
+      "serialize": 0.10156590500000001,
+      "prove_rest": 1.089926911999998,
+      "loop_rest": 0.0
+     }
+    },
+    {
+     "ser_tag": "B8L2",
+     "plan_index": 2,
+     "chunk_secs": 22.791818698,
+     "secs": {
+      "read": 0.125203218,
+      "decode": 0.140439644,
+      "check": 0.20571583899999998,
+      "construct": 0.885400563,
+      "alloc": 0.192639731,
+      "build_rest": 0.035706055999999986,
+      "trace": 8.651502364,
+      "interaction": 9.870854057,
+      "stwo": 1.171083491,
+      "serialize": 0.119523144,
+      "prove_rest": 1.3937505909999994,
+      "loop_rest": 0.0
+     }
+    },
+    {
+     "ser_tag": "B8L3",
+     "plan_index": 3,
+     "chunk_secs": 21.888794495,
+     "secs": {
+      "read": 0.129726913,
+      "decode": 0.131705691,
+      "check": 0.09014381199999999,
+      "construct": 0.909934542,
+      "alloc": 0.303277679,
+      "build_rest": 0.039503035999999936,
+      "trace": 7.981715809,
+      "interaction": 9.775597602,
+      "stwo": 1.0013896949999999,
+      "serialize": 0.10109217,
+      "prove_rest": 1.4247075460000003,
+      "loop_rest": 0.0
+     }
+    },
+    {
+     "ser_tag": "B8L4",
+     "plan_index": 4,
+     "chunk_secs": 23.785471735,
+     "secs": {
+      "read": 0.129757113,
+      "decode": 0.145258688,
+      "check": 0.515416397,
+      "construct": 2.13310049,
+      "alloc": 0.372568248,
+      "build_rest": 0.038363806,
+      "trace": 8.267565457,
+      "interaction": 9.776825355,
+      "stwo": 1.0664511380000001,
+      "serialize": 0.119240602,
+      "prove_rest": 1.2209244410000002,
+      "loop_rest": 0.0
+     }
+    },
+    {
+     "ser_tag": "B8L5",
+     "plan_index": 5,
+     "chunk_secs": 22.739358573,
+     "secs": {
+      "read": 0.139952982,
+      "decode": 0.140011589,
+      "check": 0.208684692,
+      "construct": 0.985231697,
+      "alloc": 0.362448921,
+      "build_rest": 0.04248009999999991,
+      "trace": 8.285973873,
+      "interaction": 9.970874905,
+      "stwo": 1.058896069,
+      "serialize": 0.111937519,
+      "prove_rest": 1.4328662260000005,
+      "loop_rest": 0.0
+     }
+    },
+    {
+     "ser_tag": "B8L6",
+     "plan_index": 6,
+     "chunk_secs": 26.096843246,
+     "secs": {
+      "read": 0.11035981099999999,
+      "decode": 0.145176468,
+      "check": 0.902116685,
+      "construct": 4.1293093789999995,
+      "alloc": 0.171734824,
+      "build_rest": 0.03795848100000132,
+      "trace": 8.402952485,
+      "interaction": 9.692571319,
+      "stwo": 1.051496809,
+      "serialize": 0.163746595,
+      "prove_rest": 1.289420389999997,
+      "loop_rest": 0.0
+     }
+    },
+    {
+     "ser_tag": "B8L7",
+     "plan_index": 7,
+     "chunk_secs": 22.261938831,
+     "secs": {
+      "read": 0.114114609,
+      "decode": 0.143050941,
+      "check": 0.207717405,
+      "construct": 1.035501583,
+      "alloc": 0.218685351,
+      "build_rest": 0.03615691800000009,
+      "trace": 8.379785983,
+      "interaction": 9.643151669,
+      "stwo": 1.059763481,
+      "serialize": 0.13978324,
+      "prove_rest": 1.284227650999999,
+      "loop_rest": 0.0
+     }
+    },
+    {
+     "ser_tag": "B8L8",
+     "plan_index": 8,
+     "chunk_secs": 23.405896174,
+     "secs": {
+      "read": 0.111871943,
+      "decode": 0.147627263,
+      "check": 0.457567829,
+      "construct": 2.012807854,
+      "alloc": 0.302903297,
+      "build_rest": 0.03650905600000032,
+      "trace": 8.314629279,
+      "interaction": 9.531617605,
+      "stwo": 1.1856806450000001,
+      "serialize": 0.140411738,
+      "prove_rest": 1.1642696649999977,
+      "loop_rest": 0.0
+     }
+    },
+    {
+     "ser_tag": "B8L9",
+     "plan_index": 9,
+     "chunk_secs": 21.408875584,
+     "secs": {
+      "read": 0.107372191,
+      "decode": 0.142468658,
+      "check": 0.091927446,
+      "construct": 0.7839196449999999,
+      "alloc": 0.166716593,
+      "build_rest": 0.04046817100000011,
+      "trace": 7.884277228,
+      "interaction": 9.852564685,
+      "stwo": 1.009758774,
+      "serialize": 0.102515165,
+      "prove_rest": 1.2268870279999997,
+      "loop_rest": 0.0
+     }
+    },
+    {
+     "ser_tag": "B8L10",
+     "plan_index": 10,
+     "chunk_secs": 23.650355236,
+     "secs": {
+      "read": 0.130675517,
+      "decode": 0.15280378099999997,
+      "check": 0.447878882,
+      "construct": 2.056956638,
+      "alloc": 0.270713815,
+      "build_rest": 0.04131851799999975,
+      "trace": 8.274627963,
+      "interaction": 9.701846122,
+      "stwo": 1.187198044,
+      "serialize": 0.134511236,
+      "prove_rest": 1.2518247199999986,
+      "loop_rest": 0.0
+     }
+    },
+    {
+     "ser_tag": "B8L11",
+     "plan_index": 11,
+     "chunk_secs": 25.674103519,
+     "secs": {
+      "read": 0.09259849,
+      "decode": 0.149235003,
+      "check": 0.9140819299999999,
+      "construct": 4.300453871,
+      "alloc": 0.19169047,
+      "build_rest": 0.038666671999999735,
+      "trace": 7.894187978,
+      "interaction": 9.653120706,
+      "stwo": 1.091639134,
+      "serialize": 0.10182248499999999,
+      "prove_rest": 1.2466067799999994,
+      "loop_rest": 0.0
+     }
+    },
+    {
+     "ser_tag": "B8L12",
+     "plan_index": 12,
+     "chunk_secs": 20.831999924,
+     "secs": {
+      "read": 0.09063279399999999,
+      "decode": 0.13001411899999998,
+      "check": 0.087167137,
+      "construct": 0.759759377,
+      "alloc": 0.135204019,
+      "build_rest": 0.03635239900000009,
+      "trace": 7.668420059,
+      "interaction": 9.621808359,
+      "stwo": 0.9927790269999999,
+      "serialize": 0.104257046,
+      "prove_rest": 1.2056055880000027,
+      "loop_rest": 0.0
+     }
+    },
+    {
+     "ser_tag": "B8L13",
+     "plan_index": 13,
+     "chunk_secs": 21.441968947,
+     "secs": {
+      "read": 0.098634577,
+      "decode": 0.12630160699999998,
+      "check": 0.089677485,
+      "construct": 0.8308900390000001,
+      "alloc": 0.220797789,
+      "build_rest": 0.03659248100000001,
+      "trace": 7.662829198,
+      "interaction": 9.9783023,
+      "stwo": 1.009554583,
+      "serialize": 0.10472161799999999,
+      "prove_rest": 1.283667269999998,
+      "loop_rest": 0.0
+     }
+    },
+    {
+     "ser_tag": "B8L14",
+     "plan_index": 14,
+     "chunk_secs": 22.389920239,
+     "secs": {
+      "read": 0.173970184,
+      "decode": 0.162545229,
+      "check": 0.219055976,
+      "construct": 1.029949983,
+      "alloc": 0.204171974,
+      "build_rest": 0.038897194999999885,
+      "trace": 8.414665328,
+      "interaction": 9.729859469,
+      "stwo": 1.0592622839999999,
+      "serialize": 0.120748984,
+      "prove_rest": 1.2367936329999973,
+      "loop_rest": 0.0
+     }
+    },
+    {
+     "ser_tag": "B8L15",
+     "plan_index": 15,
+     "chunk_secs": 21.69560072,
+     "secs": {
+      "read": 0.12662916600000002,
+      "decode": 0.146983585,
+      "check": 0.19542773100000002,
+      "construct": 0.9835667129999999,
+      "alloc": 0.12522392,
+      "build_rest": 0.03870401600000006,
+      "trace": 8.022870373,
+      "interaction": 9.640517623000001,
+      "stwo": 1.06994835,
+      "serialize": 0.101836362,
+      "prove_rest": 1.2438928810000016,
+      "loop_rest": 0.0
+     }
+    },
+    {
+     "ser_tag": "B8L16",
+     "plan_index": 16,
+     "chunk_secs": 23.20530302,
+     "secs": {
+      "read": 0.099640998,
+      "decode": 0.158679541,
+      "check": 0.441872819,
+      "construct": 2.2480365750000004,
+      "alloc": 0.216032679,
+      "build_rest": 0.036431679999999744,
+      "trace": 7.893360429,
+      "interaction": 9.674263706,
+      "stwo": 1.0649513050000001,
+      "serialize": 0.14026586600000002,
+      "prove_rest": 1.2317674219999963,
+      "loop_rest": 0.0
+     }
+    },
+    {
+     "ser_tag": "B8L17",
+     "plan_index": 17,
+     "chunk_secs": 22.866309158,
+     "secs": {
+      "read": 0.09358224200000001,
+      "decode": 0.146484433,
+      "check": 0.471543548,
+      "construct": 2.2187782719999993,
+      "alloc": 0.228979406,
+      "build_rest": 0.03606306100000056,
+      "trace": 7.726841264,
+      "interaction": 9.61824735,
+      "stwo": 1.092327212,
+      "serialize": 0.118791087,
+      "prove_rest": 1.1146712829999987,
+      "loop_rest": 0.0
+     }
+    },
+    {
+     "ser_tag": "B8L18",
+     "plan_index": 18,
+     "chunk_secs": 20.906414558,
+     "secs": {
+      "read": 0.101049391,
+      "decode": 0.13673343100000002,
+      "check": 0.08976599299999999,
+      "construct": 0.7714440660000002,
+      "alloc": 0.138724664,
+      "build_rest": 0.037081563000000095,
+      "trace": 7.71762867,
+      "interaction": 9.556507673,
+      "stwo": 1.0315901910000003,
+      "serialize": 0.100953441,
+      "prove_rest": 1.2249354750000012,
+      "loop_rest": 0.0
+     }
+    },
+    {
+     "ser_tag": "B8L19",
+     "plan_index": 19,
+     "chunk_secs": 21.807113826,
+     "secs": {
+      "read": 0.103121001,
+      "decode": 0.140748287,
+      "check": 0.20250158199999999,
+      "construct": 0.8778413040000002,
+      "alloc": 0.19733639,
+      "build_rest": 0.03818227299999988,
+      "trace": 7.920705077,
+      "interaction": 9.880114207,
+      "stwo": 1.007103337,
+      "serialize": 0.11532602,
+      "prove_rest": 1.3241343479999974,
+      "loop_rest": 0.0
+     }
+    },
+    {
+     "ser_tag": "B8L20",
+     "plan_index": 20,
+     "chunk_secs": 21.225253088,
+     "secs": {
+      "read": 0.119072106,
+      "decode": 0.128299988,
+      "check": 0.089724946,
+      "construct": 0.849985032,
+      "alloc": 0.214525231,
+      "build_rest": 0.043968596000000026,
+      "trace": 7.602341851,
+      "interaction": 9.774955256,
+      "stwo": 0.991059071,
+      "serialize": 0.10554392800000001,
+      "prove_rest": 1.305777082999997,
+      "loop_rest": 0.0
+     }
+    },
+    {
+     "ser_tag": "B8L21",
+     "plan_index": 21,
+     "chunk_secs": 21.1965261,
+     "secs": {
+      "read": 0.102531845,
+      "decode": 0.134993482,
+      "check": 0.100375753,
+      "construct": 0.781461802,
+      "alloc": 0.152701928,
+      "build_rest": 0.039624743999999934,
+      "trace": 7.680114617,
+      "interaction": 9.865185872,
+      "stwo": 0.999471496,
+      "serialize": 0.119750391,
+      "prove_rest": 1.2203141699999984,
+      "loop_rest": 0.0
+     }
+    },
+    {
+     "ser_tag": "B8L22",
+     "plan_index": 22,
+     "chunk_secs": 21.380111323,
+     "secs": {
+      "read": 0.093032448,
+      "decode": 0.139838222,
+      "check": 0.201478683,
+      "construct": 0.865656333,
+      "alloc": 0.116404107,
+      "build_rest": 0.03737017100000006,
+      "trace": 7.745185546,
+      "interaction": 9.825669904,
+      "stwo": 0.9982139070000001,
+      "serialize": 0.095116864,
+      "prove_rest": 1.2621451380000024,
+      "loop_rest": 0.0
+     }
+    },
+    {
+     "ser_tag": "B8L23",
+     "plan_index": 23,
+     "chunk_secs": 21.368935899,
+     "secs": {
+      "read": 0.105656756,
+      "decode": 0.128990077,
+      "check": 0.092138694,
+      "construct": 0.8308111830000001,
+      "alloc": 0.274539368,
+      "build_rest": 0.03866426899999986,
+      "trace": 7.723029191,
+      "interaction": 9.811745456,
+      "stwo": 1.0019307,
+      "serialize": 0.119278801,
+      "prove_rest": 1.2421514039999986,
+      "loop_rest": 0.0
+     }
+    },
+    {
+     "ser_tag": "B8L24",
+     "plan_index": 24,
+     "chunk_secs": 21.564182696,
+     "secs": {
+      "read": 0.101762862,
+      "decode": 0.137366875,
+      "check": 0.09205806,
+      "construct": 0.7650405720000004,
+      "alloc": 0.165258473,
+      "build_rest": 0.038663344999999794,
+      "trace": 7.852648733,
+      "interaction": 10.075541101,
+      "stwo": 1.0028120780000003,
+      "serialize": 0.121424031,
+      "prove_rest": 1.211606566,
+      "loop_rest": 0.0
+     }
+    },
+    {
+     "ser_tag": "B8L25",
+     "plan_index": 25,
+     "chunk_secs": 21.059488714,
+     "secs": {
+      "read": 0.09147165,
+      "decode": 0.127133567,
+      "check": 0.094486247,
+      "construct": 0.7607593069999999,
+      "alloc": 0.134060072,
+      "build_rest": 0.03794604999999995,
+      "trace": 7.717522488,
+      "interaction": 9.749389995,
+      "stwo": 1.00512754,
+      "serialize": 0.102137801,
+      "prove_rest": 1.2394539970000016,
+      "loop_rest": 0.0
+     }
+    },
+    {
+     "ser_tag": "B8L26",
+     "plan_index": 26,
+     "chunk_secs": 21.52508267,
+     "secs": {
+      "read": 0.093021009,
+      "decode": 0.144565956,
+      "check": 0.199489701,
+      "construct": 0.901704968,
+      "alloc": 0.266677778,
+      "build_rest": 0.04190278199999975,
+      "trace": 7.8035471229999995,
+      "interaction": 9.719765799,
+      "stwo": 1.01522475,
+      "serialize": 0.094920775,
+      "prove_rest": 1.2442620290000015,
+      "loop_rest": 0.0
+     }
+    },
+    {
+     "ser_tag": "B8L27",
+     "plan_index": 27,
+     "chunk_secs": 21.06292052,
+     "secs": {
+      "read": 0.089589222,
+      "decode": 0.14205252899999998,
+      "check": 0.08866458699999999,
+      "construct": 0.794185803,
+      "alloc": 0.196516601,
+      "build_rest": 0.03915705700000016,
+      "trace": 7.61230198,
+      "interaction": 9.763364362,
+      "stwo": 1.025947776,
+      "serialize": 0.10414146,
+      "prove_rest": 1.206999142999999,
+      "loop_rest": 0.0
+     }
+    },
+    {
+     "ser_tag": "B8L28",
+     "plan_index": 28,
+     "chunk_secs": 21.743341997,
+     "secs": {
+      "read": 0.092226006,
+      "decode": 0.143672,
+      "check": 0.21788263200000002,
+      "construct": 0.963026684,
+      "alloc": 0.161616697,
+      "build_rest": 0.03622534600000016,
+      "trace": 7.73149358,
+      "interaction": 9.901956773,
+      "stwo": 0.987732958,
+      "serialize": 0.126937217,
+      "prove_rest": 1.3805721040000027,
+      "loop_rest": 0.0
+     }
+    },
+    {
+     "ser_tag": "B8L29",
+     "plan_index": 29,
+     "chunk_secs": 21.651192521,
+     "secs": {
+      "read": 0.089155509,
+      "decode": 0.14840111899999997,
+      "check": 0.199507261,
+      "construct": 0.9368368149999998,
+      "alloc": 0.112474065,
+      "build_rest": 0.036719964000000216,
+      "trace": 7.975865386,
+      "interaction": 9.691147993,
+      "stwo": 1.065185852,
+      "serialize": 0.124184133,
+      "prove_rest": 1.2717144239999998,
+      "loop_rest": 0.0
+     }
+    },
+    {
+     "ser_tag": "B8L30",
+     "plan_index": 30,
+     "chunk_secs": 21.304330333,
+     "secs": {
+      "read": 0.112113423,
+      "decode": 0.155990557,
+      "check": 0.08862965,
+      "construct": 0.8529827310000002,
+      "alloc": 0.285034517,
+      "build_rest": 0.06211414699999973,
+      "trace": 7.695759632,
+      "interaction": 9.664760128,
+      "stwo": 1.0060828589999997,
+      "serialize": 0.11643054800000001,
+      "prove_rest": 1.2644321410000001,
+      "loop_rest": 0.0
+     }
+    },
+    {
+     "ser_tag": "B8L31",
+     "plan_index": 31,
+     "chunk_secs": 23.072536845,
+     "secs": {
+      "read": 0.096245601,
+      "decode": 0.144305776,
+      "check": 0.431033804,
+      "construct": 2.5472808349999996,
+      "alloc": 0.159539977,
+      "build_rest": 0.03771269900000007,
+      "trace": 7.789156962,
+      "interaction": 9.534479537,
+      "stwo": 1.0607404180000002,
+      "serialize": 0.137879302,
+      "prove_rest": 1.1341619339999978,
+      "loop_rest": 0.0
+     }
+    }
+   ]
+  },
+  "nokernels": {
+   "segments": 32,
+   "pipe": false,
+   "loop_secs": 4737.035672124,
+   "secs": {
+    "read": 5.554469145,
+    "decode": 5.000447567999999,
+    "check": 13.092726642999995,
+    "construct": 67.85346370200001,
+    "alloc": 13.589149746999999,
+    "build_rest": 1.339194647999996,
+    "trace": 278.8167872590001,
+    "interaction": 313.783588986,
+    "stwo": 3983.7482231540007,
+    "serialize": 4.374760307,
+    "prove_rest": 46.37869697800002,
+    "loop_rest": 3.5041639869987193
+   },
+   "share": {
+    "read": 0.001172562237115153,
+    "decode": 0.0010556069056912739,
+    "check": 0.0027639071244590094,
+    "construct": 0.014324034775861371,
+    "alloc": 0.0028687032751237174,
+    "build_rest": 0.00028270731754897804,
+    "trace": 0.058858916537139726,
+    "interaction": 0.06624049526004629,
+    "stwo": 0.840979147908287,
+    "serialize": 0.0009235227703148028,
+    "prove_rest": 0.009790658164329311,
+    "loop_rest": 0.0007397377240833647
+   },
+   "fallback_lines": 3872,
+   "constraint_eval": {
+    "gpu": {
+     "calls": 3872,
+     "secs": 0.006199573000000001
+    },
+    "cpu_fallback": {
+     "calls": 0,
+     "secs": 0.0
+    },
+    "cpu_autofallback": {
+     "calls": 3872,
+     "secs": 3950.1273745820004
+    }
+   },
+   "trace_secs_field": 278.467407701,
+   "host_phases": {
+    "evalof/bitrev": {
+     "calls": 540396,
+     "secs": 16.346321354999986
+    },
+    "evalof/fused": {
+     "calls": 77203,
+     "secs": 22.21206612800001
+    },
+    "evalof/pack": {
+     "calls": 540396,
+     "secs": 8.816183448000002
+    },
+    "freivalds/qw": {
+     "calls": 192,
+     "secs": 0.184032111
+    },
+    "freivalds/qx": {
+     "calls": 96,
+     "secs": 0.022367406
+    },
+    "gen/argmax": {
+     "calls": 32,
+     "secs": 4.077e-06
+    },
+    "gen/attnout": {
+     "calls": 32,
+     "secs": 6.0633487939999995
+    },
+    "gen/deq_dev_acc": {
+     "calls": 192,
+     "secs": 0.17297897000000004
+    },
+    "gen/deq_dev_alloc": {
+     "calls": 192,
+     "secs": 0.21456266400000007
+    },
+    "gen/deq_dev_counters": {
+     "calls": 192,
+     "secs": 0.251830209
+    },
+    "gen/deq_dev_h2d": {
+     "calls": 192,
+     "secs": 0.29509369799999996
+    },
+    "gen/deq_dev_kernel": {
+     "calls": 192,
+     "secs": 0.13547166700000002
+    },
+    "gen/deq_dev_output_claim": {
+     "calls": 192,
+     "secs": 0.478930718
+    },
+    "gen/deq_dev_up": {
+     "calls": 192,
+     "secs": 0.683180163
+    },
+    "gen/dequant": {
+     "calls": 32,
+     "secs": 3.380701799
+    },
+    "gen/embed": {
+     "calls": 32,
+     "secs": 7.665488325000001
+    },
+    "gen/freivalds": {
+     "calls": 32,
+     "secs": 10.141111787000002
+    },
+    "gen/key_tiles": {
+     "calls": 32,
+     "secs": 121.68262180000002
+    },
+    "gen/pre_alloc": {
+     "calls": 32,
+     "secs": 0.0040148729999999995
+    },
+    "gen/pre_diff": {
+     "calls": 32,
+     "secs": 0.026627878000000004
+    },
+    "gen/pre_flags": {
+     "calls": 768,
+     "secs": 0.025617091
+    },
+    "gen/pre_kernel": {
+     "calls": 32,
+     "secs": 0.006209003
+    },
+    "gen/pre_key_tiles": {
+     "calls": 32,
+     "secs": 0.09756029299999999
+    },
+    "gen/pre_sel": {
+     "calls": 768,
+     "secs": 0.070648258
+    },
+    "gen/pre_up": {
+     "calls": 32,
+     "secs": 0.0020104530000000006
+    },
+    "gen/quant": {
+     "calls": 32,
+     "secs": 8.234778731999999
+    },
+    "gen/refs": {
+     "calls": 32,
+     "secs": 0.19517488199999994
+    },
+    "gen/requant": {
+     "calls": 32,
+     "secs": 46.31649597399999
+    },
+    "gen/residual_stream": {
+     "calls": 32,
+     "secs": 72.138636398
+    },
+    "gen/residual_stream_b1": {
+     "calls": 96,
+     "secs": 2.9323461189999995
+    },
+    "gen/residual_stream_component": {
+     "calls": 224,
+     "secs": 40.67791857899999
+    },
+    "gen/residual_stream_deqref": {
+     "calls": 32,
+     "secs": 1.0568751409999997
+    },
+    "gen/residual_stream_wblk": {
+     "calls": 64,
+     "secs": 0.039347929999999996
+    },
+    "gen/residual_stream_witness_gen_alloc": {
+     "calls": 224,
+     "secs": 2.1122311069999995
+    },
+    "gen/residual_stream_witness_gen_d2h": {
+     "calls": 224,
+     "secs": 12.805189255
+    },
+    "gen/residual_stream_witness_gen_kernel": {
+     "calls": 224,
+     "secs": 0.2864466229999999
+    },
+    "gen/residual_stream_witness_gen_pre": {
+     "calls": 224,
+     "secs": 0.03476865400000001
+    },
+    "gen/residual_stream_witness_gen_up": {
+     "calls": 224,
+     "secs": 1.095241602
+    },
+    "gen/rope_deqref": {
+     "calls": 64,
+     "secs": 0.190883653
+    },
+    "gen/rope_invref": {
+     "calls": 32,
+     "secs": 0.015272001999999996
+    },
+    "gen/tab_alloc": {
+     "calls": 32,
+     "secs": 0.0014280400000000002
+    },
+    "gen/tab_kernel": {
+     "calls": 32,
+     "secs": 0.0021179819999999996
+    },
+    "gen/tab_map": {
+     "calls": 32,
+     "secs": 0.17522215100000002
+    },
+    "gen/tab_up": {
+     "calls": 32,
+     "secs": 0.004417758999999999
+    },
+    "gen/tables": {
+     "calls": 32,
+     "secs": 1.3158082829999997
+    },
+    "gen/tables_up": {
+     "calls": 32,
+     "secs": 0.36791827099999985
+    },
+    "gen/witness_gen_alloc": {
+     "calls": 192,
+     "secs": 0.22304393699999997
+    },
+    "gen/witness_gen_counters": {
+     "calls": 192,
+     "secs": 1.120648059
+    },
+    "gen/witness_gen_freivalds_h2d": {
+     "calls": 288,
+     "secs": 0.20639951700000003
+    },
+    "gen/witness_gen_freivalds_kernel": {
+     "calls": 96,
+     "secs": 0.09624218699999998
+    },
+    "gen/witness_gen_freivalds_pack": {
+     "calls": 288,
+     "secs": 0.5584076059999998
+    },
+    "gen/witness_gen_freivalds_up": {
+     "calls": 96,
+     "secs": 0.7857882239999998
+    },
+    "gen/witness_gen_key_tile_h2d": {
+     "calls": 768,
+     "secs": 0.11869901399999999
+    },
+    "gen/witness_gen_key_tile_kernel": {
+     "calls": 96,
+     "secs": 0.238354194
+    },
+    "gen/witness_gen_key_tile_pack": {
+     "calls": 768,
+     "secs": 0.330452692
+    },
+    "gen/witness_gen_key_tile_up": {
+     "calls": 96,
+     "secs": 0.45798511299999994
+    },
+    "int/acc_kernel": {
+     "calls": 800,
+     "secs": 0.9651354519999998
+    },
+    "int/air": {
+     "calls": 32,
+     "secs": 0.887540405
+    },
+    "int/ao_gkr": {
+     "calls": 32,
+     "secs": 1.3149546350000003
+    },
+    "int/argmax": {
+     "calls": 32,
+     "secs": 1.2843e-05
+    },
+    "int/attnout": {
+     "calls": 32,
+     "secs": 2.109549682
+    },
+    "int/deq_carry": {
+     "calls": 224,
+     "secs": 0.016103599
+    },
+    "int/deq_cols": {
+     "calls": 224,
+     "secs": 0.322273736
+    },
+    "int/deq_gkr": {
+     "calls": 32,
+     "secs": 0.705096836
+    },
+    "int/deq_inner": {
+     "calls": 224,
+     "secs": 0.04648465300000001
+    },
+    "int/dequant": {
+     "calls": 32,
+     "secs": 49.006227294999995
+    },
+    "int/embed": {
+     "calls": 32,
+     "secs": 0.338224282
+    },
+    "int/frac_kernel": {
+     "calls": 478,
+     "secs": 0.25406753
+    },
+    "int/frac_lower": {
+     "calls": 478,
+     "secs": 0.005793007999999999
+    },
+    "int/frac_up": {
+     "calls": 478,
+     "secs": 0.00012111999999999998
+    },
+    "int/freivalds": {
+     "calls": 32,
+     "secs": 5.407715175000001
+    },
+    "int/freivalds_build": {
+     "calls": 128,
+     "secs": 5.4053313780000005
+    },
+    "int/freivalds_gkr": {
+     "calls": 32,
+     "secs": 0.277060362
+    },
+    "int/gkr": {
+     "calls": 32,
+     "secs": 57.085824786
+    },
+    "int/key_tiles": {
+     "calls": 32,
+     "secs": 24.823083044999997
+    },
+    "int/key_tiles_build": {
+     "calls": 864,
+     "secs": 24.739332056999995
+    },
+    "int/link": {
+     "calls": 32,
+     "secs": 9.338919376
+    },
+    "int/link_cols": {
+     "calls": 288,
+     "secs": 0.07201515200000001
+    },
+    "int/link_eq": {
+     "calls": 288,
+     "secs": 0.018834191000000004
+    },
+    "int/link_fold": {
+     "calls": 288,
+     "secs": 8.778533090000003
+    },
+    "int/link_prefix": {
+     "calls": 288,
+     "secs": 0.015670927
+    },
+    "int/link_q": {
+     "calls": 288,
+     "secs": 0.011575212000000001
+    },
+    "int/link_split": {
+     "calls": 288,
+     "secs": 0.012585505
+    },
+    "int/link_terms": {
+     "calls": 288,
+     "secs": 0.013031846000000003
+    },
+    "int/requant": {
+     "calls": 32,
+     "secs": 45.809622952000005
+    },
+    "int/residual_stream": {
+     "calls": 32,
+     "secs": 23.2652585
+    },
+    "int/residual_stream_build": {
+     "calls": 352,
+     "secs": 23.198765919
+    },
+    "int/residual_stream_gkr": {
+     "calls": 32,
+     "secs": 8.918745442999999
+    },
+    "int/tables": {
+     "calls": 32,
+     "secs": 0.728333436
+    },
+    "key_tile/dd": {
+     "calls": 96,
+     "secs": 0.04055668899999999
+    },
+    "key_tile/delta": {
+     "calls": 96,
+     "secs": 0.0033714319999999993
+    },
+    "key_tile/kk": {
+     "calls": 96,
+     "secs": 0.019535726
+    },
+    "key_tile/mm": {
+     "calls": 96,
+     "secs": 0.0029649849999999994
+    },
+    "key_tile/num": {
+     "calls": 96,
+     "secs": 0.023982301
+    },
+    "key_tile/qq": {
+     "calls": 96,
+     "secs": 0.013778727000000001
+    },
+    "key_tile/vv": {
+     "calls": 96,
+     "secs": 0.012904677000000003
+    },
+    "key_tile/zz": {
+     "calls": 96,
+     "secs": 0.0016044770000000002
+    },
+    "wall/build_components": {
+     "calls": 32,
+     "secs": 1.063828167
+    },
+    "wall/commit_base": {
+     "calls": 32,
+     "secs": 28.034403253
+    },
+    "wall/commit_boundary": {
+     "calls": 32,
+     "secs": 6.764298849999999
+    },
+    "wall/commit_inter": {
+     "calls": 32,
+     "secs": 6.211314058
+    },
+    "wall/commit_pre": {
+     "calls": 32,
+     "secs": 5.518938026999998
+    },
+    "wall/commit_shape": {
+     "calls": 32,
+     "secs": 1.8340482820000004
+    },
+    "wall/cuda_init": {
+     "calls": 64,
+     "secs": 0.526350694
+    },
+    "wall/prove_raw": {
+     "calls": 32,
+     "secs": 3962.6428674709996
+    },
+    "wall/ser_proof": {
+     "calls": 32,
+     "secs": 4.095239255
+    },
+    "wall/ser_statement": {
+     "calls": 32,
+     "secs": 0.279521052
+    },
+    "wall/session_new": {
+     "calls": 32,
+     "secs": 0.0003219
+    },
+    "wall/twiddles": {
+     "calls": 32,
+     "secs": 0.005895569
+    }
+   },
+   "verify_after_loop_secs": 15.686519452000002,
+   "digests": [
+    "59fff6b1f02326155e945687a139ddae7f09e82e17f9bd6273b71fa0f656a41c",
+    "35ba433d97a4adcf4b983350176504f14349f9c89a0e24afcce9e708416def81",
+    "0ac9c45e8bf6e45ae2539680ecebf246e1058c1ecbd858bf2cb40ef9e8d1f2be",
+    "b70534caa94424255c62283141a42ca71974279e8679f639d7ba7f54a74364d7",
+    "dc610ebb5dac9c32cca83398559af2cf63a2bf469e235466d0911c8fa87e5633",
+    "c9d2725b919cd7536d6613770be46cce008769dbf5a5d642be9c57c03510acca",
+    "1fa683773df8c68f8b103dd30dd5da3b65b1fabeb022c3da1f2567412fa8cf99",
+    "5ab5f2112da72e71f00e084173dd6164be37cc54d2ca648e580cb1c2d8ffe6e1",
+    "8cbe3c205a2e6b6a1e7620a80c343ee802a2a1eb58bb19448dddecdda4a06911",
+    "7b85668263dcb3e6f5f833f4dbd79a00254895d3d307232b9936a297671ff9ad",
+    "1712dc9a3364e851f1b746dedf07c85327e6301bc73dbd72669975e0f0aa8f51",
+    "5c5d75ea08b93c552902b4b4700769111e76074e4b490deb1f46367fa9c3d0b5",
+    "82f934d5926a36a16c30613299349ed5491d6d36d51fc110acb30c463db0e771",
+    "1d06dbed0b93cb083ddecd28b34845bd52e40a4eefc57e70f9b3edf9d7cda84c",
+    "9064aef7b624cb91409b7a9d92c110c7aa9ba5eb306d2dffdd0e3b6ff0806db3",
+    "7db6167054eaf2123db9d6d22b15c6e6aedf32a3ac7953b8a51526112ca73ad1",
+    "b9c6309b0fb73b764a89a9f59fb879e83827bdf53589ca91c89f2cf89b67cfec",
+    "73ad07cb316de2dc98068ebb47fd393c636b6d9c3514afbfdbf461e772f9beda",
+    "b4ce1f76f3eb52f881daecfd83121245d3588fbbb11dd0b23d59873d42e2637d",
+    "af0667bf0d250806608574e3666b200213054e6f33ade8c1af2510b1041b703f",
+    "cd1bcb618d2c140b9cdbd26872355a5ec93a792cdc3f001f328d30f80f764b94",
+    "d2bbb69b84280dc9a0af358e95d90e9bec339e14feb5572c7b09b1ddf11a5552",
+    "39299e308f857b252314e691361394dd89ce9d049eb52c2d1f040657a3b93ede",
+    "84e5f51e08042f79c40300fa33f2dbecdcfd16d50ca4b2e4bb0081b23ec6cb29",
+    "c9ef0ed818e044f2b11581046f2a974de86d153bb748c8fe1eff0dc43f13c36f",
+    "5ef64fc43e6cb845e0cbd2ce6c2fdf86b3e656cac6468037b595d14b6f25b386",
+    "11fdf64b86a9d8bb8c2ecf1a35448fd48175789928979f584746104fdc756ad3",
+    "1bbd46d258ad845d4fad3138bd3372f9ea76465c9146f1f6156bc5b37edae0dc",
+    "11c4d152038aed2f0665ce9ee36843e89671bc289cdfde72a6a7739ec51ba271",
+    "245623fdf7c5fae065edcc15ba037abb59567220be15496f3b9528ca60115edb",
+    "d991bbdb78494ca3ac60f96c1791231af3963a543e1e43593f8eddaf0149efce",
+    "b3956211cbac08e9edd6cb8467aa6855c4531f7bbd3191fdd45adaeea56153f2"
+   ],
+   "segment_rows": [
+    {
+     "ser_tag": "B8L0",
+     "plan_index": 0,
+     "chunk_secs": 274.203305413,
+     "secs": {
+      "read": 0.651317053,
+      "decode": 0.21327034899999997,
+      "check": 3.3807949109999997,
+      "construct": 9.294230715000001,
+      "alloc": 0.0015746,
+      "build_rest": 0.06405768899999842,
+      "trace": 18.432564583,
+      "interaction": 11.241544932,
+      "stwo": 227.604942272,
+      "serialize": 0.161277656,
+      "prove_rest": 3.157730652999997,
+      "loop_rest": 0.0
+     }
+    },
+    {
+     "ser_tag": "B8L1",
+     "plan_index": 1,
+     "chunk_secs": 161.302596511,
+     "secs": {
+      "read": 0.143902165,
+      "decode": 0.146732414,
+      "check": 1.900976144,
+      "construct": 8.229455823,
+      "alloc": 0.430793127,
+      "build_rest": 0.040357289999999324,
+      "trace": 8.925467492,
+      "interaction": 9.708110441,
+      "stwo": 130.324823516,
+      "serialize": 0.134527444,
+      "prove_rest": 1.3174506549999732,
+      "loop_rest": 0.0
+     }
+    },
+    {
+     "ser_tag": "B8L2",
+     "plan_index": 2,
+     "chunk_secs": 153.414254585,
+     "secs": {
+      "read": 0.13598452,
+      "decode": 0.156948236,
+      "check": 0.20756208299999998,
+      "construct": 1.226818171,
+      "alloc": 0.4272508,
+      "build_rest": 0.041315129000000006,
+      "trace": 8.95184404,
+      "interaction": 9.995313209999999,
+      "stwo": 130.696352614,
+      "serialize": 0.134664798,
+      "prove_rest": 1.4402009839999892,
+      "loop_rest": 0.0
+     }
+    },
+    {
+     "ser_tag": "B8L3",
+     "plan_index": 3,
+     "chunk_secs": 147.222878297,
+     "secs": {
+      "read": 0.13598592699999998,
+      "decode": 0.14327054,
+      "check": 0.087867449,
+      "construct": 0.938488236,
+      "alloc": 0.430446495,
+      "build_rest": 0.03991991400000017,
+      "trace": 8.364070684,
+      "interaction": 9.605404493,
+      "stwo": 125.84883961,
+      "serialize": 0.14821508,
+      "prove_rest": 1.4803698690000004,
+      "loop_rest": 0.0
+     }
+    },
+    {
+     "ser_tag": "B8L4",
+     "plan_index": 4,
+     "chunk_secs": 144.353949442,
+     "secs": {
+      "read": 0.131555275,
+      "decode": 0.149866211,
+      "check": 0.45033930499999997,
+      "construct": 2.4637827520000006,
+      "alloc": 0.435099176,
+      "build_rest": 0.040854586999999665,
+      "trace": 8.284769877,
+      "interaction": 9.637075791000001,
+      "stwo": 121.33995262799999,
+      "serialize": 0.117707305,
+      "prove_rest": 1.302946535,
+      "loop_rest": 0.0
+     }
+    },
+    {
+     "ser_tag": "B8L5",
+     "plan_index": 5,
+     "chunk_secs": 146.292632009,
+     "secs": {
+      "read": 0.155043931,
+      "decode": 0.15269378300000003,
+      "check": 0.227980674,
+      "construct": 1.260754503,
+      "alloc": 0.440344983,
+      "build_rest": 0.04444574099999965,
+      "trace": 8.374445692,
+      "interaction": 9.931890082,
+      "stwo": 124.168501095,
+      "serialize": 0.13777241599999998,
+      "prove_rest": 1.3987591090000009,
+      "loop_rest": 0.0
+     }
+    },
+    {
+     "ser_tag": "B8L6",
+     "plan_index": 6,
+     "chunk_secs": 151.901346911,
+     "secs": {
+      "read": 0.13364437999999998,
+      "decode": 0.157589747,
+      "check": 0.9399298979999999,
+      "construct": 4.634103936000001,
+      "alloc": 0.443686827,
+      "build_rest": 0.03709429499999928,
+      "trace": 8.32869003,
+      "interaction": 9.771245034,
+      "stwo": 125.96029413000001,
+      "serialize": 0.142773025,
+      "prove_rest": 1.352295608999992,
+      "loop_rest": 0.0
+     }
+    },
+    {
+     "ser_tag": "B8L7",
+     "plan_index": 7,
+     "chunk_secs": 145.364696438,
+     "secs": {
+      "read": 0.153883872,
+      "decode": 0.16618666799999998,
+      "check": 0.204268006,
+      "construct": 1.3467319869999999,
+      "alloc": 0.428770621,
+      "build_rest": 0.041525449999999964,
+      "trace": 8.573738739,
+      "interaction": 9.841334794,
+      "stwo": 123.031312966,
+      "serialize": 0.132372152,
+      "prove_rest": 1.4445711830000099,
+      "loop_rest": 0.0
+     }
+    },
+    {
+     "ser_tag": "B8L8",
+     "plan_index": 8,
+     "chunk_secs": 155.412253055,
+     "secs": {
+      "read": 0.15327570599999998,
+      "decode": 0.154080461,
+      "check": 0.44847339599999997,
+      "construct": 2.629964456,
+      "alloc": 0.44421508,
+      "build_rest": 0.042339067999999536,
+      "trace": 8.602964922,
+      "interaction": 9.71162401,
+      "stwo": 131.831148743,
+      "serialize": 0.123031666,
+      "prove_rest": 1.2711355469999746,
+      "loop_rest": 0.0
+     }
+    },
+    {
+     "ser_tag": "B8L9",
+     "plan_index": 9,
+     "chunk_secs": 137.396410219,
+     "secs": {
+      "read": 0.159962924,
+      "decode": 0.15079102500000002,
+      "check": 0.12280617299999999,
+      "construct": 0.9585940950000001,
+      "alloc": 0.43870486,
+      "build_rest": 0.04187454499999976,
+      "trace": 8.37343352,
+      "interaction": 10.040339448,
+      "stwo": 115.55333646099999,
+      "serialize": 0.122650316,
+      "prove_rest": 1.4339168520000007,
+      "loop_rest": 0.0
+     }
+    },
+    {
+     "ser_tag": "B8L10",
+     "plan_index": 10,
+     "chunk_secs": 161.138215747,
+     "secs": {
+      "read": 0.158191365,
+      "decode": 0.158014938,
+      "check": 0.438651933,
+      "construct": 2.5033330740000004,
+      "alloc": 0.436224645,
+      "build_rest": 0.04074342299999989,
+      "trace": 8.424558769,
+      "interaction": 10.096997786,
+      "stwo": 137.31757317199998,
+      "serialize": 0.159582509,
+      "prove_rest": 1.404344133000041,
+      "loop_rest": 0.0
+     }
+    },
+    {
+     "ser_tag": "B8L11",
+     "plan_index": 11,
+     "chunk_secs": 148.798670013,
+     "secs": {
+      "read": 0.150847109,
+      "decode": 0.14966858,
+      "check": 0.912490657,
+      "construct": 4.607272525,
+      "alloc": 0.441067249,
+      "build_rest": 0.04337749500000054,
+      "trace": 8.342800795,
+      "interaction": 9.780417318,
+      "stwo": 122.84590660100001,
+      "serialize": 0.13991728199999998,
+      "prove_rest": 1.3849044019999885,
+      "loop_rest": 0.0
+     }
+    },
+    {
+     "ser_tag": "B8L12",
+     "plan_index": 12,
+     "chunk_secs": 137.581128384,
+     "secs": {
+      "read": 0.156667392,
+      "decode": 0.159732773,
+      "check": 0.09344144,
+      "construct": 0.979098821,
+      "alloc": 0.432427975,
+      "build_rest": 0.0412728200000001,
+      "trace": 8.51905293,
+      "interaction": 10.011075498,
+      "stwo": 115.620924834,
+      "serialize": 0.142462021,
+      "prove_rest": 1.4249718800000295,
+      "loop_rest": 0.0
+     }
+    },
+    {
+     "ser_tag": "B8L13",
+     "plan_index": 13,
+     "chunk_secs": 136.966898311,
+     "secs": {
+      "read": 0.126136429,
+      "decode": 0.142894696,
+      "check": 0.092856282,
+      "construct": 1.024816648,
+      "alloc": 0.462155458,
+      "build_rest": 0.041136754999999914,
+      "trace": 8.326476021,
+      "interaction": 9.610352259,
+      "stwo": 115.671190541,
+      "serialize": 0.12179562699999999,
+      "prove_rest": 1.347087594999988,
+      "loop_rest": 0.0
+     }
+    },
+    {
+     "ser_tag": "B8L14",
+     "plan_index": 14,
+     "chunk_secs": 141.888337149,
+     "secs": {
+      "read": 0.19046223,
+      "decode": 0.155078404,
+      "check": 0.205548784,
+      "construct": 1.3702353360000004,
+      "alloc": 0.438449415,
+      "build_rest": 0.04397134899999955,
+      "trace": 8.319819868,
+      "interaction": 9.740171848,
+      "stwo": 119.839995718,
+      "serialize": 0.13791415599999998,
+      "prove_rest": 1.4466900410000045,
+      "loop_rest": 0.0
+     }
+    },
+    {
+     "ser_tag": "B8L15",
+     "plan_index": 15,
+     "chunk_secs": 145.644187693,
+     "secs": {
+      "read": 0.17851293299999998,
+      "decode": 0.15088928299999999,
+      "check": 0.228546873,
+      "construct": 1.4255978829999998,
+      "alloc": 0.441668482,
+      "build_rest": 0.040643841000000513,
+      "trace": 8.396343757,
+      "interaction": 9.701233711,
+      "stwo": 123.590134975,
+      "serialize": 0.136465531,
+      "prove_rest": 1.3541504239999813,
+      "loop_rest": 0.0
+     }
+    },
+    {
+     "ser_tag": "B8L16",
+     "plan_index": 16,
+     "chunk_secs": 144.998481066,
+     "secs": {
+      "read": 0.154867036,
+      "decode": 0.157343293,
+      "check": 0.45253152399999996,
+      "construct": 2.6458156980000003,
+      "alloc": 0.431775269,
+      "build_rest": 0.04137124599999975,
+      "trace": 8.06969698,
+      "interaction": 9.703354861,
+      "stwo": 121.880586647,
+      "serialize": 0.15560396899999998,
+      "prove_rest": 1.3055345430000052,
+      "loop_rest": 0.0
+     }
+    },
+    {
+     "ser_tag": "B8L17",
+     "plan_index": 17,
+     "chunk_secs": 145.902168487,
+     "secs": {
+      "read": 0.15777070499999998,
+      "decode": 0.155385783,
+      "check": 0.443718236,
+      "construct": 2.6442711269999997,
+      "alloc": 0.433914,
+      "build_rest": 0.0420229889999999,
+      "trace": 8.135905999,
+      "interaction": 9.742497868,
+      "stwo": 122.692106724,
+      "serialize": 0.15998943100000002,
+      "prove_rest": 1.2945856250000385,
+      "loop_rest": 0.0
+     }
+    },
+    {
+     "ser_tag": "B8L18",
+     "plan_index": 18,
+     "chunk_secs": 136.475345833,
+     "secs": {
+      "read": 0.164346667,
+      "decode": 0.15653650600000002,
+      "check": 0.091471362,
+      "construct": 0.9785109229999998,
+      "alloc": 0.437207336,
+      "build_rest": 0.04056752100000027,
+      "trace": 8.399167933,
+      "interaction": 9.746629228,
+      "stwo": 114.947810395,
+      "serialize": 0.126641664,
+      "prove_rest": 1.3864562980000033,
+      "loop_rest": 0.0
+     }
+    },
+    {
+     "ser_tag": "B8L19",
+     "plan_index": 19,
+     "chunk_secs": 140.393172915,
+     "secs": {
+      "read": 0.162626009,
+      "decode": 0.159088751,
+      "check": 0.204342703,
+      "construct": 1.5084535640000003,
+      "alloc": 0.429531031,
+      "build_rest": 0.041091428999999735,
+      "trace": 8.373915548,
+      "interaction": 9.925310814,
+      "stwo": 118.06742012299999,
+      "serialize": 0.112757655,
+      "prove_rest": 1.4086352880000093,
+      "loop_rest": 0.0
+     }
+    },
+    {
+     "ser_tag": "B8L20",
+     "plan_index": 20,
+     "chunk_secs": 140.282107467,
+     "secs": {
+      "read": 0.148059318,
+      "decode": 0.15834188500000002,
+      "check": 0.091096849,
+      "construct": 0.9709254639999999,
+      "alloc": 0.451618785,
+      "build_rest": 0.040328028000000016,
+      "trace": 8.261538131,
+      "interaction": 9.695460027,
+      "stwo": 118.891607967,
+      "serialize": 0.123950997,
+      "prove_rest": 1.4491800159999941,
+      "loop_rest": 0.0
+     }
+    },
+    {
+     "ser_tag": "B8L21",
+     "plan_index": 21,
+     "chunk_secs": 138.720837171,
+     "secs": {
+      "read": 0.17877975399999999,
+      "decode": 0.142605082,
+      "check": 0.091149993,
+      "construct": 0.950124865,
+      "alloc": 0.440147327,
+      "build_rest": 0.040686619000000146,
+      "trace": 8.436713685,
+      "interaction": 9.633333232,
+      "stwo": 117.292889006,
+      "serialize": 0.142275502,
+      "prove_rest": 1.3721321060000133,
+      "loop_rest": 0.0
+     }
+    },
+    {
+     "ser_tag": "B8L22",
+     "plan_index": 22,
+     "chunk_secs": 140.543782062,
+     "secs": {
+      "read": 0.18781255200000002,
+      "decode": 0.15972560200000002,
+      "check": 0.226738951,
+      "construct": 1.5292952470000003,
+      "alloc": 0.443000304,
+      "build_rest": 0.041750532999999646,
+      "trace": 8.297984318,
+      "interaction": 9.646790162,
+      "stwo": 118.43008038100001,
+      "serialize": 0.140821664,
+      "prove_rest": 1.4397823479999807,
+      "loop_rest": 0.0
+     }
+    },
+    {
+     "ser_tag": "B8L23",
+     "plan_index": 23,
+     "chunk_secs": 141.552920874,
+     "secs": {
+      "read": 0.163325147,
+      "decode": 0.153160138,
+      "check": 0.094114172,
+      "construct": 0.9674947170000001,
+      "alloc": 0.431708602,
+      "build_rest": 0.03638651199999998,
+      "trace": 8.311471079,
+      "interaction": 9.788112393,
+      "stwo": 119.96530173699999,
+      "serialize": 0.123375601,
+      "prove_rest": 1.5184707759999931,
+      "loop_rest": 0.0
+     }
+    },
+    {
+     "ser_tag": "B8L24",
+     "plan_index": 24,
+     "chunk_secs": 136.79507319,
+     "secs": {
+      "read": 0.15576999200000002,
+      "decode": 0.155659689,
+      "check": 0.09502203399999999,
+      "construct": 0.9462584630000003,
+      "alloc": 0.45338739,
+      "build_rest": 0.042567412999999776,
+      "trace": 8.549819206,
+      "interaction": 9.607901876,
+      "stwo": 115.185391167,
+      "serialize": 0.127005962,
+      "prove_rest": 1.476289997999997,
+      "loop_rest": 0.0
+     }
+    },
+    {
+     "ser_tag": "B8L25",
+     "plan_index": 25,
+     "chunk_secs": 138.143128727,
+     "secs": {
+      "read": 0.14447854200000002,
+      "decode": 0.151593386,
+      "check": 0.10316771200000001,
+      "construct": 0.942720498,
+      "alloc": 0.434967225,
+      "build_rest": 0.0411443279999999,
+      "trace": 8.317942891,
+      "interaction": 9.661885757,
+      "stwo": 116.70696621699999,
+      "serialize": 0.162336372,
+      "prove_rest": 1.4759257990000223,
+      "loop_rest": 0.0
+     }
+    },
+    {
+     "ser_tag": "B8L26",
+     "plan_index": 26,
+     "chunk_secs": 138.790557743,
+     "secs": {
+      "read": 0.184428429,
+      "decode": 0.15619839200000002,
+      "check": 0.209793632,
+      "construct": 1.5370779379999997,
+      "alloc": 0.439752096,
+      "build_rest": 0.041924581000000405,
+      "trace": 8.326290866,
+      "interaction": 9.663987366,
+      "stwo": 116.653513386,
+      "serialize": 0.134728811,
+      "prove_rest": 1.4428622460000065,
+      "loop_rest": 0.0
+     }
+    },
+    {
+     "ser_tag": "B8L27",
+     "plan_index": 27,
+     "chunk_secs": 137.185747969,
+     "secs": {
+      "read": 0.179880966,
+      "decode": 0.152660414,
+      "check": 0.08882441199999999,
+      "construct": 0.9888012269999998,
+      "alloc": 0.435924426,
+      "build_rest": 0.0433387980000004,
+      "trace": 8.361516061,
+      "interaction": 9.651246479,
+      "stwo": 115.807672921,
+      "serialize": 0.115755255,
+      "prove_rest": 1.3601270100000098,
+      "loop_rest": 0.0
+     }
+    },
+    {
+     "ser_tag": "B8L28",
+     "plan_index": 28,
+     "chunk_secs": 138.306817677,
+     "secs": {
+      "read": 0.180544964,
+      "decode": 0.153313647,
+      "check": 0.20489912000000002,
+      "construct": 1.362066162,
+      "alloc": 0.442191175,
+      "build_rest": 0.04189417499999992,
+      "trace": 8.391229831,
+      "interaction": 9.796284635,
+      "stwo": 116.249115248,
+      "serialize": 0.140219781,
+      "prove_rest": 1.3450589389999825,
+      "loop_rest": 0.0
+     }
+    },
+    {
+     "ser_tag": "B8L29",
+     "plan_index": 29,
+     "chunk_secs": 144.332466204,
+     "secs": {
+      "read": 0.176302769,
+      "decode": 0.163867335,
+      "check": 0.210683856,
+      "construct": 1.459294485,
+      "alloc": 0.441488117,
+      "build_rest": 0.04023679300000005,
+      "trace": 8.374213919,
+      "interaction": 9.698162547,
+      "stwo": 122.250652023,
+      "serialize": 0.136302216,
+      "prove_rest": 1.3812621440000228,
+      "loop_rest": 0.0
+     }
+    },
+    {
+     "ser_tag": "B8L30",
+     "plan_index": 30,
+     "chunk_secs": 138.707130379,
+     "secs": {
+      "read": 0.15716033100000001,
+      "decode": 0.16330649199999997,
+      "check": 0.090370175,
+      "construct": 1.014723832,
+      "alloc": 0.438738423,
+      "build_rest": 0.03605810799999998,
+      "trace": 8.419593801,
+      "interaction": 9.740533018,
+      "stwo": 117.077710368,
+      "serialize": 0.154620446,
+      "prove_rest": 1.4143153850000045,
+      "loop_rest": 0.0
+     }
+    },
+    {
+     "ser_tag": "B8L31",
+     "plan_index": 31,
+     "chunk_secs": 143.520010196,
+     "secs": {
+      "read": 0.142942753,
+      "decode": 0.153953065,
+      "check": 0.452267904,
+      "construct": 2.5143505310000003,
+      "alloc": 0.430918448,
+      "build_rest": 0.04289618399999995,
+      "trace": 8.248745292,
+      "interaction": 9.657968068,
+      "stwo": 120.40416896800001,
+      "serialize": 0.125245997,
+      "prove_rest": 1.346552985999971,
+      "loop_rest": 0.0
+     }
+    }
+   ]
+  }
+ },
+ "digests_match": true,
+ "note": "Twelve phases of the segment loop, measured with one segment in flight so that no two of them overlap. They add to the loop's own seconds exactly. The post's split is drawn from trace_secs, interaction_secs, stwo_total and read_secs, of which the first two overlap the proving window and the last is one of the four kinds of work inside the build; this record uses generate_secs for the trace, interaction_secs for the interaction columns, stwo_total for the proof system and the loader's own read for the read, and names what is left."
+}

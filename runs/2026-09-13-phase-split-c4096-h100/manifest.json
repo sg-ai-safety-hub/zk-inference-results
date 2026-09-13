@@ -1,0 +1,229 @@
+{
+ "argv": [
+  "zk-prover",
+  "compose-chunks",
+  "--round",
+  "even",
+  "--numbits",
+  "9",
+  "--z-hi-bits",
+  "7",
+  "--variants",
+  "intexp",
+  "--head-groups",
+  "16,8,8",
+  "--tight-table",
+  "--kmax",
+  "19",
+  "--ao-rem-bits",
+  "20",
+  "--fold-rem-bits",
+  "15",
+  "--fold-alpha",
+  "6",
+  "--plan",
+  "/root/runs/phase-split-c4096/out/plan.txt"
+ ],
+ "backend": "cuda",
+ "binding": {
+  "all_bound": true,
+  "edges": [
+   {
+    "edge": "residual stream into the first norm's reduction",
+    "n": 1,
+    "state": "bound",
+    "why": null
+   },
+   {
+    "edge": "first norm's output into the q, k, v matmul inputs",
+    "n": 2,
+    "state": "bound",
+    "why": null
+   },
+   {
+    "edge": "q, k, v outputs into the attention block",
+    "n": 3,
+    "state": "bound",
+    "why": null
+   },
+   {
+    "edge": "attention scores and values into the attention output",
+    "n": 4,
+    "state": "bound",
+    "why": null
+   },
+   {
+    "edge": "attention output into the o matmul input",
+    "n": 5,
+    "state": "bound",
+    "why": null
+   },
+   {
+    "edge": "o output into the first residual add",
+    "n": 6,
+    "state": "bound",
+    "why": null
+   },
+   {
+    "edge": "first residual add into the second norm's reduction",
+    "n": 7,
+    "state": "bound",
+    "why": null
+   },
+   {
+    "edge": "second norm's output into the gate and up matmul inputs",
+    "n": 8,
+    "state": "bound",
+    "why": null
+   },
+   {
+    "edge": "gate and up outputs into the SwiGLU product",
+    "n": 9,
+    "state": "bound",
+    "why": null
+   },
+   {
+    "edge": "SwiGLU output into the down matmul input",
+    "n": 10,
+    "state": "bound",
+    "why": null
+   },
+   {
+    "edge": "down output into the second residual add",
+    "n": 11,
+    "state": "bound",
+    "why": null
+   },
+   {
+    "edge": "each matmul's input times the pinned weights into its accumulator",
+    "n": 12,
+    "state": "bound",
+    "why": null
+   },
+   {
+    "edge": "residual stream out of this segment into the next layer's segment",
+    "n": 13,
+    "state": "bound",
+    "why": null
+   },
+   {
+    "edge": "keys and values out of this token block into the next block",
+    "n": 14,
+    "state": "bound",
+    "why": null
+   },
+   {
+    "edge": "embedding row into the first segment's residual stream",
+    "n": 15,
+    "state": "bound",
+    "why": null
+   },
+   {
+    "edge": "logits into the emitted token",
+    "n": 16,
+    "state": "absent",
+    "why": null
+   }
+  ],
+  "proofs": 64,
+  "unbound": []
+ },
+ "cuda_version": "13.0",
+ "date": "2026-09-13",
+ "derived": null,
+ "digests": {
+  "kernels.json": [
+   "59fff6b1f02326155e945687a139ddae7f09e82e17f9bd6273b71fa0f656a41c",
+   "35ba433d97a4adcf4b983350176504f14349f9c89a0e24afcce9e708416def81",
+   "0ac9c45e8bf6e45ae2539680ecebf246e1058c1ecbd858bf2cb40ef9e8d1f2be",
+   "b70534caa94424255c62283141a42ca71974279e8679f639d7ba7f54a74364d7",
+   "dc610ebb5dac9c32cca83398559af2cf63a2bf469e235466d0911c8fa87e5633",
+   "c9d2725b919cd7536d6613770be46cce008769dbf5a5d642be9c57c03510acca",
+   "1fa683773df8c68f8b103dd30dd5da3b65b1fabeb022c3da1f2567412fa8cf99",
+   "5ab5f2112da72e71f00e084173dd6164be37cc54d2ca648e580cb1c2d8ffe6e1",
+   "8cbe3c205a2e6b6a1e7620a80c343ee802a2a1eb58bb19448dddecdda4a06911",
+   "7b85668263dcb3e6f5f833f4dbd79a00254895d3d307232b9936a297671ff9ad",
+   "1712dc9a3364e851f1b746dedf07c85327e6301bc73dbd72669975e0f0aa8f51",
+   "5c5d75ea08b93c552902b4b4700769111e76074e4b490deb1f46367fa9c3d0b5",
+   "82f934d5926a36a16c30613299349ed5491d6d36d51fc110acb30c463db0e771",
+   "1d06dbed0b93cb083ddecd28b34845bd52e40a4eefc57e70f9b3edf9d7cda84c",
+   "9064aef7b624cb91409b7a9d92c110c7aa9ba5eb306d2dffdd0e3b6ff0806db3",
+   "7db6167054eaf2123db9d6d22b15c6e6aedf32a3ac7953b8a51526112ca73ad1",
+   "b9c6309b0fb73b764a89a9f59fb879e83827bdf53589ca91c89f2cf89b67cfec",
+   "73ad07cb316de2dc98068ebb47fd393c636b6d9c3514afbfdbf461e772f9beda",
+   "b4ce1f76f3eb52f881daecfd83121245d3588fbbb11dd0b23d59873d42e2637d",
+   "af0667bf0d250806608574e3666b200213054e6f33ade8c1af2510b1041b703f",
+   "cd1bcb618d2c140b9cdbd26872355a5ec93a792cdc3f001f328d30f80f764b94",
+   "d2bbb69b84280dc9a0af358e95d90e9bec339e14feb5572c7b09b1ddf11a5552",
+   "39299e308f857b252314e691361394dd89ce9d049eb52c2d1f040657a3b93ede",
+   "84e5f51e08042f79c40300fa33f2dbecdcfd16d50ca4b2e4bb0081b23ec6cb29",
+   "c9ef0ed818e044f2b11581046f2a974de86d153bb748c8fe1eff0dc43f13c36f",
+   "5ef64fc43e6cb845e0cbd2ce6c2fdf86b3e656cac6468037b595d14b6f25b386",
+   "11fdf64b86a9d8bb8c2ecf1a35448fd48175789928979f584746104fdc756ad3",
+   "1bbd46d258ad845d4fad3138bd3372f9ea76465c9146f1f6156bc5b37edae0dc",
+   "11c4d152038aed2f0665ce9ee36843e89671bc289cdfde72a6a7739ec51ba271",
+   "245623fdf7c5fae065edcc15ba037abb59567220be15496f3b9528ca60115edb",
+   "d991bbdb78494ca3ac60f96c1791231af3963a543e1e43593f8eddaf0149efce",
+   "b3956211cbac08e9edd6cb8467aa6855c4531f7bbd3191fdd45adaeea56153f2"
+  ],
+  "nokernels.json": [
+   "59fff6b1f02326155e945687a139ddae7f09e82e17f9bd6273b71fa0f656a41c",
+   "35ba433d97a4adcf4b983350176504f14349f9c89a0e24afcce9e708416def81",
+   "0ac9c45e8bf6e45ae2539680ecebf246e1058c1ecbd858bf2cb40ef9e8d1f2be",
+   "b70534caa94424255c62283141a42ca71974279e8679f639d7ba7f54a74364d7",
+   "dc610ebb5dac9c32cca83398559af2cf63a2bf469e235466d0911c8fa87e5633",
+   "c9d2725b919cd7536d6613770be46cce008769dbf5a5d642be9c57c03510acca",
+   "1fa683773df8c68f8b103dd30dd5da3b65b1fabeb022c3da1f2567412fa8cf99",
+   "5ab5f2112da72e71f00e084173dd6164be37cc54d2ca648e580cb1c2d8ffe6e1",
+   "8cbe3c205a2e6b6a1e7620a80c343ee802a2a1eb58bb19448dddecdda4a06911",
+   "7b85668263dcb3e6f5f833f4dbd79a00254895d3d307232b9936a297671ff9ad",
+   "1712dc9a3364e851f1b746dedf07c85327e6301bc73dbd72669975e0f0aa8f51",
+   "5c5d75ea08b93c552902b4b4700769111e76074e4b490deb1f46367fa9c3d0b5",
+   "82f934d5926a36a16c30613299349ed5491d6d36d51fc110acb30c463db0e771",
+   "1d06dbed0b93cb083ddecd28b34845bd52e40a4eefc57e70f9b3edf9d7cda84c",
+   "9064aef7b624cb91409b7a9d92c110c7aa9ba5eb306d2dffdd0e3b6ff0806db3",
+   "7db6167054eaf2123db9d6d22b15c6e6aedf32a3ac7953b8a51526112ca73ad1",
+   "b9c6309b0fb73b764a89a9f59fb879e83827bdf53589ca91c89f2cf89b67cfec",
+   "73ad07cb316de2dc98068ebb47fd393c636b6d9c3514afbfdbf461e772f9beda",
+   "b4ce1f76f3eb52f881daecfd83121245d3588fbbb11dd0b23d59873d42e2637d",
+   "af0667bf0d250806608574e3666b200213054e6f33ade8c1af2510b1041b703f",
+   "cd1bcb618d2c140b9cdbd26872355a5ec93a792cdc3f001f328d30f80f764b94",
+   "d2bbb69b84280dc9a0af358e95d90e9bec339e14feb5572c7b09b1ddf11a5552",
+   "39299e308f857b252314e691361394dd89ce9d049eb52c2d1f040657a3b93ede",
+   "84e5f51e08042f79c40300fa33f2dbecdcfd16d50ca4b2e4bb0081b23ec6cb29",
+   "c9ef0ed818e044f2b11581046f2a974de86d153bb748c8fe1eff0dc43f13c36f",
+   "5ef64fc43e6cb845e0cbd2ce6c2fdf86b3e656cac6468037b595d14b6f25b386",
+   "11fdf64b86a9d8bb8c2ecf1a35448fd48175789928979f584746104fdc756ad3",
+   "1bbd46d258ad845d4fad3138bd3372f9ea76465c9146f1f6156bc5b37edae0dc",
+   "11c4d152038aed2f0665ce9ee36843e89671bc289cdfde72a6a7739ec51ba271",
+   "245623fdf7c5fae065edcc15ba037abb59567220be15496f3b9528ca60115edb",
+   "d991bbdb78494ca3ac60f96c1791231af3963a543e1e43593f8eddaf0149efce",
+   "b3956211cbac08e9edd6cb8467aa6855c4531f7bbd3191fdd45adaeea56153f2"
+  ]
+ },
+ "driver": "tools/drivers/phase-split-c4096.sh",
+ "driver_version": "580.126.09",
+ "gpu": "NVIDIA H100 80GB HBM3, 81559 MiB",
+ "harness_commit": "a8586d205b87d7019af5b5005d0a46680a74242e",
+ "harness_dirty": null,
+ "imported": false,
+ "kind": "prover",
+ "outputs": [
+  "config.json",
+  "extract.json",
+  "kernels-declined.json",
+  "kernels.fallbacks",
+  "kernels.json",
+  "kernels.mem.json",
+  "nokernels.fallbacks",
+  "nokernels.json",
+  "nokernels.mem.json",
+  "phases.json",
+  "plan.txt",
+  "shapes.json"
+ ],
+ "prover_commit": "a8586d205b87d7019af5b5005d0a46680a74242e",
+ "prover_dirty": true,
+ "run_id": "2026-09-13-phase-split-c4096-h100",
+ "unsound_skips": []
+}
