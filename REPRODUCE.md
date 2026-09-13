@@ -49,88 +49,6 @@ Written, not yet run:
   the one-line fix for the statement key the prover renamed (zk-prover #171),
   without which the comparison stops on the first chunk it opens.
 
-- `tools/drivers/phase-split-c4096.sh`: the segment loop split into phases at
-  context 4,096, and what the generated constraint kernels buy, over the 32
-  layer segments of the last token block of `headline-c4096`'s plan -- the
-  block with the longest prefix, and the sample `gkr-ablation-c4096` prices the
-  reductions on. The paper's configuration, with the five reductions on and the
-  shared pins every campaign at this context carries, `--tight-table` among
-  them, proved twice with one segment in flight: once as the paper runs it,
-  once with every generated constraint kernel declining to the host. Written
-  and not yet run.
-
-  The witnesses are `headline-c4096`'s, and where a host does not hold them the
-  driver extracts the sample block's own: the same ids at the same corpus
-  offset, the same five layer passes at the same quantization variant, with
-  layer 0 its own pass so that its dump carries the embedding table. The
-  forward pass covers all 4,608 positions whichever blocks are written, so the
-  sample block's dumps are that campaign's dumps and only the ones that are
-  written differ. That is what makes the campaign fit: the whole nine-block set
-  is about 122 GB with the block-invariant files shared once, and one block is
-  about 20 GB. The shared pins are the loop's, taken over whatever rows the
-  shape table holds, and one block is enough for them to be the sequence's --
-  on `runs/2026-09-09-headline-c4096-h100`'s own shape table the worst case over
-  block 8's 32 rows and over all 288 agree in every pin a driver reads, `kmax`
-  19, `--ao-rem-bits` 20, `--fold-rem-bits` 15, `--fold-alpha` 6 -- so the
-  sample is proved at the pins the headline campaign proved it at.
-
-  Why one segment in flight. The post's phase split is asserted
-  (`assumption.loop_split.c4096.interaction_frac` and the three beside it)
-  because the headline row's loop overlaps one segment's generation with
-  another's proving, and the per-segment spans then overlap in time:
-  `trace_secs`, `interaction_secs`, `stwo_total` and `read_secs` add to 144 per
-  cent of that loop's own seconds. With one segment in flight they stop
-  overlapping. Read off `runs/2026-09-11-control-flags-off-c4096-h100`, which
-  is a run made that way, the same four add to 85 per cent over all 290
-  segments. They are still not a split of it: 15 per cent is unnamed,
-  `read_secs` is one of the four kinds of work inside `build_secs` rather than
-  a peer of the other three, and `prove_secs` -- the field a reader reaches for
-  next -- holds `interaction_secs` whole, so a split naming both counts 40.9
-  per cent of that loop twice.
-
-  What does partition, and what the driver records: twelve terms, none of them
-  inside another. `read`, `decode`, `check`, `construct` and `alloc`, which are
-  the loader's own kinds of work, and what they leave of the segment's build;
-  `trace`, which is `generate_secs`; `interaction`; `stwo`, which is
-  `stwo_total`; `serialize`; what those three leave of the proving half; and
-  what the segments leave of the loop. Checked on the same run before the
-  driver was written: over its 290 segments the twelve add to its `loop_secs`
-  to the microsecond and no segment leaves a negative term, at interaction 40.9
-  per cent, trace 32.2, the proof system 7.1 and the read 5.3. Those are that
-  run's shares with the five reductions off and are not this campaign's.
-  `trace_secs` itself is not one of the twelve: it is the sum of two spans, one
-  in the trace build and one in the head of the proving half, and the output
-  reports only their sum, so it cannot be put on either side of that boundary.
-  Over the 290 segments it and `generate_secs` are 0.1 per cent apart, and the
-  record carries both. `verify_secs` is not one of the twelve either: the
-  prover verifies each proof from the serialized bytes after the loop has
-  ended, so those seconds are outside `loop_secs` and the record carries them
-  beside the split.
-
-  The kernels-off loop is `ZK_KERNEL_SKIP`, the prover's list of kernel groups
-  whose generated constraint kernel declines to the host on that run, exactly
-  as an absent kernel does. The list is read on the host out of the kernel
-  store's own manifest, so nothing about it is typed into the driver. Every
-  other driver's gate fails a run that announces a kernel fallback line; this
-  one is the other way round, and the prover's own phase detail has to agree
-  that constraints were evaluated on the host. The host path evaluates the same
-  AIR, so the gate compares the sample's 32 proof digests between the two loops
-  and fails the run on one that moved. What the switch does not reach: the
-  generated witness-generation and LogUp builders, which `ZK_GENERATED_LOGUP`
-  chooses and which have a host builder to decline to only where the
-  component's columns are on the host. With the device columns on there is
-  nothing to decline to, so switching those off would price the device
-  residency and not the kernels, and the run says so in its own `config.json`.
-
-  Constants the fetch will record: `secs.phase.c4096.<loop>.<phase>` and
-  `secs.phase.c4096.<loop>.loop` for the `kernels` and `nokernels` loops,
-  `share.phase.c4096.<loop>.<phase>` derived from those two, and
-  `segments.phase.c4096`. The audit section and the derived lines are written
-  and claim nothing until a run lands.
-  `secs.projected.c4096.loop_ported_rates` is deliberately untouched: re-deriving
-  it from a measured split is a follow-up, and until then the projected row
-  keeps the split it assumes and the note that says so.
-
 
 ## synthetic-digests
 
@@ -2794,6 +2712,115 @@ refuses a fetched directory that carries no provenance block. It is also a
 digest gate, and at both block lengths its proof bytes hash to what the card's
 proof of that same segment hashed to: a STARK's determinism checked across the
 two backends at two block lengths neither had been run at.
+
+## phase-split-c4096
+
+    tools/drivers/phase-split-c4096.sh <host> <prover-commit> <harness-commit>
+
+runs: 2026-09-13-phase-split-c4096-h100
+prover commit: 6589471   harness commit: 6589471
+digests: the sample's 32 segment proofs, the same in both loops; the first and
+  the last, 16 hex: `59fff6b1f0232615`, `b3956211cbac08e9`
+binding (from the manifest, folded over the 64 proofs): 1 to 15 bound; 16 absent
+unsound skips: none
+constants backed: `segments.phase.c4096`, and for each of the two loops
+  `secs.phase.c4096.<loop>.loop` with the twelve
+  `secs.phase.c4096.<loop>.<phase>` rows under it.
+  `share.phase.c4096.<loop>.<phase>` and `secs.phase.c4096.kernels_bought` are
+  derived from those.
+
+What this measures. The segment loop's own seconds, split into phases that
+partition it, over the 32 layer segments of the last token block of
+`headline-c4096`'s plan: the paper's configuration, the five reductions on and
+the shared pins every campaign at this context carries. The sample is proved
+twice with one segment in flight, once with the generated constraint kernels in
+place and once with every one of them declining to the host, and the two loops
+proved the same 32 statements to the same 32 digests.
+
+Why one segment in flight. `assumption.loop_split.c4096.interaction_frac` and
+the three beside it are asserted because the headline row's loop overlaps one
+segment's generation with another's proving: `trace_secs`, `interaction_secs`,
+`stwo_total` and `read_secs` add to 144 per cent of that loop's own seconds and
+are not a split of it. With one segment in flight they stop overlapping. They
+are still not a split even then -- `read_secs` is one of the four kinds of work
+inside `build_secs` rather than a peer of the other three, and the four leave a
+sixth of this loop unnamed -- so the run records twelve terms that do partition
+it, and the job refuses to publish a loop whose twelve do not add to its own
+seconds.
+
+The witnesses. This host held no witness at this context, so the driver
+extracted the sample block's own: the same ids at the same corpus offset, the
+same five layer passes at the same quantization variant, with layer 0 its own
+pass so that its dump carries the embedding table. The forward pass covers all
+4,608 positions whichever blocks are written, so the sample block's dumps are
+the ones `headline-c4096` writes, and the 211 seconds this cost bought 20 GB
+where the whole nine-block set is about 122 GB. Two checks say the sample is
+that campaign's and not a narrower one: the shared pins the shape table gives,
+`--kmax 19 --ao-rem-bits 20 --fold-rem-bits 15 --fold-alpha 6`, are the pins
+`runs/2026-09-09-headline-c4096-h100` was proved at, and all 32 plan lines are
+that run's block-8 lines to the byte once the witness path is set aside.
+
+The split. Seconds over the 32 segments, and each phase's share of the loop it
+was measured in.
+
+                        kernels             nokernels
+                              s        %            s        %
+    `read`                  4.0     0.54          5.6     0.12
+    `decode`                4.6     0.62          5.0     0.11
+    `check`                13.2     1.77         13.1     0.28
+    `construct`            58.4     7.81         67.9     1.43
+    `alloc`                 6.6     0.88         13.6     0.29
+    `build_rest`            1.3     0.17          1.3     0.03
+    `trace`               264.9    35.40        278.8     5.89
+    `interaction`         313.1    41.84        313.8     6.62
+    `stwo`                 34.1     4.56      3,983.7    84.10
+    `serialize`             3.7     0.50          4.4     0.09
+    `prove_rest`           41.8     5.58         46.4     0.98
+    `loop_rest`             2.4     0.32          3.5     0.07
+    loop                  748.2   100.00      4,737.0   100.00
+
+Against the split the projection assumes. The four shares zk-prover #12 quotes
+off an old H200 serial loop are interaction 49, base trace 30, the proof system
+9 and the dump read 5 per cent, naming 93 per cent of the loop. Measured here
+on the paper's configuration: interaction 41.84, base trace 35.40, the proof
+system 4.56 and the dump read 0.54, naming 82.35 per cent. Interaction is 7.2
+points below the assumed share and base trace 5.4 above it, which are the two
+the projection divides by a measured factor; the proof system is half its
+assumed share and the dump read is a tenth of it, at 4.0 seconds over 32
+segments. None of this is carried into `secs.projected.c4096.loop_ported_rates`
+here. The shares above are a serial loop's over one token block and the
+projection is about a pipelined loop over nine, so whether they transfer is a
+measurement decision and not an arithmetic one; the projected row keeps the
+split it assumes and the note that says so.
+
+What the generated constraint kernels buy. The same 32 segments, the same
+statements, the same 32 digests: 748.2 seconds with the kernels in place and
+4,737.0 without, 3,988.8 seconds more, a factor of 6.33. Per segment that is
+23.4 seconds against 148.0. The whole of it is one phase: `stwo` goes from 34.1
+seconds to 3,983.7 and from 4.56 to 84.10 per cent of its loop, while the
+eleven others move by seconds. The prover's own phase detail says the same
+thing from the other side: the same 3,872 constraint evaluations cost 0.138
+seconds on the card and 3,950.1 on the host. What that does not price is the
+generated witness-generation and LogUp builders, which the switch does not
+reach: `ZK_GENERATED_LOGUP` chooses those and has a host builder to decline to
+only where the component's columns are on the host, so switching them off would
+price the device residency as well.
+
+Where the loop's generation goes, by component. The run records the prover's
+own host phases summed over the sample beside the split, because a phase share
+says how much of the loop is host-side generation and this says which components
+it is -- what zk-prover #12 moves onto the card one group at a time. The six
+largest of the kernels loop: the key tiles' generation 120.4 s, then the
+residual stream's at 63.6 s, the GKR reductions 56.8 s, the dequant interaction
+49.2 s, the requantize interaction 45.6 s and the requantize generation 45.0 s.
+
+Host time. 110 minutes end to end: 197 s for the ids, 211 s for the extraction
+over five passes, 695 s for the emits and the rebuild of the CUDA backend, 768 s
+for the kernels loop and 4,755 s for the nokernels loop. The extraction and the
+rebuild are paid once per host; a second run of the pair costs the two loops.
+The store gained nothing -- 47 kernels, none new -- because a kernel is keyed by
+the fingerprint of its lowered form and the shapes this sample needs were
+already in it from another context.
 
 ## Entry template
 
