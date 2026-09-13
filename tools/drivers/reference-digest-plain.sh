@@ -62,12 +62,12 @@
 # polynomials, that every proof accepts with every edge bound and no skip in
 # effect, and that no proof took the host route for a lookup.
 #
-# Whether the reference segment's digest is still the `25741d12f315aae7` that
+# Whether the reference segment's digest is still the `c5c75572ca078b6c` that
 # `prover/README.md` records is a result and not a gate: the recorded one was
-# taken at another prover commit and from a dump another harness commit wrote,
-# and if this commit's is a different one, that is the run's finding to report
-# rather than a reason to throw the run away.  The job writes the comparison
-# into `out/full-digest.json` either way.
+# taken at one prover commit and from one dump, and if this commit's is a
+# different one, that is the run's finding to report rather than a reason to
+# throw the run away.  The job writes the comparison into
+# `out/full-digest.json` either way.
 #
 # Timing is not what this run is for: the digests are. It adds no constant.
 #
@@ -107,9 +107,9 @@ BASE="--round even --numbits 9 --z-hi-bits 7 --variants intexp --table-bits 25 -
 PLAIN="$BASE"
 FULL="$BASE $GKR"
 # What `prover/README.md` records for the reference segment with the
-# reductions, taken at another prover commit.  This run's proof of it is
-# compared against this and the comparison is recorded, either way.
-FULL_DIGEST=25741d12f315aae7
+# reductions.  This run's proof of it is compared against this and the
+# comparison is recorded, either way.
+FULL_DIGEST=c5c75572ca078b6c
 # What the short segment is evidence for: an out-of-domain sampling axis wider
 # than the grid dimension a device caps at.
 GRID_CAP=65535
