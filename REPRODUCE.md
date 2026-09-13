@@ -87,14 +87,22 @@ Written, not yet run:
   A shorter block does not fix it and neither does a shorter context: the
   eleven bits are a scale spread, and the block reaches the remainder only
   through the key count. Nor does any flag: the attention output's pins may
-  only widen what the witness needs. So the four `ao_*` rows of the
-  registration's stated block are refuted together, they have to be re-stated
-  once the generator's scale is settled, and the registration has to be made
-  again -- which means removing that run directory deliberately, as the driver
-  says. The count moves by about 1% for each bit of the remainder and by under
-  a thousand cells for the other three rows, so the segment figure itself
-  stands to within that one row, and the block length and the memory answer do
-  not move at all.
+  only widen what the witness needs.
+
+  zk-prover #192 made the window a stated knob instead, and the driver now
+  states it: `ZK_SYNTHETIC_V_SCALE_BINADES=3`, exported beside the seven matmul
+  widths and carried in the run's own configuration next to the normalisation
+  window and the table widths it tries. Three binades of exponent and one of
+  mantissa is four binades of per-channel spread, against the six every
+  recorded synthetic segment was drawn over on the power-of-two gadget and the
+  two to five a real model's dumps show. The registration was made again
+  against it -- the earlier run directory was removed deliberately, as the
+  driver says it must be -- and the four `ao_*` rows are stated at the same
+  values for a reason that now names the window. The count did not move: one
+  layer segment is 1,081,685,392 cells at either registration, because the
+  rows that were re-stated are worth about 1% a bit for the divisor range and
+  nothing at all for the other three. The block length and the memory answer
+  do not move either.
 
 
 ## synthetic-digests
@@ -2877,7 +2885,11 @@ tools/drivers/register-70b.sh
 
 runs: `2026-09-13-register-70b-none`
 prover commit: none   harness commit: 111347e (zk-prover `shape-70b-synthetic`,
-  not merged: re-pin the driver when it is)
+  PR 188, not merged: re-pin the driver when it is). The tree the measurement
+  is built and proved at is another one, 94912b0 (zk-prover `fix-192`, PR 193,
+  also not merged), and the run's own configuration names it: this run builds
+  no layer, so the generator is no input to it, but one line of what it states
+  is the generator's.
 digests: none; the run's own outputs are the registration and its configuration
 binding: none; this run proves nothing
 unsound skips: none
@@ -2891,11 +2903,11 @@ no card: it is a computation over this repository's `constants.json`, the two
 measured 8B layer chunks the two headline runs already proved, and a stated
 block of witness fields this driver holds.
 
-    prediction_sha256        80394b3d9476c825bd7301eec7398dca240f96ced8d795062c3d6762c799d33b
-    prediction_block_sha256  e2af2a7bf3b17b7f49c4d504fe8219a9f94b2c060ba473b1aca046f617619ee6
+    prediction_sha256        fbf57fdb7df600080eed4e0f78ec93bf03fb9aa84603c6ea729903623b8958a6
+    prediction_block_sha256  a0e4cd84caf0deb7583a2dea6054ea0d2ca96a6419caa415706f96e51a6fdba0
     constants.json frozen    77b7d01843e3e363108a37237f73038516a49fbae205df438918dbd3d63c2c9b
-    fields file              f429fd094c7e3bf10e4492b90a356cc0244f1748a080fde6282347544cd8982f
-    zk_results_commit        9ecef91
+    fields file              6778ce0724fdea3bb0f4258fb059d74e48541ee8d0b19c7fd30cd8bddec95867
+    zk_results_commit        047beea
     counted                  80 segments, none absent, at C = 4,096 and a
                              128-token block
 
@@ -2933,9 +2945,31 @@ registration under `frozen_inputs.witness_fields.stated_from`. Three kinds:
   layer. They are stated at the values the same generator produced at the 8B
   attention width in `2026-09-09-prefill-sweep-8b-h200`, output
   `dd_s256_c4096.json`: the same generator flags, the same head dimension of
-  128, the same quantize widths and the same context. They are properties of
-  the attention's own arithmetic and not of the head count, which is the one
-  thing the two shapes do not share.
+  128, the same quantize widths, the same context and within 3% of the same
+  key count.
+
+  The first attempt at this measurement refuted the divisor range and this
+  registration is the second. That range is the bit length of the denominator
+  shifted by the gap between the attention output's per-token scale and its
+  per-channel V scale, and the V scale is the `v` matmul's own. At the
+  recorded point above the shift is zero -- the per-token scale runs -13 to
+  -12 and the per-channel one -12 to -6 -- so all 21 bits are the denominator,
+  which is the same sum over the same number of keys here. What sets the shift
+  is the window that per-channel scale is drawn from: six binades on the
+  power-of-two dequantize gadget, which is where every recorded synthetic
+  segment has it, and twenty on the chain, which is where `--layout b10` puts
+  it and where the first attempt read 35 bits against the 31 the statement's
+  widest form holds. zk-prover #192 made that window a stated knob;
+  `predict-70b.sh` states 3, which is four binades of spread, narrower than the
+  six the recorded point was drawn over, so the shift here cannot be the wider
+  of the two. A measurement that reads wider is reported and not adjusted for.
+
+  What each row is worth, which is what says how much of this count is an
+  assumption at all: the master exponent table moves it 7.76% a step and the
+  normalisation window and the divisor range about 1% each, and those first two
+  are flags. The accumulator limbs are worth under a thousand cells and the two
+  exponent extremes nothing at all, because the count reads them only through
+  the exponent window's own 16-row table.
 
 The witness bound beside the count says what the assumption is worth from the
 other side: the same 80 segments with every witness-calibrated field at the
