@@ -1144,19 +1144,39 @@ nothing measurable: no lookup took the host route on any of the 20 processes.
 
     tools/drivers/reference-digest-plain.sh <host> <prover-commit> <harness-commit>
 
-runs: 2026-09-08-reference-digest-plain-h100, 2026-09-09-reference-digest-plain-h200
-prover commit: a603db1ddf1e2372d1f9761d684df8f2294199a9 (zk-prover pull request
-  107) on the H100, 2c8fa991c0f5425be48bf7f8b95334cbd4f716ed on the H200
+runs: 2026-09-13-reference-digest-plain-h100, and
+  2026-09-08-reference-digest-plain-h100 and
+  2026-09-09-reference-digest-plain-h200 before it
+prover commit: a8586d205b87d7019af5b5005d0a46680a74242e, a commit on zk-prover's
+  main, in the 2026-09-13 run; a603db1ddf1e2372d1f9761d684df8f2294199a9
+  (zk-prover pull request 107) on the H100 and
+  2c8fa991c0f5425be48bf7f8b95334cbd4f716ed on the H200 in the two before it
 harness commit: the same commit as the prover, in each run
-digests: first 16 hex, and the same in both runs:
+digests: first 16 hex, and the same on both backends wherever both proved a
+  shape. The 2026-09-13 run:
+  `full-simd.json`, `full-cuda.json`: `c5c75572ca078b6c`
+  `short-simd.json`, `short-cuda.json`: `6267ed8dee200582`
+  `plain-simd.json`: `9a062833a4088f05`; an 80 GB card does not attempt that
+  shape, so it has no CUDA side here (see below)
+  The two runs before it:
   `full-simd.json`, `full-cuda.json`: `05580c4a4b766666`
   `short-simd.json`, `short-cuda.json`: `65d588904d613bff`
   `plain-simd.json`: `d2f2afd860a491d9`, and `plain-cuda.json` on the H200 the
-  same; on the H100 that shape has no CUDA side (see below)
-binding (from the manifests, folded over the first run's five proofs and the
-  second's six): 1 to 14 bound; 15 and 16 absent; unbound none
+  same; on the H100 that shape had no CUDA side either
+dump: `1fb845bc19955bd8`, the 2026-09-13 run's `provenance.dump_sha256`, under
+  the attention calibration `b136a8d01ae59a58`; the two runs before it recorded
+  neither
+binding (from the manifests, folded over the 2026-09-13 run's five proofs, the
+  2026-09-08 run's five and the 2026-09-09 run's six): 1 to 14 bound; 15 and 16
+  absent; unbound none
 unsound skips: none
-constants backed: none; this run freezes digests, not numbers
+constants backed: none from the 2026-09-13 run; this run freezes digests, not
+  numbers
+constants backed, from the 2026-09-08 run, which the newer one does not
+  re-point: `secs.reference.c16384.simd_trace`,
+  `secs.reference.c16384.simd_interaction`,
+  `secs.reference.c16384.cuda_trace`,
+  `secs.reference.c16384.cuda_interaction`
 
 What the run proves. Two statements about the same Llama-3.1-8B layer 16, under
 the fixed quantization configuration `b10-final`, each with its own diagonal
@@ -1180,9 +1200,9 @@ short segment's interaction tree is 102,608 columns wide, 80,424 of them key
 tiles, against the reference segment's 93,184 and 70,920.
 
 The reference segment without the reductions proves on a 143 GB card. On the
-H200 it proves to `d2f2afd860a491d9`, the digest the reference backend gives
-it, with no skip in effect, every edge bound and no kernel fallback line. That
-is the shape zk-prover #29 opened on: at C = 16,384 with the five reductions
+H200 it proved to `d2f2afd860a491d9`, the digest the reference backend gave it
+that day, with no skip in effect, every edge bound and no kernel fallback line.
+That is the shape zk-prover #29 opened on: at C = 16,384 with the five reductions
 off the sampling axis is wider than a grid dimension holds, and before pull
 request 107 the proof stopped in `eval_at_point.cu` with an invalid
 configuration argument on a card of this size. It no longer does. Nothing about
@@ -1221,11 +1241,40 @@ committed cells and the memory marks into `out/plain-cuda-attempted.json`. A
 card that attempts the shape and stops is a result and not a broken run; a
 proof that comes out is held to the same gate as the others.
 
-The reference segment's digest is not the one `prover/README.md` records.
-The page records `25741d12f315aae7`, taken on 2026-09-07 at another prover
-commit and from a dump another harness commit wrote; both runs here prove
-`05580c4a4b766666` on both backends, 28 prover commits apart. The comparison is
-recorded in `full-digest.json` and filed as zk-prover #130.
+What the 2026-09-13 run moved. All three digests moved from the two runs before
+it: the reference segment from `05580c4a4b766666` to `c5c75572ca078b6c`, the
+short segment from `65d588904d613bff` to `6267ed8dee200582`, and the reference
+segment without the reductions from `d2f2afd860a491d9` to `9a062833a4088f05`.
+Each of the three is proved with no skip in effect, so each carries the
+residual-stream components and with them a requantize seam scaled by a bf16
+value, and the scale table preprocessed under their shape root stopped wrapping
+on 2026-09-11 (zk-prover #143). Nothing about the shapes moved with the numbers:
+the reference segment commits 2,583,414,208 cells over an interaction tree 5,600
+columns wide in both measurements, the short segment 1,227,190,880 over 102,608
+and the third 4,131,033,024 over 93,184, each the same to the cell. The
+serialized proofs moved by less than one per cent, the reference segment's from
+170,620,431 bytes to 169,277,485.
+
+What the driver compared the reference segment against. `full-digest.json`
+compares that digest with one written into the driver, and the driver held
+`25741d12f315aae7` through all three runs: the value `prover/README.md` recorded
+until 2026-09-12, when zk-prover pull request 184 replaced it with
+`05580c4a4b766666`. So all three runs report `moved` against a number no page
+records, and the comparison worth reading is the one above. The driver now holds
+`c5c75572ca078b6c`, which is what the page records from 2026-09-13.
+
+The reference segment's proof, kept for zk-results #112. The driver serializes
+no proof: each shape's digest is printed and the proof bytes go with the
+process, which is why nothing here shrinks or deletes one. zk-results #112 needs
+a proof that a machine without a card can verify, so after the 2026-09-13 run
+finished the reference segment was proved once more on the same host, from the
+same dump and with the binary that run's `full-simd.json` came out of, with
+`--ser-dir` added. That proof's digest is the run's, `c5c75572ca078b6c`, which
+is what says the kept bytes are the run's proof and not another one. The
+statement, the claims, the proof of 161.4 MiB, the calibration the verifier
+derives the shape root from and the prompt ids are kept outside both
+repositories, in an `artifacts/2026-09-13-reference-segment/` directory beside
+them, with a `SHA256SUMS` file. Nothing of it is in git.
 
 Why the block length moves rather than the context. The key tile count follows
 the key blocks -- the prefix and the segment's own block, in blocks of S keys
@@ -1239,13 +1288,15 @@ threshold at a 15,872-key prefix.
 
 How the run is made. The extractions read the card; each dump is kept under the
 remote home and reused, so a second run at another prover commit rebuilds,
-re-emits and re-proves and does not extract again. The CUDA backend proves
-through device kernels generated per segment shape, so the job emits the
-kernels for every shape that runs on the card, installs them into the vendored
-library and rebuilds; the built tree then differs from the pushed commit, which
-is why the manifest records the build as dirty. The two installer scripts were
-renamed between the two runs, and the job takes whichever name the pinned
-commit has.
+re-emits and re-proves and does not extract again. A host that holds neither
+extracts both, which is what the 2026-09-13 run did: 118 s for the reference
+segment's dump and 22 s for the short segment's, after the model download. The
+CUDA backend proves through device kernels generated per segment shape, so the
+job emits the kernels for every shape that runs on the card, installs them into
+the vendored library and rebuilds; the built tree then differs from the pushed
+commit, which is why the manifest records that build as dirty while the
+reference backend's stays clean. The two installer scripts were renamed between
+the first two runs, and the job takes whichever name the pinned commit has.
 
 ## unproved-baseline
 
