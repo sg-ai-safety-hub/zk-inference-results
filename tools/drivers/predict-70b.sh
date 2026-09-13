@@ -170,8 +170,27 @@ if [ -z "$REG" ]; then
     exit 2
 fi
 PREDICTION=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["result"]["prediction_sha256"])' "$REG/registration.json")
+# The block the registration was COUNTED at, out of the registration's own
+# statement. The cells of a segment are not linear in the block -- the diagonal
+# block goes with the square of it and the prefix's key tiles with the ratio --
+# so a run at another block is measured against a prediction of another segment.
+# A document made before that number was written into a registration says 512,
+# which is what every recorded run proves.
+REG_S=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["result"]["statement"].get("block", 512))' "$REG/registration.json")
+REG_CTX=$(python3 -c 'import json,sys; d=json.load(open(sys.argv[1]))["result"]["shapes"]; print(" ".join(sorted(c for e in d.values() for c in e["contexts"])))' "$REG/registration.json")
+if [ "$REG_S" != "$S" ]; then
+    echo "$NAME: the registration in runs/$(basename "$REG") counted a segment of" >&2
+    echo "        $REG_S positions and this call names a block of $S. A segment over" >&2
+    echo "        another block is another segment, and measuring it against this" >&2
+    echo "        prediction would be comparing two different quantities." >&2
+    echo "        Run this at $REG_S, or register the block this run is to prove --" >&2
+    echo "        which means removing that run directory, deliberately." >&2
+    exit 2
+fi
 echo "$NAME: measured against the prediction $PREDICTION"
-echo "       registered in runs/$(basename "$REG")"
+echo "       registered in runs/$(basename "$REG") at a block of $REG_S, context(s) $REG_CTX"
+echo "       a context this run proves that is not in that list is measured and is"
+echo "       measured against no prediction"
 
 # ---- the arguments the running job was started with --------------------------
 # One status file per driver, and the card and the block are arguments: a second
