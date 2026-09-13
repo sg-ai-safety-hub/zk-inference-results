@@ -215,6 +215,14 @@ DERIVED = {
         v(f"verify.headline.c{c}.secs_total") / v(f"positions.headline.c{c}"),
         f"verify.headline.c{c}.secs_per_position", 0.001))
        for c in (4096, 16384)},
+    # The same sequence checked on four cores of a machine with no card, one
+    # segment at a time: the measured median times the segment count, and not a
+    # second measurement of anything.
+    "verify.consumer.c16384.secs_total_sequence": lambda: chk(
+        "c16384 sequence checked on four cores, median times segments",
+        v("verify.consumer.c16384.secs_per_segment_median")
+        * v("segments.headline.c16384"),
+        "verify.consumer.c16384.secs_total_sequence", 1e-6),
     # The ablation: what one reduction removes, as a fraction of the figure
     # without it.  The key tiles' reduction is measured against no reduction at
     # all; the other four extend it, so each is measured against it.

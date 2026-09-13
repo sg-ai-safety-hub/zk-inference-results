@@ -620,6 +620,48 @@ def moe_routing_uniform(key):
     return experts * (1.0 - (1.0 - topk / experts) ** s)
 
 
+# -- verify-consumer -----------------------------------------------------------
+def verify_consumer(a, keys):
+    """One segment's proof replayed on a few cores and no card, and a corrupted
+    copy of it refused.
+
+    Both rows are medians over the three repetitions, recomputed here from the
+    per-repetition rows rather than read off the summary beside them, so a
+    summary edited after the run cannot pass.  The seconds are the verifier's
+    own, which is the scope the sequence's verify rows are in; the peak is the
+    process's, because what a machine of this size has to hold is the working
+    set and not the proof.  The negative control is a gate condition of the run
+    and is checked again here: three verifications that never saw one fail say
+    nothing about what the verifier does.
+    """
+    if not keys:
+        return
+    run = sorted({e["run"] for e in keys.values()})[0]
+    m = artifact(run, "measurement.json")
+    c = artifact(run, "negative-control.json")
+    cfg = artifact(run, "config.json")
+    reps = m["reps"]
+    print(f"  runs/{run}: {len(reps)} replay(s) of one segment on {m['cores']} core(s) of "
+          f"{cfg['machine']['cpu_model']}, cap {cfg['machine']['memory_max_bytes']} bytes")
+    if len(reps) < 3:
+        a.fails.append(f"audit: the run recorded {len(reps)} replay(s); a median is over three")
+    if not all(r["accepts"] for r in reps):
+        a.fails.append("audit: a replay of the honest proof did not accept")
+    if any(r["threads"] != m["cores"] for r in reps):
+        a.fails.append("audit: a replay ran on a thread count that is not the cores it was "
+                       "pinned to, so it is not the machine the rows are about")
+    if not c["refused"] or c.get("verdict", {}).get("accepts"):
+        a.fails.append("audit: the corrupted copy of the proof was not refused")
+    if c["bend"]["sha256_before"] == c["bend"]["sha256_after"]:
+        a.fails.append("audit: the negative control's copy of the proof is the proof")
+    if "verify.consumer.c16384.secs_per_segment_median" in keys:
+        a.claim("verify.consumer.c16384.secs_per_segment_median",
+                statistics.median([r["verify_secs"] for r in reps]))
+    if "verify.consumer.c16384.peak_rss_bytes" in keys:
+        a.exact("verify.consumer.c16384.peak_rss_bytes",
+                statistics.median([r["peak_rss_bytes"] for r in reps]))
+
+
 # -- sections: (driver name, function(audit, keys)) ----------------------------
 # Added when a driver's first run lands; each function re-derives the constants
 # whose `run` was made by that driver.
@@ -2007,6 +2049,7 @@ SECTIONS = [
     ("unproved-baseline", unproved_baseline),
     ("model-commitment", model_commitment),
     ("moe-routing", moe_routing),
+    ("verify-consumer", verify_consumer),
     ("microbench-cells", microbench_cells),
     # the extraction and the per-component cell counts of the two headline
     # runs: separate readers over separate artifacts of the same runs
