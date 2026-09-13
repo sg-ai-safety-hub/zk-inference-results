@@ -91,6 +91,11 @@ def chk(name, got, key, tol=0.005):
 # name per model, because the derived lines below are keys and a key names one.
 MOE_ROUTING_MODELS = ("qwen3_30b_a3b",)
 
+# The twelve phases `phase-split-c4096` measures, in the order its record writes
+# them; `audit.py` holds the same list and reads the seconds, this file divides.
+PHASE_SPLIT = ("read", "decode", "check", "construct", "alloc", "build_rest",
+               "trace", "interaction", "stwo", "serialize", "prove_rest", "loop_rest")
+
 # -- every `derived` entry this file knows how to recompute --------------------
 # One line per derived constant; a derived entry with no line here fails below.
 DERIVED = {
@@ -412,6 +417,16 @@ DERIVED = {
     "port.reference.c16384.interaction_speedup": lambda: chk(
         "reference segment, interaction generation, host over device",
         _speedups()[1], "port.reference.c16384.interaction_speedup", 1e-6),
+    # Each phase's share of the loop it was measured in, for the loop with the
+    # generated constraint kernels in place and for the loop with every one of
+    # them declining to the host.  Both sides are `measured` rows of the same
+    # run, and the twelve shares of one loop add to 1 because the twelve seconds
+    # add to its own -- which the run refuses to publish otherwise.
+    **{f"share.phase.c4096.{lp}.{ph}": (lambda lp=lp, ph=ph: chk(
+        f"{ph} share of the c4096 {lp} loop",
+        v(f"secs.phase.c4096.{lp}.{ph}") / v(f"secs.phase.c4096.{lp}.loop"),
+        f"share.phase.c4096.{lp}.{ph}", 1e-6))
+       for lp in ("kernels", "nokernels") for ph in PHASE_SPLIT},
 }
 
 # -- the two projections' own arithmetic ---------------------------------------

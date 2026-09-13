@@ -425,6 +425,61 @@ def gkr_ablation_c4096(a, keys):
         assert s["n"] == cfg["sample_segments"], f"{name}: {s['n']} segments, not the sample's"
         a.claim(f"cells.ablation.c4096.{name}", s["fresh_sum"])
         a.claim(f"secs.ablation.c4096.{name}.loop", s["loop_secs"])
+# -- phase-split-c4096 ---------------------------------------------------------
+# The twelve phases the driver measures, in the order its record writes them.
+# The same list is in tools/drivers/phase-split-c4096.sh; a run whose phases.json
+# names anything else is not the run this reader knows how to read.
+PHASE_SPLIT = ("read", "decode", "check", "construct", "alloc", "build_rest",
+               "trace", "interaction", "stwo", "serialize", "prove_rest", "loop_rest")
+
+
+def phase_split_c4096(a, keys):
+    """The segment loop split into phases on one token block, proved twice: with
+    the generated constraint kernels in place and with every one of them
+    declining to the host.
+
+    The phases partition the loop by construction -- one segment is in flight, so
+    no two of them overlap -- and the run's own record refuses a loop whose twelve
+    do not add to its seconds. That check is made again here, because a run
+    directory is read by this file and not by the job that wrote it. Every share
+    is `derived` and check.py recomputes it from the entries below.
+    """
+    if not keys:
+        return
+    run = sorted({e["run"] for e in keys.values()})[0]
+    cfg = artifact(run, "config.json")
+    ph = artifact(run, "phases.json")
+    if tuple(ph["phases"]) != PHASE_SPLIT:
+        a.fails.append(f"audit: {run}: phases.json names the phases {ph['phases']}, and this "
+                       f"reader knows {list(PHASE_SPLIT)}")
+        return
+    if not ph["digests_match"]:
+        a.fails.append(f"audit: {run}: the two loops proved different bytes; the host path "
+                       "evaluates the same AIR and the proof does not move")
+    want = cfg["sample_segments"]
+    if "segments.phase.c4096" in keys:
+        a.exact("segments.phase.c4096", want)
+    for name, lo in sorted(ph["loops"].items()):
+        if lo["segments"] != want:
+            a.fails.append(f"audit: {run}: the {name} loop proved {lo['segments']} segments "
+                           f"and the sample is {want}")
+        if lo["pipe"]:
+            a.fails.append(f"audit: {run}: the {name} loop overlapped two segments, so its "
+                           "phases are not a split of it")
+        total = sum(lo["secs"][p] for p in PHASE_SPLIT)
+        if abs(total - lo["loop_secs"]) > 1e-6:
+            a.fails.append(f"audit: {run}: the {name} loop's phases add to {total} s and its "
+                           f"loop is {lo['loop_secs']} s")
+        print(f"  runs/{run}: the {name} loop, {lo['segments']} segments, "
+              f"{lo['loop_secs']:,.1f} s, {lo['fallback_lines']} kernel fallback lines")
+        if f"secs.phase.c4096.{name}.loop" in keys:
+            a.claim(f"secs.phase.c4096.{name}.loop", lo["loop_secs"])
+        for p in PHASE_SPLIT:
+            k = f"secs.phase.c4096.{name}.{p}"
+            if k in keys:
+                a.claim(k, lo["secs"][p])
+
+
 # -- control-flags-off-c4096 ---------------------------------------------------
 def control_flags_off_c4096(a, keys):
     """The same sequence with the five reductions off, one segment in flight.
@@ -2284,6 +2339,7 @@ SECTIONS = [
     ("headline-c16384", headline_c16384),
     ("gkr-ablation-c4096", gkr_ablation_c4096),
     ("control-flags-off-c4096", control_flags_off_c4096),
+    ("phase-split-c4096", phase_split_c4096),
     ("negative-controls", negative_controls),
     ("memory-probe-c16384", memory_probe_c16384),
     ("memory-probe-context", memory_probe_context),
