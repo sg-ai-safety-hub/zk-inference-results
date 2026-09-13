@@ -2404,6 +2404,77 @@ campaign's own `uv sync --frozen` takes them away again. The run was made at
 `accelerate` 1.15.0, torch 2.13.0+cu129, transformers 5.15.0, numpy 2.5.2.
 
 
+## `verify-consumer`
+
+```
+tools/drivers/verify-consumer.sh <host> <artifact-dir> <verifier-binary> <cores>
+```
+
+runs: `2026-09-13-verify-consumer-h100`
+prover commit: 6589471   harness commit: 6589471, and no harness ran: the run's
+  only program is that binary, and the manifest names a commit either way
+digests: none; the run makes no proof. The proof it checks is
+  `c5c75572ca078b6c551edd62d72ed96d7f0357958e1bbc805f803328ee270054`, which is
+  the digest `2026-09-13-reference-digest-plain-h100` recorded for this segment
+binding: none; this run proves nothing
+unsound skips: none
+constants backed: `verify.consumer.c16384.secs_per_segment_median` and
+  `verify.consumer.c16384.peak_rss_bytes`, both `measured`, and
+  `verify.consumer.c16384.secs_total_sequence`, which is the first times
+  `segments.headline.c16384`
+
+What the run is. The first verification this repository records on a machine of
+the size a reader means by a consumer machine: four cores and no card. Every
+other verify row here is the run host's sixteen cores beside the card. It builds
+nothing, proves nothing, takes no host lock and touches no card; it is given a
+binary and a directory of bytes and runs the replay the artifact's README gives,
+three times, each repetition a process of its own under `/usr/bin/time -v`. The
+cores are the first four of the cpuset the run is confined to, and the binary
+reports four threads in its own `env` block, which the run checks.
+
+What it replays. One Llama-3.1-8B layer-16 segment, `S = 512` output positions
+against a `C = 16,384` key prefix, the five reductions on and no skip in effect:
+the proof `2026-09-13-reference-digest-plain-h100` made, kept beside that run
+with its statement, its published claims, the calibration and the prompt ids.
+The driver pins all seven digests, so a directory that hashes to anything else
+is refused before a second of work is spent on it, and it leaves a `SHA256SUMS`
+behind where the host holds none. The proof is 169,277,485 bytes. It is not in
+this repository: whether it goes into git is the owner's to decide.
+
+What it measured. The verifier accepted all three times, at 42.91, 43.17 and
+44.76 seconds of its own; the three processes took 43.89, 44.09 and 45.69
+seconds of wall-clock time and peaked at 30,652,805,120, 30,588,841,984 and
+30,541,778,944 bytes. 42.25 s of the median is the one shape root the verifier
+derives from the published calibration and compares with the one the statement
+carries; what is left is the proof's own check, 0.92 s, against 0.757 s for the
+median segment of the sequence on sixteen cores. Four cores and 32 GB of memory
+are therefore enough to check a segment of the widest sequence this repository
+has proved, in three quarters of a minute.
+
+Which check ran where. `verify.headline.c16384.secs_total` and its median are
+the same sequence on the run host's sixteen cores, and that pass was given no
+calibration: its `shape_roots` field is null, so it derived no shape root and is
+the proof checks alone. This run derives one, which is most of its seconds. The
+two rows are in the same timing scope and are not the same measurement, and
+`verify.consumer.c16384.secs_total_sequence` says which of the two it multiplies.
+
+The negative control. A copy of the three serialized documents under a scratch
+directory on the host, with one byte of the proof body changed: byte 84,699,131
+of 169,277,485, the last digit of the number `129`, which became `120`. The file
+keeps its length and every other byte, and the copy hashes to
+`4172cbea24c3d99e7b4d43fe720ae30affc995c5e9f866a7754d7505fa901a74`. The verifier
+refused it, exit 1, in 42.53 s: `grid verify llama31-8b-l16-s512-c16384:
+REJECTED`, with `stark` false and `error` `Merkle(RootMismatch)` and every other
+field of the verdict true -- the shape root still derives and matches, the sums
+still cancel, and what fails is the proof. A control the verifier accepts fails
+the run and records nothing.
+
+What is not measured. A segment at context 4,096, which is smaller in every
+term: no proof of one is kept anywhere, so the smaller case has not been
+replayed on a machine of this size. The run also says nothing about a machine
+with fewer than four cores or less memory, and nothing about how long the whole
+sequence takes in one process: every number here is one segment at a time.
+
 ## Entry template
 
 ```

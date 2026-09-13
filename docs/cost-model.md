@@ -444,6 +444,22 @@ about each.
   the witness. Nothing here puts a number on it: no layout for it exists and no
   run has tried it.
 
+## What checking one segment costs on a machine with no card
+
+The model prices proving, and checking is the other side of it. One segment of
+the sequence at context 16,384 -- the reference segment, whose proof is kept --
+replays on four cores of a server processor in
+`verify.consumer.c16384.secs_per_segment_median`, 43.2 s, holding
+`verify.consumer.c16384.peak_rss_bytes`, 28.5 GiB, which a machine with four
+cores and 32 GB of memory holds. Almost all of those seconds are one shape root derived
+from the published calibration and compared with the one the statement carries;
+the proof's own check is about a second, next to 0.757 s for the median segment
+on the run host's sixteen cores.
+`verify.consumer.c16384.secs_total_sequence` puts the whole 1,058-segment
+sequence at 12.7 hours on that machine, one segment at a time with a derivation
+charged to each. A segment at context 4,096 is smaller in every term and none
+has been replayed on a machine of this size, because no proof of one is kept.
+
 ## Where the measured quantities come from
 
 Every `projected` constant lists its inputs; `check.py` recomputes the
