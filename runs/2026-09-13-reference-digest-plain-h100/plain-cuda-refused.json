@@ -1,0 +1,8 @@
+{
+ "shape": "the reference segment without the five GKR reductions, C = 16,384, S = 512",
+ "backend": "cuda",
+ "attempted": false,
+ "committed_cells": 4131033024,
+ "card_memory_total": "81559 MiB",
+ "why": "this shape's CUDA proof was attempted once at this prover commit and stopped in the quotient stage for want of card memory, with 82.2 GB of the 85.0 GB the driver reports in use at the composition commitment; the short segment carries the same evidence at 30 per cent of the committed cells and is proved on both backends instead"
+}

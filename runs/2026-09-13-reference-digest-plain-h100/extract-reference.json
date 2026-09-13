@@ -1,0 +1,1 @@
+{"device": "cuda", "seconds": 118, "layer": 16, "spec": "b10-final", "context": 16384, "s": 512, "tokens": 16896, "flags": "--residual-stream --diagonal-block"}
