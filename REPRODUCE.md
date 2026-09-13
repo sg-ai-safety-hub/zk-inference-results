@@ -49,6 +49,20 @@ Written, not yet run:
   the one-line fix for the statement key the prover renamed (zk-prover #171),
   without which the comparison stops on the first chunk it opens.
 
+- `tools/drivers/predict-70b.sh`: one synthetic layer segment at the
+  Llama-3.1-70B width per context, 4,096 and 16,384, on a card and at a block
+  length the driver is told and has no default for. The shape and not the
+  model: 64 attention heads of 128 with 8 key/value heads, hidden 8,192, inner
+  28,672, and no weight of that model is read, downloaded or held anywhere.
+  The prediction is registered now, at a 128-token block and at context 4,096:
+  `runs/2026-09-13-register-70b-none` holds it, counted from the trace layout
+  at a stated block of witness fields and recorded before anything was built,
+  which is the one rule the experiment has. The driver refuses to start until
+  that run is there and refuses a block length it was not counted at. What is
+  left is the card: the block length answers the memory question the campaign
+  had to settle before a host is booked, and nothing has been proved at this
+  width yet.
+
 
 ## synthetic-digests
 
@@ -2821,6 +2835,115 @@ rebuild are paid once per host; a second run of the pair costs the two loops.
 The store gained nothing -- 47 kernels, none new -- because a kernel is keyed by
 the fingerprint of its lowered form and the shapes this sample needs were
 already in it from another context.
+
+## `register-70b`
+
+```
+tools/drivers/register-70b.sh
+```
+
+runs: `2026-09-13-register-70b-none`
+prover commit: none   harness commit: 111347e (zk-prover `shape-70b-synthetic`,
+  not merged: re-pin the driver when it is)
+digests: none; the run's own outputs are the registration and its configuration
+binding: none; this run proves nothing
+unsound skips: none
+constants backed: none. The number this run produced is the registered
+  prediction below; nothing in `constants.json` reads it until `predict-70b`
+  has measured against it.
+
+What the run is. The prediction `predict-70b` is measured against, written
+before anything at this width was built, proved or counted. It takes no host and
+no card: it is a computation over this repository's `constants.json`, the two
+measured 8B layer chunks the two headline runs already proved, and a stated
+block of witness fields this driver holds.
+
+    prediction_sha256        80394b3d9476c825bd7301eec7398dca240f96ced8d795062c3d6762c799d33b
+    prediction_block_sha256  e2af2a7bf3b17b7f49c4d504fe8219a9f94b2c060ba473b1aca046f617619ee6
+    constants.json frozen    77b7d01843e3e363108a37237f73038516a49fbae205df438918dbd3d63c2c9b
+    fields file              f429fd094c7e3bf10e4492b90a356cc0244f1748a080fde6282347544cd8982f
+    zk_results_commit        9ecef91
+    counted                  80 segments, none absent, at C = 4,096 and a
+                             128-token block
+
+What it registers. 676,250,394 fresh committed cells a decoded token over the
+80 layer segments of Llama-3.1-70B at context 4,096, of which 119,032,320 are
+the attention key tiles and 557,218,074 the rest. One layer segment of that
+stack is 1,081,685,392 cells and the segment that carries the embedding lookup
+is 1,106,904,464; the stack's average is 1,082,000,630. That layer segment is
+what `predict-70b` proves and what the comparison is against. The key tiles
+committed 173,047,808 base cells and 17,403,904 interaction cells a segment,
+the same integers the closed form gives, so the three grids tile exactly at
+this shape. One layer segment here is 0.777 times the measured 8B layer chunk,
+which is a segment over a quarter as many positions at the same context.
+
+Counted and not priced, and counted at a STATED block of fields. On this path
+the model charges no per-unit cell cost on the committed side: every cell is
+counted from the prover's trace layout. What the layout needs and a model and a
+context do not give it is the block of fields a run calibrates off its own
+witness. `register-13b` reads that block off dumps. There are no dumps here and
+there will be none: what `predict-70b` proves is a synthetic layer segment at
+this width, built by the prover's own fixed-seed generator, so the block is
+stated in the driver with where each field comes from, and it travels into the
+registration under `frozen_inputs.witness_fields.stated_from`. Three kinds:
+
+- the master exponent table at 2^24 and the normalisation window at 20 are
+  flags. `predict-70b.sh` passes `--table-bits` and `--kmax` and the prover
+  takes both verbatim, so neither is assumed. The window is also the prover's
+  own blind bound at this shape, so the flag and the derivation agree;
+- the attention output's quantize width of 7 and the two fold pins at 0 are
+  the generator's own: a synthetic layer sets that width to 8, and `--layout
+  b10` puts all seven matmuls on the chain dequantize gadget and delays none;
+- the attention output's measured windows -- the divisor range at 21 bits, the
+  accumulator's 16 and 6, and the two exponent extremes -- are the assumption.
+  No flag pins them and they exist only once the generator has drawn the
+  layer. They are stated at the values the same generator produced at the 8B
+  attention width in `2026-09-09-prefill-sweep-8b-h200`, output
+  `dd_s256_c4096.json`: the same generator flags, the same head dimension of
+  128, the same quantize widths and the same context. They are properties of
+  the attention's own arithmetic and not of the head count, which is the one
+  thing the two shapes do not share.
+
+The witness bound beside the count says what the assumption is worth from the
+other side: the same 80 segments with every witness-calibrated field at the
+dearest value the recorded 8B runs carry come out 6.78% above this count.
+
+Why the block is 128 and not 512. One 70B layer segment at a 512-token block
+does not fit an 80 GB card at either context, and that is the memory question
+issue 93 asks to answer before a host is booked. The 8B's own measured pairs
+put the card at 47.9 MiB per million cells of the largest segment at C = 4,096
+(`mem.headline.c4096.peak_mib` against that loop's embedding segment) and 33.2
+at C = 16,384 (`mem.probe.c16384.layer0_peak_mib` against the same segment
+there). This shape's layer segment counts 2,851,597,200 cells at C = 4,096 and
+4,525,124,496 at C = 16,384 over a 512-token block, which those two ratios put
+at 167% and 184% of the 81,559 MiB the card reports. At 256 the larger context
+is still over. At 128 the counts are 1,081,685,392 and 2,037,986,704, which the
+same ratios put at 63.5% and 82.9%. The assumption is that peak card memory at
+one context goes with the largest segment's fresh committed cells, at the same
+statement and the same reductions on the same card; the line through both
+measured pairs, which makes no such assumption, puts the same two points at 87%
+and 94%, so the choice survives either reading and the margin the run has in
+hand is the smaller of the two.
+
+Why C = 4,096 alone. A witness field is a property of one forward pass over one
+prefix: the attention output's divisor range and the master exponent table both
+grow with it, so a segment at one context is not counted at another's fields and
+the harness refuses to. There is a recorded synthetic segment at C = 4,096 to
+state the assumed four from and none at C = 16,384. So the registration covers
+C = 4,096, says in its own `contexts_not_registered` that it does not cover
+C = 16,384, and `predict-70b` prints which contexts it is measured against and
+which it is not. Pinning the attention output's windows in that driver, the way
+`prefill-sweep-8b` pins its divisor range, is what would make every field of a
+synthetic segment a flag and let both contexts be registered in advance; that is
+a measurement decision and is not taken here.
+
+Why the driver pins an unmerged zk-prover commit. The counted path needs three
+things main does not carry: the counted-registration record for this shape, a
+block length the document can be counted at -- every registration before this
+one is at 512, which is what `predict.py` assumed -- and a writer for a fields
+file of a segment that has no dump. Re-pin the driver at the merge commit; the
+registration then has to be made again, because the code it read is part of what
+it froze.
 
 ## Entry template
 
