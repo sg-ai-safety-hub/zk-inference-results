@@ -49,6 +49,73 @@ Written, not yet run:
   the one-line fix for the statement key the prover renamed (zk-prover #171),
   without which the comparison stops on the first chunk it opens.
 
+- `tools/drivers/phase-split-c4096.sh`: the segment loop split into phases at
+  context 4,096, and what the generated constraint kernels buy, over the 32
+  layer segments of the last token block of `headline-c4096`'s plan -- the
+  block with the longest prefix, and the sample `gkr-ablation-c4096` prices the
+  reductions on. The paper's configuration, with the five reductions on and the
+  shared pins every campaign at this context carries, `--tight-table` among
+  them, proved twice with one segment in flight: once as the paper runs it,
+  once with every generated constraint kernel declining to the host. Written
+  and not yet started, because the card was in use.
+
+  Why one segment in flight. The post's phase split is asserted
+  (`assumption.loop_split.c4096.interaction_frac` and the three beside it)
+  because the headline row's loop overlaps one segment's generation with
+  another's proving, and the per-segment spans then overlap in time:
+  `trace_secs`, `interaction_secs`, `stwo_total` and `read_secs` add to 144 per
+  cent of that loop's own seconds. With one segment in flight they stop
+  overlapping. Read off `runs/2026-09-11-control-flags-off-c4096-h100`, which
+  is a run made that way, the same four add to 85 per cent over all 290
+  segments. They are still not a split of it: 15 per cent is unnamed,
+  `read_secs` is one of the four kinds of work inside `build_secs` rather than
+  a peer of the other three, and `prove_secs` -- the field a reader reaches for
+  next -- holds `interaction_secs` whole, so a split naming both counts 40.9
+  per cent of that loop twice.
+
+  What does partition, and what the driver records: twelve terms, none of them
+  inside another. `read`, `decode`, `check`, `construct` and `alloc`, which are
+  the loader's own kinds of work, and what they leave of the segment's build;
+  `trace`, which is `generate_secs`; `interaction`; `stwo`, which is
+  `stwo_total`; `serialize`; what those three leave of the proving half; and
+  what the segments leave of the loop. Checked on the same run before the
+  driver was written: over its 290 segments the twelve add to its `loop_secs`
+  to the microsecond and no segment leaves a negative term, at interaction 40.9
+  per cent, trace 32.2, the proof system 7.1 and the read 5.3. Those are that
+  run's shares with the five reductions off and are not this campaign's.
+  `trace_secs` itself is not one of the twelve: it is the sum of two spans, one
+  in the trace build and one in the head of the proving half, and the output
+  reports only their sum, so it cannot be put on either side of that boundary.
+  Over the 290 segments it and `generate_secs` are 0.1 per cent apart, and the
+  record carries both. `verify_secs` is not one of the twelve either: the
+  prover verifies each proof from the serialized bytes after the loop has
+  ended, so those seconds are outside `loop_secs` and the record carries them
+  beside the split.
+
+  The kernels-off loop is `ZK_KERNEL_SKIP`, the prover's list of kernel groups
+  whose generated constraint kernel declines to the host on that run, exactly
+  as an absent kernel does. The list is read on the host out of the kernel
+  store's own manifest, so nothing about it is typed into the driver. Every
+  other driver's gate fails a run that announces a kernel fallback line; this
+  one is the other way round, and the prover's own phase detail has to agree
+  that constraints were evaluated on the host. The host path evaluates the same
+  AIR, so the gate compares the sample's 32 proof digests between the two loops
+  and fails the run on one that moved. What the switch does not reach: the
+  generated witness-generation and LogUp builders, which `ZK_GENERATED_LOGUP`
+  chooses and which have a host builder to decline to only where the
+  component's columns are on the host. With the device columns on there is
+  nothing to decline to, so switching those off would price the device
+  residency and not the kernels, and the run says so in its own `config.json`.
+
+  Constants the fetch will record: `secs.phase.c4096.<loop>.<phase>` and
+  `secs.phase.c4096.<loop>.loop` for the `kernels` and `nokernels` loops,
+  `share.phase.c4096.<loop>.<phase>` derived from those two, and
+  `segments.phase.c4096`. The audit section and the derived lines are written
+  and claim nothing until a run lands.
+  `secs.projected.c4096.loop_ported_rates` is deliberately untouched: re-deriving
+  it from a measured split is a follow-up, and until then the projected row
+  keeps the split it assumes and the note that says so.
+
 
 ## synthetic-digests
 
