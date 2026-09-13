@@ -1,0 +1,121 @@
+{
+ "block": 128,
+ "cell_costs_by_source": {
+  "absent": 2,
+  "analogy": 2,
+  "constants": 25
+ },
+ "cell_costs_not_priced": [
+  "gkrlink_cells_per_chunk",
+  "limb_cells_per_acc"
+ ],
+ "cells": "exact",
+ "cells_per_token_layers": {
+  "4096": 676250394.0
+ },
+ "cfg": [
+  80,
+  8192,
+  64,
+  8,
+  128,
+  28672,
+  128256
+ ],
+ "chunk_over_8b_l16_chunk": {
+  "4096": 0.7767027332558121
+ },
+ "constants": {
+  "file": "constants.json",
+  "sha256": "77b7d01843e3e363108a37237f73038516a49fbae205df438918dbd3d63c2c9b",
+  "zk_results_commit": "047beea177d86028d4cb321f6c3026ba84768e42"
+ },
+ "context": 4096,
+ "contexts_not_registered": {
+  "16384": "the fields these segments are counted at are stated for C=4,096, and this document registers only the context they are stated for: the attention output's divisor range and the master exponent table both grow with the prefix, and no synthetic segment at another context has been built for anyone to state them from"
+ },
+ "driver": "register-70b",
+ "fields_sha256": "6778ce0724fdea3bb0f4258fb059d74e48541ee8d0b19c7fd30cd8bddec95867",
+ "fields_stated_from": {
+  "ao_acc_hi_bits": "ASSUMED, from the same recorded segment. Worth under a thousand cells either way",
+  "ao_acc_lo_bits": "ASSUMED, from the same recorded segment. The limbs are params_of's split of the accumulator this layer draws, and the count moves by under a thousand cells across every value either limb can take",
+  "ao_acc_mag": "derived from the four stated above, by params_of's own rule: the offset form is taken wherever it fits, and 1 + 16 + 6 + (ao_jv_max - ao_jo_min) = 30 is inside the field's 31",
+  "ao_denp2": "derived from the two stated above, by params_of's own rule: ao_q_bits + ao_rem_bits = 28 is inside 30, so the plain form stands",
+  "ao_jo_max": "ASSUMED, from the same recorded segment. Worth no cells",
+  "ao_jo_min": "ASSUMED, from the same recorded segment. It is worth no cells at all: the count reads the jo and jv extremes only through the exponent window's own table, which is 16 rows at every value these four take",
+  "ao_jv_max": "ASSUMED, from the same recorded segment. Worth no cells",
+  "ao_jv_min": "ASSUMED, from the same recorded segment. Worth no cells. The narrower window this run states should put it above the -12 recorded there, and nothing in the count moves if it does",
+  "ao_q_bits": "the generator's: a synthetic layer sets the attention output's width to 8 and ao_q_bits is that minus one",
+  "ao_rem_bits": "ASSUMED, from the recorded synthetic segment 2026-09-09-prefill-sweep-8b-h200 dd_s256_c4096.json: the same generator with --synth-residual-stream and --diagonal-block, the same head dimension of 128, the same --numbits 9 and --round even, at the same context and within 3% of the same key count. It is the bit length of the denominator shifted by the gap between the attention output's per-token scale and its per-channel V scale, and at that recorded point the shift is zero -- jo runs -13 to -12 and jv -12 to -6, so the whole 21 bits are the denominator, which is the same sum over the same number of keys here. The two recorded points at a 128-key prefix read 22 with a shift of 3, which is the same reading at a smaller denominator. What sets the shift is the per-channel V scale window: that point was drawn over six binades on the power-of-two gadget, and this run states ZK_SYNTHETIC_V_SCALE_BINADES=3, which is four binades of spread on the chain, so the shift here cannot be the wider of the two. No flag pins this, the witness that settles it does not exist yet, and a measurement that reads wider is reported and not adjusted for: the first attempt at this measurement read 35 bits, from a twenty-binade window nobody had stated, and zk-prover #192 is why there is a window to state",
+  "deq_variants": "the generator's: --layout b10 is the chain on all seven (`MAT_VARIANTS_CHAIN`, prover/src/layer.rs)",
+  "fold_alpha": "the generator's, for the same reason as fold_rem_bits",
+  "fold_rem_bits": "the generator's: --layout b10 puts all seven matmuls on the chain dequantize gadget and delays none, so the layer has no fold matmul and no fold pin",
+  "k_bits": "a flag: the quantize widths predict-70b.sh proves at, which are the recorded statement's",
+  "kmax": "a flag: predict-70b.sh passes --kmax 20 and params_of takes it verbatim. It is also the prover's own blind bound for this shape, so the flag and the derivation agree: the widest matmul is `down` at 28,672 inputs, 127 * 127 * 28,672 is 462,450,688, which is 29 bits, and the window is the bits above the 9 the mantissa carries. The sound cap is 21",
+  "log_table": "a flag: predict-70b.sh passes --table-bits 24 as the first of the two table widths it tries, and params_of takes it verbatim. The same generator sized its own table at exactly 24 at the 8B attention width at every recorded point -- a 64-token block at C=64, a 128-token block at C=128 and a 256-token block at C=4,096. A run that has to widen the table to 25 is a run at another table and is reported as one: five cells a row makes that 83.9 M more cells a segment",
+  "nmax": "a flag: --numbits 9, so 2^9 - 1",
+  "q_bits": "a flag: the quantize widths predict-70b.sh proves at, which are the recorded statement's",
+  "z_min": "a flag: --numbits 9, so 2^9 - 1"
+ },
+ "label": "registration",
+ "layer_segment_fresh": {
+  "4096": 1081685392
+ },
+ "measured_at_prover_commit": "94912b0c22f0a39b66dc67a993dcfe03f1611bec",
+ "measured_at_why": "the tree the measurement builds and proves the segment at, which is not the tree this registration was counted from: the count builds no layer. It is named because one line of the stated block is the generator's -- the attention output's remainder is as wide as the window the synthetic v weight scale is drawn from, and that window is a stated knob only this commit has",
+ "measured_by": "tools/drivers/predict-70b.sh, which proves after this",
+ "measures": "one synthetic layer segment at this shape's width per context: the shape and not the model, and no weight of it is read anywhere",
+ "per_layer_chunk_fresh": {
+  "4096": 1082000630.4
+ },
+ "prediction_block_sha256": "a0e4cd84caf0deb7583a2dea6054ea0d2ca96a6419caa415706f96e51a6fdba0",
+ "prediction_sha256": "fbf57fdb7df600080eed4e0f78ec93bf03fb9aa84603c6ea729903623b8958a6",
+ "reference_chunks": {
+  "16384": {
+   "block": 32,
+   "blocks": 33,
+   "context": 16384,
+   "fresh": 2229832816,
+   "key_tiles": 761331712,
+   "key_tiles_interaction": 113057792,
+   "model": "unsloth/Llama-3.1-8B-Instruct",
+   "plan_index": 1041,
+   "proof_sha256": "45e858dce81a892dfb5948197314fd8625e476dcc69223ade64f773dbe865b94",
+   "prover_commit": "38a3919988ec11e57244516b13b32e434cb01fb1",
+   "run": "2026-09-08-headline-c16384-h100",
+   "s": 512,
+   "segment": "B32L16",
+   "slice": "slice_1024.json",
+   "spec": "y-delay-vw12",
+   "tokens": [
+    16384,
+    16895
+   ]
+  },
+  "4096": {
+   "block": 8,
+   "blocks": 9,
+   "context": 4096,
+   "fresh": 1393069168,
+   "key_tiles": 207683584,
+   "key_tiles_interaction": 31268864,
+   "model": "unsloth/Llama-3.1-8B-Instruct",
+   "plan_index": 273,
+   "proof_sha256": "9f091c704d505d657d98edec784ac374c758c1fa2dd8075bdc78d5c51d16d975",
+   "prover_commit": "a603db1ddf1e2372d1f9761d684df8f2294199a9",
+   "run": "2026-09-09-headline-c4096-h100",
+   "s": 512,
+   "segment": "B8L16",
+   "slice": "slice_0256.json",
+   "spec": "y-delay-vw12",
+   "tokens": [
+    4096,
+    4607
+   ]
+  }
+ },
+ "segments_counted": 80,
+ "shape": "Llama-3.1-70B",
+ "statement": "--diagonal-block --gkr-key-tiles --gkr-dequant --gkr-residual-stream --gkr-freivalds --gkr-attnout",
+ "witness": "none, and none will exist: the segment is built by the prover's own fixed-seed generator, so every field it is counted at is stated in `fields_stated_from` and no dump backs any of them"
+}
