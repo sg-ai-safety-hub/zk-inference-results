@@ -49,6 +49,24 @@
 #     those with that point; what it does not share is the head count, which
 #     these four do not depend on.
 #
+#     The first attempt at this measurement refuted the first of them, and the
+#     reason is worth stating here rather than in the record of a run that made
+#     no proof. The divisor's range is the bit length of the denominator shifted
+#     by the gap between the attention output's per-token scale and its
+#     per-channel V scale, and that per-channel scale is the `v` matmul's own.
+#     Where `v` is on the power-of-two dequantize gadget it is drawn over six
+#     binades; where it is on the chain -- which is where `--layout b10` puts it,
+#     and which no recorded synthetic segment had ever been built at -- it was
+#     drawn over twenty, and the width came back at 35 bits against the 31 the
+#     statement's widest form holds. zk-prover #192 made that window a stated
+#     knob, `ZK_SYNTHETIC_V_SCALE_BINADES`, whose default of 3 is the narrow
+#     draw the delayed matmul already took; `predict-70b.sh` states it, and it
+#     is three binades of exponent and one of mantissa, so four binades of
+#     per-channel spread against the six the recorded 8B points were drawn over.
+#     The window is narrower than the one those points measured 21 bits at, and
+#     the denominator is the same key count at the same context, so 21 is the
+#     statement here and a wider one is what the measurement would disclose.
+#
 # C = 4,096 ALONE, and the document says so in its own `contexts_not_registered`.
 # The attention output's divisor range and the master exponent table both grow
 # with the prefix, so a segment at one context is not counted at another's
@@ -140,14 +158,29 @@ LABEL=registration         # a prediction, not a measurement: this run proves no
 SHAPE="Llama-3.1-70B"
 REGFILE=registration-llama-3-1-70b.json
 NLAY=80                    # the stack's own layer count, from the model's config
-# The pinned commit. It carries three things this registration needs and
-# zk-prover main does not: the counted-registration record for this shape, the
-# `--block` the document is counted at, and `witness_fields --synthetic`, which
-# writes a fields file for a segment that has no dump. This is the head of
-# zk-prover's `shape-70b-synthetic` branch and it is NOT MERGED. RE-PIN THIS
-# when it is -- the merged commit is the one a reader can fetch, and an
-# unmerged branch head is not.
+# The pinned commit: the tree this registration's COUNTING code is read from.
+# It carries three things zk-prover main does not -- the counted-registration
+# record for this shape, the `--block` the document is counted at, and
+# `witness_fields --synthetic`, which writes a fields file for a segment that
+# has no dump. This is the head of zk-prover's `shape-70b-synthetic` branch,
+# PR 188, and it is NOT MERGED. RE-PIN THIS when it is -- the merged commit is
+# the one a reader can fetch, and an unmerged branch head is not.
 COMMIT=51ee439a7a55b5f050483e7b6ac3338d38ec7e34
+# The commit the MEASUREMENT is built and proved at, which is a different tree
+# and is not archived here: this run builds no layer and proves nothing, so the
+# generator is no input to it. `register-13b.sh` says the same of its own two
+# commits, for the same reason. What makes it worth naming is that one line of
+# the block below is about the generator and not about the layout: the
+# attention output's remainder is as wide as the window the synthetic `v`
+# weight scale is drawn from, and that window is a knob only this commit has
+# (zk-prover #192, PR 193, also NOT MERGED). A measurement built at a tree
+# without it draws the twenty-binade window the first attempt died on, and this
+# document does not describe that segment.
+#
+# The two are separate commits because the two branches are: PR 193 is off main
+# and PR 188 is off main, and neither contains the other. When both are merged
+# this collapses to one commit and the two lines below become one.
+PROVER_AT=94912b0c22f0a39b66dc67a993dcfe03f1611bec
 # The statement the registration prices, which is what `predict-70b.sh` proves:
 # its GKR flags and its diagonal block, and the two drivers have to name the
 # same set.
@@ -286,15 +319,15 @@ cat > "$STATED" <<'STATEDEOF'
   "q_bits": "a flag: the quantize widths predict-70b.sh proves at, which are the recorded statement's",
   "nmax": "a flag: --numbits 9, so 2^9 - 1",
   "z_min": "a flag: --numbits 9, so 2^9 - 1",
-  "ao_rem_bits": "ASSUMED, from the recorded synthetic segment 2026-09-09-prefill-sweep-8b-h200 dd_s256_c4096.json: the same generator with --synth-residual-stream and --diagonal-block, the same head dimension of 128, the same --numbits 9 and --round even, at the same context. No flag pins it here and the witness that settles it does not exist yet",
-  "ao_acc_lo_bits": "ASSUMED, from the same recorded segment. The limbs are params_of's split of the accumulator this layer draws",
-  "ao_acc_hi_bits": "ASSUMED, from the same recorded segment",
+  "ao_rem_bits": "ASSUMED, from the recorded synthetic segment 2026-09-09-prefill-sweep-8b-h200 dd_s256_c4096.json: the same generator with --synth-residual-stream and --diagonal-block, the same head dimension of 128, the same --numbits 9 and --round even, at the same context and within 3% of the same key count. It is the bit length of the denominator shifted by the gap between the attention output's per-token scale and its per-channel V scale, and at that recorded point the shift is zero -- jo runs -13 to -12 and jv -12 to -6, so the whole 21 bits are the denominator, which is the same sum over the same number of keys here. The two recorded points at a 128-key prefix read 22 with a shift of 3, which is the same reading at a smaller denominator. What sets the shift is the per-channel V scale window: that point was drawn over six binades on the power-of-two gadget, and this run states ZK_SYNTHETIC_V_SCALE_BINADES=3, which is four binades of spread on the chain, so the shift here cannot be the wider of the two. No flag pins this, the witness that settles it does not exist yet, and a measurement that reads wider is reported and not adjusted for: the first attempt at this measurement read 35 bits, from a twenty-binade window nobody had stated, and zk-prover #192 is why there is a window to state",
+  "ao_acc_lo_bits": "ASSUMED, from the same recorded segment. The limbs are params_of's split of the accumulator this layer draws, and the count moves by under a thousand cells across every value either limb can take",
+  "ao_acc_hi_bits": "ASSUMED, from the same recorded segment. Worth under a thousand cells either way",
   "ao_acc_mag": "derived from the four stated above, by params_of's own rule: the offset form is taken wherever it fits, and 1 + 16 + 6 + (ao_jv_max - ao_jo_min) = 30 is inside the field's 31",
   "ao_denp2": "derived from the two stated above, by params_of's own rule: ao_q_bits + ao_rem_bits = 28 is inside 30, so the plain form stands",
-  "ao_jo_min": "ASSUMED, from the same recorded segment",
-  "ao_jo_max": "ASSUMED, from the same recorded segment",
-  "ao_jv_min": "ASSUMED, from the same recorded segment",
-  "ao_jv_max": "ASSUMED, from the same recorded segment"
+  "ao_jo_min": "ASSUMED, from the same recorded segment. It is worth no cells at all: the count reads the jo and jv extremes only through the exponent window's own table, which is 16 rows at every value these four take",
+  "ao_jo_max": "ASSUMED, from the same recorded segment. Worth no cells",
+  "ao_jv_min": "ASSUMED, from the same recorded segment. Worth no cells. The narrower window this run states should put it above the -12 recorded there, and nothing in the count moves if it does",
+  "ao_jv_max": "ASSUMED, from the same recorded segment. Worth no cells"
  }
 }
 STATEDEOF
@@ -339,7 +372,7 @@ import sys
 from harness import provenance
 
 (root, out, args, statement, zk_results_commit, label, shape, nlay, block, ctx,
- fields_path) = sys.argv[1:12]
+ fields_path, prover_at) = sys.argv[1:13]
 root, out = pathlib.Path(root), pathlib.Path(out)
 nlay, block, ctx = int(nlay), int(block), int(ctx)
 # The file `--json` wrote, found through the module rather than guessed: it is
@@ -459,6 +492,13 @@ if len(layers) != 1:
 config = {
     "driver": "register-70b", "label": label,
     "statement": statement, "block": block, "context": ctx,
+    "measured_at_prover_commit": prover_at,
+    "measured_at_why": "the tree the measurement builds and proves the segment at, which "
+                       "is not the tree this registration was counted from: the count "
+                       "builds no layer. It is named because one line of the stated block "
+                       "is the generator's -- the attention output's remainder is as wide "
+                       "as the window the synthetic v weight scale is drawn from, and that "
+                       "window is a stated knob only this commit has",
     "shape": shape, "cfg": entry["cfg"], "segments_counted": len(counted),
     "cells": frozen.get("cells"),
     "constants": {"file": "constants.json", "sha256": sha,
@@ -492,7 +532,7 @@ print(f"register-70b: prediction_block_sha256 {reg['prediction_block_sha256']}")
 PY
 ( cd "$ROOT" && uv run --project "$SRC/harness" --frozen python "$GATE" \
     "$ROOT" "$OUT" "$ARGS" "$STATEMENT" "$ZK_RESULTS_COMMIT" "$LABEL" "$SHAPE" "$NLAY" \
-    "$BLOCK" "$CTX" "$FIELDS" )
+    "$BLOCK" "$CTX" "$FIELDS" "$PROVER_AT" )
 
 # ---- the record --------------------------------------------------------------
 python3 "$HERE/lib/manifest.py" --driver "tools/drivers/$NAME.sh" --fetched "$OUT" \
@@ -505,10 +545,11 @@ echo
 echo "$NAME: recorded in runs/$(basename "$RUN")"
 echo "next:  measure, with the registration already in this repository, at the card"
 echo "       and the block length this registration was counted at:"
-echo "         tools/drivers/predict-70b.sh <host> <prover commit> <harness commit> <card> $BLOCK"
-echo "       The two commits are the ones the SEGMENT is built and proved at, which"
-echo "       is zk-prover main -- not $COMMIT, which is only where this"
-echo "       registration's counting code lives and which no proof needs."
+echo "         tools/drivers/predict-70b.sh <host> $PROVER_AT $PROVER_AT <card> $BLOCK"
+echo "       Those two are the tree the SEGMENT is built and proved at, which is"
+echo "       where the stated v scale window lives -- not $COMMIT,"
+echo "       which is only where this registration's counting code lives and which"
+echo "       no proof needs."
 echo "       The card is an argument and has no default: the memory answer is about"
 echo "       one card and a rate on one is not a rate on the other. A call that"
 echo "       names another block is refused by that driver, because this document"

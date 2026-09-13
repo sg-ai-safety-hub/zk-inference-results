@@ -109,6 +109,18 @@ DIMS="q:${D}x${D},k:${D}x${KVW},v:${D}x${KVW},o:${D}x${D},gate:${D}x${DFF},up:${
 # the bits above the 9 the mantissa carries. So 20, and no seed can produce an
 # accumulator outside it.
 KMAX=20
+# The window, in binades, the synthetic `v` matmul's per-channel weight scale is
+# drawn from where that matmul is on the chain dequantize gadget -- which is
+# where --layout b10 puts it. It is the width of the attention output's own
+# remainder: `jv` is calibrated off this matmul's dequantize output and the
+# attention output's exponent is `jv - jo`, so the draw comes straight back as
+# `ao_rem_bits`, which no flag may narrow below what the witness needs. Drawn
+# over twenty binades this shape read 35 bits against the 31 the statement's
+# widest form holds and did not prove (zk-prover #192); 3 is the narrow draw the
+# delayed matmul already took, and it is what the registration is counted at. A
+# synthetic weight scale is arbitrary either way: what matters is that the run
+# states it and the record says what the segment was built at.
+V_SCALE_BINADES=3
 RSA=32                     # --residual-stream-a: the reduction tree's arity,
                            # 32 as in every other synthetic segment here; it
                            # divides both 8,192 and 28,672
@@ -234,6 +246,9 @@ $(drv_job_preamble)
 export RAYON_NUM_THREADS=\${RAYON_NUM_THREADS:-$XTHREADS}
 # The seven matmul widths of the 70B layer, read by the synthetic layer builder.
 export ZK_SYNTHETIC_DIMS=$DIMS
+# The window the v matmul's weight scale is drawn from, which is the width of
+# the attention output's remainder and is why this shape did not prove without it.
+export ZK_SYNTHETIC_V_SCALE_BINADES=$V_SCALE_BINADES
 
 GPU=\$(nvidia-smi --query-gpu=name,memory.total,driver_version --format=csv,noheader)
 st "gpu: \$GPU"
@@ -255,7 +270,8 @@ cat > \$OUT/config.json <<CFG
  "spec": "$SPEC", "card_asked_for": "$CARD", "s": $S, "contexts": "$CONTEXTS",
  "head_groups": "$HEAD_GROUPS", "matmul_widths": "$DIMS",
  "kmax": $KMAX, "residual_stream_a": $RSA, "table_bits_ladder": "$TABLE_BITS",
- "ao_rem_bits": "the witness's own; not pinned",
+ "v_scale_binades": $V_SCALE_BINADES,
+ "ao_rem_bits": "the witness's own; not pinned, and its width is the v scale window above",
  "shared_arithmetic": "$SHARED_ARITH", "variant": "$VARIANT",
  "gkr_flags": "$GKR", "shape_flags": "$SHAPE",
  "backend": "cuda", "threads": $XTHREADS,
