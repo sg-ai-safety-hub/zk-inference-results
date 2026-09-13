@@ -2045,15 +2045,16 @@ segment stayed under 128 GB. The serialized statements and proofs are
 ```
 tools/drivers/cost-model.sh <prover-commit> <harness-commit>
 tools/drivers/cost-model.sh --dry-run <prover-commit> <harness-commit>
+tools/drivers/cost-model.sh --routing <run-id>:<row> <prover-commit> <harness-commit>
 ```
 
 runs: `2026-09-13-cost-model-none`, which supersedes
-  `2026-09-12-cost-model-none`
-prover commit: none   harness commit: 6589471
+  `2026-09-12-cost-model-none`, and `2026-09-13-cost-model-routing-none`
+prover commit: none   harness commit: 6589471, and `7ef4122` for the routing run
 digests: none; the run makes no proof and commits nothing
 binding: none; this run proves nothing
 unsound skips: none
-constants backed: the 247 rows the index lists against this run --
+constants backed: the 247 rows the index lists against the first run --
   `frontier.<model>.h100.c<ctx>.<scope>.cards_for_20` and its
   `usd_per_mposition` twin for all nine shapes at two contexts and four scopes,
   the same dollars under the two layouts nobody has built
@@ -2065,7 +2066,14 @@ constants backed: the 247 rows the index lists against this run --
   and the three `frontier.calibration.*` residuals, all grade `projected`. The
   twenty-one `assumption.cost_model.*` keys each of them names in its `inputs`
   are not this run's: eleven are `measured` off the two headline runs and ten
-  are `asserted`.
+  are `asserted`. The routing run backs the 19 the index lists against it:
+  `frontier.qwen3-235b-a22b.h100.c<ctx>.<scope>.cards_for_20_routing_measured`
+  and its `usd_per_mposition` twin at both contexts and all four scopes,
+  `moe.qwen3-235b-a22b.fresh_over_dense_routing_measured`, and the two
+  `frontier.qwen3-235b-a22b.c<ctx>.routing_measured_pct` rows, all `projected`.
+  Each of them names in its `inputs` the uniform row it sits beside and the
+  three `moe.routing.qwen3_30b_a3b.c<ctx>.s512.*` rows of
+  `2026-09-13-moe-routing-h100`.
 
 What the run is. The frontier price table, projected from this repository's own
 constants and from nothing else, and the first driver that needs no host. It
@@ -2149,6 +2157,94 @@ layout -- so they are `asserted` with the reason in the note.
 `assumption.cost_model.moe_router` is an upper bound and not a point estimate;
 this file has no `bound` grade, so it is `asserted` and its note carries the
 bound.
+
+The measured routing, and it is an argument because it is a decision.
+`--routing <run-id>:<row>` prices one mixture row a second time at the per-expert
+token counts a `moe-routing` run recorded, and records those rows BESIDE the
+uniform ones under names ending `_routing_measured`, never instead of them. The
+argument states the whole of the decision: whose routing, and which row it is
+applied to. `2026-09-13-moe-routing-h100` measured Qwen3-30B-A3B and keys its
+table by that model, which the frontier holds no row for, so `--routing` refuses
+the table until someone re-keys it. This driver is where that happens, once, in
+the open: it reads the table out of the recorded run's own artifact, re-keys it
+to the row the argument names, refuses a table whose token slots are not the
+block's `S k`, and writes the re-keyed table itself -- with whose routing it is
+and which row it went onto -- into the manifest's `derived` block, which is where
+a run says what it took from an earlier run. So the exact input every recorded
+row was priced at is in this repository twice over: as the measuring run's
+artifact, and as the table in the pricing run's own manifest.
+
+What the table is, and it is one block. The measuring run writes the
+representative block -- the median by distinct experts over every mixture layer
+and every prompt -- and not a mean, because a mean of histograms is not a routing
+any block had. So a row priced this way is priced at that one block's routing for
+every block of every layer: at C=4,096 it is layer 10, prompt 4, block 3, which
+touches 73 experts and whose busiest matmul covers 510 of the 512 positions
+against the 462.6 the mean busiest of every block is. Both figures are in the
+measuring run and the row's note says which one it stands on.
+
+The three tables a routing run prints. The uniform table first -- it is what a
+measured row is recorded beside and what every other shape's row is held to --
+and then one table per context the routing was measured at, because the model
+holds one routing at a time and a context's rows are priced at the table that
+context's own prompts produced. The gate refuses on a row of any other shape that
+moved between them: a routing measured on one model prices one row.
+
+The routing run's pin, and it is not on main either. It is zk-prover `7ef4122`,
+the head of `routing-measured`, which is zk-prover PR 191 against main and is
+unmerged, as `2026-09-12-cost-model-none` is pinned at the head of the unmerged
+#181. Two things were missing and the table refused the shape without them: how a
+measured block tiles, and how many experts the preprocessed trace holds. A routed
+expert's `down` matmul has 4,096 outputs and its only divisors are powers of two,
+so its rows are the token count shifted and `MatLayout::choose_padded` refuses
+every count whose leading bits are under 1.5. 463 tokens tile -- 512 rows with 49
+of lead, under the quarter the chooser allows -- so that expert is ONE matmul, and
+that is what the prover builds. 268 tokens tile at no width, and the count falls
+back to the rule the uniform share is laid out by: the largest power of two at or
+below the count, then the remainder the same way, so 268 is 256 + 8 + 4. The
+token count is conserved in a split and rounded up in a padded matmul, and
+neither changes how many experts the segment reads: that is what the preprocessed
+trace holds the weights of, and before #191 it was the uniform `E (1 - (1 -
+k/E)^S)` whatever the routing, so a row counted at 73 experts' matmuls still
+charged 128 experts' weights.
+
+What the measurement moved, at S=512 and the five reductions on:
+
+```
+                                     uniform    measured    move
+  C=4,096   cells a proved position  384,360,142  391,372,542   +1.82%
+            loop, USD a Mposition       3,555.59     3,620.46   +1.82%
+            loop, cards for 20                78           80
+            stwo total, USD a Mposition   275.28       280.30   +1.82%
+            preprocessed a token     471,320,245  275,127,868  -41.63%
+  C=16,384  cells a proved position  537,461,481  548,698,617   +2.09%
+            loop, USD a Mposition       5,971.95     6,096.81   +2.09%
+            loop, cards for 20               131          134
+            stwo total, USD a Mposition   413.73       422.38   +2.09%
+            preprocessed a token     471,320,245  271,560,734  -42.38%
+```
+
+The two halves of the assumption move the price in opposite directions and the
+committed side nets out close to nothing. The segment reads 73 of the 128 experts
+instead of all of them, so its preprocessed weight trace -- which no measured rate
+counts -- holds 42 per cent fewer weights; the same comparison counting that
+trace is 1.9147 at the measured routing against the 2.4171 this file records at
+the uniform one, and this run does not record it. But
+the tokens are nowhere near level on the experts they do touch, and 73 lopsided
+matmuls cost more in committed cells than 128 level ones: one of 510 tokens pays
+2 rows of padding, one of 3 pays the fixed side of a matmul for three tokens. The
+net is 1.8 per cent dearer a proved position at C=4,096 and 2.1 at C=16,384. It is
+the first mixture row in this repository priced at a routing that was measured
+rather than assumed, and the assumption it replaces is stated in every one of its
+notes: the routing is Qwen3-30B-A3B's, applied to Qwen3-235B-A22B because the two
+route alike -- 128 experts, top-8, no shared expert, every layer a mixture layer
+-- and they are not the same weights.
+
+How the layout is chosen is a judgement and the number depends on it. One matmul
+an expert wherever the chooser has a layout is what #191 counts and is the +1.8
+per cent above; the strict rule, every block a power of two and no padding at all,
+turns 73 experts into 206 matmuls, 139 of them under sixteen tokens, and comes out
+10.3 per cent dearer instead. The first is what the prover builds.
 
 ## moe-routing
 

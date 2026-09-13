@@ -316,6 +316,16 @@ turn a cell count into seconds and dollars, as they always did.
   dense model with the same active parameters (`moe.<model>.fresh_over_dense`),
   and the same comparison counting the preprocessed weight trace, which the
   measured rates do not count (`moe.<model>.preprocessed_over_fresh`).
+- The same two rows for the one mixture shape whose routing has been measured,
+  recorded beside the uniform ones and never instead of them:
+  `frontier.<model>.<card>.c<ctx>.<scope>.cards_for_20_routing_measured`, its
+  `usd_per_mposition` twin and `moe.<model>.fresh_over_dense_routing_measured`,
+  each naming in its `inputs` both the uniform row it sits beside and the
+  routing constants it read. The move against that row is a ratio of two cell
+  counts, so it carries no card and no timing scope
+  (`frontier.<model>.c<ctx>.routing_measured_pct`). The routing is one block's,
+  measured on a smaller model of the same routing shape: both halves of that are
+  what the notes state.
 - The calibration residual, which is what the counted statement misses the
   headline run's measurement by, per proved position: one key per context
   (`frontier.calibration.c<ctx>.residual_pct`) and the worse of the two, which
