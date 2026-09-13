@@ -58,10 +58,43 @@ Written, not yet run:
   `runs/2026-09-13-register-70b-none` holds it, counted from the trace layout
   at a stated block of witness fields and recorded before anything was built,
   which is the one rule the experiment has. The driver refuses to start until
-  that run is there and refuses a block length it was not counted at. What is
-  left is the card: the block length answers the memory question the campaign
-  had to settle before a host is booked, and nothing has been proved at this
-  width yet.
+  that run is there and refuses a block length it was not counted at.
+
+  It has been run once on an H100 and made no proof, so there is no run
+  directory and no measured constant here yet. The reference backend built in
+  ten and a half minutes and the job stopped in its first kernel emit: the
+  synthetic layer's attention output needs a remainder of 35 bits, the
+  statement's widest form holds 31 against a quantize width of 7, and the
+  prover refuses it by name. The registration states 21, which is what the same
+  generator produces at the 8B attention width.
+
+  The 35 bits are the generator's own weight scale and not the 70B width.
+  `AttnOut::rem_bits` is the bit length of the denominator shifted by the gap
+  between the attention output's per-token scale and its per-channel V scale,
+  and that per-channel scale is the `v` matmul's. On the power-of-two
+  dequantize gadget it is drawn over five binades; on the chain gadget it is a
+  bf16 weight scale drawn over twenty. `--layout b10`, which is what the
+  registration prices, puts every matmul on the chain, `v` included, and no
+  recorded synthetic segment had ever done that -- every recorded run with `v`
+  on the chain is a real model's dump, whose per-channel V scales span two to
+  five binades and whose remainder reads 15 to 19 bits. The prover found the
+  same failure one layout over and narrows that draw there, for the matmul it
+  delays, and says the line is seen nowhere else. zk-prover #192 has the
+  verdict and the options; the width itself is not implicated, because hidden
+  8,192 widens the matmul accumulators and those are the normalisation
+  window's business, pinned at 20 and inside the sound cap of 21.
+
+  A shorter block does not fix it and neither does a shorter context: the
+  eleven bits are a scale spread, and the block reaches the remainder only
+  through the key count. Nor does any flag: the attention output's pins may
+  only widen what the witness needs. So the four `ao_*` rows of the
+  registration's stated block are refuted together, they have to be re-stated
+  once the generator's scale is settled, and the registration has to be made
+  again -- which means removing that run directory deliberately, as the driver
+  says. The count moves by about 1% for each bit of the remainder and by under
+  a thousand cells for the other three rows, so the segment figure itself
+  stands to within that one row, and the block length and the memory answer do
+  not move at all.
 
 
 ## synthetic-digests
