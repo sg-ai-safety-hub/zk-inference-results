@@ -427,6 +427,13 @@ DERIVED = {
         v(f"secs.phase.c4096.{lp}.{ph}") / v(f"secs.phase.c4096.{lp}.loop"),
         f"share.phase.c4096.{lp}.{ph}", 1e-6))
        for lp in ("kernels", "nokernels") for ph in PHASE_SPLIT},
+    # What the generated constraint kernels are worth on that sample, in seconds
+    # of the loop.  Both sides are `measured` loops of the same run over the same
+    # 32 segments, proved to the same digests, so their difference is the kernels.
+    "secs.phase.c4096.kernels_bought": lambda: chk(
+        "c4096 sample loop without the generated kernels less with them",
+        v("secs.phase.c4096.nokernels.loop") - v("secs.phase.c4096.kernels.loop"),
+        "secs.phase.c4096.kernels_bought", 1e-6),
 }
 
 # -- the two projections' own arithmetic ---------------------------------------
