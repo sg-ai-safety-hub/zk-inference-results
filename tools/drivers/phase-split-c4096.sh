@@ -9,9 +9,23 @@
 # binding gadget on and no skip flag anywhere -- over the 32 layer segments of
 # the last token block of `headline-c4096`'s plan.  That is the block with the
 # longest prefix, so a phase is priced where it weighs most, and it is the
-# sample `gkr-ablation-c4096` already prices the reductions on.  The witnesses
-# are the ones `headline-c4096` extracted; this driver refuses to run without
-# them rather than extracting a second set.
+# sample `gkr-ablation-c4096` already prices the reductions on.
+#
+# The witnesses are `headline-c4096`'s, and where a host does not hold them this
+# driver extracts the sample block's own: the same ids, the same five layer
+# passes at the same quantization variant, restricted to the one token block the
+# sample proves.  The forward pass covers all 4,608 positions either way and only
+# the dumps that are written differ, so the sample block's dumps are that
+# campaign's dumps.  The whole 9-block set is about 122 GB with the
+# block-invariant files shared once and one block is about 20 GB, which is the
+# difference between a host that can hold this campaign and one that cannot.
+#
+# The shared pins are the loop's, taken over whatever rows the shape table holds,
+# and one block is enough for them to be the sequence's: on
+# `runs/2026-09-09-headline-c4096-h100`'s own shape table the worst case over
+# block 8's 32 rows and over all 288 is the same in every pin a driver reads --
+# kmax 19, ao-rem-bits 20, fold-rem-bits 15, fold-alpha 6 -- so the sample is
+# proved at the pins the headline campaign proved it at and not at narrower ones.
 #
 # The sample is proved twice, both times with one segment in flight:
 #
@@ -144,6 +158,14 @@ CTX=4096; S=512
 NBLOCK=$(( (CTX + S) / S ))  # 9: the prompt's 8 blocks and the output block
 NLAY=32
 SAMPLE=8                   # the plan's last token block: 32 layer segments at prefix c = $CTX
+# The corpus opens with front matter, and a 4,096-token prompt taken from token
+# 0 ends inside its list of illustrations, where the greedy continuation is a
+# repeating index line -- a real decode and a degenerate benchmark.  The window
+# is moved to the end of the 16,384-token prompt instead, exactly as
+# headline-c4096 moves it, so this sample reads that campaign's prose and its
+# dumps are that campaign's dumps.
+OFFSET=$(( 16384 - CTX ))
+XTHREADS=${ZK_XTHREADS:-16}   # torch threads for the extraction
 SHARED="--round even --numbits 9 --z-hi-bits 7 --variants intexp --head-groups 16,8,8 --tight-table"
 GKR="--gkr-key-tiles --gkr-dequant --gkr-residual-stream --gkr-freivalds --gkr-attnout"
 LAYER_FLAGS="--round even --diagonal-block $GKR"   # every binding gadget is on by default; no skip flag anywhere
@@ -227,13 +249,72 @@ CFG
 st "gpu: \$(nvidia-smi --query-gpu=name,memory.total,driver_version --format=csv,noheader)"
 st "nvcc: \$(nvcc --version | tail -2 | head -1)"
 
-[ -f \$WIT/shapes_all.json ] || { st "no witnesses at \$WIT: run headline-c4096 on this host at this harness commit first"; exit 5; }
-
-# 1. both backends of the pinned prover commit
+# 1. the reference backend of the pinned prover commit, and the harness
 st "build"
 ( cd \$SRC && CARGO_TARGET_DIR=\$B/t-simd cargo build --release --locked )
 SIMD=\$B/t-simd/release/zk-prover
 ( cd \$HSRC && uv sync --frozen \$UVG )
+
+# 1b. the statement's tokens, unless this host already holds them: the prompt is
+#     $CTX tokens of the corpus from offset $OFFSET and the output is the model's
+#     own greedy continuation under $SPEC.  Decoded once with 513 new tokens so
+#     the last row's next token is in the array, then shifted into the extraction
+#     array; a 512-token decode must agree with it.  headline-c4096's ids, made
+#     the way that campaign makes them.
+IDSFILE=\$WIT/ids.npy
+if [ ! -f \$IDSFILE ]; then
+  st "ids: greedy continuation, $SPEC, corpus offset $OFFSET"
+  ( cd \$HSRC && \$PY -m harness.witness.gen_ids --help > /dev/null )
+  ( cd \$HSRC && ZK_MODEL=$MODEL ZK_DEVICE=cuda ZK_THREADS=$XTHREADS \$PY -m harness.witness.gen_ids --prefix $CTX --offset $OFFSET --new 513 --spec $SPEC --out \$WIT/ids_513.npy )
+  ( cd \$HSRC && ZK_MODEL=$MODEL ZK_DEVICE=cuda ZK_THREADS=$XTHREADS \$PY -m harness.witness.gen_ids --prefix $CTX --offset $OFFSET --new $S --spec $SPEC --out \$WIT/ids_512.npy )
+  ( cd \$HSRC && \$PY -m harness.witness.shift_ids --ids \$WIT/ids_513.npy --prefix $CTX --new $S --out \$IDSFILE )
+  ( cd \$HSRC && \$PY -c "
+import numpy as np
+a, b = np.load('\$WIT/ids_512.npy'), np.load('\$WIT/ids_513.npy')
+assert (a == b[:len(a)]).all(), 'greedy decoding is deterministic; the 512- and 513-token runs must agree'
+print('ids: determinism check passed', len(a), 'tokens')" )
+fi
+
+# 1c. the sample block's witnesses, unless this host already holds them.  The
+#     five passes headline-c4096 makes, restricted to token block $SAMPLE.  Layer
+#     0 is a pass of its own because --embed writes the embedding table into
+#     every dump of the pass it is given and the prover turns the gadget on for
+#     any dump that carries one; that is what binds the segment's residual stream
+#     to the ids the statement publishes.  A pass whose dump is already written
+#     is not run again, so an interrupted extraction is restarted for the price
+#     of what it did not finish.
+xpass() {   # xpass <tag> <layers> <last layer of the group> <extra flags>
+  tag=\$1; group=\$2; last=\$3; shift 3
+  [ ! -f \$WIT/witness_B${SAMPLE}_L\${last}/manifest.json ] || { st "extract: layers \$group are on this host"; return 0; }
+  st "extract: layers \$group, token block $SAMPLE, C=$CTX, $SPEC"
+  T0=\$(date +%s)
+  ( cd \$HSRC && ZK_MODEL=$MODEL ZK_DEVICE=cuda ZK_THREADS=$XTHREADS \$PY -m harness.witness.extract \
+      --tokens $((CTX + S)) --chunk $S --layers \$group --spec $SPEC \
+      --residual-stream --diagonal-block --slim --slim-num "\$@" --ids \$IDSFILE \
+      --blocks $SAMPLE --share \$WIT/shared --out \$WIT/witness )
+  T1=\$(date +%s)
+  printf '{"pass": "%s", "layers": "%s", "block": %d, "device": "cuda", "threads": %d, "seconds": %d}\n' \
+      "\$tag" "\$group" $SAMPLE $XTHREADS \$((T1 - T0)) > \$WIT/extract_\$tag.json
+  st "extract: layers \$group done in \$((T1 - T0))s"
+}
+xpass l0 0 0 --embed
+xpass l1 1,2,3,4,5,6,7 7
+xpass l2 8,9,10,11,12,13,14,15 15
+xpass l3 16,17,18,19,20,21,22,23 23
+xpass l4 24,25,26,27,28,29,30,31 31
+if [ ! -f \$WIT/shapes_all.json ]; then
+  st "shapes"
+  ( cd \$HSRC && \$PY -m harness.witness.shapes \$WIT/witness_B${SAMPLE}_L $NLAY \$WIT/shapes_B$SAMPLE.json )
+  ( cd \$HSRC && \$PY -m harness.witness.shapes --merge \$WIT/shapes_B$SAMPLE.json --out \$WIT/shapes_all.json )
+fi
+python3 - \$WIT \$OUT/extract.json <<'PY'
+import glob, json, os, sys
+wit, out = sys.argv[1], sys.argv[2]
+rows = [json.load(open(f)) for f in sorted(glob.glob(os.path.join(wit, "extract_*.json")))]
+json.dump({"passes": rows, "seconds": sum(r["seconds"] for r in rows)}, open(out, "w"), indent=1)
+print("extract:", sum(r["seconds"] for r in rows), "s over", len(rows), "passes")
+PY
+du -sh \$WIT | awk '{print "witness size: " \$1 "  " \$2}'
 cp \$WIT/shapes_all.json \$OUT/shapes.json
 PINS=\$(python3 - \$WIT/shapes_all.json <<'PY'
 import json, sys
@@ -243,24 +324,37 @@ PY
 )
 st "pins: \$PINS"
 
-# 2. the plan, written over the whole sequence so every line is the line the
-#    headline plan carries, and then the sample block's lines taken out of it.
-#    The output head is not in it: this sample is the block's layer segments and
-#    a head segment is not one of them.
-( cd \$HSRC && \$PY -m harness.witness.plan --dir \$WIT --blocks $NBLOCK --with-block-0 \
-    --layers 0-$((NLAY - 1)) --layer-flags="$LAYER_FLAGS" --out \$R/plan.full.txt )
-grep -- '--ser-tag B${SAMPLE}L' \$R/plan.full.txt > \$OUT/plan.txt
+# 2. the plan.  The writer takes the blocks it finds a shape table for, which is
+#    the sample block alone, and a line carries the same arguments the headline
+#    plan's line for that segment carries: the prefix is Params.c off the dump's
+#    own manifest and never the block index, and the master table width is the
+#    block's own shape table's.  The output head is not in the plan: this sample
+#    is the block's layer segments and a head segment is not one of them.
+( cd \$HSRC && \$PY -m harness.witness.plan --dir \$WIT --blocks auto \
+    --layers 0-$((NLAY - 1)) --layer-flags="$LAYER_FLAGS" --out \$OUT/plan.txt )
 N=\$(grep -cv '^#' \$OUT/plan.txt)
 [ "\$N" = "$NLAY" ] || { st "the sample has \$N lines, not $NLAY"; exit 6; }
+OTHER=\$(grep -v '^#' \$OUT/plan.txt | grep -vc -- '--ser-tag B${SAMPLE}L' || true)
+[ "\$OTHER" = "0" ] || { st "\$OTHER plan line(s) are not token block $SAMPLE's"; exit 6; }
 st "plan: \$N segments of token block $SAMPLE"
 
-# 3. the device kernels for every shape in the sample, compiled into the CUDA
-#    backend.  A kernel is looked up by fingerprint and the store dedups, so a
-#    line whose shape is already there costs the lowering and nothing else, and
-#    every line is emitted rather than a guess at which of them are distinct.
+# 3. the device kernels for the sample's shapes, compiled into the CUDA backend.
+#    One line per distinct master table width, which within one token block is
+#    the whole distinct set: the prefix is one value and every line carries the
+#    same flags.  Layer 0 is named as well and is not left to that rule -- its
+#    dump carries the embedding table and its segment therefore has two kernel
+#    groups no other layer has -- and it is the first line at its width anyway,
+#    so this only says out loud what the order already gives.  A kernel is looked
+#    up by fingerprint and the store dedups, so a shape already in the store
+#    costs the lowering and nothing else.
 K=\$SRC/prover/kernels
 [ -d \$K ] || { st "no prover/kernels in this prover commit; the CUDA backend would evaluate constraints on the CPU"; exit 3; }
-PLANSUM=\$(sha256sum \$OUT/plan.txt | cut -c1-16)
+{ awk '{tb=""; for (i = 1; i < NF; i++) if (\$i == "--table-bits") tb = \$(i + 1);
+        if (\$0 !~ /^#/ && !(tb in seen)) { seen[tb] = 1; print }}' \$OUT/plan.txt
+  grep -- '--ser-tag B${SAMPLE}L0\$' \$OUT/plan.txt
+} | sort -u > \$R/emit.txt
+st "emit: \$(wc -l < \$R/emit.txt) distinct shape(s) of \$N segments"
+PLANSUM=\$(sha256sum \$R/emit.txt | cut -c1-16)
 if [ "\$(cat \$R/kernels.done 2>/dev/null)" != "\$PLANSUM" ]; then
   while read -r line; do
     case "\$line" in '#'*|'') continue ;; esac
@@ -275,7 +369,7 @@ if [ "\$(cat \$R/kernels.done 2>/dev/null)" != "\$PLANSUM" ]; then
         st "\$emit refused a shape (zk-prover #57); recorded in out/\$emit-refused.txt"
       fi
     done
-  done < \$OUT/plan.txt
+  done < \$R/emit.txt
   # The install copies the store into the vendored fork and touches its CUDA
   # tree, which rebuilds every generated kernel.  Where the store has not moved
   # since the build already on this host was made -- the headline campaign
