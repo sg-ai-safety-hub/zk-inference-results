@@ -1,0 +1,264 @@
+{
+ "provenance": {
+  "args": [
+   "--model",
+   "Qwen/Qwen3-30B-A3B",
+   "--revision",
+   "main",
+   "--ctx",
+   "4096,16384",
+   "--blocks",
+   "128,256,512,1024",
+   "--table-block",
+   "512",
+   "--device",
+   "cuda",
+   "--attn",
+   "sdpa",
+   "--out",
+   "/root/runs/moe-routing/out",
+   "--work",
+   "/root/runs/moe-routing/work"
+  ],
+  "backend": "harness",
+  "binary": "python tools/moe/routing_stats.py",
+  "binding": null,
+  "block_sizes": [
+   128,
+   256,
+   512,
+   1024
+  ],
+  "commit": "a8586d205b87d7019af5b5005d0a46680a74242e",
+  "contexts": [
+   4096,
+   16384
+  ],
+  "corpus": {
+   "bytes": 738046,
+   "file": "text.txt",
+   "sha256": "a5666f87abf2cbfdaa27ea8c73bd284da9649b9a2ab27b4e6c8f6aeab1bd1c88"
+  },
+  "corpus_tokens": 20480,
+  "cuda_version": "13.0",
+  "device": "cuda",
+  "dirty": false,
+  "driver_version": "580.126.09",
+  "gpu": "NVIDIA H100 80GB HBM3, 81559 MiB",
+  "kind": "harness",
+  "load": "device_map",
+  "model": "Qwen/Qwen3-30B-A3B",
+  "model_revision": "ad44e777bcd18fa416d9da3bd8f70d33ebb85d39",
+  "proof_sha256": null,
+  "proof_sha256s": null,
+  "revision": "main",
+  "threads": 16,
+  "unsound_skips": [],
+  "versions": {
+   "numpy": "2.5.2",
+   "python": "3.14.7",
+   "torch": "2.13.0+cu129",
+   "transformers": "5.15.0"
+  }
+ },
+ "result": {
+  "moe.routing.qwen3_30b_a3b.c16384.s1024.distinct_experts_mean": {
+   "artifact": "routing.json",
+   "card": "none",
+   "context": 16384,
+   "grade": "measured",
+   "note": "How many distinct experts a block of 1024 consecutive positions touches in one mixture layer of Qwen/Qwen3-30B-A3B, measured on 1 prompt(s) of 16384 positions from the harness's eval corpus: the mean over the 48 mixture layers and the 16 block(s) each prompt divides into, 768 blocks in all, spread 46 to 119. This is the quantity assumption.cost_model.moe_routing assumes: the routed matmuls a segment builds, and so the weights its preprocessed trace holds.",
+   "run": "2026-09-13-moe-routing-h100",
+   "timing_scope": "n/a",
+   "unit": "experts",
+   "value": 79.94010416666667
+  },
+  "moe.routing.qwen3_30b_a3b.c16384.s1024.distinct_experts_uniform": {
+   "artifact": "routing.json",
+   "card": "none",
+   "context": 16384,
+   "grade": "derived",
+   "note": "What the assumption gives for the same block: E (1 - (1 - k/E)^S) at E = 128, k = 8, S = 1024, which is exact_cells.expected_distinct_experts. It is beside the measured entry so the two are read together and neither is a second measurement of the other.",
+   "run": "2026-09-13-moe-routing-h100",
+   "timing_scope": "n/a",
+   "unit": "experts",
+   "value": 128.0
+  },
+  "moe.routing.qwen3_30b_a3b.c16384.s128.distinct_experts_mean": {
+   "artifact": "routing.json",
+   "card": "none",
+   "context": 16384,
+   "grade": "measured",
+   "note": "How many distinct experts a block of 128 consecutive positions touches in one mixture layer of Qwen/Qwen3-30B-A3B, measured on 1 prompt(s) of 16384 positions from the harness's eval corpus: the mean over the 48 mixture layers and the 128 block(s) each prompt divides into, 6144 blocks in all, spread 25 to 114. This is the quantity assumption.cost_model.moe_routing assumes: the routed matmuls a segment builds, and so the weights its preprocessed trace holds.",
+   "run": "2026-09-13-moe-routing-h100",
+   "timing_scope": "n/a",
+   "unit": "experts",
+   "value": 58.31640625
+  },
+  "moe.routing.qwen3_30b_a3b.c16384.s128.distinct_experts_uniform": {
+   "artifact": "routing.json",
+   "card": "none",
+   "context": 16384,
+   "grade": "derived",
+   "note": "What the assumption gives for the same block: E (1 - (1 - k/E)^S) at E = 128, k = 8, S = 128, which is exact_cells.expected_distinct_experts. It is beside the measured entry so the two are read together and neither is a second measurement of the other.",
+   "run": "2026-09-13-moe-routing-h100",
+   "timing_scope": "n/a",
+   "unit": "experts",
+   "value": 127.96692244891645
+  },
+  "moe.routing.qwen3_30b_a3b.c16384.s256.distinct_experts_mean": {
+   "artifact": "routing.json",
+   "card": "none",
+   "context": 16384,
+   "grade": "measured",
+   "note": "How many distinct experts a block of 256 consecutive positions touches in one mixture layer of Qwen/Qwen3-30B-A3B, measured on 1 prompt(s) of 16384 positions from the harness's eval corpus: the mean over the 48 mixture layers and the 64 block(s) each prompt divides into, 3072 blocks in all, spread 31 to 116. This is the quantity assumption.cost_model.moe_routing assumes: the routed matmuls a segment builds, and so the weights its preprocessed trace holds.",
+   "run": "2026-09-13-moe-routing-h100",
+   "timing_scope": "n/a",
+   "unit": "experts",
+   "value": 65.5517578125
+  },
+  "moe.routing.qwen3_30b_a3b.c16384.s256.distinct_experts_uniform": {
+   "artifact": "routing.json",
+   "card": "none",
+   "context": 16384,
+   "grade": "derived",
+   "note": "What the assumption gives for the same block: E (1 - (1 - k/E)^S) at E = 128, k = 8, S = 256, which is exact_cells.expected_distinct_experts. It is beside the measured entry so the two are read together and neither is a second measurement of the other.",
+   "run": "2026-09-13-moe-routing-h100",
+   "timing_scope": "n/a",
+   "unit": "experts",
+   "value": 127.99999145215324
+  },
+  "moe.routing.qwen3_30b_a3b.c16384.s512.distinct_experts_mean": {
+   "artifact": "routing.json",
+   "card": "none",
+   "context": 16384,
+   "grade": "measured",
+   "note": "How many distinct experts a block of 512 consecutive positions touches in one mixture layer of Qwen/Qwen3-30B-A3B, measured on 1 prompt(s) of 16384 positions from the harness's eval corpus: the mean over the 48 mixture layers and the 32 block(s) each prompt divides into, 1536 blocks in all, spread 40 to 118. This is the quantity assumption.cost_model.moe_routing assumes: the routed matmuls a segment builds, and so the weights its preprocessed trace holds.",
+   "run": "2026-09-13-moe-routing-h100",
+   "timing_scope": "n/a",
+   "unit": "experts",
+   "value": 72.716796875
+  },
+  "moe.routing.qwen3_30b_a3b.c16384.s512.distinct_experts_uniform": {
+   "artifact": "routing.json",
+   "card": "none",
+   "context": 16384,
+   "grade": "derived",
+   "note": "What the assumption gives for the same block: E (1 - (1 - k/E)^S) at E = 128, k = 8, S = 512, which is exact_cells.expected_distinct_experts. It is beside the measured entry so the two are read together and neither is a second measurement of the other.",
+   "run": "2026-09-13-moe-routing-h100",
+   "timing_scope": "n/a",
+   "unit": "experts",
+   "value": 127.99999999999943
+  },
+  "moe.routing.qwen3_30b_a3b.c16384.s512.tokens_per_expert_max_mean": {
+   "artifact": "routing.json",
+   "card": "none",
+   "context": 16384,
+   "grade": "measured",
+   "note": "The busiest routed matmul of a block of 512 positions: the tokens the most-used expert of a mixture layer took, meaned over the 48 layers and the 1536 blocks. Under assumption.cost_model.moe_routing every routed matmul of this block covers 32 tokens (exact_cells.routed_blocks at E = 128, k = 8, S = 512); a measured block is laid out from its own histogram, which runs/<run>/routing.json carries in full. That flat figure is what the model BUILDS and not what a uniform draw's busiest expert takes, which is higher than the share for the same reason any multinomial maximum is: read this against the histogram, not against the share.",
+   "run": "2026-09-13-moe-routing-h100",
+   "timing_scope": "n/a",
+   "unit": "tokens",
+   "value": 459.1809895833333
+  },
+  "moe.routing.qwen3_30b_a3b.c4096.s1024.distinct_experts_mean": {
+   "artifact": "routing.json",
+   "card": "none",
+   "context": 4096,
+   "grade": "measured",
+   "note": "How many distinct experts a block of 1024 consecutive positions touches in one mixture layer of Qwen/Qwen3-30B-A3B, measured on 5 prompt(s) of 4096 positions from the harness's eval corpus: the mean over the 48 mixture layers and the 4 block(s) each prompt divides into, 960 blocks in all, spread 47 to 120. This is the quantity assumption.cost_model.moe_routing assumes: the routed matmuls a segment builds, and so the weights its preprocessed trace holds.",
+   "run": "2026-09-13-moe-routing-h100",
+   "timing_scope": "n/a",
+   "unit": "experts",
+   "value": 80.59791666666666
+  },
+  "moe.routing.qwen3_30b_a3b.c4096.s1024.distinct_experts_uniform": {
+   "artifact": "routing.json",
+   "card": "none",
+   "context": 4096,
+   "grade": "derived",
+   "note": "What the assumption gives for the same block: E (1 - (1 - k/E)^S) at E = 128, k = 8, S = 1024, which is exact_cells.expected_distinct_experts. It is beside the measured entry so the two are read together and neither is a second measurement of the other.",
+   "run": "2026-09-13-moe-routing-h100",
+   "timing_scope": "n/a",
+   "unit": "experts",
+   "value": 128.0
+  },
+  "moe.routing.qwen3_30b_a3b.c4096.s128.distinct_experts_mean": {
+   "artifact": "routing.json",
+   "card": "none",
+   "context": 4096,
+   "grade": "measured",
+   "note": "How many distinct experts a block of 128 consecutive positions touches in one mixture layer of Qwen/Qwen3-30B-A3B, measured on 5 prompt(s) of 4096 positions from the harness's eval corpus: the mean over the 48 mixture layers and the 32 block(s) each prompt divides into, 7680 blocks in all, spread 26 to 114. This is the quantity assumption.cost_model.moe_routing assumes: the routed matmuls a segment builds, and so the weights its preprocessed trace holds.",
+   "run": "2026-09-13-moe-routing-h100",
+   "timing_scope": "n/a",
+   "unit": "experts",
+   "value": 58.581250000000004
+  },
+  "moe.routing.qwen3_30b_a3b.c4096.s128.distinct_experts_uniform": {
+   "artifact": "routing.json",
+   "card": "none",
+   "context": 4096,
+   "grade": "derived",
+   "note": "What the assumption gives for the same block: E (1 - (1 - k/E)^S) at E = 128, k = 8, S = 128, which is exact_cells.expected_distinct_experts. It is beside the measured entry so the two are read together and neither is a second measurement of the other.",
+   "run": "2026-09-13-moe-routing-h100",
+   "timing_scope": "n/a",
+   "unit": "experts",
+   "value": 127.96692244891645
+  },
+  "moe.routing.qwen3_30b_a3b.c4096.s256.distinct_experts_mean": {
+   "artifact": "routing.json",
+   "card": "none",
+   "context": 4096,
+   "grade": "measured",
+   "note": "How many distinct experts a block of 256 consecutive positions touches in one mixture layer of Qwen/Qwen3-30B-A3B, measured on 5 prompt(s) of 4096 positions from the harness's eval corpus: the mean over the 48 mixture layers and the 16 block(s) each prompt divides into, 3840 blocks in all, spread 33 to 116. This is the quantity assumption.cost_model.moe_routing assumes: the routed matmuls a segment builds, and so the weights its preprocessed trace holds.",
+   "run": "2026-09-13-moe-routing-h100",
+   "timing_scope": "n/a",
+   "unit": "experts",
+   "value": 65.99895833333333
+  },
+  "moe.routing.qwen3_30b_a3b.c4096.s256.distinct_experts_uniform": {
+   "artifact": "routing.json",
+   "card": "none",
+   "context": 4096,
+   "grade": "derived",
+   "note": "What the assumption gives for the same block: E (1 - (1 - k/E)^S) at E = 128, k = 8, S = 256, which is exact_cells.expected_distinct_experts. It is beside the measured entry so the two are read together and neither is a second measurement of the other.",
+   "run": "2026-09-13-moe-routing-h100",
+   "timing_scope": "n/a",
+   "unit": "experts",
+   "value": 127.99999145215324
+  },
+  "moe.routing.qwen3_30b_a3b.c4096.s512.distinct_experts_mean": {
+   "artifact": "routing.json",
+   "card": "none",
+   "context": 4096,
+   "grade": "measured",
+   "note": "How many distinct experts a block of 512 consecutive positions touches in one mixture layer of Qwen/Qwen3-30B-A3B, measured on 5 prompt(s) of 4096 positions from the harness's eval corpus: the mean over the 48 mixture layers and the 8 block(s) each prompt divides into, 1920 blocks in all, spread 39 to 118. This is the quantity assumption.cost_model.moe_routing assumes: the routed matmuls a segment builds, and so the weights its preprocessed trace holds.",
+   "run": "2026-09-13-moe-routing-h100",
+   "timing_scope": "n/a",
+   "unit": "experts",
+   "value": 73.16250000000001
+  },
+  "moe.routing.qwen3_30b_a3b.c4096.s512.distinct_experts_uniform": {
+   "artifact": "routing.json",
+   "card": "none",
+   "context": 4096,
+   "grade": "derived",
+   "note": "What the assumption gives for the same block: E (1 - (1 - k/E)^S) at E = 128, k = 8, S = 512, which is exact_cells.expected_distinct_experts. It is beside the measured entry so the two are read together and neither is a second measurement of the other.",
+   "run": "2026-09-13-moe-routing-h100",
+   "timing_scope": "n/a",
+   "unit": "experts",
+   "value": 127.99999999999943
+  },
+  "moe.routing.qwen3_30b_a3b.c4096.s512.tokens_per_expert_max_mean": {
+   "artifact": "routing.json",
+   "card": "none",
+   "context": 4096,
+   "grade": "measured",
+   "note": "The busiest routed matmul of a block of 512 positions: the tokens the most-used expert of a mixture layer took, meaned over the 48 layers and the 1920 blocks. Under assumption.cost_model.moe_routing every routed matmul of this block covers 32 tokens (exact_cells.routed_blocks at E = 128, k = 8, S = 512); a measured block is laid out from its own histogram, which runs/<run>/routing.json carries in full. That flat figure is what the model BUILDS and not what a uniform draw's busiest expert takes, which is higher than the share for the same reason any multinomial maximum is: read this against the histogram, not against the share.",
+   "run": "2026-09-13-moe-routing-h100",
+   "timing_scope": "n/a",
+   "unit": "tokens",
+   "value": 462.56874999999997
+  }
+ }
+}

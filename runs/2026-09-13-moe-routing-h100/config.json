@@ -1,0 +1,17 @@
+{"driver": "moe-routing", "label": "measurement", "kind": "harness",
+ "model": "Qwen/Qwen3-30B-A3B", "revision": "main", "device": "cuda", "attn": "sdpa",
+ "contexts": "4096,16384", "blocks": "128,256,512,1024", "table_block": 512,
+ "harness_commit": "a8586d205b87d7019af5b5005d0a46680a74242e",
+ "accelerate": "1.15.0, added to the pinned environment with --no-deps so the weights load straight onto the card",
+ "weights": {
+ "announced_bytes": 61084157680,
+ "bytes": 61084157680,
+ "commit": "ad44e777bcd18fa416d9da3bd8f70d33ebb85d39",
+ "free_after": 50629976064,
+ "model": "Qwen/Qwen3-30B-A3B",
+ "revision": "main",
+ "seconds": 149.4
+},
+ "corpus": "harness/witness/text.txt through harness.witness.common.tokens, the eval slice every quality campaign here scores over; the output names it by digest",
+ "card": "the forward passes run on it; no proof is made and nothing is timed",
+ "witness": "none: no dump is written and no proof of this model exists anywhere"}
