@@ -119,6 +119,10 @@ def main():
     ap.add_argument("--prover-commit", required=True)
     ap.add_argument("--harness-commit", required=True)
     ap.add_argument("--date", default=datetime.date.today().isoformat())
+    ap.add_argument("--run-name", default=None,
+                    help="the name the run id carries, where a driver records more than "
+                         "one configuration and the file name does not say which ran "
+                         "(`cost-model-routing`). Default: the driver's own file name")
     ap.add_argument("--kind", choices=("prover", "harness", "verifier"), default=None,
                     help="the kind of run, where the outputs cannot say it themselves: "
                          "`verifier` for a run that makes no proof and checks proofs another "
@@ -160,7 +164,7 @@ def main():
     commits = {str(q.get("commit") or "") for _, q in prov}
     if any(not c or not (pinned.startswith(c) or c.startswith(pinned)) for c in commits):
         sys.exit(f"manifest.py: the outputs were made at {sorted(commits)}, not at the pinned {pinned}")
-    name = os.path.basename(a.driver).removesuffix(".sh")
+    name = a.run_name or os.path.basename(a.driver).removesuffix(".sh")
     run_id = f"{a.date}-{name}-{gpu_slug(p.get('gpu'))}"
     digests = {f: digests_of(d) for f, d in docs.items() if digests_of(d) is not None}
     skips = sorted({s for _, q in prov for s in q.get("unsound_skips", [])})
