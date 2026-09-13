@@ -2150,6 +2150,113 @@ layout -- so they are `asserted` with the reason in the note.
 this file has no `bound` grade, so it is `asserted` and its note carries the
 bound.
 
+## moe-routing
+
+```
+tools/drivers/moe-routing.sh download <host> <model> <ctx>[,<ctx>...]
+tools/drivers/moe-routing.sh run      <host> <model> <ctx>[,<ctx>...]
+```
+
+runs: `2026-09-13-moe-routing-h100`
+prover commit: none   harness commit: `6589471`
+digests: none; the run makes no proof and commits nothing
+binding: none; this run proves nothing
+unsound skips: none
+constants backed: the 18 rows the index lists against this run --
+`moe.routing.qwen3_30b_a3b.c<ctx>.s<S>.distinct_experts_mean` at both contexts and
+all four block sizes, grade `measured`; the same rows' `distinct_experts_uniform`,
+grade `derived`; and `...c<ctx>.s512.tokens_per_expert_max_mean`, grade `measured`.
+
+What the run is. `assumption.cost_model.moe_routing` says every token's top-k is
+uniform over the experts, and one number is what a counted mixture row reads off
+it: how many distinct experts a block of S positions touches, which is how many
+routed matmuls the segment builds and whose weights its preprocessed trace holds.
+`harness/costmodel/exact_cells.py` at zk-prover `6589471` is where it is used --
+`expected_distinct_experts` returns `E (1 - (1 - k/E)^S)`, `segment_params` builds
+that many routed matmuls out of it, and `routed_blocks` spreads the block's `S k`
+token slots over them. It is per block of S positions and not per key tile: the
+routed side of a mixture layer's `params` block is a function of S and the routing
+alone, and the context enters a mixture layer only through the attention side,
+which no expert sees. This run measures that same quantity on a real forward pass,
+per mixture layer and per block of S in 128, 256, 512 and 1,024, with the
+assumption's own answer computed beside every figure out of the same E, k and S.
+No proof is involved and none is possible: no run of any mixture model has been
+proved.
+
+The model. `Qwen/Qwen3-30B-A3B` at revision
+`ad44e777bcd18fa416d9da3bd8f70d33ebb85d39`: `num_experts` 128,
+`num_experts_per_tok` 8, `moe_intermediate_size` 768, `decoder_sparse_step` 1,
+`mlp_only_layers` empty and no shared-expert key, so all 48 of its layers are
+mixture layers and the run hooked all 48 routers. That is the routing shape of the
+priced Qwen3-235B-A22B row -- 128 experts, top-8, no shared expert, every layer a
+mixture layer -- at 61,084,157,680 bytes of bf16 weights instead of about 470 GB.
+Whether one model's routing may price the other's row is a decision and the run
+does not take it: `routing_table` in the artifact is keyed by the measured model's
+own slug, which the frontier holds no row for.
+
+The corpus. The harness's own eval slice, `harness/witness/text.txt` through
+`harness.witness.common.tokens` at the pinned commit, tokenized by this model:
+20,480 token ids, five disjoint prompts at 4,096 and one at 16,384, which is the
+longest the corpus gives there.
+
+What it measured, meaned over the 48 mixture layers and every block of every
+prompt:
+
+```
+   ctx     S   distinct  assumed   ratio   busiest expert   the model builds
+  4096   128     58.581  127.967  0.4578    116.80 / 128      8 tokens x 128
+  4096   256     65.999  128.000  0.5156    232.21 / 256     16 tokens x 128
+  4096   512     73.163  128.000  0.5716    462.57 / 512     32 tokens x 128
+  4096  1024     80.598  128.000  0.6297    922.52 / 1024    64 tokens x 128
+ 16384   128     58.316  127.967  0.4557    116.02 / 128      8 tokens x 128
+ 16384   256     65.552  128.000  0.5121    230.59 / 256     16 tokens x 128
+ 16384   512     72.717  128.000  0.5681    459.18 / 512     32 tokens x 128
+ 16384  1024     79.940  128.000  0.6245    915.46 / 1024    64 tokens x 128
+```
+
+The assumption is wrong in both halves, and in the same direction. A block of 512
+positions touches **73.2 of the 128 experts**, not 128: the segment builds 57 per
+cent of the routed matmuls the count charges it for, and its preprocessed trace
+holds 57 per cent of the routed weights. And the tokens are nowhere near level on
+the experts they do touch. The busiest expert of a 512-position block takes 462.6
+of those positions on average against the 32 the count lays out, the quietest
+takes 1, and in the median block -- layer 10, prompt 4, block 3, 73 experts --
+one matmul covers 510 of the 512 positions, the next 420, and half the token slots
+sit on matmuls of 186 tokens or more while eight experts take a single token each.
+Both contexts agree to within one per cent of each other, so this is the model's
+routing and not one prompt's. Per layer the count runs from 49.0 at layer 19 to
+112.4 at layer 0, and no block of any layer reached 128: over all 1,920 blocks at
+c4096, S=512 the count ran 39 to 118.
+
+Which way it moves a price is not recorded here and is not this run's to say: the
+entry's own note prices the assumption by putting the same token slots on 8
+experts of 512 tokens each, so a measured distribution has to be put through
+`harness.costmodel.frontier --routing FILE` -- a `cost-model` run -- before any row
+moves. The artifact carries the distribution in the shape that reads, per context,
+at S=512.
+
+The host, and what it cost. Two subcommands, because the two halves need different
+things: `download` needs the network and the disk and not the card, so it takes no
+`~/.zk-run.lock`, ran beside another campaign, and refused before writing a byte
+unless the free space would leave 40 GB behind for the jobs already queued -- it
+fetched 61,084,157,680 bytes in 149.4 seconds and left 50.6 GB free. `run` needs
+the card to itself: it goes through `tools/remote/run.sh`, holds the lock, and read
+the snapshot the download left with `HF_HUB_OFFLINE` set. It held the card for
+**72 seconds**, of which 62 were the weight load; the six forward passes took about
+ten seconds in all, 0.8 seconds for the one at 16,384.
+
+Two things the host made necessary, both recorded in the run's `config.json`. The
+weights are read straight onto the card through a device map, never into host
+memory and moved afterwards, because the host is a container with a memory cap of
+its own; the script refuses a load that left a parameter behind, and this one
+reported `cuda:0` for every parameter at 8.6 GiB of host memory. transformers reads
+a device map only when `accelerate` is importable and the pinned lock holds none,
+so the job puts `accelerate` and `psutil` on top of the pinned environment with
+`--no-deps`, which resolves nothing and cannot move the pinned torch; the next
+campaign's own `uv sync --frozen` takes them away again. The run was made at
+`accelerate` 1.15.0, torch 2.13.0+cu129, transformers 5.15.0, numpy 2.5.2.
+
+
 ## Entry template
 
 ```
