@@ -2125,6 +2125,156 @@ def card_memory(a, keys):
     a.exact(key, next(iter(seen)))
 
 
+# -- block-length-c4096 --------------------------------------------------------
+# One token block of the context 4,096 plan at a block length that is not the
+# recorded 512.  One run per block length -- the run id carries it -- so this
+# section is given the rows of every such run at once and groups them by the
+# `s<S>` their names carry; a row of this driver that names no block length is a
+# failure, because a cell count at one block length is not a cell count.
+#
+# A block length whose loop did not fit the card records ONE row, the last
+# sample the card returned before the process left, and no cells, no seconds and
+# no proof bytes: there was no proof to take them off.  That is checked both
+# ways here -- an out-of-memory run that carries a cell row, and a proved run
+# that carries the out-of-memory row, are both refused.
+_BLOCK_S = re.compile(r"\.block\.c4096\.s(\d+)\.|\.block\.c4096\.s(\d+)$")
+_BLOCK_SCOPES = (("commit", "commit_sum"), ("stwo_total", "stwo_sum"),
+                 ("whole_wall", "whole_sum"), ("loop", "loop_secs"))
+_BLOCK_COUNTED = "cells.block.c4096.s{}.exact_predicted"
+
+
+def _block_length_of(key):
+    m = _BLOCK_S.search(key)
+    return int(m.group(1) or m.group(2)) if m else None
+
+
+def block_length_c4096(a, keys):
+    """One token block at one block length: what it cost and what it peaked at."""
+    if not keys:
+        return
+    by_s = {}
+    for k, e in sorted(keys.items()):
+        s = _block_length_of(k)
+        if s is None:
+            a.fails.append(f"audit: {k} was recorded by block-length-c4096 and names no "
+                           f"block length; every row of this driver names one")
+            continue
+        by_s.setdefault(s, {})[k] = e
+    for s, mine in sorted(by_s.items()):
+        runs = sorted({e["run"] for e in mine.values()})
+        if len(runs) != 1:
+            a.fails.append(f"audit: the S = {s} rows name {runs}; one block length is "
+                           f"one run")
+            continue
+        _block_length_run(a, runs[0], s, mine)
+
+
+def _block_length_run(a, run, s, keys):
+    cfg = artifact(run, "config.json")
+    mem = artifact(run, "mem_card.json")
+    pred = artifact(run, "predicted.json")
+    proved = (ROOT / "runs" / run / "card.json").exists()
+    oom_key = f"mem.block.c4096.s{s}.oom_last_sample_mib"
+    if cfg["s"] != s:
+        a.fails.append(f"audit: runs/{run} proved S = {cfg['s']} and its rows name S = {s}")
+    if cfg["context"] != 4096:
+        a.fails.append(f"audit: runs/{run} is at context {cfg['context']} and these rows "
+                       f"are the context 4,096 ones")
+    if pred["s"] != s or pred["context"] != cfg["context"]:
+        a.fails.append(f"audit: runs/{run}: the counted side is at C={pred['context']}, "
+                       f"S={pred['s']} and the run proved C={cfg['context']}, S={cfg['s']}")
+    print(f"  runs/{run}: block {cfg['block']} of {cfg['blocks']}, S = {s}, "
+          f"{cfg['segments']} segment(s) planned, "
+          + (f"proved; the card held at most {mem['max_mib']} MiB of "
+             f"{mem['card_total_mib']}" if proved else
+             f"no proof; out of memory {mem['out_of_memory']}, last sample "
+             f"{mem['last_mib']} MiB of {mem['card_total_mib']}"))
+    if not proved:
+        # The one row such a run records, and the refusal of every other.
+        if not mem["out_of_memory"]:
+            a.fails.append(f"audit: runs/{run} wrote no proof and its loop does not report "
+                           f"an out-of-memory; nothing is recorded off a loop that stopped "
+                           f"for another reason")
+        others = sorted(set(keys) - {oom_key})
+        if others:
+            a.fails.append(f"audit: runs/{run} made no proof and {others} are recorded "
+                           f"against it; a loop that ran out of memory has no cells, no "
+                           f"seconds and no proof bytes")
+        if oom_key in keys:
+            a.exact(oom_key, mem["last_mib"])
+        return
+    if oom_key in keys:
+        a.fails.append(f"audit: runs/{run} proved its loop and {oom_key} is recorded "
+                       f"against it")
+    doc = artifact(run, "card.json")
+    p, sm = doc["provenance"], doc["result"]["summary"]
+    chunks = doc["result"]["chunks"]
+    if sm["n"] != cfg["segments"] or len(chunks) != cfg["segments"]:
+        a.fails.append(f"audit: runs/{run}: {sm['n']} segments in the summary and "
+                       f"{len(chunks)} proofs, against the {cfg['segments']} the plan has")
+    if p["unsound_skips"]:
+        a.fails.append(f"audit: runs/{run}: unsound skips in effect {p['unsound_skips']}")
+    if not p["binding"]["all_bound"]:
+        a.fails.append(f"audit: runs/{run}: unbound edges {p['binding']['unbound']}")
+    tags = [c["ser_tag"] for c in chunks]
+    if len(set(tags)) != len(tags):
+        a.fails.append(f"audit: runs/{run}: two proofs for one segment, {tags}")
+    for c in chunks:
+        if not c["accepts"] or c.get("off_table") or c.get("ref_mismatch"):
+            a.fails.append(f"audit: runs/{run}: segment {c['ser_tag']} accepts "
+                           f"{c['accepts']}, off_table {c.get('off_table')}, ref_mismatch "
+                           f"{c.get('ref_mismatch')}")
+    # The card sampler against the prover's own high-water mark for the same
+    # loop: the audit checks that the two agree rather than choosing between
+    # them, which is what `memory-probe-c16384` does with the same two numbers.
+    reported = round(sm["mem_after_prove_max"] / 2 ** 20)
+    if mem["max_mib"] != reported:
+        a.fails.append(f"audit: runs/{run}: the card sampler says {mem['max_mib']} MiB and "
+                       f"the prover says {reported} MiB for the same loop")
+    # The counted side has to be over the segments the loop proved, or the two
+    # are not a pair: `predicted.json` names the layers it counted and the
+    # proofs name theirs.
+    counted = sorted(pred["layers_proved"])
+    got = sorted(int(t.rsplit("L", 1)[1]) for t in tags)
+    if counted != got:
+        a.fails.append(f"audit: runs/{run}: the count is over layers {counted} and the "
+                       f"loop proved {got}")
+    ser = [c["proof_ser_bytes"] for c in chunks]
+    print(f"  runs/{run}: {sm['n']} segments, {sm['fresh_sum']:,.0f} fresh cells against "
+          f"{pred['fresh_sum']:,} counted, {sum(ser):,} bytes of proof")
+    if f"segments.block.c4096.s{s}" in keys:
+        a.exact(f"segments.block.c4096.s{s}", sm["n"])
+    if f"cells.block.c4096.s{s}.fresh" in keys:
+        a.claim(f"cells.block.c4096.s{s}.fresh", sm["fresh_sum"])
+    for scope, field in _BLOCK_SCOPES:
+        if f"secs.block.c4096.s{s}.{scope}" in keys:
+            a.claim(f"secs.block.c4096.s{s}.{scope}", sm[field])
+    if f"mem.block.c4096.s{s}.peak_mib" in keys:
+        a.exact(f"mem.block.c4096.s{s}.peak_mib", mem["max_mib"])
+    if f"proof.block.c4096.s{s}.bytes_per_segment_median" in keys:
+        a.claim(f"proof.block.c4096.s{s}.bytes_per_segment_median", statistics.median(ser))
+
+
+def block_length_counted(s):
+    """The counted side of one block length, out of the run that counted it.
+
+    Not a section: the count measures nothing, so no `measured` row names it.
+    It is the reader for the derived row that carries it, and `check.py`'s
+    derived table calls this.  The document is the prover's trace layout counted
+    at that block length over the very segments the run proved, written before
+    the loop ran; what is checked here is that it is that block length's.
+    """
+    e = load()["constants"][_BLOCK_COUNTED.format(s)]
+    doc = artifact(e["run"], e["artifact"])
+    if doc["s"] != s:
+        raise SystemExit(f"audit: runs/{e['run']}/{e['artifact']} counts S = {doc['s']} and "
+                         f"the row names S = {s}")
+    if len(doc["layers_proved"]) != doc["segments"]:
+        raise SystemExit(f"audit: runs/{e['run']}/{e['artifact']} counts {doc['segments']} "
+                         f"segments and names {len(doc['layers_proved'])} layers")
+    return doc["fresh_sum"]
+
+
 # -- sections: (driver name, function(audit, keys)) ----------------------------
 # Added when a driver's first run lands; each function re-derives the constants
 # whose `run` was made by that driver.
@@ -2145,6 +2295,7 @@ SECTIONS = [
     ("prefill-sweep-8b", prefill_sweep_8b),
     ("predict-14b", predict_14b),
     ("predict-13b", predict_13b),
+    ("block-length-c4096", block_length_c4096),
     ("unproved-baseline", unproved_baseline),
     ("model-commitment", model_commitment),
     ("moe-routing", moe_routing),

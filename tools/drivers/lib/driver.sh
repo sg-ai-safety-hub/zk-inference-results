@@ -17,6 +17,14 @@
 # dedups by fingerprint and a kernel that is present and unused costs nothing
 # -- so each campaign adds its own shapes and rebuilds incrementally.
 
+# A driver whose run id has to carry one of its arguments sets NAME per
+# argument -- `block-length-c4096-s256` -- so that two runs of it on one day are
+# two run directories and two status files rather than one of each.  Its file is
+# then not `tools/drivers/$NAME.sh`, and `DRV_DRIVER` is the driver's own name,
+# which is what the manifest records; `DRV_ARGS` is the arguments after the
+# three every driver takes, so the restart line a failed run prints is the
+# command that made it.  Both are empty in a driver whose name is its file's.
+
 # ---- the shared build tree, one per pinned prover commit ---------------------
 # A path under the remote home, written without `$HOME` because `push.sh`
 # quotes its destination and the remote shell would not expand it.  Twelve hex
@@ -74,7 +82,7 @@ drv_finish() {
       *"done exit="*)
         echo "$NAME on $HOST failed: $ST"
         echo "log:     ssh $HOST tail -50 '~/runs/$NAME.log'"
-        echo "restart: ssh $HOST rm -f '~/runs/$NAME.status' && $0 $HOST $PROVER $HARNESS"
+        echo "restart: ssh $HOST rm -f '~/runs/$NAME.status' && $0 $HOST $PROVER $HARNESS${DRV_ARGS:+ $DRV_ARGS}"
         echo "         (a job re-run keeps the witnesses, the build and any slice"
         echo "          whose output is already written, and redoes the rest)"
         exit 1 ;;

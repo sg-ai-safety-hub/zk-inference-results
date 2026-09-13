@@ -60,6 +60,24 @@ def moe_uniform(key):
     return audit.moe_routing_uniform(key)
 
 
+def block_counted(s):
+    """One block length's counted cells, out of the run that counted them.
+
+    A fourth reader in `audit.py` for the same reason the three above are
+    there: the figure is the prover's trace layout counted at that block
+    length, and it is in a run artifact rather than in an entry of this file.
+    """
+    import audit  # noqa: E402
+    return audit.block_length_counted(s)
+
+
+# The block lengths `tools/drivers/block-length-c4096.sh` measures one token
+# block at.  A line below exists for each of them and does nothing until that
+# run's rows are in this file.
+BLOCK_LENGTHS = (256, 512, 1024)
+BLOCK_SCOPES = ("commit", "stwo_total", "whole_wall", "loop")
+
+
 def chk(name, got, key, tol=0.005):
     """A `derived` entry recomputed: relative tolerance, absolute when the stored value is 0."""
     exp = v(key)
@@ -367,6 +385,24 @@ DERIVED = {
             "c4096 one block's layer segments, per position"),
            ("cells_per_position.headline.c16384.fresh_layers_block",
             "c16384 one block's layer segments, per position"))},
+    # One token block at a block length that is not the recorded 512: the
+    # counted side, the measured side over it, and the four per-segment rows.
+    # The counted row is read out of the run that counted it, the way the 14B's
+    # registered figure is; the other two divide entries of this file.
+    **{f"cells.block.c4096.s{s}.exact_predicted": (lambda s=s: chk(
+        f"S = {s} one block, the trace layout counted at that block length",
+        block_counted(s), f"cells.block.c4096.s{s}.exact_predicted", 1e-9))
+       for s in BLOCK_LENGTHS},
+    **{f"cells.block.c4096.s{s}.rho": (lambda s=s: chk(
+        f"S = {s} measured cells over counted",
+        v(f"cells.block.c4096.s{s}.fresh") / v(f"cells.block.c4096.s{s}.exact_predicted"),
+        f"cells.block.c4096.s{s}.rho", 1e-9))
+       for s in BLOCK_LENGTHS},
+    **{f"secs_per_segment.block.c4096.s{s}.{sc}": (lambda s=s, sc=sc: chk(
+        f"S = {s} seconds a segment, {sc.replace('_', ' ')}",
+        v(f"secs.block.c4096.s{s}.{sc}") / v(f"segments.block.c4096.s{s}"),
+        f"secs_per_segment.block.c4096.s{s}.{sc}", 0.001))
+       for s in BLOCK_LENGTHS for sc in BLOCK_SCOPES},
     # What the port is worth on one segment, per phase: the host backend's
     # seconds over the device backend's, on the one proof both backends made.
     # Both sides of each division are `measured` rows of the same run.
