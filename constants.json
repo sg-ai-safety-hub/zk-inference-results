@@ -1845,6 +1845,15 @@
    "grade": "asserted",
    "note": "The prover's --head-groups, which decides the three key grids' heights: both headline runs proved 32 attention heads as 16, 8, 8, so a shape's heads are assumed to be a half and two quarters. Asserted and not measured because it is a knob of a run that has not been made and no witness fixes it; grouping all the heads into one grid instead costs 0.08 per cent less on the 8B layer segment."
   },
+  "assumption.cost_model.kv_per_head": {
+   "value": "per attention head",
+   "unit": "key/value accounting",
+   "card": "none",
+   "context": "n/a",
+   "timing_scope": "n/a",
+   "grade": "asserted",
+   "note": "Where a key and a value are committed, which is the key cache, the value cache and the boundary trees that hand them on: `LayoutChan` and `LayoutKey` are built from `Shape::chans()` and `Shape::keys()`, both at the attention head count, and `boundary.rs`'s `kv_sides` hands on a cache of that width, so the count charges them once per attention head and not once per key/value head, and it is asserted because no AIR here shares a key tile's K and V columns between two heads' score grids -- on the 8B layer segment that term is 109,051,904 cells and 7.83 per cent of it, and a prover that shared it across the four heads of a group would commit 81,788,928 cells fewer, 5.87 per cent of the segment."
+  },
   "assumption.cost_model.variant": {
    "value": "intexp",
    "unit": "softmax variant",
@@ -1880,6 +1889,42 @@
    "timing_scope": "n/a",
    "grade": "asserted",
    "note": "How the router itself is charged: its gate matmul is counted from the layout like any other matmul, and the top-k selection on the logits is stated beside the row as a bound rather than charged in it. Asserted, and an upper bound and not a point estimate, because no AIR in this project builds a selection argument; the model's own words for it, on the same Qwen3-235B-A22B segment, worth 5,341,184 cells and 0.23 per cent of the segment: \"the gate logits are a matmul of 128 outputs over every token and are COUNTED like any other (3,219,456 cells a segment). The top-k selection on them is not: no AIR here builds one, so it is an upper bound, 8 argmax passes over 128 logits a token at the built gadget's measured marginal (4.046875 cells a comparison, `model_constants.argmax_marginal_cells_per_comparison`), 2,121,728 cells a segment\"."
+  },
+  "assumption.cost_model.mla_form": {
+   "value": "materialised",
+   "unit": "latent attention layout",
+   "card": "none",
+   "context": "n/a",
+   "timing_scope": "n/a",
+   "grade": "asserted",
+   "note": "Where a latent attention applies the low-rank pair `kv_b`, which decides what a key costs the cache and how wide the score grid is: the count records the materialised layout, which expands the keys and the values per head before the attention at 40,960 cells a key and 192 channels a head, and it is asserted because no AIR in this project proves either layout -- the same DeepSeek-V3 layer segment at C=4,096, S=512 counted absorbed is 4,988,734,576 cells against 4,104,984,688, so the choice is worth 883,749,888 cells and 21.53 per cent of it."
+  },
+  "assumption.cost_model.mla_cache_per_tile": {
+   "value": "once per key tile",
+   "unit": "cache copies a segment holds",
+   "card": "none",
+   "context": "n/a",
+   "timing_scope": "n/a",
+   "grade": "asserted",
+   "note": "How many copies of a shared cache one segment commits under the absorbed layout: a key tile is a component and commits the columns it reads, so the three head groups each hold the latent of every key in their own tile, and it is asserted because no AIR here builds a cache component shared between grids -- on the recorded row it costs no cells at all, because the materialised layout holds a K and a V per head and shares nothing, and one shared channel component and grid would commit 131,334,144 cells fewer than the three."
+  },
+  "assumption.cost_model.mla_latent_norm": {
+   "value": "the output head's plain norm at the rank's width",
+   "unit": "norm program",
+   "card": "none",
+   "context": "n/a",
+   "timing_scope": "n/a",
+   "grade": "asserted",
+   "note": "What program the two low-rank norms build, `q_a_layernorm` and `kv_a_layernorm` being config fields where the program is not: the count builds the one the output head's final norm already builds, a squares tree with its second-level reduction and a scale, at 1,536 and 512 channels instead of the model's width, and it is asserted because no recorded segment shows a norm at a low rank -- it is 30,205,952 cells and 0.74 per cent of the DeepSeek-V3 layer segment at C=4,096, S=512."
+  },
+  "assumption.cost_model.mla_seams": {
+   "value": "one requantize seam per rank the chain passes",
+   "unit": "requantize seams",
+   "card": "none",
+   "context": "n/a",
+   "timing_scope": "n/a",
+   "grade": "asserted",
+   "note": "Where the low-rank chain is requantized: the second matmul of a pair reads what the first wrote, so the rank is requantized between them exactly as the residual is before the projections, at `qkv` 7,168, `q_lat` 1,536 and `kv_lat` 512 on a DeepSeek-V3 layer, and it is asserted because no recorded segment carries a seam at a rank and a layout that carried the rank dequantized would not build them -- it is 27,852,800 cells and 0.68 per cent of that same segment."
   },
   "rate.microbench.commit": {
    "value": 15.8797,
