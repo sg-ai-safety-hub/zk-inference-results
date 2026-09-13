@@ -57,7 +57,22 @@ Written, not yet run:
   shared pins every campaign at this context carries, `--tight-table` among
   them, proved twice with one segment in flight: once as the paper runs it,
   once with every generated constraint kernel declining to the host. Written
-  and not yet started, because the card was in use.
+  and not yet run.
+
+  The witnesses are `headline-c4096`'s, and where a host does not hold them the
+  driver extracts the sample block's own: the same ids at the same corpus
+  offset, the same five layer passes at the same quantization variant, with
+  layer 0 its own pass so that its dump carries the embedding table. The
+  forward pass covers all 4,608 positions whichever blocks are written, so the
+  sample block's dumps are that campaign's dumps and only the ones that are
+  written differ. That is what makes the campaign fit: the whole nine-block set
+  is about 122 GB with the block-invariant files shared once, and one block is
+  about 20 GB. The shared pins are the loop's, taken over whatever rows the
+  shape table holds, and one block is enough for them to be the sequence's --
+  on `runs/2026-09-09-headline-c4096-h100`'s own shape table the worst case over
+  block 8's 32 rows and over all 288 agree in every pin a driver reads, `kmax`
+  19, `--ao-rem-bits` 20, `--fold-rem-bits` 15, `--fold-alpha` 6 -- so the
+  sample is proved at the pins the headline campaign proved it at.
 
   Why one segment in flight. The post's phase split is asserted
   (`assumption.loop_split.c4096.interaction_frac` and the three beside it)
