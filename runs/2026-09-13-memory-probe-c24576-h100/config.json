@@ -1,0 +1,9 @@
+{"driver": "memory-probe-context", "label": "probe",
+ "model": "unsloth/Llama-3.1-8B-Instruct", "spec": "y-delay-vw12",
+ "context": 24576, "s": 512, "positions": 25088, "blocks": 49, "layers": 32,
+ "probe_block": 48, "probe_layer": 16, "probe_segments": 1,
+ "probe_slice": "16:17", "probe_layer0_slice": "0:1",
+ "pipeline": 0, "cargo_jobs": 4,
+ "shared_flags": "--round even --numbits 9 --z-hi-bits 7 --variants intexp --head-groups 16,8,8 --tight-table", "layer_flags": "--round even --diagonal-block --gkr-key-tiles --gkr-dequant --gkr-residual-stream --gkr-freivalds --gkr-attnout", "layer0_flags": "",
+ "ids": "generated: the corpus's tokens 0 to 24576 and the model's own greedy continuation under y-delay-vw12",
+ "corpus_offset": 0}

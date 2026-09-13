@@ -1,0 +1,39 @@
+{
+ "shapes_in_plan": [
+  {
+   "table_bits": 23,
+   "a_segment_with_it": "B48L25"
+  },
+  {
+   "table_bits": 24,
+   "a_segment_with_it": "B48L3"
+  },
+  {
+   "table_bits": 25,
+   "a_segment_with_it": "B48L2"
+  },
+  {
+   "table_bits": 26,
+   "a_segment_with_it": "B48L6"
+  },
+  {
+   "table_bits": 27,
+   "a_segment_with_it": "B48L0"
+  },
+  {
+   "table_bits": 28,
+   "a_segment_with_it": "B48L1"
+  }
+ ],
+ "emitted": [
+  25,
+  27
+ ],
+ "skipped": [
+  23,
+  24,
+  26,
+  28
+ ],
+ "why": "the shapes the proved segments carry; a shape no proved segment carries is not emitted, and the widest of this block's is one this host cannot emit"
+}

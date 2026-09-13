@@ -1,0 +1,47 @@
+{
+ "context": 24576,
+ "card_total_mib": 81559,
+ "probe_layer": 16,
+ "probes": [
+  {
+   "probe": "decode",
+   "layer": 16,
+   "pipeline": 0,
+   "exit_code": 0,
+   "peak_mib": 79643,
+   "last_mib": 79643,
+   "out_of_memory": false,
+   "kernel_fallbacks": 0,
+   "fits": true,
+   "segments": 1,
+   "loop_secs": 75.200028992,
+   "fresh_cells": 2787675248.0
+  },
+  {
+   "probe": "layer0",
+   "layer": 0,
+   "pipeline": 0,
+   "exit_code": 1,
+   "peak_mib": 81073,
+   "last_mib": 81073,
+   "out_of_memory": true,
+   "kernel_fallbacks": 0,
+   "fits": false,
+   "segments": 0,
+   "loop_secs": null,
+   "fresh_cells": null
+  }
+ ],
+ "reference": {
+  "backend": "simd",
+  "segments": 1,
+  "loop_secs": 268.97073399,
+  "fresh_cells": 2787675248.0,
+  "digests": [
+   "dc56b8482e172eeb3b4b9a7f378f5d4787d5df951fd0581418ae022da35ecebc"
+  ],
+  "unsound_skips": [],
+  "all_bound": true,
+  "unbound": []
+ }
+}

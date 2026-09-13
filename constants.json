@@ -1395,6 +1395,39 @@
    "artifact": "mem_pipelined_l0.json",
    "note": "Layer 0 and layer 1 together under the pipeline, which is the pair the headline loop forms at the start of every block and the only pair that holds the plan's largest segment. It peaked at what layer 0 peaked at alone, so the second segment in flight cost the card nothing even here."
   },
+  "mem.probe.c24576.decode_peak_mib": {
+   "value": 79643,
+   "unit": "MiB",
+   "card": "H100",
+   "context": 24576,
+   "timing_scope": "loop",
+   "grade": "measured",
+   "run": "2026-09-13-memory-probe-c24576-h100",
+   "artifact": "mem_decode.json",
+   "note": "The most the card reported holding at any moment of one decode segment proved on its own with the pipeline off, sampled once a second: layer 16 of the last token block, whose prefix is the whole 24,576-token prompt and whose shape 12 of the block's 32 segments have. The card has 81,559 MiB, so it fits with 1,916 to spare. The prover's own high-water mark for the same segment is this number to the MiB. The comparable 16,384-token row is mem.probe.c16384.serial_peak_mib, 72,379 MiB, which is the largest of four segments of the same shape class proved in one process."
+  },
+  "mem.probe.c24576.layer0_oom_peak_mib": {
+   "value": 81073,
+   "unit": "MiB",
+   "card": "H100",
+   "context": 24576,
+   "timing_scope": "loop",
+   "grade": "measured",
+   "run": "2026-09-13-memory-probe-c24576-h100",
+   "artifact": "mem_layer0.json",
+   "note": "Layer 0 of the same block, proved on its own, DID NOT FIT: the process exited 1 out of memory and this is the most the card reported holding before the allocation it could not serve, 486 MiB short of the card's 81,559. It is not a peak of a segment that was proved and there is no such number at this context: the segment needs more than the card has. Layer 0 carries the embedding gadget and is the largest segment of the plan, and it is the segment the headline loops' peaks are -- 78,843 MiB at context 16,384 against that loop's 78,799 -- so it is the segment mem.projected.* is a line through."
+  },
+  "secs.probe.c24576.decode_loop": {
+   "value": 75.200028992,
+   "unit": "s",
+   "card": "H100",
+   "context": 24576,
+   "timing_scope": "loop",
+   "grade": "measured",
+   "run": "2026-09-13-memory-probe-c24576-h100",
+   "artifact": "decode.json",
+   "note": "The one-process loop over the single layer-16 segment, the pipeline off. The same segment on the reference backend took 268.971 s in host memory and hashed to the same proof digest, dc56b8482e172eeb."
+  },
   "secs.probe.c16384.layer0_loop": {
    "value": 94.665378576,
    "unit": "s",
@@ -15746,7 +15779,7 @@
     "mem.headline.c4096.peak_mib",
     "mem.headline.c16384.peak_mib"
    ],
-   "note": "The line through the two measured peaks, read at context 32,768: 0.4130859375 MiB a position of prefix, 72,031 MiB at context 0, 85,567 MiB here. 4,008 MiB above the card's 81,559, so one card does not hold it. The assumption is that the peak is linear in the context at S = 512 with the five reductions on, which two points cannot show. Proving one decode segment at context 24,576 or 32,768 with --tight-table and recording mem.probe.c<ctx>.peak_mib is what would turn the line into a measurement; no such probe has run."
+   "note": "The line through the two measured peaks, read at context 32,768: 0.4130859375 MiB a position of prefix, 72,031 MiB at context 0, 85,567 MiB here. 4,008 MiB above the card's 81,559, so one card does not hold it. The assumption is that the peak is linear in the context at S = 512 with the five reductions on, which two points cannot show. Measured since: runs/2026-09-13-memory-probe-c24576-h100 proved one decode segment at context 24,576 with --tight-table and the five reductions on. Layer 16, the shape almost every segment has, fits at 79,643 MiB (mem.probe.c24576.decode_peak_mib). Layer 0, the segment these lines are drawn through, does not: it ran the card out of memory with the card at 81,073 MiB of 81,559 (mem.probe.c24576.layer0_oom_peak_mib). So the line's verdict at 24,576 -- above the card -- is measured, and the row below it is not."
   },
   "mem.projected.c131072.peak_mib": {
    "value": 126175,
@@ -15759,7 +15792,7 @@
     "mem.headline.c4096.peak_mib",
     "mem.headline.c16384.peak_mib"
    ],
-   "note": "The line through the two measured peaks, read at context 131,072: 0.4130859375 MiB a position of prefix, 72,031 MiB at context 0, 126,175 MiB here. 1.55 times the card's 81,559, and eight times the far measured context out from the pair the line is drawn through. The assumption is that the peak is linear in the context at S = 512 with the five reductions on, which two points cannot show. Proving one decode segment at context 24,576 or 32,768 with --tight-table and recording mem.probe.c<ctx>.peak_mib is what would turn the line into a measurement; no such probe has run."
+   "note": "The line through the two measured peaks, read at context 131,072: 0.4130859375 MiB a position of prefix, 72,031 MiB at context 0, 126,175 MiB here. 1.55 times the card's 81,559, and eight times the far measured context out from the pair the line is drawn through. The assumption is that the peak is linear in the context at S = 512 with the five reductions on, which two points cannot show. Measured since: runs/2026-09-13-memory-probe-c24576-h100 proved one decode segment at context 24,576 with --tight-table and the five reductions on. Layer 16, the shape almost every segment has, fits at 79,643 MiB (mem.probe.c24576.decode_peak_mib). Layer 0, the segment these lines are drawn through, does not: it ran the card out of memory with the card at 81,073 MiB of 81,559 (mem.probe.c24576.layer0_oom_peak_mib). So the line's verdict at 24,576 -- above the card -- is measured, and the row below it is not."
   },
   "mem.projected.context_at_card_limit": {
    "value": 23065.4184,
@@ -15773,7 +15806,7 @@
     "mem.headline.c4096.peak_mib",
     "mem.headline.c16384.peak_mib"
    ],
-   "note": "Where the same line reaches the card's 81,559 MiB: a context of about 23,065, half again the larger of the two contexts it is drawn through and short of the 32,768 the row above prices. Projected and not derived: the arithmetic is three entries of this file, but the same linearity assumption carries it and two points cannot show that the line is straight."
+   "note": "Where the same line reaches the card's 81,559 MiB: a context of about 23,065, half again the larger of the two contexts it is drawn through and short of the 32,768 the row above prices. Projected and not derived: the arithmetic is three entries of this file, but the same linearity assumption carries it and two points cannot show that the line is straight. Measured since: layer 0 fits at context 16,384 (78,843 MiB, mem.probe.c16384.layer0_peak_mib) and does not fit at 24,576 (out of memory, mem.probe.c24576.layer0_oom_peak_mib), so the context this card gives out at is between those two, and the 23,065 this row projects is inside that range. The range is what is measured; the number inside it is still the line's."
   },
   "moe.routing.qwen3_30b_a3b.c4096.s128.distinct_experts_mean": {
    "artifact": "routing.json",

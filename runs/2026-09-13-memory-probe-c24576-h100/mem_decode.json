@@ -1,0 +1,13 @@
+{
+ "probe": "decode",
+ "pipeline": 0,
+ "exit_code": 0,
+ "seconds": 77,
+ "samples": 76,
+ "period_s": 1,
+ "max_mib": 79643,
+ "last_mib": 79643,
+ "mean_mib": 22650.3,
+ "out_of_memory": false,
+ "stderr_tail": ""
+}

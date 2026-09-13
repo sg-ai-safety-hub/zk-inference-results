@@ -1,0 +1,13 @@
+{
+ "probe": "layer0",
+ "pipeline": 0,
+ "exit_code": 1,
+ "seconds": 120,
+ "samples": 117,
+ "period_s": 1,
+ "max_mib": 81073,
+ "last_mib": 81073,
+ "mean_mib": 9176.3,
+ "out_of_memory": true,
+ "stderr_tail": "ed\":23089561380,\"pool_used_high\":23089561380,\"seq\":4,\"t_secs\":39.288796973,\"tag\":\"B48L0\",\"tree\":{\"cells\":880279552,\"cols\":1989,\"idx\":1,\"max_log\":21}}\n[MEM] {\"driver_total\":85017493504,\"driver_used\":51754369024,\"mark\":\"commit_base\",\"pool_reserved\":51103399936,\"pool_reserved_high\":51103399936,\"pool_used\":51085050308,\"pool_used_high\":51085050308,\"seq\":5,\"t_secs\":41.977446287,\"tag\":\"B48L0\",\"tree\":{\"cells\":1975043472,\"cols\":85737,\"idx\":2,\"max_log\":25}}\nCUDA error at /root/build/a8586d205b87/src/nitroo/crates/stwo/src/stwo_cuda/cuda/gkr.cu:380 error=cudaErrorMemoryAllocation message: out of memory \n"
+}
