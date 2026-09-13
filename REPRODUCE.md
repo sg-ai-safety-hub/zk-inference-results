@@ -6,6 +6,70 @@ digests, the binding table from the manifest, and the constants keys it backs.
 
 Written, not yet run:
 
+- `tools/drivers/block-length-c4096.sh`: one token block of the context 4,096
+  plan at a block length other than the 512 every recorded run proves.
+
+      tools/drivers/block-length-c4096.sh <host> <prover-commit> <harness-commit> <S>
+
+  The block length is an argument, it is in the run id and it is in every
+  constant the run backs, because a run at another S is a different quantity
+  under the same name. S = 256 proves the last block's 32 layer segments, which
+  is what makes its per-segment rows comparable with the last block of
+  `headline-c4096`; S = 1,024 proves that block's layer 16 alone, which is the
+  segment `lib/seq5-reference.py` already reads as this repository's reference
+  segment at a context. Either way the block proved is the last, so its prefix
+  is the same 4,096 positions the recorded reference segment reads. The
+  configuration is `headline-c4096.sh`'s, copied line for line: the five GKR
+  reductions on, `--tight-table`, the same shared pins, the same quantization
+  variant, the same corpus window, and the segment loop pipelined one segment
+  ahead. What one token block cannot have is left out -- no output head segment
+  in the plan, no verifier pass -- and the run's label is `probe`, so a reader
+  of the run directory cannot mistake one block for a sequence.
+
+  Why it is worth a card. S is in the statement twice over: the prefix is tiled
+  into key blocks of S, so the key tile term of a segment's cells moves with it,
+  and the weights are committed once a segment whatever S is, so the
+  per-position share of them is the model's weights over S. The two pull
+  opposite ways and neither has been measured. The counted side says what to
+  expect, and it is the same count that reproduces the recorded block exactly:
+  at the fields the recorded 8B segments carry, the last block's 32 layer
+  segments come to 44,557,347,792 cells at S = 512, which is the recorded run's
+  own figure for that block to the cell, against 25,671,162,832 at S = 256 --
+  100.3 M a position against 87.0 M, so a shorter block costs more a position.
+  One layer segment comes to 2,631,844,976 cells at S = 1,024 against
+  1,393,069,168 at S = 512, 1.889 times, and the recorded S = 512 loop at this
+  context peaked 73,723 MiB of the card's 81,559. So S = 1,024 is most likely
+  not going to fit, an out-of-memory is the result rather than a failure of the
+  run, and it is recorded as one: `mem.block.c4096.s1024.oom_last_sample_mib`,
+  the last sample the card returned before the process left, and nothing else
+  for that block length.
+
+  What the fetch records, per block length: `segments.block.c4096.s<S>`,
+  `cells.block.c4096.s<S>.fresh`, `secs.block.c4096.s<S>.<scope>` at the four
+  timing scopes, `mem.block.c4096.s<S>.peak_mib` and
+  `proof.block.c4096.s<S>.bytes_per_segment_median`, all measured; and
+  `secs_per_segment.block.c4096.s<S>.<scope>`,
+  `cells.block.c4096.s<S>.exact_predicted` and `cells.block.c4096.s<S>.rho`,
+  derived. The counted row is the prover's trace layout counted at that block
+  length over the very segments the run proves, which is
+  `harness.eval.predict.predict.exact_segments` -- the function
+  `predict.py --cells exact` counts a registration with -- called at `seq = S`
+  against a fields file the job writes off this run's own dumps with
+  `harness.eval.predict.witness_fields`, so every witness-calibrated field the
+  count needs is the dump's own. `predict.py`'s own command line takes no block
+  length, its `S` being the module's 512, so the count is made by calling that
+  function, before the segment loop runs, and `predicted.json` carries the
+  per-layer counts and each layer's dump digest. `tools/constants/audit.py`'s
+  `block-length-c4096` section re-derives every measured row off the run's own
+  outputs and refuses the two ways the pair can be wrong -- a loop that ran out
+  of memory carrying a cell row, a loop that proved carrying the out-of-memory
+  row; `check.py` recomputes the derived three.
+
+  The run is not made yet: the card was held by another job when the driver was
+  written, and the driver refuses a host whose lock is held or whose card is
+  running before it pushes anything, because pushing would overwrite the tree
+  that job is building from.
+
 - `tools/drivers/predict-14b.sh`: Qwen2.5-14B's 48 layer segments at context
   4,096 on the reference backend, one proof per layer, measured against a
   registered prediction. Written and started twice, and the second attempt is
