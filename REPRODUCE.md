@@ -6,70 +6,6 @@ digests, the binding table from the manifest, and the constants keys it backs.
 
 Written, not yet run:
 
-- `tools/drivers/block-length-c4096.sh`: one token block of the context 4,096
-  plan at a block length other than the 512 every recorded run proves.
-
-      tools/drivers/block-length-c4096.sh <host> <prover-commit> <harness-commit> <S>
-
-  The block length is an argument, it is in the run id and it is in every
-  constant the run backs, because a run at another S is a different quantity
-  under the same name. S = 256 proves the last block's 32 layer segments, which
-  is what makes its per-segment rows comparable with the last block of
-  `headline-c4096`; S = 1,024 proves that block's layer 16 alone, which is the
-  segment `lib/seq5-reference.py` already reads as this repository's reference
-  segment at a context. Either way the block proved is the last, so its prefix
-  is the same 4,096 positions the recorded reference segment reads. The
-  configuration is `headline-c4096.sh`'s, copied line for line: the five GKR
-  reductions on, `--tight-table`, the same shared pins, the same quantization
-  variant, the same corpus window, and the segment loop pipelined one segment
-  ahead. What one token block cannot have is left out -- no output head segment
-  in the plan, no verifier pass -- and the run's label is `probe`, so a reader
-  of the run directory cannot mistake one block for a sequence.
-
-  Why it is worth a card. S is in the statement twice over: the prefix is tiled
-  into key blocks of S, so the key tile term of a segment's cells moves with it,
-  and the weights are committed once a segment whatever S is, so the
-  per-position share of them is the model's weights over S. The two pull
-  opposite ways and neither has been measured. The counted side says what to
-  expect, and it is the same count that reproduces the recorded block exactly:
-  at the fields the recorded 8B segments carry, the last block's 32 layer
-  segments come to 44,557,347,792 cells at S = 512, which is the recorded run's
-  own figure for that block to the cell, against 25,671,162,832 at S = 256 --
-  100.3 M a position against 87.0 M, so a shorter block costs more a position.
-  One layer segment comes to 2,631,844,976 cells at S = 1,024 against
-  1,393,069,168 at S = 512, 1.889 times, and the recorded S = 512 loop at this
-  context peaked 73,723 MiB of the card's 81,559. So S = 1,024 is most likely
-  not going to fit, an out-of-memory is the result rather than a failure of the
-  run, and it is recorded as one: `mem.block.c4096.s1024.oom_last_sample_mib`,
-  the last sample the card returned before the process left, and nothing else
-  for that block length.
-
-  What the fetch records, per block length: `segments.block.c4096.s<S>`,
-  `cells.block.c4096.s<S>.fresh`, `secs.block.c4096.s<S>.<scope>` at the four
-  timing scopes, `mem.block.c4096.s<S>.peak_mib` and
-  `proof.block.c4096.s<S>.bytes_per_segment_median`, all measured; and
-  `secs_per_segment.block.c4096.s<S>.<scope>`,
-  `cells.block.c4096.s<S>.exact_predicted` and `cells.block.c4096.s<S>.rho`,
-  derived. The counted row is the prover's trace layout counted at that block
-  length over the very segments the run proves, which is
-  `harness.eval.predict.predict.exact_segments` -- the function
-  `predict.py --cells exact` counts a registration with -- called at `seq = S`
-  against a fields file the job writes off this run's own dumps with
-  `harness.eval.predict.witness_fields`, so every witness-calibrated field the
-  count needs is the dump's own. `predict.py`'s own command line takes no block
-  length, its `S` being the module's 512, so the count is made by calling that
-  function, before the segment loop runs, and `predicted.json` carries the
-  per-layer counts and each layer's dump digest. `tools/constants/audit.py`'s
-  `block-length-c4096` section re-derives every measured row off the run's own
-  outputs and refuses the two ways the pair can be wrong -- a loop that ran out
-  of memory carrying a cell row, a loop that proved carrying the out-of-memory
-  row; `check.py` recomputes the derived three.
-
-  The run is not made yet: the card was held by another job when the driver was
-  written, and the driver refuses a host whose lock is held or whose card is
-  running before it pushes anything, because pushing would overwrite the tree
-  that job is building from.
-
 - `tools/drivers/predict-14b.sh`: Qwen2.5-14B's 48 layer segments at context
   4,096 on the reference backend, one proof per layer, measured against a
   registered prediction. Written and started twice, and the second attempt is
@@ -2644,6 +2580,99 @@ dumps grow with the context and these do not. The pins the segments are proved
 at are that whole block's worst case and not the proved layers' own rows, so
 what is proved is the shape a headline loop at this context would prove; at
 24,576 those pins are the 16,384-token campaign's exactly.
+
+
+## block-length-c4096
+
+    tools/drivers/block-length-c4096.sh <host> <prover-commit> <harness-commit> <S>
+
+runs: 2026-09-13-block-length-c4096-s256-h100 (S = 256); the S = 1,024 run is
+  on the card and is not here yet
+prover commit: 6589471   harness commit: 6589471
+digests: the block's 32 layer segments, in `card.json`; layer 16's, first 16
+  hex, is `9fae85fa8d67d93b`, and the reference backend proved that same segment
+  to the same bytes in `reference-simd.json`
+binding: 1 to 15 bound; 16 absent   (from the manifest)
+unsound skips: none
+constants backed: `segments.block.c4096.s256`, `cells.block.c4096.s256.fresh`,
+  `secs.block.c4096.s256.{commit,stwo_total,whole_wall,loop}`,
+  `mem.block.c4096.s256.peak_mib`,
+  `proof.block.c4096.s256.bytes_per_segment_median`,
+  `secs_per_segment.block.c4096.s256.{commit,stwo_total,whole_wall,loop}`,
+  `cells.block.c4096.s256.exact_predicted`, `cells.block.c4096.s256.rho`
+
+What the run measures. Every other number in this repository is at S = 512
+positions a segment. S is in the statement twice over: the prefix is tiled into
+key blocks of S, so the key tile term of a segment's cells moves with it, and
+the weights are committed once a segment whatever S is, so the per-position
+share of them is the model's weights over S. This proves the last token block of
+the context 4,096 plan at S = 256 -- block 16 of 17, its 32 layer segments,
+prefix 4,096 positions -- which is the same 32 segments of the same plan that
+`headline-c4096` proved as its block 8 at S = 512, over the same prefix and
+under the same flags. So the two are read against each other segment for
+segment.
+
+| the last block's 32 layer segments | S = 256 | S = 512 |
+|---|---|---|
+| fresh cells | 25,608,247,152 | 44,557,347,792 |
+| ... a proved position | 100,032,215 | 87,026,070 |
+| commit, s a segment | 0.797 | 0.664 |
+| stwo total, s a segment | 1.303 | 1.103 |
+| whole wall-clock, s a segment | 12.944 | 22.011 |
+| loop, s a segment | 10.275 | 13.333 |
+| whole wall-clock, s a proved position | 1.618 | 1.376 |
+| loop, s a proved position | 1.284 | 0.833 |
+| serialized proof, median bytes a segment | 112,113,493 | 81,802,018 |
+| serialized proof, bytes a proved position | 14,037,136 | 5,117,495 |
+| the card's peak, MiB of 81,559 | 58,267 | 73,723 |
+
+The S = 512 column is `runs/2026-09-09-headline-c4096-h100`'s block 8, read off
+its slice outputs; its four scopes are summed over those 32 chunk rows, the loop
+one per chunk, because that block shared its process with two others. Its peak
+is the whole sequence's, which the last block is what sets.
+
+What it says. A halved block costs 15.0% more a proved position in cells, 17.6%
+more in the whole wall-clock scope and 54.1% more in the loop scope, and 2.74
+times the bytes of proof. Nothing about it is cheaper per position; what it buys
+is a smaller working set, 58,267 MiB against 73,723, which is 0.79 of the card
+where the recorded block is 0.90 of it. The proof size is the sharpest of the
+four: a segment at half the positions is not half a proof, it is 1.37 of one.
+
+What the counted side says, and where it does not hold. `predicted.json` is the
+prover's trace layout counted at S = 256 over these very 32 segments, each at
+the witness-calibrated fields its own dump carries, written before the loop ran:
+25,448,257,392 cells against the 25,608,247,152 the loop committed, so
+`cells.block.c4096.s256.rho` is 1.0063. **The count is 0.63% low here where it
+is exact at S = 512** -- the same function over the same plan's block at S = 512
+gives 44,557,347,792, which is that block's measured figure to the cell. The gap
+is not spread: layer 0 counts to the cell, and each of the other 31 layers is
+short by five cells times about 2^20 rows -- 5,242,880 cells on 15 of them,
+5,160,960 on 14, 4,587,520 and 4,505,600 on one each. Five cells a row is the
+master exponent table's charge, and the table width the count used is the
+prover's own on every layer (`witness_fields.json` against each segment's
+`params.log_table`), so what does not hold at this block length is the layout's
+table-row term and not the calibration it was counted at. It is a zk-prover
+matter and the row records it.
+
+How the run is made. The extraction runs the whole forward pass over the 4,352
+positions either way, because a block reads the keys and values of every block
+before it, and only block 16's dumps are written: five passes, 175 s, 4.6 GiB
+for the block beside 7.5 GiB of files shared between the blocks. Layer 0 is a
+pass of its own because the embedding table is written into every dump of the
+pass it is given. The plan is that one block, no output head segment and no
+verifier pass, so the run's label is `probe` and no number here is a throughput
+row for a sequence. Every shape this block needs was already in the host's
+kernel store, so nothing was emitted and nothing rebuilt. The loop proved all 32
+segments in one process, pipelined one segment ahead, in 353 s of wall-clock
+time around the process; the whole job, from the ids to the anchor, took 35
+minutes.
+
+The reference backend then proved layer 16 of the same block in host memory,
+78.6 s. It is the run's provenance anchor -- a loop the card cannot hold writes
+no output at all, and `manifest.py` refuses a fetched directory that carries no
+provenance block -- and it is a digest gate: its proof bytes hash to what the
+card's proof of that same segment hashed to, which is a STARK's determinism
+checked across the two backends at a block length neither had been run at.
 
 ## Entry template
 
