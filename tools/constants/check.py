@@ -114,6 +114,40 @@ DERIVED = {
         "E4 13B residual",
         (v("e4.codellama_13b.c4096.rho") - 1.0) * 100.0,
         "e4.codellama_13b.c4096.residual_pct", 1e-9),
+    # zk-results #93: the 70B campaign's one measured segment, and what the
+    # registration counted for it.  Both sides are entries of this file -- one
+    # the run's own `cells.fresh`, one the counted figure the registration froze
+    # before the run -- and both are the same segment at the same block and the
+    # same context, which is what makes the ratio a comparison rather than an
+    # average.
+    "rate.predict70b.c4096.commit": lambda: chk(
+        "70B commit rate",
+        v("cells.predict70b.c4096.fresh") / v("secs.predict70b.c4096.commit") / 1e6,
+        "rate.predict70b.c4096.commit", 1e-6),
+    "rate.predict70b.c4096.stwo_total": lambda: chk(
+        "70B stwo_total rate",
+        v("cells.predict70b.c4096.fresh") / v("secs.predict70b.c4096.stwo_total") / 1e6,
+        "rate.predict70b.c4096.stwo_total", 1e-6),
+    "rate.predict70b.c4096.whole_wall": lambda: chk(
+        "70B whole_wall rate",
+        v("cells.predict70b.c4096.fresh") / v("secs.predict70b.c4096.whole_wall") / 1e6,
+        "rate.predict70b.c4096.whole_wall", 1e-6),
+    "rate.predict70b.c4096.loop": lambda: chk(
+        "70B loop rate",
+        v("cells.predict70b.c4096.fresh") / v("secs.predict70b.c4096.loop") / 1e6,
+        "rate.predict70b.c4096.loop", 1e-6),
+    "cells.predict70b.c4096.rho": lambda: chk(
+        "70B measured over registered cells, one layer segment",
+        v("cells.predict70b.c4096.fresh") / v("cells.predict70b.c4096.registered"),
+        "cells.predict70b.c4096.rho", 1e-9),
+    "cells.predict70b.c4096.residual_pct": lambda: chk(
+        "70B residual",
+        (v("cells.predict70b.c4096.rho") - 1.0) * 100.0,
+        "cells.predict70b.c4096.residual_pct", 1e-9),
+    "proof.predict70b.c4096.bytes_per_position": lambda: chk(
+        "70B serialized proof bytes a position",
+        v("proof.predict70b.c4096.bytes") / v("positions.predict70b.c4096"),
+        "proof.predict70b.c4096.bytes_per_position", 0.001),
     "verinf.maverick.tok_s": lambda: chk(
         "VerInf Maverick positions/s", v("verinf.maverick.positions") / (v("verinf.maverick.prover_hours") * 3600),
         "verinf.maverick.tok_s", 0.001),

@@ -1343,6 +1343,102 @@ def predict_13b(a, keys):
                 a.claim(key, value)
 
 
+# -- predict-70b ---------------------------------------------------------------
+def predict_70b(a, keys):
+    """One synthetic layer segment at the Llama-3.1-70B width, against the count
+    that was registered before it was built.
+
+    The shape and not the model: no 70B weight is read anywhere, and what the
+    run proves is the arithmetic of a layer at that width -- hidden 8,192, 64
+    attention heads of 128 with 8 key/value heads, inner 28,672, all seven
+    matmuls on the chain dequantize gadget.
+
+    Two things about this run are not any other run's here, and both are checked
+    rather than assumed, because every row it backs is about them:
+
+      * the block is 128 decoded positions and not 512. One segment at this
+        width does not fit an 80 GB card at 512, so the per-position rows here
+        divide by 128 and are comparable with no other run's;
+      * the synthetic v matmul's weight scale is drawn from a stated 3-binade
+        window. Drawn over the twenty the generator used to take, the attention
+        output's remainder reads 35 bits against the 31 the statement's widest
+        form holds and the segment cannot be built at all (zk-prover #192).
+
+    The context is checked too. This driver proves both 4,096 and 16,384 by
+    default and this run proved one: the 16,384 kernel emit needs more host
+    memory than the rented card's container has. So the run names its contexts
+    and the audit reads them off the run rather than off the driver, and a row
+    for a context this run did not prove would be a row about nothing.
+    """
+    if not keys:
+        return
+    run = sorted({e["run"] for e in keys.values()})[0]
+    cfg = artifact(run, "config.json")
+    m = artifact(run, "measured.json")
+    contexts = [int(x) for x in cfg["contexts"].split()]
+    if cfg["s"] != m["s"]:
+        a.fails.append(f"audit: runs/{run} was started at a block of {cfg['s']} and its "
+                       f"outputs report {m['s']}")
+    if cfg.get("v_scale_binades") != 3:
+        a.fails.append(f"audit: runs/{run} drew the synthetic v weight scale from a "
+                       f"{cfg.get('v_scale_binades')}-binade window and every row here is "
+                       f"about a segment built at 3")
+    rows = {r["context"]: r for r in m["points"]}
+    if sorted(rows) != sorted(contexts):
+        a.fails.append(f"audit: runs/{run} was started at contexts {contexts} and its "
+                       f"outputs report {sorted(rows)}")
+    for ctx in sorted(rows):
+        r = rows[ctx]
+        if not r["proved"]:
+            a.fails.append(f"audit: runs/{run} did not prove C={ctx}, and a row over a "
+                           f"segment that was not proved is not a measurement")
+            continue
+        doc = artifact(run, f"c{ctx}.json")
+        p, prov = doc["result"]["point"], doc["provenance"]
+        if not p["accepts"]:
+            a.fails.append(f"audit: C={ctx} did not accept")
+        if p.get("off_table") or p.get("ref_mismatch"):
+            a.fails.append(f"audit: C={ctx}: off_table {p.get('off_table')}, "
+                           f"ref_mismatch {p.get('ref_mismatch')}")
+        if prov["unsound_skips"]:
+            a.fails.append(f"audit: C={ctx} ran with skips {prov['unsound_skips']}")
+        if not prov["binding"]["all_bound"]:
+            a.fails.append(f"audit: C={ctx} left edges {prov['binding']['unbound']} unbound")
+        if r["kernel_fallback_lines"]:
+            a.fails.append(f"audit: C={ctx} evaluated {r['kernel_fallback_lines']} kernel "
+                           f"group(s) on the host, so its seconds are not the card's")
+        # the summary the job wrote, against the chunk it wrote it from
+        if r["fresh"] != p["cells"]["fresh"]:
+            a.fails.append(f"audit: C={ctx} measured.json says {r['fresh']} fresh cells and "
+                           f"its chunk says {p['cells']['fresh']}")
+        kt = (p["family_cells"]["key_tiles"]
+              + p["family_cells"]["interaction_by_family"].get("key_tiles", {}).get("cells", 0))
+        if r["key_tiles_fresh"] != kt:
+            a.fails.append(f"audit: C={ctx} measured.json says {r['key_tiles_fresh']} key "
+                           f"tile cells and its chunk says {kt}")
+        print(f"  runs/{run}: C={ctx:,}, block {r['s']}, {r['fresh']:,} fresh cells, "
+              f"{kt:,} of them the key tiles, table 2^{r['table_bits']}, remainder "
+              f"{r['ao_rem_bits']} bits, peak {r['peak_mib']:,} MiB of "
+              f"{r['card_total_mib']:,}, host {p['peak_rss_bytes'] / 2 ** 30:.1f} GiB")
+        if ctx != 4096:
+            continue
+        for key, value in (
+                ("cells.predict70b.c4096.fresh", r["fresh"]),
+                ("cells.predict70b.c4096.key_tiles", kt),
+                ("positions.predict70b.c4096", r["s"]),
+                ("mem.predict70b.c4096.peak_mib", r["peak_mib"]),
+                ("proof.predict70b.c4096.bytes", p["proof_ser_bytes"]),
+                ("secs.predict70b.c4096.commit", r["secs"]["commit"]),
+                ("secs.predict70b.c4096.stwo_total", r["secs"]["stwo_total"]),
+                ("secs.predict70b.c4096.whole_wall", r["secs"]["whole_wall"]),
+                ("secs.predict70b.c4096.loop", r["secs"]["loop"])):
+            if key in keys:
+                if isinstance(value, int):
+                    a.exact(key, value)
+                else:
+                    a.claim(key, value)
+
+
 # -- unproved-baseline ---------------------------------------------------------
 # The three rates one point of the baseline records, and the positions each is
 # over: the prompt for `prefill`, the generated positions less the one the
@@ -2352,6 +2448,7 @@ SECTIONS = [
     ("predict-14b", predict_14b),
     ("predict-13b", predict_13b),
     ("block-length-c4096", block_length_c4096),
+    ("predict-70b", predict_70b),
     ("unproved-baseline", unproved_baseline),
     ("model-commitment", model_commitment),
     ("moe-routing", moe_routing),
