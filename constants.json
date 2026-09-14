@@ -16159,7 +16159,7 @@
    "context": 4096,
    "timing_scope": "n/a",
    "grade": "derived",
-   "note": "The prover's trace layout counted at S = 256 over these very 32 segments, each at the witness-calibrated fields its own dump carries: exact_segments at seq = 256, which is what predict.py --cells exact counts a registration with, written before the loop ran. The same count over the same plan's block at S = 512 is 44,557,347,792, which is that block's measured figure to the cell.",
+   "note": "The prover's trace layout counted at S = 256 over these very 32 segments, each at the witness-calibrated fields its own dump carries: exact_segments at seq = 256, which is what predict.py --cells exact counts a registration with, written before the loop ran. The fields file states each dump's own ao_rem_bits, which is not the shared pin the loop proved at, so this figure is below what the loop committed by the row set that difference makes: zk-prover #194, and cells.block.c4096.s256.rho is the size of it.",
    "run": "2026-09-13-block-length-c4096-s256-h100",
    "artifact": "predicted.json"
   },
@@ -16170,7 +16170,7 @@
    "context": 4096,
    "timing_scope": "n/a",
    "grade": "derived",
-   "note": "cells.block.c4096.s256.fresh / cells.block.c4096.s256.exact_predicted. The count is 0.63% LOW at this block length where it is exact at S = 512: layer 0 counts to the cell and every other layer is short by five cells times about 2^20 master-table rows, so the layout's table-row term is what does not hold at S = 256."
+   "note": "cells.block.c4096.s256.fresh / cells.block.c4096.s256.exact_predicted. The count is 0.63% LOW, and the block length is not why: the fields file states each dump's own ao_rem_bits, 14 to 20 over the layers, while the plan proved every segment at the shared pin of 20, so the count charges a narrower range table than the prover built -- five cells a row, and layer 0 is exact because its own width is already the pin. zk-prover #194 has the per-layer arithmetic and the recount at the pin."
   }
  },
  "discrepancies": []
