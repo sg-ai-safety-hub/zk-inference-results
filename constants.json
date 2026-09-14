@@ -1428,6 +1428,28 @@
    "artifact": "decode.json",
    "note": "The one-process loop over the single layer-16 segment, the pipeline off. The same segment on the reference backend took 268.971 s in host memory and hashed to the same proof digest, dc56b8482e172eeb."
   },
+  "bits.probe.c24576.layer0_ao_acc": {
+   "value": 24,
+   "unit": "bits",
+   "card": "H100",
+   "context": 24576,
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-13-memory-probe-c24576-h100",
+   "artifact": "shapes.json",
+   "note": "The attention output accumulator's width in layer 0 of the last token block, as the extraction measured it. It sums over the prefix, so it grows with the context: this is what the row below is a function of."
+  },
+  "bits.probe.c24576.layer0_ao_no_wrap_margin": {
+   "value": 0,
+   "unit": "bits",
+   "card": "H100",
+   "context": 24576,
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-13-memory-probe-c24576-h100",
+   "artifact": "shapes.json",
+   "note": "What is left of the attention output's no-wrap window in that segment: 1 + 16 + 8 + 6 = 31 of the field's 31, nothing spare. The window is an identity over the integers only while it holds, the two limbs must together cover the accumulator and the exponent window must cover jv - jo, so no wider decomposition recovers a bit. At context 32,768 the accumulator is 25 bits and the same window is 1 + 16 + 9 + 6 = 32, over by one: the extraction refuses layer 0 of the last block by name and the segment cannot be written, let alone proved. So 32,768 is not a memory question under this quantization variant, and the probe that would have asked it has no run directory: nothing was proved, so nothing carries a provenance block."
+  },
   "secs.probe.c16384.layer0_loop": {
    "value": 94.665378576,
    "unit": "s",
@@ -15779,7 +15801,7 @@
     "mem.headline.c4096.peak_mib",
     "mem.headline.c16384.peak_mib"
    ],
-   "note": "The line through the two measured peaks, read at context 32,768: 0.4130859375 MiB a position of prefix, 72,031 MiB at context 0, 85,567 MiB here. 4,008 MiB above the card's 81,559, so one card does not hold it. The assumption is that the peak is linear in the context at S = 512 with the five reductions on, which two points cannot show. Measured since: runs/2026-09-13-memory-probe-c24576-h100 proved one decode segment at context 24,576 with --tight-table and the five reductions on. Layer 16, the shape almost every segment has, fits at 79,643 MiB (mem.probe.c24576.decode_peak_mib). Layer 0, the segment these lines are drawn through, does not: it ran the card out of memory with the card at 81,073 MiB of 81,559 (mem.probe.c24576.layer0_oom_peak_mib). So the line's verdict at 24,576 -- above the card -- is measured, and the row below it is not."
+   "note": "The line through the two measured peaks, read at context 32,768: 0.4130859375 MiB a position of prefix, 72,031 MiB at context 0, 85,567 MiB here. 4,008 MiB above the card's 81,559, so one card does not hold it. The assumption is that the peak is linear in the context at S = 512 with the five reductions on, which two points cannot show. Measured since: runs/2026-09-13-memory-probe-c24576-h100 proved one decode segment at context 24,576 with --tight-table and the five reductions on. Layer 16, the shape almost every segment has, fits at 79,643 MiB (mem.probe.c24576.decode_peak_mib). Layer 0, the segment these lines are drawn through, does not: it ran the card out of memory with the card at 81,073 MiB of 81,559 (mem.probe.c24576.layer0_oom_peak_mib). So the line's verdict at 24,576 -- above the card -- is measured, and the row below it is not. And at 32,768 there is no such segment to weigh: the extraction refuses layer 0 of the last block by name, because the attention output's no-wrap window is 1 + 16 + 9 + 6 = 32 against the field's 31 (bits.probe.c24576.layer0_ao_no_wrap_margin is what was left of it one context down: nothing). So this row prices a statement the paper's quantization variant cannot form, on a card of any size."
   },
   "mem.projected.c131072.peak_mib": {
    "value": 126175,
@@ -15792,7 +15814,7 @@
     "mem.headline.c4096.peak_mib",
     "mem.headline.c16384.peak_mib"
    ],
-   "note": "The line through the two measured peaks, read at context 131,072: 0.4130859375 MiB a position of prefix, 72,031 MiB at context 0, 126,175 MiB here. 1.55 times the card's 81,559, and eight times the far measured context out from the pair the line is drawn through. The assumption is that the peak is linear in the context at S = 512 with the five reductions on, which two points cannot show. Measured since: runs/2026-09-13-memory-probe-c24576-h100 proved one decode segment at context 24,576 with --tight-table and the five reductions on. Layer 16, the shape almost every segment has, fits at 79,643 MiB (mem.probe.c24576.decode_peak_mib). Layer 0, the segment these lines are drawn through, does not: it ran the card out of memory with the card at 81,073 MiB of 81,559 (mem.probe.c24576.layer0_oom_peak_mib). So the line's verdict at 24,576 -- above the card -- is measured, and the row below it is not."
+   "note": "The line through the two measured peaks, read at context 131,072: 0.4130859375 MiB a position of prefix, 72,031 MiB at context 0, 126,175 MiB here. 1.55 times the card's 81,559, and eight times the far measured context out from the pair the line is drawn through. The assumption is that the peak is linear in the context at S = 512 with the five reductions on, which two points cannot show. Measured since: runs/2026-09-13-memory-probe-c24576-h100 proved one decode segment at context 24,576 with --tight-table and the five reductions on. Layer 16, the shape almost every segment has, fits at 79,643 MiB (mem.probe.c24576.decode_peak_mib). Layer 0, the segment these lines are drawn through, does not: it ran the card out of memory with the card at 81,073 MiB of 81,559 (mem.probe.c24576.layer0_oom_peak_mib). So the line's verdict at 24,576 -- above the card -- is measured, and the row below it is not. The same refusal that stops 32,768 stops this: the attention output's no-wrap window gives out between 24,576 and 32,768, so no segment of this shape exists at 131,072 under the paper's quantization variant and this row prices one that cannot be written."
   },
   "mem.projected.context_at_card_limit": {
    "value": 23065.4184,
@@ -15806,7 +15828,7 @@
     "mem.headline.c4096.peak_mib",
     "mem.headline.c16384.peak_mib"
    ],
-   "note": "Where the same line reaches the card's 81,559 MiB: a context of about 23,065, half again the larger of the two contexts it is drawn through and short of the 32,768 the row above prices. Projected and not derived: the arithmetic is three entries of this file, but the same linearity assumption carries it and two points cannot show that the line is straight. Measured since: layer 0 fits at context 16,384 (78,843 MiB, mem.probe.c16384.layer0_peak_mib) and does not fit at 24,576 (out of memory, mem.probe.c24576.layer0_oom_peak_mib), so the context this card gives out at is between those two, and the 23,065 this row projects is inside that range. The range is what is measured; the number inside it is still the line's."
+   "note": "Where the same line reaches the card's 81,559 MiB: a context of about 23,065, half again the larger of the two contexts it is drawn through and short of the 32,768 the row above prices. Projected and not derived: the arithmetic is three entries of this file, but the same linearity assumption carries it and two points cannot show that the line is straight. Measured since: layer 0 fits at context 16,384 (78,843 MiB, mem.probe.c16384.layer0_peak_mib) and does not fit at 24,576 (out of memory, mem.probe.c24576.layer0_oom_peak_mib), so the context this card gives out at is between those two, and the 23,065 this row projects is inside that range. The range is what is measured; the number inside it is still the line's. It is also not the only limit, and above 24,576 it stops being the binding one: the statement's own attention output no-wrap window gives out between 24,576 and 32,768 (bits.probe.c24576.layer0_ao_no_wrap_margin), and that is a limit on the statement and not on the card."
   },
   "moe.routing.qwen3_30b_a3b.c4096.s128.distinct_experts_mean": {
    "artifact": "routing.json",
