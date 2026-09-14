@@ -49,60 +49,6 @@ Written, not yet run:
   the one-line fix for the statement key the prover renamed (zk-prover #171),
   without which the comparison stops on the first chunk it opens.
 
-- `tools/drivers/predict-70b.sh`: one synthetic layer segment at the
-  Llama-3.1-70B width per context, 4,096 and 16,384, on a card and at a block
-  length the driver is told and has no default for. The shape and not the
-  model: 64 attention heads of 128 with 8 key/value heads, hidden 8,192, inner
-  28,672, and no weight of that model is read, downloaded or held anywhere.
-  The prediction is registered now, at a 128-token block and at context 4,096:
-  `runs/2026-09-13-register-70b-none` holds it, counted from the trace layout
-  at a stated block of witness fields and recorded before anything was built,
-  which is the one rule the experiment has. The driver refuses to start until
-  that run is there and refuses a block length it was not counted at.
-
-  It has been run once on an H100 and made no proof, so there is no run
-  directory and no measured constant here yet. The reference backend built in
-  ten and a half minutes and the job stopped in its first kernel emit: the
-  synthetic layer's attention output needs a remainder of 35 bits, the
-  statement's widest form holds 31 against a quantize width of 7, and the
-  prover refuses it by name. The registration states 21, which is what the same
-  generator produces at the 8B attention width.
-
-  The 35 bits are the generator's own weight scale and not the 70B width.
-  `AttnOut::rem_bits` is the bit length of the denominator shifted by the gap
-  between the attention output's per-token scale and its per-channel V scale,
-  and that per-channel scale is the `v` matmul's. On the power-of-two
-  dequantize gadget it is drawn over five binades; on the chain gadget it is a
-  bf16 weight scale drawn over twenty. `--layout b10`, which is what the
-  registration prices, puts every matmul on the chain, `v` included, and no
-  recorded synthetic segment had ever done that -- every recorded run with `v`
-  on the chain is a real model's dump, whose per-channel V scales span two to
-  five binades and whose remainder reads 15 to 19 bits. The prover found the
-  same failure one layout over and narrows that draw there, for the matmul it
-  delays, and says the line is seen nowhere else. zk-prover #192 has the
-  verdict and the options; the width itself is not implicated, because hidden
-  8,192 widens the matmul accumulators and those are the normalisation
-  window's business, pinned at 20 and inside the sound cap of 21.
-
-  A shorter block does not fix it and neither does a shorter context: the
-  eleven bits are a scale spread, and the block reaches the remainder only
-  through the key count. Nor does any flag: the attention output's pins may
-  only widen what the witness needs.
-
-  zk-prover #192 made the window a stated knob instead, and the driver now
-  states it: `ZK_SYNTHETIC_V_SCALE_BINADES=3`, exported beside the seven matmul
-  widths and carried in the run's own configuration next to the normalisation
-  window and the table widths it tries. Three binades of exponent and one of
-  mantissa is four binades of per-channel spread, against the six every
-  recorded synthetic segment was drawn over on the power-of-two gadget and the
-  two to five a real model's dumps show. The registration was made again
-  against it -- the earlier run directory was removed deliberately, as the
-  driver says it must be -- and the four `ao_*` rows are stated at the same
-  values for a reason that now names the window. The count did not move: one
-  layer segment is 1,081,685,392 cells at either registration, because the
-  rows that were re-stated are worth about 1% a bit for the divisor range and
-  nothing at all for the other three. The block length and the memory answer
-  do not move either.
 
 
 ## synthetic-digests
@@ -2876,6 +2822,120 @@ rebuild are paid once per host; a second run of the pair costs the two loops.
 The store gained nothing -- 47 kernels, none new -- because a kernel is keyed by
 the fingerprint of its lowered form and the shapes this sample needs were
 already in it from another context.
+
+## `predict-70b`
+
+```
+tools/drivers/predict-70b.sh <host> <prover-commit> <harness-commit> <card> <block> [contexts]
+```
+
+runs: `2026-09-14-predict-70b-h100`
+prover commit: 94912b0 (dirty: the kernel store this run emitted is installed
+  into the tree, which every driver here that emits kernels does)
+  harness commit: 94912b0. Both are zk-prover `fix-192`, PR 193, NOT MERGED.
+digests: `c4096.json`: `6ef107897a0a0064`
+binding (from the manifest): 1 to 14 bound; 15 and 16 absent, which is a segment
+  that is neither the first of a stack nor an output head
+unsound skips: none
+constants backed: `cells.predict70b.c4096.fresh`,
+  `cells.predict70b.c4096.key_tiles`, `positions.predict70b.c4096`,
+  `mem.predict70b.c4096.peak_mib`, `proof.predict70b.c4096.bytes`,
+  `secs.predict70b.c4096.commit`, `secs.predict70b.c4096.stwo_total`,
+  `secs.predict70b.c4096.whole_wall`, `secs.predict70b.c4096.loop`, and the
+  derived `rate.predict70b.c4096.<scope>`,
+  `proof.predict70b.c4096.bytes_per_position`, `cells.predict70b.c4096.rho`
+  and `cells.predict70b.c4096.residual_pct`
+
+What the run measures. One synthetic layer segment at the Llama-3.1-70B width,
+proved on the card against the count registered for it before it was built. The
+shape and not the model: hidden 8,192, 64 attention heads of 128 with 8
+key/value heads, inner 28,672, head groups 16,16,16,16, all seven matmuls on the
+chain dequantize gadget, the five reductions on, every binding gadget on and no
+skip anywhere. No 70B weight is read, downloaded or held.
+
+What it says. The segment committed 1,081,685,392 fresh cells over a 128-token
+block against a 4,096-token prefix, of which 190,451,712 are the attention key
+tiles -- 173,047,808 base and 17,403,904 interaction. The registration counted
+1,081,685,392, and 173,047,808 and 17,403,904, before anything was built.
+
+    rho                      1.000000000
+    fresh                    1,081,685,392 measured, 1,081,685,392 counted
+    base                       591,686,736 measured,   591,686,736 counted
+    interaction                351,586,624 measured,   351,586,624 counted
+    boundary trees             138,412,032 measured,   138,412,032 counted
+    key tiles, base            173,047,808 measured,   173,047,808 counted
+    key tiles, interaction      17,403,904 measured,    17,403,904 counted
+
+Exact to the cell on every term, at a shape the cost model was never fitted at
+and twice the width of the one it was read off. Nothing is averaged and no
+protocol widening is applied: the registration named one integer per segment
+before the run and the run reported one.
+
+The widths each side used. A count of a segment reads eleven fields off the
+witness that a model and a context do not fix, and the comparison is only a
+comparison if both sides used the same ones. They did, on every field the count
+is sensitive to:
+
+    log_table         24 proved,  24 counted
+    kmax              20 proved,  20 counted
+    ao_rem_bits       21 proved,  21 counted
+    ao_q_bits          7 proved,   7 counted
+    ao_acc_lo_bits    16 proved,  16 counted
+    ao_acc_hi_bits     6 proved,   6 counted
+    ao_jo_min        -12 proved, -13 counted
+    ao_jo_max        -12 proved, -12 counted
+    ao_jv_min         -9 proved, -12 counted
+    ao_jv_max         -5 proved,  -6 counted
+
+The three that differ are the three the count does not read: the two exponent
+extremes and the per-token scale's floor reach it only through the exponent
+window's own table, which is 16 rows at every value they take here, and the
+count is exact with them apart. The registration said so in advance -- its own
+record of where each field came from says the narrower window this run states
+should put the V scale's floor above the -12 the 8B synthetic segments carry,
+and that nothing in the count moves if it does. It did, to -9, and nothing
+moved. This run pins no attention-output width and proves one segment per
+process, so there is no shared pin for a per-segment count to disagree with
+(zk-prover #194) and both sides above are the witness's own.
+
+The card. 53,683 MiB of the 81,559 the H100 reports, 65.8% of it, with 22.9 GiB
+on the host beside it. The projection this campaign registered the block length
+on said 51,783 MiB, so the measured peak is 3.7% above it and the block length
+the projection chose is the one that fits. 76 seconds of process wall-clock
+time, of which 20.4 is the `whole_wall` scope, 2.9 the prover's own call and 1.8
+the commitment path. The serialized proof is 253,329,909 bytes, 1,979,140 a
+position; the prover's own in-memory structure is 98,017,304.
+
+Why the block is 128. A 512-token block at this width does not fit an 80 GB
+card at either context: the 8B's own measured pairs put the card at 47.9 MiB per
+million cells of the largest segment at C = 4,096 and 33.2 at C = 16,384, and
+one segment at this width counts 2.85 G cells at C = 4,096 and 4.53 G at
+C = 16,384 over a 512-token block. Both readings of those pairs, the per-cell
+one and the line through them, put 256 over the card at C = 16,384 and 128
+inside it at both. Every row this run backs says 128, and none of them is
+comparable with a 512-token row without both being said.
+
+Why context 4,096 alone, and not the 16,384 the driver also proves by default.
+The job emits the device kernels for every context and every table width before
+it installs any of them, and the emit builds the whole synthetic layer to do it.
+At a 16,384-token prefix that step was killed at the rented card's 128 GiB
+container limit -- the third emit of four passed and the fourth did not -- and
+nothing survives such a kill that a re-run could resume from, because the emit
+loop is all-or-nothing before the install step. So the contexts became an
+argument of the driver, the default is still both, and this run named 4,096:
+the context the prediction is registered for. The other one is registered
+against nothing and is the campaign's second question, not its first. It is
+zk-prover #190's kind of failure at a 2^25 table rather than a 2^28 one.
+
+Why the prover commit is not this repository's usual one. The synthetic layer's
+`v` matmul takes its per-channel weight scale from a window, and until
+zk-prover #192 that window was twenty binades wide wherever `--layout b10` put
+that matmul on the chain -- which no recorded synthetic segment had ever done.
+The attention output's remainder is as wide as that window, and the first
+attempt at this measurement read 35 bits against the 31 the statement's widest
+form holds and did not build the layer at all. PR 193 made the window a stated
+knob; this run states 3 and records it, and the remainder came back at the 21
+the registration counted.
 
 ## `register-70b`
 
