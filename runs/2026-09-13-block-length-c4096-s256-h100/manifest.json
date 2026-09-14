@@ -1,0 +1,203 @@
+{
+ "argv": [
+  "zk-prover",
+  "compose-chunks",
+  "--round",
+  "even",
+  "--numbits",
+  "9",
+  "--z-hi-bits",
+  "7",
+  "--variants",
+  "intexp",
+  "--head-groups",
+  "16,8,8",
+  "--tight-table",
+  "--kmax",
+  "19",
+  "--ao-rem-bits",
+  "20",
+  "--fold-rem-bits",
+  "15",
+  "--fold-alpha",
+  "6",
+  "--plan",
+  "/root/runs/block-length-c4096-s256/out/plan.txt",
+  "--ser-dir",
+  "/root/runs/block-length-c4096-s256/ser"
+ ],
+ "backend": [
+  "cuda",
+  "simd"
+ ],
+ "binding": {
+  "all_bound": true,
+  "edges": [
+   {
+    "edge": "residual stream into the first norm's reduction",
+    "n": 1,
+    "state": "bound",
+    "why": null
+   },
+   {
+    "edge": "first norm's output into the q, k, v matmul inputs",
+    "n": 2,
+    "state": "bound",
+    "why": null
+   },
+   {
+    "edge": "q, k, v outputs into the attention block",
+    "n": 3,
+    "state": "bound",
+    "why": null
+   },
+   {
+    "edge": "attention scores and values into the attention output",
+    "n": 4,
+    "state": "bound",
+    "why": null
+   },
+   {
+    "edge": "attention output into the o matmul input",
+    "n": 5,
+    "state": "bound",
+    "why": null
+   },
+   {
+    "edge": "o output into the first residual add",
+    "n": 6,
+    "state": "bound",
+    "why": null
+   },
+   {
+    "edge": "first residual add into the second norm's reduction",
+    "n": 7,
+    "state": "bound",
+    "why": null
+   },
+   {
+    "edge": "second norm's output into the gate and up matmul inputs",
+    "n": 8,
+    "state": "bound",
+    "why": null
+   },
+   {
+    "edge": "gate and up outputs into the SwiGLU product",
+    "n": 9,
+    "state": "bound",
+    "why": null
+   },
+   {
+    "edge": "SwiGLU output into the down matmul input",
+    "n": 10,
+    "state": "bound",
+    "why": null
+   },
+   {
+    "edge": "down output into the second residual add",
+    "n": 11,
+    "state": "bound",
+    "why": null
+   },
+   {
+    "edge": "each matmul's input times the pinned weights into its accumulator",
+    "n": 12,
+    "state": "bound",
+    "why": null
+   },
+   {
+    "edge": "residual stream out of this segment into the next layer's segment",
+    "n": 13,
+    "state": "bound",
+    "why": null
+   },
+   {
+    "edge": "keys and values out of this token block into the next block",
+    "n": 14,
+    "state": "bound",
+    "why": null
+   },
+   {
+    "edge": "embedding row into the first segment's residual stream",
+    "n": 15,
+    "state": "bound",
+    "why": null
+   },
+   {
+    "edge": "logits into the emitted token",
+    "n": 16,
+    "state": "absent",
+    "why": null
+   }
+  ],
+  "proofs": 33,
+  "unbound": []
+ },
+ "cuda_version": "13.0",
+ "date": "2026-09-13",
+ "derived": null,
+ "digests": {
+  "card.json": [
+   "fd55e18e52bc929c22067cbe9018e1c9f14320dfdcfdc80ba2954779d60c597f",
+   "4a459afcf4ebe5ecac4e07ad1f1b642b0c785385fb8f269ba19e1fe062186d93",
+   "7e181dbd566ac63fcfd36c1cb39fed19ece666fbc77bc60dcf23e71f03126ade",
+   "9384416bfd86bf8939ca7933108de03bb8ab7ab7d4ac50952c38831ed26170ed",
+   "4086e962c3b9ac3e16e78c9700af8181098a11666c5b591f7f8f11fe7e569988",
+   "729b012c4faf66528bee4f04ba671c8e7efe1e935ac88f9dcd3a8fe1a600acf2",
+   "f143d8e71ce24ad3cd57e83725c19fb480489061578525e2952ccfdaf5ad337a",
+   "563fd1d1aa5877397f49f49ea00debf08dd4d7a65c1a617262d5eecba194a06a",
+   "507acf38df1fe5f154698d31c7fc5b28dd0c53906c462d3d7a867fc0374aa127",
+   "5e32e93c77c262d8e6c2932b9830518e4c797dfea382a47ffb674c0a5d481d77",
+   "5ba6578650cb0ada6ef1f63f3e5588b8f0a40054b93e8c6746212628158549cc",
+   "975a0a95507c7be19ef7ce9439908eb4f5cbd801e3446a7e265b478ae49647a7",
+   "e680c2e91d2ae0962e2c834b2dc52b152a46e7e1dbd9b8f0c255adee9905fdaf",
+   "7e6f90d0667a7349200bff4bce48a996508e9d0d5c9d73cdfd2db5178cbfe92c",
+   "9ff953ba3b7f1f3ac2d2476647a93211a3b727dc9946dc34daafbf41843cba16",
+   "933034f4ec51bd09fc68303fe8d271fb460dcc8268731ed0f7470d17f66671ef",
+   "9fae85fa8d67d93be83f74df3fd410e4044680ae0966061432cee516df59f99f",
+   "b9320e472b85ce9512be4c320be26a5d2cbab42a49fc54dec00f3f4b29157746",
+   "507ac841cb5786f3a991ebdad5f96bd50b39293219ad45f96ac901e51e82da77",
+   "f666a37430ff8179f341e1abc1be394dd67eef53e5cab15e2b9aaeed63b3682b",
+   "0922f28a4b54a0d53c39dd2476c82cd3827d377af7c96bf745aa67d0bfcf27cd",
+   "aad78ef08a6b35f9e5f6956b1559c873a521b64aa157837df93fd7f272d29ab0",
+   "b827a9750a0aa0371e9eb02e4d347b743d4beceed29f9346a2e3c4a1338fe692",
+   "f2b80d743a7d2eb92238c69dbc78c1c6548b40a43a3b587bbe7c215f3ee5ce83",
+   "d056fded72fd38fb218f4ab3f472250e083ae9c276188124a232151b5545d32a",
+   "042acadada6faa3e1628fe1344abcc99f3788137bc6de88709b0cfd1e7b489b4",
+   "96cc7ef454694b2ac441f2da20d42c31a7de7652ebeee1ef5d4d4de3cdc2aeb9",
+   "b468d52ef42f94ebf32769d0ce0309ae1325a9ba3d83a57df6ba5c80df1b492f",
+   "ab579b02378d5d46b936f95ff58eee5bf2c8eb2b193d3add686b9a27a5fb0a24",
+   "d4782c9a46cdfedabb3d87c6bcb0b2e9fc67de76f0dc0bd624695f09aaf73203",
+   "674fd3b866d7e6022a10902d02f33c81ed62e094053cff32b03091d8e6d73bb3",
+   "e40c324360f75f8b6ba93469813a0e5992d198a7f5530f96855966c702399a05"
+  ],
+  "reference-simd.json": [
+   "9fae85fa8d67d93be83f74df3fd410e4044680ae0966061432cee516df59f99f"
+  ]
+ },
+ "driver": "tools/drivers/block-length-c4096.sh",
+ "driver_version": "580.126.09",
+ "gpu": "NVIDIA H100 80GB HBM3, 81559 MiB",
+ "harness_commit": "a8586d205b87d7019af5b5005d0a46680a74242e",
+ "harness_dirty": null,
+ "imported": false,
+ "kind": "prover",
+ "outputs": [
+  "card.fallbacks",
+  "card.json",
+  "config.json",
+  "disk.json",
+  "extract.json",
+  "mem_card.json",
+  "plan.txt",
+  "predicted.json",
+  "reference-simd.json",
+  "shapes.json",
+  "summary.json",
+  "witness_fields.json"
+ ],
+ "prover_commit": "a8586d205b87d7019af5b5005d0a46680a74242e",
+ "prover_dirty": true,
+ "run_id": "2026-09-13-block-length-c4096-s256-h100",
+ "unsound_skips": []
+}

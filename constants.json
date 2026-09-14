@@ -16027,6 +16027,150 @@
    "timing_scope": "n/a",
    "unit": "experts",
    "value": 128.0
+  },
+  "segments.block.c4096.s256": {
+   "value": 32,
+   "unit": "segments",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-13-block-length-c4096-s256-h100",
+   "artifact": "card.json",
+   "note": "The last token block of the context 4,096 plan at S = 256: block 16 of 17, its 32 layer segments, prefix 4,096 positions. No output head segment is in the plan, so this is the block's layer segments and nothing else."
+  },
+  "cells.block.c4096.s256.fresh": {
+   "value": 25608247152,
+   "unit": "cells",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-13-block-length-c4096-s256-h100",
+   "artifact": "card.json",
+   "note": "Fresh committed cells over that block's 32 layer segments: 100.032 M per proved position, against 87.026 M for the same 32 segments of the same plan at S = 512 (runs/2026-09-09-headline-c4096-h100, block 8). A shorter block costs 15.0% more a position."
+  },
+  "secs.block.c4096.s256.commit": {
+   "value": 25.506172916,
+   "unit": "s",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "commit",
+   "grade": "measured",
+   "run": "2026-09-13-block-length-c4096-s256-h100",
+   "artifact": "card.json",
+   "note": "At S = 256, the commitment path over the block's 32 segments. The same 32 segments at S = 512 took 21.244 s, 35.283 s, 704.342 s and 426.642 s at these four scopes, the last of them summed per segment because that block shared its process with others."
+  },
+  "secs.block.c4096.s256.stwo_total": {
+   "value": 41.683942905,
+   "unit": "s",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "stwo total",
+   "grade": "measured",
+   "run": "2026-09-13-block-length-c4096-s256-h100",
+   "artifact": "card.json",
+   "note": "At S = 256, commit plus the prover's own call, over the same 32. The same 32 segments at S = 512 took 21.244 s, 35.283 s, 704.342 s and 426.642 s at these four scopes, the last of them summed per segment because that block shared its process with others."
+  },
+  "secs.block.c4096.s256.whole_wall": {
+   "value": 414.218989427,
+   "unit": "s",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "whole wall",
+   "grade": "measured",
+   "run": "2026-09-13-block-length-c4096-s256-h100",
+   "artifact": "card.json",
+   "note": "At S = 256, trace, interaction, stwo and serialization, summed per segment over the same 32. The same 32 segments at S = 512 took 21.244 s, 35.283 s, 704.342 s and 426.642 s at these four scopes, the last of them summed per segment because that block shared its process with others."
+  },
+  "secs.block.c4096.s256.loop": {
+   "value": 328.81195057,
+   "unit": "s",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "loop",
+   "grade": "measured",
+   "run": "2026-09-13-block-length-c4096-s256-h100",
+   "artifact": "card.json",
+   "note": "At S = 256, the one process the 32 segments were proved in, pipelined one segment ahead. The same 32 segments at S = 512 took 21.244 s, 35.283 s, 704.342 s and 426.642 s at these four scopes, the last of them summed per segment because that block shared its process with others."
+  },
+  "mem.block.c4096.s256.peak_mib": {
+   "value": 58267,
+   "unit": "MiB",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "loop",
+   "grade": "measured",
+   "run": "2026-09-13-block-length-c4096-s256-h100",
+   "artifact": "mem_card.json",
+   "note": "The most the card reported holding at any moment of the loop, sampled once a second. The card has 81,559 MiB, so this block used 71.4% of it, against the 73,723 MiB the whole sequence at S = 512 peaked at. The prover's own high-water mark for the same loop is 61,097,181,184 bytes, which is this number to the MiB."
+  },
+  "proof.block.c4096.s256.bytes_per_segment_median": {
+   "value": 112113493,
+   "unit": "bytes",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-13-block-length-c4096-s256-h100",
+   "artifact": "card.json",
+   "note": "The median segment's serialized proof over the block's 32, between 108,880,771 and 116,945,135: 106.9 MiB, against 78.0 MiB for the same 32 segments at S = 512. A halved block makes a larger proof per segment, and 2.74 times the bytes a proved position."
+  },
+  "secs_per_segment.block.c4096.s256.commit": {
+   "value": 0.797067903625,
+   "unit": "s/segment",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "commit",
+   "grade": "derived",
+   "note": "secs.block.c4096.s256.commit / segments.block.c4096.s256. The same average over the same 32 segments at S = 512 is 0.663869 s, 1.102591 s, 22.010692 s and 13.332570 s, the last two at whole wall and per-chunk loop."
+  },
+  "secs_per_segment.block.c4096.s256.stwo_total": {
+   "value": 1.30262321578125,
+   "unit": "s/segment",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "stwo total",
+   "grade": "derived",
+   "note": "secs.block.c4096.s256.stwo_total / segments.block.c4096.s256. The same average over the same 32 segments at S = 512 is 0.663869 s, 1.102591 s, 22.010692 s and 13.332570 s, the last two at whole wall and per-chunk loop."
+  },
+  "secs_per_segment.block.c4096.s256.whole_wall": {
+   "value": 12.944343419593753,
+   "unit": "s/segment",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "whole wall",
+   "grade": "derived",
+   "note": "secs.block.c4096.s256.whole_wall / segments.block.c4096.s256. The same average over the same 32 segments at S = 512 is 0.663869 s, 1.102591 s, 22.010692 s and 13.332570 s, the last two at whole wall and per-chunk loop."
+  },
+  "secs_per_segment.block.c4096.s256.loop": {
+   "value": 10.2753734553125,
+   "unit": "s/segment",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "loop",
+   "grade": "derived",
+   "note": "secs.block.c4096.s256.loop / segments.block.c4096.s256. The same average over the same 32 segments at S = 512 is 0.663869 s, 1.102591 s, 22.010692 s and 13.332570 s, the last two at whole wall and per-chunk loop."
+  },
+  "cells.block.c4096.s256.exact_predicted": {
+   "value": 25448257392,
+   "unit": "cells",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "n/a",
+   "grade": "derived",
+   "note": "The prover's trace layout counted at S = 256 over these very 32 segments, each at the witness-calibrated fields its own dump carries: exact_segments at seq = 256, which is what predict.py --cells exact counts a registration with, written before the loop ran. The same count over the same plan's block at S = 512 is 44,557,347,792, which is that block's measured figure to the cell.",
+   "run": "2026-09-13-block-length-c4096-s256-h100",
+   "artifact": "predicted.json"
+  },
+  "cells.block.c4096.s256.rho": {
+   "value": 1.00628686505074,
+   "unit": "ratio",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "n/a",
+   "grade": "derived",
+   "note": "cells.block.c4096.s256.fresh / cells.block.c4096.s256.exact_predicted. The count is 0.63% LOW at this block length where it is exact at S = 512: layer 0 counts to the cell and every other layer is short by five cells times about 2^20 master-table rows, so the layout's table-row term is what does not hold at S = 256."
   }
  },
  "discrepancies": []

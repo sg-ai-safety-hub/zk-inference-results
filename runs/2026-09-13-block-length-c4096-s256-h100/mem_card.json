@@ -1,0 +1,13 @@
+{
+ "exit_code": 0,
+ "loop_secs": 353,
+ "samples": 345,
+ "period_s": 1.0,
+ "max_mib": 58267,
+ "last_mib": 58267,
+ "mean_mib": 52283.0,
+ "card_total_mib": 81559,
+ "out_of_memory": false,
+ "stderr_tail": "",
+ "note": "The card sampled once a period while the segment loop ran. max_mib is the largest sample, last_mib the sample before the process left -- which is what a loop that ran out of memory has instead of a peak, because the allocation that failed was never held."
+}
