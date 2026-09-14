@@ -95,6 +95,17 @@
 # digest, and the harness commit that counted them.  The count reads no
 # measurement: the fields exist before any proof of them does.
 #
+# Two figures, and the run says which is which.  `fresh_sum` is that count at
+# each dump's own `ao_rem_bits`, which is what the fields file states and what
+# `predict.py --cells exact` would charge, and it is the one the constant
+# carries.  `fresh_sum_at_loop_pin` is the same count with that one field set to
+# the pin the loop proves every segment at -- a chunk loop takes it over every
+# row of every block and puts it on the shared command line, so a layer whose
+# own width is below it is proved at the pin all the same.  A range table of two
+# to the width at five cells a row is what separates them, and on the S = 256
+# run that was 0.63% of the block.  zk-prover #194: the fields file has no way to
+# be told the pin, so this states both rather than choosing.
+#
 # The first call refuses a host that is busy, pushes zk-prover at the two
 # commits, starts the job detached and prints the poll command.  Every later
 # call with the same arguments prints the status; once the status says done it
@@ -429,13 +440,14 @@ st "kernels installed"
 #    what the loop reports.
 if [ ! -s \$OUT/predicted.json ]; then
   st "counted: the trace layout at S=$S over the segments this run proves"
-  ( cd \$HSRC && \$PY - \$OUT/witness_fields.json \$OUT/predicted.json $CTX $S "$PLAN_LAYERS" "$HARNESS" <<'PY'
+  AOPIN=\$(printf '%s\n' "\$PINS" | sed -n 's/.*--ao-rem-bits \([0-9]*\).*/\1/p')
+  ( cd \$HSRC && \$PY - \$OUT/witness_fields.json \$OUT/predicted.json $CTX $S "$PLAN_LAYERS" "$HARNESS" \$AOPIN <<'PY'
 import json, sys
 from harness.costmodel import cost_model as cm
 from harness.eval.predict import predict as P
 from harness.eval.predict import witness_fields as wf
-src, out, ctx, seq, spec, commit = sys.argv[1:7]
-ctx, seq = int(ctx), int(seq)
+src, out, ctx, seq, spec, commit, aopin = sys.argv[1:8]
+ctx, seq, aopin = int(ctx), int(seq), int(aopin)
 want = []
 for part in spec.split(","):
     if "-" in part:
@@ -449,8 +461,21 @@ rows = P.exact_segments(cm.LLAMA8B, ctx, fields, seq=seq, head_groups=groups)
 mine = [r for r in rows if r["layer"] in want]
 assert len(mine) == len(want), f"counted {len(mine)} of the {len(want)} segments this run proves"
 total = sum(r["fresh"] for r in mine)
+# The same count with one field replaced: the attention output's remainder at
+# the pin the loop proves every segment at, instead of the width each dump
+# carries. A chunk loop takes that pin over every row of every block and puts it
+# on the shared command line, so a layer whose own width is below it is proved
+# at the pin all the same, and the count charges a range table of two to the
+# width, five cells a row. zk-prover #194: the fields file has no way to be told
+# the pin, so the run states both figures and says which is which.
+pinned = dict(fields, layers={k: dict(v, ao_rem_bits=aopin)
+                              for k, v in fields["layers"].items()})
+at_pin = sum(r["fresh"] for r in
+             P.exact_segments(cm.LLAMA8B, ctx, pinned, seq=seq, head_groups=groups)
+             if r["layer"] in want)
 json.dump({"shape": "Llama-3.1-8B", "cfg": list(cm.LLAMA8B), "context": ctx, "s": seq,
            "head_groups": groups, "counted_at": commit, "layers_proved": want,
+           "ao_rem_bits_loop_pin": aopin, "fresh_sum_at_loop_pin": at_pin,
            "layers": [{k: r[k] for k in ("layer", "kind", "fresh", "base", "interaction",
                                          "boundary", "bound_fresh", "table_rows",
                                          "dump_sha256")} for r in mine],
@@ -466,9 +491,16 @@ json.dump({"shape": "Llama-3.1-8B", "cfg": list(cm.LLAMA8B), "context": ctx, "s"
                    "written before the segment loop ran. fresh_sum and fresh_per_position "
                    "are over the segments THIS RUN PROVES and not over the stack: the "
                    "block's layer segments where the whole block is proved, and the one "
-                   "segment where one is."},
+                   "segment where one is. fresh_sum is counted at each dump's own "
+                   "ao_rem_bits, which is what the fields file states and what predict.py "
+                   "--cells exact would charge; fresh_sum_at_loop_pin is the same count at "
+                   "the width the loop actually proved every segment at. They differ by "
+                   "five cells a range-table row wherever a dump's own width is below the "
+                   "pin, which is zk-prover #194."},
           open(out, "w"), indent=1)
-print(f"counted: {len(mine)} segment(s), {total:,} fresh cells, {total / seq:,.0f} a position")
+print(f"counted: {len(mine)} segment(s), {total:,} fresh cells at the dumps' own "
+      f"remainder widths, {at_pin:,} at the loop's pin of {aopin}, "
+      f"{total / seq:,.0f} a position")
 PY
 )
 fi
