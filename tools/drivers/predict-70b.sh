@@ -2,7 +2,7 @@
 # predict-70b: one synthetic layer segment at the 70B width, per context,
 # measured at a card and a block length this driver is told.
 #
-#   tools/drivers/predict-70b.sh <host> <prover-commit> <harness-commit> <card> <block>
+#   tools/drivers/predict-70b.sh <host> <prover-commit> <harness-commit> <card> <block> [contexts]
 #
 # What this measures is the shape and not the model. A synthetic layer segment
 # whose hidden size is 8,192, whose attention is 64 heads of 128 with 8
@@ -79,6 +79,7 @@ PROVER=${2:?prover commit}
 HARNESS=${3:?harness commit}
 CARD=${4:?the card this run must be made on, as the machine reports it (H100, H200); it is checked against nvidia-smi before anything is built, and it names every row}
 S=${5:?the block length, in decoded positions; 512 is the recorded configuration and anything else is a different quantity and says so in every row}
+CONTEXTS_ARG=${6:-}
 ZK_PROVER=${ZK_PROVER_DIR:-$ROOT/../zk-prover}     # a local clone to archive the commits from
 NAME=predict-70b
 . "$HERE/lib/driver.sh"
@@ -88,7 +89,21 @@ LABEL=prediction           # a shape the cost model was never fitted on
 SPEC=b10-final             # the fixed configuration: round even, all seven
                            # matmuls on the chain dequant rung, which is what
                            # the registration prices and what --layout b10 is
-CONTEXTS="4096 16384"
+# The contexts this run proves, one segment each, and the sixth argument
+# overrides them. Both by default, which is what the campaign is for. It is an
+# argument and not a pin because one of the two costs more host memory than the
+# rented card's container has: building the device kernels for a 16,384-token
+# prefix at this width is the widest thing this driver does -- the key tile side
+# of the emit grows with the prefix, and the emit builds the whole synthetic
+# layer to do it -- and it was killed at 128 GiB (zk-prover #190's kind of
+# failure, at a 2^25 table rather than a 2^28 one). The C = 4,096 arm is the one
+# the prediction is registered for; the other is measured against no prediction,
+# so a run that proves the registered context alone is the campaign's number and
+# a run that dies proving both is nothing. A run that names fewer contexts than
+# the default says so in its own config.json, and the two figures are named
+# apart there so a reader cannot take one for the other.
+CONTEXTS_DEFAULT="4096 16384"
+CONTEXTS=${CONTEXTS_ARG:-$CONTEXTS_DEFAULT}
 # The shape, from Llama-3.1-70B's config.json. `d` is the hidden size, `dff` the
 # FFN inner width, and the key/value width is the 8 key/value heads times the
 # head dimension, which is what GQA commits per key.
@@ -161,9 +176,18 @@ case $S in
      echo "        has to be a multiple of it. 512 is the recorded configuration." >&2
      exit 2 ;;
 esac
+[ -n "$CONTEXTS" ] || { echo "$NAME: the contexts argument is empty" >&2; exit 2; }
 for C in $CONTEXTS; do
+    case $C in
+      ''|*[!0-9]*) echo "$NAME: $C is not a context" >&2; exit 2 ;;
+    esac
     [ $((C % S)) -eq 0 ] || { echo "$NAME: C=$C is not a multiple of the block $S" >&2; exit 2; }
 done
+if [ "$CONTEXTS" != "$CONTEXTS_DEFAULT" ]; then
+    echo "$NAME: proving contexts $CONTEXTS, and not the $CONTEXTS_DEFAULT this driver"
+    echo "       proves by default. The run records both, and every row it backs is"
+    echo "       about the contexts it proved."
+fi
 
 # ---- the prediction comes first ---------------------------------------------
 # A prediction written after the measurement is not a prediction. The
@@ -268,6 +292,8 @@ cat > \$OUT/config.json <<CFG
  "shape": "Llama-3.1-70B width, synthetic: L=1 segment per context, d=$D, nh=$NH, nkv=$NKV, hd=$HD, dff=$DFF",
  "model": "none: a synthetic layer at the 70B width, not the model and not a weight of it",
  "spec": "$SPEC", "card_asked_for": "$CARD", "s": $S, "contexts": "$CONTEXTS",
+ "contexts_default": "$CONTEXTS_DEFAULT",
+ "contexts_note": "the contexts this run proved. Where it is not the default, the run proves fewer deliberately and the rows it backs are about those alone",
  "head_groups": "$HEAD_GROUPS", "matmul_widths": "$DIMS",
  "kmax": $KMAX, "residual_stream_a": $RSA, "table_bits_ladder": "$TABLE_BITS",
  "v_scale_binades": $V_SCALE_BINADES,
