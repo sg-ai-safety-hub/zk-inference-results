@@ -551,6 +551,34 @@ def memory_probe_context(a, keys):
               f"{cfg['probe_layer']} and 0, one process each, pipeline {cfg['pipeline']}, "
               f"card {p['card_total_mib']} MiB; master tables emitted "
               f"{emit['emitted']} of {sorted(r['table_bits'] for r in emit['shapes_in_plan'])}")
+        # Issue #121: the attention output's no-wrap window, off the row the
+        # extraction wrote.  The arithmetic is `harness/witness/shapes.py`'s
+        # `ao_acc_split` and `ao_no_wrap`, repeated here because the shape table
+        # records the three inputs and not the answer: the two accumulator limbs
+        # are `lo = min(max(need, 4), 16)` and `hi = max(need - lo, 4)` -- 4 is
+        # the shortest column the LogUp builder has -- the exponent window is
+        # `jv_max - jo_min`, and what has to hold is `1 + lo + hi + e_hi <= 31`,
+        # the field's width.  It is one bit of the identity and not a preference,
+        # so a margin of 0 is a statement that composes and admits nothing.
+        for k in sorted({0, cfg["probe_layer"]}):
+            row = next((r for r in artifact(run, "shapes.json")["rows"]
+                        if r["layer"] == k), None)
+            acc, mar = (f"bits.probe.c{ctx}.layer{k}_ao_acc",
+                        f"bits.probe.c{ctx}.layer{k}_ao_no_wrap_margin")
+            if acc not in keys and mar not in keys:
+                continue
+            if row is None or row.get("ao_acc_bits") is None:
+                a.fails.append(f"audit: {run}: the shape table has no accumulator width "
+                               f"for layer {k}, so its window cannot be re-derived")
+                continue
+            if acc in keys:
+                a.exact(acc, row["ao_acc_bits"])
+            if mar in keys:
+                need = row["ao_acc_bits"]
+                lo = min(max(need, 4), 16)
+                hi = max(need - lo, 4)
+                e_hi = max(row["ao_jv_max"] - row["ao_jo_min"], 0)
+                a.exact(mar, 31 - (1 + lo + hi + e_hi))
         for tag, k in (("decode", cfg["probe_layer"]), ("layer0", 0)):
             m = artifact(run, f"mem_{tag}.json")
             row = next(r for r in p["probes"] if r["probe"] == tag)
