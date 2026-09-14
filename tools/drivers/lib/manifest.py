@@ -7,9 +7,14 @@
 Every field but `imported`, `driver`, `harness_commit`, `date` and `derived` is
 copied from the `provenance` block written into each output; nothing is typed
 in.  The run id is `<date>-<name>-<gpu>` with the GPU as the machine reported
-it and `<name>` the driver's file name, or `--run-name` where one driver file
-takes a parameter and makes a run per value of it.  A fetched directory whose outputs
-carry no provenance block is refused: such a run is not admissible.
+it.  A fetched directory whose outputs carry no provenance block is refused:
+such a run is not admissible.
+
+`--run-name` is what the run is called in that id where the driver's file name is
+not enough: a driver that takes an argument the run id has to carry -- a block
+length -- passes its own `NAME`, and `driver` still names the file it is. Every
+other driver's run name is its basename, which is the default, so no recorded
+run id moves.
 
 `derived` is the one field no prover wrote and no host saw: the record a driver
 gives with `--derived FILE` for an output of the run that was derived from runs

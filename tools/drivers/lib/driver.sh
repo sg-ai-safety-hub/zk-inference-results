@@ -19,11 +19,13 @@
 
 # A driver whose run id has to carry one of its arguments sets NAME per
 # argument -- `block-length-c4096-s256` -- so that two runs of it on one day are
-# two run directories and two status files rather than one of each.  Its file is
-# then not `tools/drivers/$NAME.sh`, and `DRV_DRIVER` is the driver's own name,
-# which is what the manifest records; `DRV_ARGS` is the arguments after the
-# three every driver takes, so the restart line a failed run prints is the
-# command that made it.  Both are empty in a driver whose name is its file's.
+# two run directories and two status files rather than one of each.  NAME is
+# what `manifest.py --run-name` puts in the run id; its file is then not
+# `tools/drivers/$NAME.sh`, and `DRV_DRIVER` is the driver's own name, which is
+# what the manifest records under `driver`; `DRV_ARGS` is the arguments after
+# the three every driver takes, so the restart line a failed run prints is the
+# command that made it.  Both are empty in a driver whose name is its file's,
+# and then the run name is the basename and no recorded run id moves.
 
 # ---- the shared build tree, one per pinned prover commit ---------------------
 # A path under the remote home, written without `$HOME` because `push.sh`
