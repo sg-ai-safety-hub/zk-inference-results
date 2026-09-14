@@ -2486,7 +2486,9 @@ digests: layer 16 of the last token block, `dc56b8482e172eeb`, the same from the
 binding: 1 to 15 bound; 16 absent   (from the manifest)
 unsound skips: none
 constants backed: `mem.probe.c24576.decode_peak_mib`,
-  `mem.probe.c24576.layer0_oom_peak_mib`, `secs.probe.c24576.decode_loop`
+  `mem.probe.c24576.layer0_oom_peak_mib`, `secs.probe.c24576.decode_loop`,
+  `bits.probe.c24576.layer0_ao_acc`,
+  `bits.probe.c24576.layer0_ao_no_wrap_margin`
 
 What the run measures. Where one 80 GB card gives out as the context grows.
 Issue #115 records three memory rows off a straight line through two measured
@@ -2533,6 +2535,36 @@ emitted. That narrowing is open to a probe and not to a loop that proves all 32
 layers: at this context such a loop could not be built on this host at all,
 whatever the card would have held. zk-prover #190 has that and the build
 script's hardcoded sixteen-way kernel compile.
+
+What 32,768 did, and why it has no run directory. The same driver was run at
+32,768 on 2026-09-14 and got as far as the first extraction pass, where it
+refused, by name and in three minutes of card time:
+
+    block 64 layer 0: the attention output's no-wrap window does not fit:
+    1 + 16 + 9 + 6 = 32 > 31 (over by 1, magnitude form). The two limbs must
+    together cover |acc| (25 bits) and the exponent window must cover
+    e = jv - jo, so no wider decomposition of either recovers a bit, and the one
+    bit the magnitude form is worth is already taken. What is left is a narrower
+    context or a quantization whose accumulator is narrower.
+
+That is the answer at 32,768 and not a fault of the run. The accumulator sums
+over the prefix, so it gains a bit as the context doubles: 24 bits at 24,576, 25
+at 32,768. The 24,576 table above records the width and the two exponents, and
+what they come to there is exactly the field's 31 with nothing left, which is the
+constant beside them. One context further the same window is 32 and the
+extraction will not write the dump. So above 24,576 the memory question does not
+arise under this quantization variant: the segment cannot be written, let alone
+proved, on a card of any size.
+
+It leaves no run directory, and that is a real gap rather than a choice. A
+manifest is copied from a prover's provenance block and refuses a fetched
+directory that has none; here nothing was proved, because the refusal is in the
+extraction and comes before any prover runs. The 16,384-token probe's reference
+segment exists to keep an out-of-memory answer recordable, and it cannot help
+with this one: the plan a reference proof would be sliced from is built from a
+shape table over all 32 layers, and layer 0 has no dump. What the repository
+holds instead is the 24,576 row above, whose margin of nothing predicts this
+refusal, and the log line quoted here.
 
 How the run is made. The prompt is the corpus's first 24,576 tokens and the
 model's own greedy continuation under the variant the paper reports, generated
