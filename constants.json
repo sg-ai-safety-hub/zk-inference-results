@@ -16171,6 +16171,150 @@
    "timing_scope": "n/a",
    "grade": "derived",
    "note": "cells.block.c4096.s256.fresh / cells.block.c4096.s256.exact_predicted. The count is 0.63% LOW, and the block length is not why: the fields file states each dump's own ao_rem_bits, 14 to 20 over the layers, while the plan proved every segment at the shared pin of 20, so the count charges a narrower range table than the prover built -- five cells a row, and layer 0 is exact because its own width is already the pin. zk-prover #194 has the per-layer arithmetic and the recount at the pin."
+  },
+  "segments.block.c4096.s1024": {
+   "value": 1,
+   "unit": "segments",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-14-block-length-c4096-s1024-h100",
+   "artifact": "card.json",
+   "note": "Layer 16 of the last token block at S = 1,024 -- block 4 of 5, prefix 4,096 positions -- proved on its own, which is the segment lib/seq5-reference.py reads as the reference segment at a context. One segment and not a block, so this row is not the 32-segment figure the S = 256 and S = 512 rows are. A block of 1,024 positions was expected not to fit an 80 GB card, so the plan is the one segment that answers that most cheaply; it fit."
+  },
+  "cells.block.c4096.s1024.fresh": {
+   "value": 2631844976,
+   "unit": "cells",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-14-block-length-c4096-s1024-h100",
+   "artifact": "card.json",
+   "note": "Fresh committed cells of that one segment: 2.570 M a proved position, against 2.721 M for the same layer of the same plan's last block at S = 512 and 3.137 M at S = 256 (runs/2026-09-09-headline-c4096-h100 B8L16, runs/2026-09-13-block-length-c4096-s256-h100 B16L16). A longer block costs fewer cells a position, and this is 1.889 times the S = 512 segment for twice the positions."
+  },
+  "secs.block.c4096.s1024.commit": {
+   "value": 0.823217668,
+   "unit": "s",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "commit",
+   "grade": "measured",
+   "run": "2026-09-14-block-length-c4096-s1024-h100",
+   "artifact": "card.json",
+   "note": "At S = 1,024, the commitment path, for the one segment this run proves. The same layer at S = 512 took 0.652 s, 1.090 s, 21.176 s and 12.937 s at these four scopes, the last being that chunk's own share of its process."
+  },
+  "secs.block.c4096.s1024.stwo_total": {
+   "value": 1.273571049,
+   "unit": "s",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "stwo total",
+   "grade": "measured",
+   "run": "2026-09-14-block-length-c4096-s1024-h100",
+   "artifact": "card.json",
+   "note": "At S = 1,024, commit plus the prover's own call, for the one segment this run proves. The same layer at S = 512 took 0.652 s, 1.090 s, 21.176 s and 12.937 s at these four scopes, the last being that chunk's own share of its process."
+  },
+  "secs.block.c4096.s1024.whole_wall": {
+   "value": 39.583896636,
+   "unit": "s",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "whole wall",
+   "grade": "measured",
+   "run": "2026-09-14-block-length-c4096-s1024-h100",
+   "artifact": "card.json",
+   "note": "At S = 1,024, trace, interaction, stwo and serialization, for the one segment this run proves. The same layer at S = 512 took 0.652 s, 1.090 s, 21.176 s and 12.937 s at these four scopes, the last being that chunk's own share of its process."
+  },
+  "secs.block.c4096.s1024.loop": {
+   "value": 43.844111173,
+   "unit": "s",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "loop",
+   "grade": "measured",
+   "run": "2026-09-14-block-length-c4096-s1024-h100",
+   "artifact": "card.json",
+   "note": "At S = 1,024, the process the one segment was proved in, which also reads the witness and builds the layer, for the one segment this run proves. The same layer at S = 512 took 0.652 s, 1.090 s, 21.176 s and 12.937 s at these four scopes, the last being that chunk's own share of its process."
+  },
+  "mem.block.c4096.s1024.peak_mib": {
+   "value": 71739,
+   "unit": "MiB",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "loop",
+   "grade": "measured",
+   "run": "2026-09-14-block-length-c4096-s1024-h100",
+   "artifact": "mem_card.json",
+   "note": "The most the card reported holding at any moment, sampled once a second. The card has 81,559 MiB, so ONE segment at this block length used 88.0% of it and 9,820 MiB were left. It was expected not to fit. This is one segment and not a segment loop: the S = 256 and S = 512 peaks are loops of 32 and 64 segments, although the recorded probe at context 16,384 found the same peak with the pipeline off and on."
+  },
+  "proof.block.c4096.s1024.bytes_per_segment_median": {
+   "value": 69864042,
+   "unit": "bytes",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "n/a",
+   "grade": "measured",
+   "run": "2026-09-14-block-length-c4096-s1024-h100",
+   "artifact": "card.json",
+   "note": "The one segment's serialized proof, so the median is that segment: 66.6 MiB, against 79.0 MiB for the same layer at S = 512 and 105.7 MiB at S = 256. A longer block makes a smaller proof per segment and far smaller per position -- 68,227 bytes a position here against 161,773 at S = 512 and 432,898 at S = 256."
+  },
+  "secs_per_segment.block.c4096.s1024.commit": {
+   "value": 0.823217668,
+   "unit": "s/segment",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "commit",
+   "grade": "derived",
+   "note": "secs.block.c4096.s1024.commit / segments.block.c4096.s1024, which is one segment, so it is that segment's own seconds. It is here so that the per-segment row can be read at all three block lengths."
+  },
+  "secs_per_segment.block.c4096.s1024.stwo_total": {
+   "value": 1.273571049,
+   "unit": "s/segment",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "stwo total",
+   "grade": "derived",
+   "note": "secs.block.c4096.s1024.stwo_total / segments.block.c4096.s1024, which is one segment, so it is that segment's own seconds. It is here so that the per-segment row can be read at all three block lengths."
+  },
+  "secs_per_segment.block.c4096.s1024.whole_wall": {
+   "value": 39.583896636,
+   "unit": "s/segment",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "whole wall",
+   "grade": "derived",
+   "note": "secs.block.c4096.s1024.whole_wall / segments.block.c4096.s1024, which is one segment, so it is that segment's own seconds. It is here so that the per-segment row can be read at all three block lengths."
+  },
+  "secs_per_segment.block.c4096.s1024.loop": {
+   "value": 43.844111173,
+   "unit": "s/segment",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "loop",
+   "grade": "derived",
+   "note": "secs.block.c4096.s1024.loop / segments.block.c4096.s1024, which is one segment, so it is that segment's own seconds. It is here so that the per-segment row can be read at all three block lengths."
+  },
+  "cells.block.c4096.s1024.exact_predicted": {
+   "value": 2626602096,
+   "unit": "cells",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "n/a",
+   "grade": "derived",
+   "note": "The prover's trace layout counted at S = 1,024 over the segment this run proves, at the witness-calibrated fields its dump carries: exact_segments at seq = 1024, written before the loop ran. Its dump's own ao_rem_bits is 15 and the plan proved at the pin of 20, so this is one range table short of what the loop committed; zk-prover #194.",
+   "run": "2026-09-14-block-length-c4096-s1024-h100",
+   "artifact": "predicted.json"
+  },
+  "cells.block.c4096.s1024.rho": {
+   "value": 1.0019960693734251,
+   "unit": "ratio",
+   "card": "H100",
+   "context": 4096,
+   "timing_scope": "n/a",
+   "grade": "derived",
+   "note": "cells.block.c4096.s1024.fresh / cells.block.c4096.s1024.exact_predicted. The count is 5,242,880 cells low, which is five cells times the 2^20 rows of the range table the pin of 20 builds and the dump's own width of 15 does not: the same zk-prover #194 the S = 256 row carries, at one segment instead of 31. Counted at the pin the same function gives the measured figure exactly."
   }
  },
  "discrepancies": []

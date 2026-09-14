@@ -1,0 +1,41 @@
+{
+ "shape": "Llama-3.1-8B",
+ "cfg": [
+  32,
+  4096,
+  32,
+  8,
+  128,
+  14336,
+  128256
+ ],
+ "context": 4096,
+ "s": 1024,
+ "head_groups": [
+  16,
+  8,
+  8
+ ],
+ "counted_at": "a8586d205b87d7019af5b5005d0a46680a74242e",
+ "layers_proved": [
+  16
+ ],
+ "layers": [
+  {
+   "layer": 16,
+   "kind": "layer",
+   "fresh": 2626602096,
+   "base": 2007657904,
+   "interaction": 535058112,
+   "boundary": 83886080,
+   "bound_fresh": 2757674256,
+   "table_rows": 9978800,
+   "dump_sha256": "8187c5d4a755c0174423a53e6b1c887f8f9f47fc8b1d63845b51f6da6eeef151"
+  }
+ ],
+ "segments": 1,
+ "fresh_sum": 2626602096,
+ "fresh_per_segment": 2626602096.0,
+ "fresh_per_position": 2565041.109375,
+ "note": "The prover's trace layout, counted segment by segment at this block length, each segment at the witness-calibrated fields its own dump carries (witness_fields.json, whose per-layer dump_sha256 name the dumps). harness.eval.predict.predict.exact_segments at seq = s, which is what predict.py --cells exact counts a registration with; its command line takes no block length. No card, no proof, no measurement: written before the segment loop ran. fresh_sum and fresh_per_position are over the segments THIS RUN PROVES and not over the stack: the block's layer segments where the whole block is proved, and the one segment where one is."
+}

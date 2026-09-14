@@ -1,0 +1,3 @@
+# stream DD: 1 layer chunks over 1 token blocks from /root/witness/a8586d205b87/y-delay-vw12-c4096-s1024-b4
+# block 4: prefix c = 4096
+--table-bits 25 --round even --diagonal-block --gkr-key-tiles --gkr-dequant --gkr-residual-stream --gkr-freivalds --gkr-attnout --witness /root/witness/a8586d205b87/y-delay-vw12-c4096-s1024-b4/witness_B4_L16 --ser-tag B4L16

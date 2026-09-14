@@ -1,0 +1,11 @@
+{"driver": "block-length-c4096", "label": "probe",
+ "model": "unsloth/Llama-3.1-8B-Instruct", "spec": "y-delay-vw12",
+ "context": 4096, "s": 1024, "positions": 5120, "blocks": 5, "layers": 32,
+ "block": 4, "plan_layers": "16", "segments": 1,
+ "reference_layer": 16,
+ "head_blocks": "", "heads": 0, "verify": 0,
+ "pipeline": 1, "sample_period_s": 1,
+ "shared_flags": "--round even --numbits 9 --z-hi-bits 7 --variants intexp --head-groups 16,8,8 --tight-table", "layer_flags": "--round even --diagonal-block --gkr-key-tiles --gkr-dequant --gkr-residual-stream --gkr-freivalds --gkr-attnout", "layer0_flags": "",
+ "head_groups": "16,8,8",
+ "ids": "generated: the corpus's tokens 12288 to 16384 and the model's own greedy continuation under y-delay-vw12",
+ "corpus_offset": 12288}

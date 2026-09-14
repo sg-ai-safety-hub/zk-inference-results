@@ -1,0 +1,46 @@
+{
+ "s": 1024,
+ "segments_asked_for": 1,
+ "proved": true,
+ "peak_mib": 71739,
+ "last_mib": 71739,
+ "card_total_mib": 81559,
+ "out_of_memory": false,
+ "exit_code": 0,
+ "counted_fresh": 2626602096,
+ "counted_per_position": 2565041.109375,
+ "segments": 1,
+ "fresh": 2631844976.0,
+ "fresh_per_segment": 2631844976.0,
+ "fresh_per_position": 2570161.109375,
+ "secs": {
+  "commit": 0.8232176680000001,
+  "stwo_total": 1.273571049,
+  "whole_wall": 39.583896636,
+  "loop": 43.844111173
+ },
+ "secs_per_segment": {
+  "commit": 0.8232176680000001,
+  "stwo_total": 1.273571049,
+  "whole_wall": 39.583896636,
+  "loop": 43.844111173
+ },
+ "proof_ser_bytes_median": 69864042,
+ "proof_ser_bytes_total": 69864042,
+ "proof_bytes_median": 27052660,
+ "rho": 1.0019960693734251,
+ "peak_mib_pct_of_card": 88.0,
+ "digests": [
+  "6f0be75ebf8749eaebd5f634ff24cca48cbb0249e4f1ed6578627737dacfffee"
+ ],
+ "reference": {
+  "backend": "simd",
+  "segment": "B4L16",
+  "fresh": 2631844976.0,
+  "loop_secs": 223.024290694,
+  "proof_sha256": "6f0be75ebf8749eaebd5f634ff24cca48cbb0249e4f1ed6578627737dacfffee",
+  "unsound_skips": [],
+  "all_bound": true
+ },
+ "backends_agree": true
+}
