@@ -1,0 +1,58 @@
+{
+ "points": [
+  {
+   "context": 4096,
+   "s": 128,
+   "proved": true,
+   "table_bits": 24,
+   "kmax": 20,
+   "ao_rem_bits": 21,
+   "grid_target": 64,
+   "chan_target": 128,
+   "accepts": true,
+   "off_table": 0,
+   "ref_mismatch": 0,
+   "fresh": 1081685392,
+   "base": 591686736,
+   "interaction": 351586624,
+   "preprocessed": 1256079856,
+   "key_tiles": 173047808,
+   "key_tiles_interaction": 17403904,
+   "key_tiles_fresh": 190451712,
+   "columns_total": 113926,
+   "secs": {
+    "commit": 1.7803272949999998,
+    "stwo_total": 2.8711724819999995,
+    "whole_wall": 20.367314327,
+    "loop": 76
+   },
+   "mcell_s": {
+    "commit": 607.5767051585872,
+    "stwo_total": 376.73995511635735,
+    "whole_wall": 53.10888684847664,
+    "loop": 14.232702526315789
+   },
+   "positions_per_s": {
+    "commit": 71.89689241943573,
+    "stwo_total": 44.58109040904357,
+    "whole_wall": 6.284579201015048,
+    "loop": 1.6842105263157894
+   },
+   "peak_mib": 53683,
+   "card_total_mib": 81559,
+   "peak_mib_pct_of_card": 65.8,
+   "peak_rss_bytes": 24628379648,
+   "proof_bytes": 98017304,
+   "proof_sha256": "6ef107897a0a00649f5df889c79b5fe77f2cbd58099062c89f430e9303045733",
+   "prove_secs": 14.176932666999999,
+   "trace_secs": 5.256786398,
+   "interaction_secs": 8.569624107,
+   "unsound_skips": [],
+   "all_bound": true,
+   "unbound": [],
+   "kernel_fallback_lines": 0
+  }
+ ],
+ "s": 128,
+ "note": "one synthetic layer segment at the Llama-3.1-70B width per context. The whole-wall scope counts trace generation, interaction generation, the stwo call and serialization, of which this run does none; the loop scope is the process's own wall-clock time and counts building the layer."
+}

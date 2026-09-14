@@ -1,0 +1,13 @@
+{
+ "context": 4096,
+ "exit_code": 0,
+ "loop_secs": 76,
+ "samples": 379,
+ "sampler": "nvidia-smi-lms",
+ "period_s": 0.2,
+ "max_mib": 53683,
+ "card_total_mib": 81559,
+ "mean_mib": 10704.8,
+ "out_of_memory": false,
+ "stderr_tail": ""
+}
