@@ -72,3 +72,6 @@ at a tag, and types no number itself.
 CI runs `check.py` (which runs the audit), `words.py` over the durable prose,
 the `docs/` line budget, the immutability of `docs/decisions/`, and a scan of
 the diff for addresses and tokens. `CLAUDE.md` holds the rules for agents.
+
+## Acknowledgements
+This work used compute resources provided by Side Channel Cloud (https://sidechannel.cloud), operated by Amodo Design.
